@@ -1,15 +1,8 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.ctfassets.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.eu.ctfassets.net',
-      },
-    ],
+    loader: "custom",
+    loaderFile: './my/image/loader.js',
+    formats: ["image/avif", "image/webp"],
   },
 };
