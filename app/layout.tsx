@@ -51,9 +51,9 @@ export default function RootLayout({
       <body>
         <section className="min-h-screen">
           <main>{children}</main>
+          <SpeedInsights />
           <Footer />
         </section>
-        <SpeedInsights />
       </body>
     </html>
   );
