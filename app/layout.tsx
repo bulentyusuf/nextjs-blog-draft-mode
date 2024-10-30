@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { EXAMPLE_PATH, CMS_NAME } from "@/lib/constants";
+import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
@@ -54,6 +55,7 @@ export default function RootLayout({
           <main>{children}</main>
           <Footer />
         </section>
+        <Analytics />
         <SpeedInsights />
       </body>
     </html>
