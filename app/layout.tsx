@@ -39,8 +39,6 @@ function Footer() {
           </div>
         </div>
       </div>
-       <Analytics />
-       <SpeedInsights />
     </footer>
   );
 }
@@ -57,6 +55,8 @@ export default function RootLayout({
           <main>{children}</main>
           <Footer />
         </section>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
