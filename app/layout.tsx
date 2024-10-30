@@ -5,7 +5,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
-  title: `Next.js and ${CMS_NAME} Example`,
+  title: `Just Another Blog`,
   description: `This is a blog built with Next.js and ${CMS_NAME}.`,
 };
 
@@ -53,9 +53,9 @@ export default function RootLayout({
       <body>
         <section className="min-h-screen">
           <main>{children}</main>
+          <Footer />
           <Analytics />
           <SpeedInsights />
-          <Footer />
         </section>
       </body>
     </html>
