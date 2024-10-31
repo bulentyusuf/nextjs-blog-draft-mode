@@ -6,7 +6,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
   title: `Just Another Blog`,
-  description: `This is a blog built with Next.js and ${CMS_NAME}.`,
+  description: `Words and pictures made with Generative AI.`,
 };
 
 const inter = Inter({
