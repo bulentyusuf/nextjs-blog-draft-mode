@@ -5,7 +5,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
-  title: `Just Another Blog`,
+  title: `Fun with Gen AI`,
   description: `Words & Pictures made with Generative AI.`,
 };
 
