@@ -7,7 +7,7 @@ export const metadata = {
     default: "Fun with Gen AI",
     template: "%s | Fun with Gen AI",
   },
-  description: "Words & Pictures made with Generative AI and a Sprinkling of Thinkness.",
+  description: "Words & Pictures made with Generative AI.",
   alternates: {
     types: {
       "application/rss+xml": "/feed.xml",
