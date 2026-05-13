@@ -23,9 +23,7 @@ function Footer() {
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
           
-            href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
-            className="text-sm font-bold hover:underline"
-          >
+            href="https://github.com/bulentyusuf/nextjs-blog-draft-mode" className="text-sm font-bold hover:underline">
             View source on GitHub
           </a>
         </div>
