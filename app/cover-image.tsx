@@ -9,10 +9,12 @@ export default function CoverImage({
   title,
   url,
   slug,
+  sizes,
 }: {
   title: string;
   url: string;
   slug?: string;
+  sizes?: string;
 }) {
   const image = (
     <ContentfulImage
@@ -20,7 +22,7 @@ export default function CoverImage({
       priority={!slug}
       width={2000}
       height={1000}
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+      sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
       className={cn("shadow-small w-full h-auto", {
         "hover:shadow-medium transition-shadow duration-200": slug,
       })}
