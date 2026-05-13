@@ -5,8 +5,11 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
-  title: `Fun with Gen AI`,
-  description: `Words & Pictures made with Generative AI.`,
+  title: {
+    default: "Fun with Gen AI",
+    template: "%s | Fun with Gen AI",
+  },
+  description: "Words & Pictures made with Generative AI and a sprinkling of human thinkness.",
 };
 
 const inter = Inter({
