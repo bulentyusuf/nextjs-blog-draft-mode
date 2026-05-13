@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Fun with Gen AI",
     short_name: "Fun with Gen AI",
-    description: "Words & Pictures made with Generative AI and a Sprinkling of Thinkness.",
+    description: "Words & Pictures made with Generative AI.",
     start_url: "/",
     display: "minimal-ui",
     background_color: "#ffffff",
