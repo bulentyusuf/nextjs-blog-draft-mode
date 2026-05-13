@@ -6,12 +6,52 @@ import Date from "../../date";
 import CoverImage from "../../cover-image";
 import { Markdown } from "@/lib/markdown";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
+
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
   return allPosts.map((post) => ({
     slug: post.slug,
   }));
 }
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const { post } = await getPostAndMorePosts(slug, false);
+
+  if (!post) {
+    return { title: "Post not found" };
+  }
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      publishedTime: post.date,
+      images: [
+        {
+          url: `${post.coverImage.url}?w=1200&fm=jpg&q=80`,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [`${post.coverImage.url}?w=1200&fm=jpg&q=80`],
+    },
+  };
+}
+
 export default async function PostPage({
   params,
 }: {
