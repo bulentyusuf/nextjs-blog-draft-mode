@@ -1,30 +1,25 @@
 import Link from "next/link";
 import { draftMode } from "next/headers";
-
 import MoreStories from "../../more-stories";
 import Avatar from "../../avatar";
 import Date from "../../date";
 import CoverImage from "../../cover-image";
-
 import { Markdown } from "@/lib/markdown";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
-
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
-
   return allPosts.map((post) => ({
     slug: post.slug,
   }));
 }
-
 export default async function PostPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { isEnabled } = draftMode();
-  const { post, morePosts } = await getPostAndMorePosts(params.slug, isEnabled);
-
+  const { isEnabled } = await draftMode();
+  const { slug } = await params;
+  const { post, morePosts } = await getPostAndMorePosts(slug, isEnabled);
   return (
     <div className="container mx-auto px-5">
       <h2 className="mb-20 mt-8 text-2xl font-bold leading-tight tracking-tight md:text-4xl md:tracking-tighter">
@@ -55,7 +50,6 @@ export default async function PostPage({
             <Date dateString={post.date} />
           </div>
         </div>
-
         <div className="mx-auto max-w-2xl">
           <div className="prose">
             <Markdown content={post.content} />
