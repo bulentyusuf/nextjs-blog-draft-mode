@@ -7,13 +7,14 @@ import CoverImage from "../../cover-image";
 import { Markdown } from "@/lib/markdown";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://bulentyusuf.com";
+
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
   return allPosts.map((post) => ({
     slug: post.slug,
   }));
 }
-
 export async function generateMetadata({
   params,
 }: {
@@ -51,7 +52,6 @@ export async function generateMetadata({
     },
   };
 }
-
 export default async function PostPage({
   params,
 }: {
@@ -60,8 +60,36 @@ export default async function PostPage({
   const { isEnabled } = await draftMode();
   const { slug } = await params;
   const { post, morePosts } = await getPostAndMorePosts(slug, isEnabled);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    image: `${post.coverImage.url}?w=1200&fm=jpg&q=80`,
+    datePublished: post.date,
+    dateModified: post.date,
+    author: {
+      "@type": "Person",
+      name: post.author?.name || "Bulent Yusuf",
+    },
+    publisher: {
+      "@type": "Person",
+      name: "Bulent Yusuf",
+      url: SITE_URL,
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/posts/${slug}`,
+    },
+  };
+
   return (
     <div className="container mx-auto px-5">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <h2 className="mb-20 mt-8 text-2xl font-bold leading-tight tracking-tight md:text-4xl md:tracking-tighter">
         <Link href="/" className="hover:underline">
           Fun with Gen AI
