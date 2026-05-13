@@ -9,6 +9,11 @@ export const metadata = {
   },
   description: "Words & Pictures made with Generative AI and a sprinkling of human thinkness.",
 };
+export const viewport = {
+  themeColor: "#ffffff",
+  width: "device-width",
+  initialScale: 1,
+};
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -22,7 +27,7 @@ function Footer() {
           <p className="text-sm text-center lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
-          <a
+          
             href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
             className="text-sm font-bold hover:underline"
           >
