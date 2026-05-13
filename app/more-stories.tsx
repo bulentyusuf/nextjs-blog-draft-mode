@@ -2,7 +2,6 @@ import Link from "next/link";
 import Avatar from "./avatar";
 import DateComponent from "./date";
 import CoverImage from "./cover-image";
-
 function PostPreview({
   title,
   coverImage,
@@ -21,7 +20,12 @@ function PostPreview({
   return (
     <div>
       <div className="mb-5">
-        <CoverImage title={title} slug={slug} url={coverImage.url} />
+        <CoverImage 
+          title={title} 
+          slug={slug} 
+          url={coverImage.url}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+        />
       </div>
       <h3 className="text-3xl mb-3 leading-snug">
         <Link href={`/posts/${slug}`} className="hover:underline">
@@ -36,7 +40,6 @@ function PostPreview({
     </div>
   );
 }
-
 export default function MoreStories({ morePosts }: { morePosts: any[] }) {
   return (
     <section>
