@@ -9,7 +9,6 @@
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^15.17.1",
     "@contentful/rich-text-types": "^16.2.1",
-    "@contentful/vercel-nextjs-toolkit": "^1.6.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^20.5.0",
     "@types/react": "^18.3.12",
