@@ -28,6 +28,22 @@ const POST_GRAPHQL_FIELDS = `
   }
 `;
 
+const POST_PREVIEW_FIELDS = `
+  slug
+  title
+  coverImage {
+    url
+  }
+  date
+  excerpt
+  author {
+    name
+    picture {
+      url
+    }
+  }
+`;
+
 async function fetchGraphQL(query: string, preview = false): Promise<any> {
   return fetch(
     `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
@@ -42,7 +58,10 @@ async function fetchGraphQL(query: string, preview = false): Promise<any> {
         }`,
       },
       body: JSON.stringify({ query }),
-      next: { tags: ["posts"] },
+      next: {
+        tags: ["posts"],
+        revalidate: preview ? 0 : 3600,
+      },
     },
   ).then((response) => response.json());
 }
@@ -76,7 +95,7 @@ export async function getAllPosts(isDraftMode: boolean): Promise<any[]> {
         isDraftMode ? "true" : "false"
       }) {
         items {
-          ${POST_GRAPHQL_FIELDS}
+          ${POST_PREVIEW_FIELDS}
         }
       }
     }`,
@@ -89,30 +108,32 @@ export async function getPostAndMorePosts(
   slug: string,
   preview: boolean,
 ): Promise<any> {
-  const entry = await fetchGraphQL(
-    `query {
-      postCollection(where: { slug: "${slug}" }, preview: ${
-        preview ? "true" : "false"
-      }, limit: 1) {
-        items {
-          ${POST_GRAPHQL_FIELDS}
+  const [entry, entries] = await Promise.all([
+    fetchGraphQL(
+      `query {
+        postCollection(where: { slug: "${slug}" }, preview: ${
+          preview ? "true" : "false"
+        }, limit: 1) {
+          items {
+            ${POST_GRAPHQL_FIELDS}
+          }
         }
-      }
-    }`,
-    preview,
-  );
-  const entries = await fetchGraphQL(
-    `query {
-      postCollection(where: { slug_not_in: "${slug}" }, order: date_DESC, preview: ${
-        preview ? "true" : "false"
-      }, limit: 2) {
-        items {
-          ${POST_GRAPHQL_FIELDS}
+      }`,
+      preview,
+    ),
+    fetchGraphQL(
+      `query {
+        postCollection(where: { slug_not_in: "${slug}" }, order: date_DESC, preview: ${
+          preview ? "true" : "false"
+        }, limit: 2) {
+          items {
+            ${POST_PREVIEW_FIELDS}
+          }
         }
-      }
-    }`,
-    preview,
-  );
+      }`,
+      preview,
+    ),
+  ]);
   return {
     post: extractPost(entry),
     morePosts: extractPostEntries(entries),
