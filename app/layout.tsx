@@ -7,7 +7,12 @@ export const metadata = {
     default: "Fun with Gen AI",
     template: "%s | Fun with Gen AI",
   },
-  description: "Words & Pictures made with Generative AI and a sprinkling of Human Thinkness.",
+  description: "Words & Pictures made with Generative AI and a Sprinkling of Thinkness.",
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
 };
 export const viewport = {
   themeColor: "#ffffff",
