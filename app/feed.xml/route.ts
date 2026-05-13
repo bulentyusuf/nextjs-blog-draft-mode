@@ -2,7 +2,7 @@ import { getAllPosts } from "@/lib/api";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://bulentyusuf.com";
 const SITE_TITLE = "Fun with Gen AI";
-const SITE_DESCRIPTION = "Words & Pictures made with Generative AI and a Sprinkling of Thinkness.";
+const SITE_DESCRIPTION = "Words & Pictures made with Generative AI.";
 
 function escapeXml(unsafe: string): string {
   return unsafe
