@@ -1,3 +1,22 @@
+export interface Asset {
+  sys: {
+    id: string;
+  };
+  url: string;
+  description: string;
+}
+
+export interface AssetLink {
+  block: Asset[];
+}
+
+export interface Content {
+  json: any;
+  links: {
+    assets: AssetLink;
+  };
+}
+
 export interface Author {
   name: string;
   picture: {
@@ -16,24 +35,13 @@ export interface Post {
   date: string;
   author?: Author;
   excerpt: string;
-  content: string;
+  content: Content;
 }
 
 // Contentful GraphQL response shapes
 export interface PostCollectionResponse {
   data?: {
     postCollection?: {
-      items: Post[];
-    };
-  };
-}
-
-export interface PostAndMorePostsResponse {
-  data?: {
-    post?: {
-      items: Post[];
-    };
-    morePosts?: {
       items: Post[];
     };
   };
