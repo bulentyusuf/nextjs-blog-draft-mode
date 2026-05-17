@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { draftMode } from "next/headers";
+import { notFound } from "next/navigation";
 import MoreStories from "../../more-stories";
 import Avatar from "../../avatar";
 import Date from "../../date";
@@ -15,6 +16,7 @@ export async function generateStaticParams() {
     slug: post.slug,
   }));
 }
+
 export async function generateMetadata({
   params,
 }: {
@@ -52,6 +54,7 @@ export async function generateMetadata({
     },
   };
 }
+
 export default async function PostPage({
   params,
 }: {
@@ -60,6 +63,10 @@ export default async function PostPage({
   const { isEnabled } = await draftMode();
   const { slug } = await params;
   const { post, morePosts } = await getPostAndMorePosts(slug, isEnabled);
+
+  if (!post) {
+    notFound();
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",
