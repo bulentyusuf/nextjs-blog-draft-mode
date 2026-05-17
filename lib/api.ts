@@ -14,7 +14,20 @@ const POST_GRAPHQL_FIELDS = `
     }
   }
   excerpt
-  content
+  content {
+    json
+    links {
+      assets {
+        block {
+          sys {
+            id
+          }
+          url
+          description
+        }
+      }
+    }
+  }
 `;
 
 type GraphQLVariables = Record<string, unknown>;
