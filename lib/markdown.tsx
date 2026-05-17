@@ -1,38 +1,15 @@
 import ContentfulImage from "./contentful-image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
-
-interface Asset {
-  sys: {
-    id: string;
-  };
-  url: string;
-  description: string;
-}
-
-interface AssetLink {
-  block: Asset[];
-}
-
-interface Content {
-  json: any;
-  links: {
-    assets: AssetLink;
-  };
-}
+import type { Asset, Content } from "./types";
 
 const INTERNAL_HOST = "bulentyusuf.com";
 
 function isExternalUrl(url: string): boolean {
-  // Relative URLs and same-host absolute URLs are internal.
-  // Anything else is external.
   try {
-    // URL constructor needs a base for relative URLs; we just want to know
-    // if parsing as absolute succeeds and the host differs.
     const parsed = new URL(url);
     return !parsed.hostname.endsWith(INTERNAL_HOST);
   } catch {
-    // Not parseable as absolute URL → it's relative (e.g. /posts/foo, #anchor)
     return false;
   }
 }
