@@ -1,8 +1,4 @@
-import type {
-  Post,
-  PostCollectionResponse,
-  PostAndMorePostsResponse,
-} from "./types";
+import type { Post, PostCollectionResponse } from "./types";
 
 const POST_GRAPHQL_FIELDS = `
   slug
