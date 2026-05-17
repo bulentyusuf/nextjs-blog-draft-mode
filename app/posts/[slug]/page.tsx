@@ -22,8 +22,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const { isEnabled } = await draftMode();
   const { slug } = await params;
-  const { post } = await getPostAndMorePosts(slug, false);
+  const { post } = await getPostAndMorePosts(slug, isEnabled);
 
   if (!post) {
     return { title: "Post not found" };
