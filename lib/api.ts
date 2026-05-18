@@ -71,26 +71,6 @@ function extractPostEntries(fetchResponse: PostCollectionResponse): Post[] {
   return fetchResponse?.data?.postCollection?.items ?? [];
 }
 
-export async function getPreviewPostBySlug(
-  slug: string | null,
-): Promise<Post | undefined> {
-  if (!slug) return undefined;
-
-  const entry = await fetchGraphQL<PostCollectionResponse>(
-    `query GetPreviewPost($slug: String!) {
-      postCollection(where: { slug: $slug }, preview: true, limit: 1) {
-        items {
-          ${POST_GRAPHQL_FIELDS}
-        }
-      }
-    }`,
-    true,
-    { slug },
-  );
-
-  return extractPost(entry);
-}
-
 export async function getAllPosts(isDraftMode: boolean): Promise<Post[]> {
   const entries = await fetchGraphQL<PostCollectionResponse>(
     `query GetAllPosts($preview: Boolean) {

@@ -33,10 +33,12 @@ function Footer() {
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
           <a
-            href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
-            className="text-sm font-bold hover:underline"
-          >
-            View source on GitHub
+             href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
+             className="text-sm font-bold hover:underline"
+             target="_blank"
+             rel="noopener noreferrer"
+           >
+             View source on GitHub
           </a>
         </div>
       </div>

@@ -7,8 +7,7 @@ import Date from "../../date";
 import CoverImage from "../../cover-image";
 import { Markdown } from "@/lib/markdown";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://bulentyusuf.com";
+import { SITE_URL, SITE_AUTHOR } from "@/lib/constants";
 
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
@@ -79,11 +78,11 @@ export default async function PostPage({
     dateModified: post.date,
     author: {
       "@type": "Person",
-      name: post.author?.name || "Bulent Yusuf",
+      name: post.author?.name || SITE_AUTHOR,
     },
     publisher: {
       "@type": "Person",
-      name: "Bulent Yusuf",
+      name: SITE_AUTHOR,
       url: SITE_URL,
     },
     mainEntityOfPage: {

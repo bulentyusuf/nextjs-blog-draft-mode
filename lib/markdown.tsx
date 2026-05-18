@@ -2,15 +2,14 @@ import ContentfulImage from "./contentful-image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Asset, Content } from "./types";
-
-const INTERNAL_HOST = "bulentyusuf.com";
+import { SITE_HOSTNAME } from "./constants";
 
 function isExternalUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     const hostname = parsed.hostname;
     return !(
-      hostname === INTERNAL_HOST || hostname.endsWith(`.${INTERNAL_HOST}`)
+      hostname === SITE_HOSTNAME || hostname.endsWith(`.${SITE_HOSTNAME}`)
     );
   } catch {
     return false;
