@@ -8,7 +8,10 @@ const INTERNAL_HOST = "bulentyusuf.com";
 function isExternalUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
-    return !parsed.hostname.endsWith(INTERNAL_HOST);
+    const hostname = parsed.hostname;
+    return !(
+      hostname === INTERNAL_HOST || hostname.endsWith(`.${INTERNAL_HOST}`)
+    );
   } catch {
     return false;
   }
