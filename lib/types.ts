@@ -1,3 +1,5 @@
+import type { Document } from "@contentful/rich-text-types";
+
 export interface Asset {
   sys: {
     id: string;
@@ -11,7 +13,7 @@ export interface AssetLink {
 }
 
 export interface Content {
-  json: any;
+  json: Document;
   links: {
     assets: AssetLink;
   };
@@ -38,7 +40,6 @@ export interface Post {
   content: Content;
 }
 
-// Contentful GraphQL response shapes
 export interface PostCollectionResponse {
   data?: {
     postCollection?: {
