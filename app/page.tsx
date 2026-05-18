@@ -7,7 +7,6 @@ import Avatar from "./avatar";
 import MoreStories from "./more-stories";
 
 import { getAllPosts } from "@/lib/api";
-/**import { CMS_NAME, CMS_URL } from "@/lib/constants";*/
 
 function Intro() {
   return (
