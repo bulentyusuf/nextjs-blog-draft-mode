@@ -1,6 +1,8 @@
 import { getAllPosts } from "@/lib/api";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://bulentyusuf.com";
+const SITE_HOSTNAME = new URL(SITE_URL).hostname;
+const AUTHOR_EMAIL = `noreply@${SITE_HOSTNAME}`;
 const SITE_TITLE = "Fun with Gen AI";
 const SITE_DESCRIPTION = "Words & Pictures made with Generative AI.";
 
@@ -15,7 +17,6 @@ function escapeXml(unsafe: string): string {
 
 export async function GET() {
   const posts = await getAllPosts(false);
-
   const items = posts
     .map((post) => {
       const url = `${SITE_URL}/posts/${post.slug}`;
@@ -27,7 +28,7 @@ export async function GET() {
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${pubDate}</pubDate>
       <description>${escapeXml(post.excerpt || "")}</description>
-      ${post.author?.name ? `<author>noreply@bulentyusuf.com (${escapeXml(post.author.name)})</author>` : ""}
+      ${post.author?.name ? `<author>${AUTHOR_EMAIL} (${escapeXml(post.author.name)})</author>` : ""}
     </item>`;
     })
     .join("");
