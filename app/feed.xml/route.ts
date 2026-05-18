@@ -1,10 +1,10 @@
 import { getAllPosts } from "@/lib/api";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://bulentyusuf.com";
-const SITE_HOSTNAME = new URL(SITE_URL).hostname;
-const AUTHOR_EMAIL = `noreply@${SITE_HOSTNAME}`;
-const SITE_TITLE = "Fun with Gen AI";
-const SITE_DESCRIPTION = "Words & Pictures made with Generative AI.";
+import {
+  SITE_URL,
+  SITE_TITLE,
+  SITE_DESCRIPTION,
+  AUTHOR_EMAIL,
+} from "@/lib/constants";
 
 function escapeXml(unsafe: string): string {
   return unsafe
@@ -17,6 +17,7 @@ function escapeXml(unsafe: string): string {
 
 export async function GET() {
   const posts = await getAllPosts(false);
+
   const items = posts
     .map((post) => {
       const url = `${SITE_URL}/posts/${post.slug}`;
