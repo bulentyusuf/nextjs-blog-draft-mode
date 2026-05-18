@@ -1,17 +1,22 @@
 "use client";
-import Image from "next/image";
+import Image, { type ImageProps } from "next/image";
 
-interface ContentfulImageProps {
+type ContentfulImageProps = Omit<ImageProps, "loader" | "src"> & {
   src: string;
-  width?: number;
-  quality?: number;
-  [key: string]: any;
-}
+};
 
-const contentfulLoader = ({ src, width, quality }: ContentfulImageProps) => {
+const contentfulLoader = ({
+  src,
+  width,
+  quality,
+}: {
+  src: string;
+  width: number;
+  quality?: number;
+}) => {
   return `${src}?w=${width}&q=${quality || 75}&fm=webp`;
 };
 
 export default function ContentfulImage(props: ContentfulImageProps) {
-  return <Image alt={props.alt} loader={contentfulLoader} {...props} />;
+  return <Image loader={contentfulLoader} {...props} />;
 }
