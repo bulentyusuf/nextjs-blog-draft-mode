@@ -7,7 +7,7 @@ import Date from "../../date";
 import CoverImage from "../../cover-image";
 import { RichText } from "@/lib/rich-text";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
-import { SITE_URL, SITE_AUTHOR } from "@/lib/constants";
+import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
 
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
@@ -99,7 +99,7 @@ export default async function PostPage({
       />
       <h2 className="mb-20 mt-8 text-2xl font-bold leading-tight tracking-tight md:text-4xl md:tracking-tighter">
         <Link href="/" className="hover:underline">
-          Fun with Gen AI
+          {SITE_TITLE}
         </Link>
         .
       </h2>
