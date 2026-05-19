@@ -3,9 +3,10 @@ export const SITE_URL =
 
 export const SITE_HOSTNAME = new URL(SITE_URL).hostname;
 
-export const SITE_TITLE = "Fun with Gen AI";
+export const SITE_TITLE = "Fun with GenAI";
 
-export const SITE_DESCRIPTION = "Words & Pictures made with Generative AI.";
+export const SITE_DESCRIPTION =
+  "Content & Code, with a little help from Generative AI.";
 
 export const SITE_AUTHOR = "Bulent Yusuf";
 

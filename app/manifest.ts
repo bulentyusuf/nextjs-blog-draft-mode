@@ -1,10 +1,11 @@
 import { MetadataRoute } from "next";
+import { SITE_TITLE, SITE_DESCRIPTION } from "@/lib/constants";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Fun with Gen AI",
-    short_name: "Fun with Gen AI",
-    description: "Words & Pictures made with Generative AI.",
+    name: SITE_TITLE,
+    short_name: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     start_url: "/",
     display: "minimal-ui",
     background_color: "#ffffff",
