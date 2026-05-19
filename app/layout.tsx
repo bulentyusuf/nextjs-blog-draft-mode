@@ -2,12 +2,13 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { SITE_TITLE, SITE_DESCRIPTION } from "@/lib/constants";
 export const metadata = {
   title: {
-    default: "Fun with Gen AI",
-    template: "%s | Fun with Gen AI",
+    default: SITE_TITLE,
+    template: `%s | ${SITE_TITLE}`,
   },
-  description: "Words & Pictures made with Generative AI.",
+  description: SITE_DESCRIPTION,
   alternates: {
     types: {
       "application/rss+xml": "/feed.xml",
