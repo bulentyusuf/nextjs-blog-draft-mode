@@ -22,6 +22,14 @@ A recurring subject of the blog is the process of building and maintaining it â€
 - Draft mode and live preview for editing posts before publishing
 - Auto-generated sitemap, `robots.txt`, and RSS feed
 - Open Graph and Twitter card metadata for shareable links
+- Security-reviewed, with branch protection, CodeQL scanning, and dependency monitoring
+
+## Writing about the build
+ 
+Some posts document the process of building and maintaining this site:
+ 
+- [Rebuilding this site with Claude as my Copilot](https://bulentyusuf.com/posts/rebuilding-blog-claude-copilot)
+- [The Blogger's Blueprint](https://bulentyusuf.com/posts/bloggers-blueprint)
 
 ## License
 
