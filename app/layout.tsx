@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
+import BackToTop from "./back-to-top";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -88,6 +89,7 @@ export default function RootLayout({
         <section className="min-h-screen">
           <main>{children}</main>
           <Footer />
+          <BackToTop />
           <Analytics />
           <SpeedInsights />
         </section>
