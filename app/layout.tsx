@@ -12,7 +12,6 @@ export const metadata = {
   },
   description: SITE_DESCRIPTION,
   icons: {
-    icon: "/favicon.ico",
     apple: "/apple-icon.png",
   },
   openGraph: {
