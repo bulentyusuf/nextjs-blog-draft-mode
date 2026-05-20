@@ -33,4 +33,4 @@ Some posts document the process of building and maintaining this site:
 
 ## License
 
-See [LICENSE.md](https://github.com/bulentyusuf/nextjs-blog-draft-mode?tab=readme-ov-file#).
+See [LICENSE.md](https://github.com/bulentyusuf/nextjs-blog-draft-mode?tab=MIT-1-ov-file).
