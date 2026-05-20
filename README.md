@@ -30,7 +30,3 @@ Some posts document the process of building and maintaining this site:
  
 - [Rebuilding this site with Claude as my Copilot](https://bulentyusuf.com/posts/rebuilding-blog-claude-copilot)
 - [The Blogger's Blueprint](https://bulentyusuf.com/posts/bloggers-blueprint)
-
-## License
-
-See [LICENSE.md](https://github.com/bulentyusuf/nextjs-blog-draft-mode?tab=MIT-1-ov-file).
