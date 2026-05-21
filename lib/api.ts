@@ -1,4 +1,9 @@
-import type { Post, PostCollectionResponse } from "./types";
+import type {
+  Post,
+  PostCollectionResponse,
+  Page,
+  PageCollectionResponse,
+} from "./types";
 
 const POST_GRAPHQL_FIELDS = `
   slug
@@ -16,6 +21,29 @@ const POST_GRAPHQL_FIELDS = `
   }
   excerpt
   content {
+    json
+    links {
+      assets {
+        block {
+          sys {
+            id
+          }
+          url
+          description
+        }
+      }
+    }
+  }
+`;
+
+const PAGE_GRAPHQL_FIELDS = `
+  slug
+  title
+  sys {
+    publishedAt
+    firstPublishedAt
+  }
+  body {
     json
     links {
       assets {
@@ -120,4 +148,23 @@ export async function getPostAndMorePosts(
     post: extractPost(entry),
     morePosts: extractPostEntries(entries),
   };
+}
+
+export async function getPage(
+  slug: string,
+  preview: boolean,
+): Promise<Page | undefined> {
+  const entry = await fetchGraphQL<PageCollectionResponse>(
+    `query GetPage($slug: String!, $preview: Boolean) {
+      pageCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
+        items {
+          ${PAGE_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    preview,
+    { slug, preview },
+  );
+
+  return entry?.data?.pageCollection?.items?.[0];
 }
