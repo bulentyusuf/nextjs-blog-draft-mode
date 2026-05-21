@@ -29,7 +29,7 @@ export default function CoverImage({
     />
   );
   return (
-    <div className={cn("relative aspect-[3/2] sm:mx-0 shadow-2x1", {
+    <div className={cn("relative aspect-[3/2] sm:mx-0 border border-gray-200", {
       "cursor-pointer": slug,
     })}>
       {slug ? (
