@@ -109,7 +109,7 @@ export default async function PostPage({
     </span>
   )}
 </div>
-        <h1 className="mb-6 text-5xl leading-tight tracking-tighter md:text-6xl lg:text-7xl">
+        <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
           {post.title}
         </h1>
         {post.author && (
