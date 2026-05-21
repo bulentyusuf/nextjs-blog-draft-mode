@@ -35,6 +35,7 @@ export interface Post {
   title: string;
   coverImage: CoverImage;
   date: string;
+  updatedDate?: string;  // optional, only set when post has been updated
   author?: Author;
   excerpt: string;
   content: Content;
