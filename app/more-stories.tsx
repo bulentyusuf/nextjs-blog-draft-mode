@@ -20,7 +20,7 @@ function PostPreview({
 }) {
   return (
     <div>
-      <div className="mb-5 aspect-[3/2] overflow-hidden">
+      <div className="mb-4">
         <CoverImage
           title={title}
           slug={slug}
