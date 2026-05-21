@@ -104,7 +104,6 @@ export default async function PostPage({
         <Link href="/" className="hover:underline">
           {SITE_TITLE}
         </Link>
-        .
       </h2>
       <article className="mx-auto max-w-4xl">
         <div className="mb-4 text-sm text-gray-500">
