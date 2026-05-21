@@ -20,18 +20,17 @@ export default function CoverImage({
     <ContentfulImage
       alt={`Cover Image for ${title}`}
       priority={!slug}
-      fill
+      width={2000}
+      height={1333}
       sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
-      className={cn("object-cover", {
+      className={cn("w-full h-full object-cover", {
         "hover:opacity-90 transition-opacity duration-200": slug,
       })}
       src={url}
     />
   );
   return (
-    <div className={cn("relative sm:mx-0", {
-      "cursor-pointer": slug,
-    })}>
+    <div className="sm:mx-0">
       {slug ? (
         <Link href={`/posts/${slug}`} aria-label={title}>
           {image}
