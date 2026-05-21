@@ -12,6 +12,12 @@ export default {
       fontFamily: {
         sans: ["var(--font-inter)"],
       },
+      colors: {
+        brand: {
+          crimson: "#8B0000",
+          dark: "#1a1a1a",
+        },
+      },
     },
   },
   future: {
