@@ -7,6 +7,7 @@ const POST_GRAPHQL_FIELDS = `
     url
   }
   date
+  updatedDate
   author {
     name
     picture {
