@@ -123,7 +123,7 @@ export default async function PostPage({
             <Avatar name={post.author.name} picture={post.author.picture} />
           </div>
         )}
-        <div className="mb-4">
+        <div className="mb-6">
           <CoverImage
             title={post.title}
             url={post.coverImage.url}
