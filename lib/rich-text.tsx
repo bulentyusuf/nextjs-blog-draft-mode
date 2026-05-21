@@ -35,7 +35,7 @@ function RichTextAsset({
         width={1200}
         height={800}
         sizes="(max-width: 768px) 100vw, 800px"
-        className="w-full h-auto"
+        className="w-full h-auto border border-gray-200"
       />
       {asset.description && (
         <p className="text-sm text-gray-600 mt-2 text-center italic">
