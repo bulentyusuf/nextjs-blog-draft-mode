@@ -38,7 +38,7 @@ function HeroPost({
 }) {
   return (
     <section className="mx-auto max-w-4xl mb-20 md:mb-28">
-      <div className="mb-4">
+      <div className="mb-6">
         <CoverImage
           title={title}
           slug={slug}
