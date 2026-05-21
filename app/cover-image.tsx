@@ -22,14 +22,14 @@ export default function CoverImage({
       priority={!slug}
       fill
       sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
-      className={cn("object-cover shadow-2x1", {
+      className={cn("object-cover", {
         "hover:opacity-90 transition-opacity duration-200": slug,
       })}
       src={url}
     />
   );
   return (
-    <div className={cn("relative aspect-[3/2] sm:mx-0", {
+    <div className={cn("relative aspect-[3/2] sm:mx-0 shadow-lg", {
       "cursor-pointer": slug,
     })}>
       {slug ? (
