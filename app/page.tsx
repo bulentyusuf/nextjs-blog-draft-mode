@@ -33,8 +33,8 @@ function HeroPost({
           sizes="(max-width: 768px) 100vw, 896px"
         />
       </div>
-      <h3 className="mb-4 text-4xl lg:text-6xl leading-tight">
-        <Link href={`/posts/${slug}`} className="hover:underline">
+     <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
+        <Link href={`/posts/${slug}`} className="hover:text-brand-crimson transition-colors duration-200">
           {title}
         </Link>
       </h3>
