@@ -60,13 +60,14 @@ const inter = Inter({
 function Header() {
   return (
     <header className="w-full bg-[#8B0000]">
-      <div className="container mx-auto px-5 py-3">
+      <div className="container mx-auto px-5 py-3 flex items-center justify-between">
         <Link
           href="/"
           className="text-base font-bold text-white hover:opacity-80 transition-opacity duration-200"
         >
           {SITE_TITLE}
         </Link>
+        <p className="text-sm text-white/70">{SITE_DESCRIPTION}</p>
       </div>
     </header>
   );
@@ -74,15 +75,15 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="bg-accent-1 border-t border-accent-2">
+    <footer className="bg-[#1a1a1a]">
       <div className="container mx-auto px-5">
         <div className="py-16 flex flex-col lg:flex-row items-center justify-between">
-          <p className="text-sm text-center lg:text-left mb-4 lg:mb-0">
+          <p className="text-sm text-center text-white/60 lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
-          <a
+          
             href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
-            className="text-sm font-bold hover:underline"
+            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
             target="_blank"
             rel="noopener noreferrer"
           >
