@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
 import BackToTop from "./back-to-top";
+import Link from "next/link";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -56,6 +57,21 @@ const inter = Inter({
   display: "swap",
 });
 
+function Header() {
+  return (
+    <header className="w-full bg-[#8B0000]">
+      <div className="container mx-auto px-5 py-3">
+        <Link
+          href="/"
+          className="text-base font-bold text-white hover:opacity-80 transition-opacity duration-200"
+        >
+          {SITE_TITLE}
+        </Link>
+      </div>
+    </header>
+  );
+}
+
 function Footer() {
   return (
     <footer className="bg-accent-1 border-t border-accent-2">
@@ -64,13 +80,13 @@ function Footer() {
           <p className="text-sm text-center lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
-          <a
-             href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
-             className="text-sm font-bold hover:underline"
-             target="_blank"
-             rel="noopener noreferrer"
-           >
-             View source on GitHub
+          
+            href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
+            className="text-sm font-bold hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View source on GitHub
           </a>
         </div>
       </div>
@@ -87,6 +103,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body>
         <section className="min-h-screen">
+          <Header />
           <main>{children}</main>
           <Footer />
           <BackToTop />
