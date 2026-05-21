@@ -7,15 +7,6 @@ import Avatar from "./avatar";
 import MoreStories from "./more-stories";
 
 import { getAllPosts } from "@/lib/api";
-import { SITE_DESCRIPTION } from "@/lib/constants";
-
-function Intro() {
-  return (
-    <section className="mt-16 mb-16 md:mb-12">
-      <p className="text-lg text-gray-500">{SITE_DESCRIPTION}</p>
-    </section>
-  );
-}
 
 function HeroPost({
   title,
@@ -63,8 +54,7 @@ export default async function Page() {
   const morePosts = allPosts.slice(1);
 
   return (
-    <div className="container mx-auto px-5">
-      <Intro />
+    <div className="container mx-auto px-5 pt-12">
       {heroPost && (
         <HeroPost
           title={heroPost.title}
