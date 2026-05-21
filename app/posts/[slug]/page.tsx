@@ -95,7 +95,7 @@ export default async function PostPage({
   const showUpdated = post.updatedDate && post.updatedDate !== post.date;
 
   return (
-    <div className="container mx-auto px-5">
+    <div className="max-w-4xl mx-auto px-5">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
