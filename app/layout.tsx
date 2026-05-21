@@ -59,15 +59,15 @@ const inter = Inter({
 
 function Header() {
   return (
-    <header className="w-full bg-brand-crimson">
-      <div className="max-w-4xl mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-0.5 md:gap-0">
+    <header className="w-full bg-[#8B0000]">
+      <div className="container mx-auto px-5 py-3 flex items-center justify-between">
         <Link
           href="/"
           className="text-base font-bold text-white hover:opacity-80 transition-opacity duration-200"
         >
           {SITE_TITLE}
         </Link>
-        <p className="hidden md:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
+        <p className="text-sm text-white/90">{SITE_DESCRIPTION}</p>
       </div>
     </header>
   );
@@ -75,20 +75,28 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="bg-brand-dark">
-      <div className="max-w-4xl mx-auto px-5">
+    <footer className="bg-[#1a1a1a]">
+      <div className="container mx-auto px-5">
         <div className="py-16 flex flex-col lg:flex-row items-center justify-between">
-          <p className="text-sm text-center text-white/60 lg:text-left mb-4 lg:mb-0">
+          <p className="text-sm text-center text-white/90 lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
-          <a
-            href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
-            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View source on GitHub
-          </a>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/privacy"
+              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            >
+              Privacy
+            </Link>
+            <a
+              href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
+              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View source on GitHub
+            </a>
+          </div>
         </div>
       </div>
     </footer>
@@ -102,13 +110,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen">
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <BackToTop />
-        <Analytics />
-        <SpeedInsights />
+      <body>
+        <section className="min-h-screen">
+          <Header />
+          <main>{children}</main>
+          <Footer />
+          <BackToTop />
+          <Analytics />
+          <SpeedInsights />
+        </section>
       </body>
     </html>
   );
