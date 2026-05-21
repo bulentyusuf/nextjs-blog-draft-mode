@@ -7,16 +7,15 @@ import Avatar from "./avatar";
 import MoreStories from "./more-stories";
 
 import { getAllPosts } from "@/lib/api";
-import { SITE_TITLE, SITE_DESCRIPTION } from "@/lib/constants";
 
 function Intro() {
   return (
     <section className="flex-col md:flex-row flex items-center md:justify-between mt-16 mb-16 md:mb-12">
       <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-tight md:pr-8">
-        {SITE_TITLE}.
+        Fun with Gen AI.
       </h1>
       <h2 className="text-center md:text-left text-lg mt-5 md:pl-8">
-        {SITE_DESCRIPTION}
+        Content & Code, with a little help from Generative AI.
       </h2>
     </section>
   );
@@ -38,26 +37,25 @@ function HeroPost({
   slug: string;
 }) {
   return (
-    <section>
-      <div className="mb-8 md:mb-16">
-        <CoverImage title={title} slug={slug} url={coverImage.url} />
+    <section className="mx-auto max-w-4xl mb-20 md:mb-28">
+      <div className="mb-6 aspect-[3/2] overflow-hidden">
+        <CoverImage
+          title={title}
+          slug={slug}
+          url={coverImage.url}
+          sizes="(max-width: 768px) 100vw, 896px"
+        />
       </div>
-      <div className="md:grid md:grid-cols-2 md:gap-x-16 lg:gap-x-8 mb-20 md:mb-28">
-        <div>
-          <h3 className="mb-4 text-4xl lg:text-6xl leading-tight">
-            <Link href={`/posts/${slug}`} className="hover:underline">
-              {title}
-            </Link>
-          </h3>
-          <div className="mb-4 md:mb-0 text-lg">
-            <Date dateString={date} />
-          </div>
-        </div>
-        <div>
-          <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
-          {author && <Avatar name={author.name} picture={author.picture} />}
-        </div>
+      <h3 className="mb-4 text-4xl lg:text-6xl leading-tight">
+        <Link href={`/posts/${slug}`} className="hover:underline">
+          {title}
+        </Link>
+      </h3>
+      <div className="mb-4 text-lg">
+        <Date dateString={date} />
       </div>
+      <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
+      {author && <Avatar name={author.name} picture={author.picture} />}
     </section>
   );
 }
