@@ -100,12 +100,7 @@ export default async function PostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <h2 className="mb-20 mt-8 text-2xl font-bold leading-tight tracking-tight md:text-4xl md:tracking-tighter">
-        <Link href="/" className="hover:underline">
-          {SITE_TITLE}
-        </Link>
-      </h2>
-      <article className="mx-auto max-w-4xl">
+      <article className="mx-auto max-w-4xl pt-12">
         <div className="mb-4 text-sm text-gray-500">
           <Date dateString={post.date} />
           {showUpdated && (
