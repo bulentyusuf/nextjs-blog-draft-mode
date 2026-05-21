@@ -7,15 +7,16 @@ import Avatar from "./avatar";
 import MoreStories from "./more-stories";
 
 import { getAllPosts } from "@/lib/api";
+import { SITE_TITLE, SITE_DESCRIPTION } from "@/lib/constants";
 
 function Intro() {
   return (
     <section className="flex-col md:flex-row flex items-center md:justify-between mt-16 mb-16 md:mb-12">
       <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-tight md:pr-8">
-        Fun with Gen AI.
+        {SITE_TITLE}.
       </h1>
       <h2 className="text-center md:text-left text-lg mt-5 md:pl-8">
-        Content & Code, with a little help from Generative AI.
+        {SITE_DESCRIPTION}
       </h2>
     </section>
   );
