@@ -100,15 +100,14 @@ export default async function PostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <article className="mx-auto max-w-4xl pt-12">
-        <div className="mb-4 text-sm text-gray-500">
-          <span>Published </span><Date dateString={post.date} />
-            {showUpdated && (
-              <span className="ml-3 whitespace-nowrap">
+      <div className="mb-4 text-sm text-gray-500">
+         <span>Published <Date dateString={post.date} /></span>
+           {showUpdated && (
+              <span className="block md:inline md:ml-3">
                  · Updated <Date dateString={post.updatedDate!} />
               </span>
-            )}
-        </div>
+           )}
+      </div>
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
           {post.title}
         </h1>
