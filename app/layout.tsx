@@ -67,7 +67,7 @@ function Header() {
         >
           {SITE_TITLE}
         </Link>
-        <p className="text-sm text-white/70">{SITE_DESCRIPTION}</p>
+        <p className="text-sm text-white/90">{SITE_DESCRIPTION}</p>
       </div>
     </header>
   );
