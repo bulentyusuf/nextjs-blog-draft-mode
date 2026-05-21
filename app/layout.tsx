@@ -60,7 +60,7 @@ const inter = Inter({
 function Header() {
   return (
     <header className="w-full bg-brand-crimson">
-      <div className="container mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-0.5 md:gap-0">
+      <div className="max-w-4xl mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-0.5 md:gap-0">
         <Link
           href="/"
           className="text-base font-bold text-white hover:opacity-80 transition-opacity duration-200"
@@ -76,7 +76,7 @@ function Header() {
 function Footer() {
   return (
     <footer className="bg-[#1a1a1a]">
-      <div className="container mx-auto px-5">
+     <div className="max-w-4xl mx-auto px-5">
         <div className="py-16 flex flex-col lg:flex-row items-center justify-between">
           <p className="text-sm text-center text-white/90 lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
