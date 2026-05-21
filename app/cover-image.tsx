@@ -29,16 +29,18 @@ export default function CoverImage({
     />
   );
   return (
-    <div className={cn("relative aspect-[3/2] sm:mx-0", {
-      "cursor-pointer": slug,
-    })}>
-      {slug ? (
-        <Link href={`/posts/${slug}`} aria-label={title} className="block h-full">
-          {image}
-        </Link>
-      ) : (
-        image
-      )}
+    <div className="shadow-lg sm:mx-0">
+      <div className={cn("relative aspect-[3/2] overflow-hidden", {
+        "cursor-pointer": slug,
+      })}>
+        {slug ? (
+          <Link href={`/posts/${slug}`} aria-label={title} className="block h-full">
+            {image}
+          </Link>
+        ) : (
+          image
+        )}
+      </div>
     </div>
   );
 }

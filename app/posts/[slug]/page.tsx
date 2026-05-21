@@ -102,12 +102,12 @@ export default async function PostPage({
       />
       <article className="mx-auto max-w-4xl pt-12">
         <div className="mb-4 text-sm text-gray-500">
-          <Date dateString={post.date} />
-          {showUpdated && (
-            <span className="ml-3">
-              · Updated <Date dateString={post.updatedDate!} />
-            </span>
-          )}
+          <span>Published </span><Date dateString={post.date} />
+            {showUpdated && (
+              <span className="ml-3">
+                · Updated <Date dateString={post.updatedDate!} />
+              </span>
+            )}
         </div>
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
           {post.title}
@@ -125,9 +125,9 @@ export default async function PostPage({
           />
         </div>
         <div className="mx-auto max-w-2xl">
-          <h2 className="mb-8 text-2xl font-normal leading-snug text-gray-700">
+          <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
             {post.excerpt}
-          </h2>
+          </p>
           <div className="prose">
             <RichText content={post.content} />
           </div>
