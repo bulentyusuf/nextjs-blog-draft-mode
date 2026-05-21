@@ -48,3 +48,21 @@ export interface PostCollectionResponse {
     };
   };
 }
+
+export interface Page {
+  slug: string;
+  title: string;
+  body: Content;
+  sys: {
+    publishedAt: string | null;
+    firstPublishedAt: string | null;
+  };
+}
+
+export interface PageCollectionResponse {
+  data?: {
+    pageCollection?: {
+      items: Page[];
+    };
+  };
+}
