@@ -23,7 +23,7 @@ export default function CoverImage({
       width={2000}
       height={1333}
       sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
-      className={cn("w-full h-full object-cover", {
+      className={cn("w-full h-auto", {
         "hover:opacity-90 transition-opacity duration-200": slug,
       })}
       src={url}
