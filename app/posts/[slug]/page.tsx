@@ -104,8 +104,8 @@ export default async function PostPage({
         <div className="mb-4 text-sm text-gray-500">
           <span>Published </span><Date dateString={post.date} />
             {showUpdated && (
-              <span className="ml-3">
-                · Updated <Date dateString={post.updatedDate!} />
+              <span className="ml-3 whitespace-nowrap">
+                 · Updated <Date dateString={post.updatedDate!} />
               </span>
             )}
         </div>

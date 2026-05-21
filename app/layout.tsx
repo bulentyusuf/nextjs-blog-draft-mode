@@ -67,7 +67,7 @@ function Header() {
         >
           {SITE_TITLE}
         </Link>
-        <p className="text-sm text-white/90">{SITE_DESCRIPTION}</p>
+        <p className="hidden md:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
       </div>
     </header>
   );
@@ -75,10 +75,10 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="bg-[#1a1a1a]">
-     <div className="max-w-4xl mx-auto px-5">
+    <footer className="bg-brand-dark">
+      <div className="max-w-4xl mx-auto px-5">
         <div className="py-16 flex flex-col lg:flex-row items-center justify-between">
-          <p className="text-sm text-center text-white/90 lg:text-left mb-4 lg:mb-0">
+          <p className="text-sm text-center text-white/60 lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
           <a
@@ -102,15 +102,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body>
-        <section className="min-h-screen">
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <BackToTop />
-          <Analytics />
-          <SpeedInsights />
-        </section>
+      <body className="min-h-screen">
+        <Header />
+        <main>{children}</main>
+        <Footer />
+        <BackToTop />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
