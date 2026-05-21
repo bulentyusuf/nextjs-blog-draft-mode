@@ -59,8 +59,8 @@ const inter = Inter({
 
 function Header() {
   return (
-    <header className="w-full bg-[#8B0000]">
-      <div className="container mx-auto px-5 py-3 flex items-center justify-between">
+    <header className="w-full bg-brand-crimson">
+      <div className="container mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-0.5 md:gap-0">
         <Link
           href="/"
           className="text-base font-bold text-white hover:opacity-80 transition-opacity duration-200"
