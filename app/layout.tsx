@@ -5,7 +5,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
 import BackToTop from "./back-to-top";
 import Link from "next/link";
-
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -44,41 +43,37 @@ export const metadata = {
     },
   },
 };
-
 export const viewport = {
   themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 };
-
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
-
 function Header() {
   return (
-    <header className="w-full bg-[#8B0000]">
-      <div className="container mx-auto px-5 py-3 flex items-center justify-between">
+    <header className="w-full bg-brand-crimson">
+      <div className="max-w-4xl mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-0.5 md:gap-0">
         <Link
           href="/"
           className="text-base font-bold text-white hover:opacity-80 transition-opacity duration-200"
         >
           {SITE_TITLE}
         </Link>
-        <p className="text-sm text-white/90">{SITE_DESCRIPTION}</p>
+        <p className="hidden md:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
       </div>
     </header>
   );
 }
-
 function Footer() {
   return (
-    <footer className="bg-[#1a1a1a]">
-      <div className="container mx-auto px-5">
+    <footer className="bg-brand-dark">
+      <div className="max-w-4xl mx-auto px-5">
         <div className="py-16 flex flex-col lg:flex-row items-center justify-between">
-          <p className="text-sm text-center text-white/90 lg:text-left mb-4 lg:mb-0">
+          <p className="text-sm text-center text-white/60 lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
           <div className="flex items-center gap-6">
@@ -102,7 +97,6 @@ function Footer() {
     </footer>
   );
 }
-
 export default function RootLayout({
   children,
 }: {
@@ -110,15 +104,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body>
-        <section className="min-h-screen">
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <BackToTop />
-          <Analytics />
-          <SpeedInsights />
-        </section>
+      <body className="min-h-screen">
+        <Header />
+        <main>{children}</main>
+        <Footer />
+        <BackToTop />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
