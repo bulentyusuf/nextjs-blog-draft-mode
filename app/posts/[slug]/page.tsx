@@ -130,9 +130,9 @@ export default async function PostPage({
           />
         </div>
         <div className="mx-auto max-w-2xl">
-          <p className="mb-8 border-l-2 border-gray-300 pl-4 text-xl font-light leading-relaxed text-gray-600">
+          <h2 className="mb-8 text-2xl font-normal leading-snug text-gray-700">
             {post.excerpt}
-          </p>
+          </h2>
           <div className="prose">
             <RichText content={post.content} />
           </div>
