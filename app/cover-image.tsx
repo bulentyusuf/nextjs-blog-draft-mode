@@ -22,7 +22,7 @@ export default function CoverImage({
       priority={!slug}
       fill
       sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
-      className={cn("object-cover shadow-x1", {
+      className={cn("object-cover shadow-2x1", {
         "hover:opacity-90 transition-opacity duration-200": slug,
       })}
       src={url}
