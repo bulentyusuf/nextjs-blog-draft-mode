@@ -10,4 +10,4 @@ export const SITE_DESCRIPTION =
 
 export const SITE_AUTHOR = "Bulent Yusuf";
 
-export const AUTHOR_EMAIL = `noreply@${SITE_HOSTNAME}`;
+export const AUTHOR_EMAIL = `contact@${SITE_HOSTNAME}`;

@@ -5,7 +5,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
 import BackToTop from "./back-to-top";
 import Link from "next/link";
-
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -44,19 +43,16 @@ export const metadata = {
     },
   },
 };
-
 export const viewport = {
   themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 };
-
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
-
 function Header() {
   return (
     <header className="w-full bg-brand-crimson">
@@ -72,7 +68,6 @@ function Header() {
     </header>
   );
 }
-
 function Footer() {
   return (
     <footer className="bg-brand-dark">
@@ -81,20 +76,27 @@ function Footer() {
           <p className="text-sm text-center text-white/60 lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
-          <a
-            href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
-            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View source on GitHub
-          </a>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/privacy"
+              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            >
+              Privacy
+            </Link>
+            <a
+              href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
+              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View source on GitHub
+            </a>
+          </div>
         </div>
       </div>
     </footer>
   );
 }
-
 export default function RootLayout({
   children,
 }: {
