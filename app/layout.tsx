@@ -81,7 +81,7 @@ function Footer() {
           <p className="text-sm text-center text-white/60 lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
-          
+          <a
             href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
             className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
             target="_blank"
