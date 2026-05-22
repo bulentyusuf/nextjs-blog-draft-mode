@@ -168,3 +168,19 @@ export async function getPage(
 
   return entry?.data?.pageCollection?.items?.[0];
 }
+
+export async function getAllPages(isDraftMode: boolean): Promise<Page[]> {
+  const entries = await fetchGraphQL<PageCollectionResponse>(
+    `query GetAllPages($preview: Boolean) {
+      pageCollection(where: { slug_exists: true }, order: slug_ASC, preview: $preview) {
+        items {
+          ${PAGE_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    isDraftMode,
+    { preview: isDraftMode },
+  );
+
+  return entries?.data?.pageCollection?.items ?? [];
+}
