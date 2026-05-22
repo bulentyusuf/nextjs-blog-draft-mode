@@ -172,7 +172,7 @@ export async function getPage(
 export async function getAllPages(isDraftMode: boolean): Promise<Page[]> {
   const entries = await fetchGraphQL<PageCollectionResponse>(
     `query GetAllPages($preview: Boolean) {
-      pageCollection(where: { slug_exists: true }, order: slug_ASC, preview: $preview) {
+      pageCollection(where: { slug_exists: true }, preview: $preview) {
         items {
           ${PAGE_GRAPHQL_FIELDS}
         }
