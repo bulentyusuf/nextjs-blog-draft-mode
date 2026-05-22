@@ -84,8 +84,9 @@ async function fetchGraphQL<T>(
   );
 
   if (!response.ok) {
+    const detail = await response.text();
     throw new Error(
-      `Contentful GraphQL request failed: ${response.status} ${response.statusText}`,
+      `Contentful GraphQL request failed: ${response.status} ${response.statusText} — ${detail}`,
     );
   }
 
