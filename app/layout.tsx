@@ -94,7 +94,7 @@ function Footer() {
             >
               View source on GitHub
             </a>
-            
+            <a
               href="/feed.xml"
               className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
             >
