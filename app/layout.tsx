@@ -55,12 +55,9 @@ const inter = Inter({
 });
 function Header() {
   return (
-    <header className="w-full bg-brand-crimson">
+    <header className="sticky top-0 z-50 w-full bg-brand-crimson shadow-sm">
       <div className="max-w-4xl mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-0.5 md:gap-0">
-        <Link
-          href="/"
-          className="text-base font-bold text-white hover:opacity-80 transition-opacity duration-200"
-        >
+        <Link href="/" className="text-base font-bold text-white">
           {SITE_TITLE}
         </Link>
         <p className="hidden md:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
@@ -73,10 +70,16 @@ function Footer() {
     <footer className="bg-brand-dark">
       <div className="max-w-4xl mx-auto px-5">
         <div className="py-16 flex flex-col lg:flex-row items-center justify-between">
-          <p className="text-sm text-center text-white/60 lg:text-left mb-4 lg:mb-0">
+          <p className="text-sm text-center text-white/90 lg:text-left mb-4 lg:mb-0">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
           </p>
           <div className="flex items-center gap-6">
+            <Link
+              href="/about"
+              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            >
+              About
+            </Link>
             <Link
               href="/privacy"
               className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
@@ -90,6 +93,12 @@ function Footer() {
               rel="noopener noreferrer"
             >
               View source on GitHub
+            </a>
+            <a
+              href="/feed.xml"
+              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            >
+              RSS
             </a>
           </div>
         </div>

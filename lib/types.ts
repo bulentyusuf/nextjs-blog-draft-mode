@@ -59,6 +59,22 @@ export interface Page {
   };
 }
 
+export interface PageMeta {
+  slug: string;
+  sys: {
+    publishedAt: string | null;
+    firstPublishedAt: string | null;
+  };
+}
+
+export interface PageMetaCollectionResponse {
+  data?: {
+    pageCollection?: {
+      items: PageMeta[];
+    };
+  };
+}
+
 export interface PageCollectionResponse {
   data?: {
     pageCollection?: {
