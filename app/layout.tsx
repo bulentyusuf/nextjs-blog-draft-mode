@@ -22,7 +22,7 @@ export const metadata = {
     siteName: SITE_TITLE,
     images: [
       {
-        url: "/kompaktkeeb.jpg",
+        url: "/be_useful.jpg",
         width: 1200,
         height: 630,
         alt: SITE_TITLE,
@@ -35,7 +35,7 @@ export const metadata = {
     card: "summary_large_image",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: ["/kompaktkeeb.jpg"],
+    images: ["/be_useful.jpg"],
   },
   alternates: {
     types: {
