@@ -92,7 +92,7 @@ function Footer() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              View source on GitHub
+              GitHub
             </a>
             <a
               href="/feed.xml"
