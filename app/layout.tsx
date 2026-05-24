@@ -55,7 +55,7 @@ const inter = Inter({
 });
 function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full bg-brand-crimson shadow-sm">
+    <header className="sticky top-0 z-50 w-full bg-brand-crimson shadow-xs">
       <div className="max-w-4xl mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-0.5 md:gap-0">
         <Link href="/" className="text-base font-bold text-white">
           {SITE_TITLE}
