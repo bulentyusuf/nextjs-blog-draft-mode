@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Avatar from "./avatar";
 import DateComponent from "./date";
 import CoverImage from "./cover-image";
 
@@ -8,39 +7,41 @@ function PostPreview({
   coverImage,
   date,
   excerpt,
-  author,
   slug,
 }: {
   title: string;
   coverImage?: any;
   date: string;
   excerpt: string;
-  author: any;
   slug: string;
 }) {
   return (
-    <div>
+    <article className="grid grid-cols-1 gap-5 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start">
       {coverImage && (
-        <div className="mb-4">
+        <div>
           <CoverImage
             title={title}
             slug={slug}
             url={coverImage.url}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 450px"
+            sizes="(max-width: 768px) 100vw, 40vw"
           />
         </div>
       )}
-      <h3 className="text-3xl mb-3 leading-snug font-bold">
-         <Link href={`/posts/${slug}`} className="hover:text-brand-crimson transition-colors duration-200">
+      <div>
+        <h3 className="text-2xl md:text-3xl mb-2 leading-snug font-bold">
+          <Link
+            href={`/posts/${slug}`}
+            className="hover:text-brand-crimson transition-colors duration-200"
+          >
             {title}
-         </Link>
-      </h3>
-      <div className="text-lg mb-4">
-        <DateComponent dateString={date} />
+          </Link>
+        </h3>
+        <div className="text-base text-gray-500 mb-3">
+          <DateComponent dateString={date} />
+        </div>
+        <p className="text-lg leading-relaxed">{excerpt}</p>
       </div>
-      <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
-      {author && <Avatar name={author.name} picture={author.picture} />}
-    </div>
+    </article>
   );
 }
 
@@ -50,14 +51,13 @@ export default function MoreStories({ morePosts }: { morePosts: any[] }) {
       <h2 className="mb-8 text-6xl md:text-7xl font-bold tracking-tighter leading-tight">
         More Stories
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32 mb-32">
+      <div className="flex flex-col gap-12 md:gap-16 mb-32">
         {morePosts.map((post) => (
           <PostPreview
             key={post.slug}
             title={post.title}
             coverImage={post.coverImage}
             date={post.date}
-            author={post.author}
             slug={post.slug}
             excerpt={post.excerpt}
           />
