@@ -147,10 +147,8 @@ export default async function PostPage({
           {/* Sidebar zone — empty placeholder for the shell.
               Hidden below xl; TOC/AI will live here at xl+. */}
           <aside className="hidden xl:block">
-             <div className="sticky top-20 flex flex-col max-h-[80vh]">
-               <div className="overflow-y-auto overscroll-contain pr-4 pb-4">
-                  <TableOfContents headings={headings} />
-              </div>
+            <div className="sticky top-20 pb-4">
+              <TableOfContents headings={headings} />
             </div>
          </aside>
 
