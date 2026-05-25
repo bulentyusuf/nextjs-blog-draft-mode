@@ -38,20 +38,24 @@ export async function generateMetadata({
       type: "article",
       publishedTime: post.date,
       modifiedTime: post.updatedDate ?? post.date,
-      images: [
-        {
-          url: `${post.coverImage.url}?w=1200&fm=jpg&q=80`,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      images: post.coverImage
+        ? [
+            {
+              url: `${post.coverImage.url}?w=1200&fm=jpg&q=80`,
+              width: 1200,
+              height: 630,
+              alt: post.title,
+            },
+          ]
+        : [],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: [`${post.coverImage.url}?w=1200&fm=jpg&q=80`],
+      images: post.coverImage
+        ? [`${post.coverImage.url}?w=1200&fm=jpg&q=80`]
+        : [],
     },
   };
 }
@@ -74,7 +78,9 @@ export default async function PostPage({
     "@type": "BlogPosting",
     headline: post.title,
     description: post.excerpt,
-    image: `${post.coverImage.url}?w=1200&fm=jpg&q=80`,
+    image: post.coverImage
+      ? `${post.coverImage.url}?w=1200&fm=jpg&q=80`
+      : undefined,
     datePublished: post.date,
     dateModified: post.updatedDate ?? post.date,
     author: {
@@ -102,13 +108,13 @@ export default async function PostPage({
       />
       <article className="mx-auto max-w-4xl pt-12">
         <div className="mb-4 text-sm text-gray-500">
-  <span>Published <Date dateString={post.date} /></span>
-  {showUpdated && (
-    <span className="hidden md:inline ml-3">
-      · Updated <Date dateString={post.updatedDate!} />
-    </span>
-  )}
-</div>
+          <span>Published <Date dateString={post.date} /></span>
+          {showUpdated && (
+            <span className="hidden md:inline ml-3">
+              · Updated <Date dateString={post.updatedDate!} />
+            </span>
+          )}
+        </div>
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
           {post.title}
         </h1>
@@ -117,13 +123,15 @@ export default async function PostPage({
             <Avatar name={post.author.name} picture={post.author.picture} />
           </div>
         )}
-        <div className="mb-6">
-          <CoverImage
-            title={post.title}
-            url={post.coverImage.url}
-            sizes="(max-width: 768px) 100vw, 896px"
-          />
-        </div>
+        {post.coverImage && (
+          <div className="mb-6">
+            <CoverImage
+              title={post.title}
+              url={post.coverImage.url}
+              sizes="(max-width: 768px) 100vw, 896px"
+            />
+          </div>
+        )}
         <div className="mx-auto max-w-2xl">
           <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
             {post.excerpt}

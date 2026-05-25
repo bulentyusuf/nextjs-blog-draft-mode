@@ -33,7 +33,7 @@ export interface CoverImage {
 export interface Post {
   slug: string;
   title: string;
-  coverImage: CoverImage;
+  coverImage?: CoverImage;
   date: string;
   updatedDate?: string;  // optional, only set when post has been updated
   author?: Author;
