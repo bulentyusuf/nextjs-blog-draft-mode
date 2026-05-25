@@ -1,9 +1,6 @@
 import ContentfulImage from "../lib/contentful-image";
 import Link from "next/link";
-
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import { clsx as cn } from "clsx";
 
 export default function CoverImage({
   title,
