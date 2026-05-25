@@ -47,17 +47,6 @@ function HeroPost({
             </Link>
           </h3>
         </div>
-       <div className="md:grid md:grid-cols-2 md:gap-x-16">
-        <div>
-          <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
-            <Link
-              href={`/posts/${slug}`}
-              className="hover:text-brand-crimson transition-colors duration-200"
-            >
-              {title}
-            </Link>
-          </h3>
-        </div>
         <div>
           <div className="mb-4 text-lg">
             <Date dateString={date} />
