@@ -48,11 +48,11 @@ function HeroPost({
           </h3>
         </div>
         <div>
-          {author && <Avatar name={author.name} picture={author.picture} />}
+          <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
           <div className="mb-4 text-lg">
             <Date dateString={date} />
           </div>
-          <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
+          {author && <Avatar name={author.name} picture={author.picture} />}
         </div>
       </div>
     </section>
