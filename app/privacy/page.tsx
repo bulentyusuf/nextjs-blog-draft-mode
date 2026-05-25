@@ -33,7 +33,7 @@ export default async function PrivacyPage() {
   const lastUpdated = page.sys.publishedAt ?? page.sys.firstPublishedAt;
 
   return (
-    <div className="container mx-auto px-5">
+    <div className="max-w-5xl mx-auto px-5">
       <article className="mx-auto max-w-2xl pt-12 pb-24">
         <h1 className="mb-6 text-4xl font-bold tracking-tighter md:text-5xl">
           {page.title}
