@@ -10,11 +10,15 @@ export default function CoverImage({
   url,
   slug,
   sizes,
+  wide,
 }: {
   title: string;
   url: string;
   slug?: string;
   sizes?: string;
+  // When true, the image is 3:2 on mobile and 16:9 on desktop (md+).
+  // Used only by the post hero. Omitted everywhere else (cards stay 3:2).
+  wide?: boolean;
 }) {
   const image = (
     <ContentfulImage
@@ -30,7 +34,7 @@ export default function CoverImage({
   );
   return (
     <div className="shadow-lg sm:mx-0">
-      <div className={cn("relative aspect-3/2 overflow-hidden", {
+      <div className={cn("relative overflow-hidden", wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2", {
         "cursor-pointer": slug,
       })}>
         {slug ? (
