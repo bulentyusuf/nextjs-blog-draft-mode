@@ -37,24 +37,20 @@ function HeroPost({
           />
         </div>
       )}
-      <div className="md:grid md:grid-cols-2 md:gap-x-16">
-        <div>
-          <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
-            <Link
-              href={`/posts/${slug}`}
-              className="hover:text-brand-crimson transition-colors duration-200"
-            >
-              {title}
-            </Link>
-          </h3>
+      <div className="mx-auto max-w-2xl">
+        <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
+          <Link
+            href={`/posts/${slug}`}
+            className="hover:text-brand-crimson transition-colors duration-200"
+          >
+            {title}
+          </Link>
+        </h3>
+        <div className="mb-4 text-lg text-gray-500">
+          <Date dateString={date} />
         </div>
-        <div>
-          <div className="mb-4 text-lg">
-            <Date dateString={date} />
-          </div>
-          <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
-          {author && <Avatar name={author.name} picture={author.picture} />}
-        </div>
+        <p className="text-lg leading-relaxed mb-6">{excerpt}</p>
+        {author && <Avatar name={author.name} picture={author.picture} />}
       </div>
     </section>
   );
