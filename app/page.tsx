@@ -47,12 +47,19 @@ function HeroPost({
             </Link>
           </h3>
         </div>
-        <div>
+       <div>
+          {/* Standfirst (Excerpt) */}
           <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
-          {author && <Avatar name={author.name} picture={author.picture} />}
-          <p className="mb-4 text-lg">
+          
+          {/* Byline (Author) */}
+          <div className="mb-4">
+            {author && <Avatar name={author.name} picture={author.picture} />}
+          </div>
+
+          {/* Date */}
+          <div className="text-lg">
             <Date dateString={date} />
-          </p>
+          </div>
         </div>
       </div>
     </section>
