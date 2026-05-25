@@ -2,56 +2,100 @@ import Link from "next/link";
 import DateComponent from "./date";
 import CoverImage from "./cover-image";
 
+type Variant = "grid" | "list";
+
 function PostPreview({
   title,
   coverImage,
   date,
   excerpt,
   slug,
+  variant,
 }: {
   title: string;
   coverImage?: any;
   date: string;
   excerpt: string;
   slug: string;
+  variant: Variant;
 }) {
-  return (
-    <article className="grid grid-cols-1 gap-5 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start">
-      {coverImage && (
+  if (variant === "list") {
+    return (
+      <article className="grid grid-cols-1 gap-5 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start">
+        {coverImage && (
+          <div>
+            <CoverImage
+              title={title}
+              slug={slug}
+              url={coverImage.url}
+              sizes="(max-width: 768px) 100vw, 40vw"
+            />
+          </div>
+        )}
         <div>
+          <h3 className="text-2xl md:text-3xl mb-2 leading-snug font-bold">
+            <Link
+              href={`/posts/${slug}`}
+              className="hover:text-brand-crimson transition-colors duration-200"
+            >
+              {title}
+            </Link>
+          </h3>
+          <div className="text-base text-gray-500 mb-3">
+            <DateComponent dateString={date} />
+          </div>
+          <p className="text-lg leading-relaxed">{excerpt}</p>
+        </div>
+      </article>
+    );
+  }
+
+  return (
+    <div>
+      {coverImage && (
+        <div className="mb-4">
           <CoverImage
             title={title}
             slug={slug}
             url={coverImage.url}
-            sizes="(max-width: 768px) 100vw, 40vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 450px"
           />
         </div>
       )}
-      <div>
-        <h3 className="text-2xl md:text-3xl mb-2 leading-snug font-bold">
-          <Link
-            href={`/posts/${slug}`}
-            className="hover:text-brand-crimson transition-colors duration-200"
-          >
-            {title}
-          </Link>
-        </h3>
-        <div className="text-base text-gray-500 mb-3">
-          <DateComponent dateString={date} />
-        </div>
-        <p className="text-lg leading-relaxed">{excerpt}</p>
+      <h3 className="text-3xl mb-3 leading-snug font-bold">
+        <Link
+          href={`/posts/${slug}`}
+          className="hover:text-brand-crimson transition-colors duration-200"
+        >
+          {title}
+        </Link>
+      </h3>
+      <div className="text-lg text-gray-500 mb-4">
+        <DateComponent dateString={date} />
       </div>
-    </article>
+      <p className="text-lg leading-relaxed">{excerpt}</p>
+    </div>
   );
 }
 
-export default function MoreStories({ morePosts }: { morePosts: any[] }) {
+export default function MoreStories({
+  morePosts,
+  variant = "list",
+}: {
+  morePosts: any[];
+  variant?: Variant;
+}) {
+  const container =
+    variant === "list"
+      ? "flex flex-col gap-12 md:gap-16 mb-32"
+      : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32 mb-32";
+
   return (
     <section className="mx-auto max-w-5xl">
       <h2 className="mb-8 text-6xl md:text-7xl font-bold tracking-tighter leading-tight">
         More Stories
       </h2>
-      <div className="flex flex-col gap-12 md:gap-16 mb-32">
+      <div className={container}>
         {morePosts.map((post) => (
           <PostPreview
             key={post.slug}
@@ -60,6 +104,7 @@ export default function MoreStories({ morePosts }: { morePosts: any[] }) {
             date={post.date}
             slug={post.slug}
             excerpt={post.excerpt}
+            variant={variant}
           />
         ))}
       </div>

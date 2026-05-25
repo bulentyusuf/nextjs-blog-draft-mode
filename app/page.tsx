@@ -74,7 +74,7 @@ export default async function Page() {
           excerpt={heroPost.excerpt}
         />
       )}
-      <MoreStories morePosts={morePosts} />
+      <MoreStories morePosts={morePosts} variant="list" />
     </div>
   );
 }
