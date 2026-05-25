@@ -9,6 +9,7 @@ import { RichText } from "@/lib/rich-text";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
 import { extractHeadings } from "@/lib/headings";
 import TableOfContents from "../../table-of-contents";
+import ExploreWithAI from "../../explore-with-ai";
 import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
 
 export async function generateStaticParams() {
@@ -144,11 +145,13 @@ export default async function PostPage({
           At xl+: sidebar in the left track, body in the right.
         */}
         <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
-          {/* Sidebar zone — empty placeholder for the shell.
-              Hidden below xl; TOC/AI will live here at xl+. */}
+          {/* Sidebar zone — TOC + AI handoff as one reading-assistance
+              cluster, sharing the sticky container so they scroll together.
+              Hidden below xl. */}
           <aside className="hidden xl:block">
-            <div className="sticky top-20 pb-4">
+            <div className="sticky top-20 space-y-8 pb-4">
               <TableOfContents headings={headings} />
+              <ExploreWithAI slug={slug} />
             </div>
          </aside>
 
