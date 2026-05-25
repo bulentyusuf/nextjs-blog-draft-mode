@@ -38,20 +38,24 @@ export async function generateMetadata({
       type: "article",
       publishedTime: post.date,
       modifiedTime: post.updatedDate ?? post.date,
-      images: [
-        {
-          url: `${post.coverImage.url}?w=1200&fm=jpg&q=80`,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      images: post.coverImage
+        ? [
+            {
+              url: `${post.coverImage.url}?w=1200&fm=jpg&q=80`,
+              width: 1200,
+              height: 630,
+              alt: post.title,
+            },
+          ]
+        : [],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: [`${post.coverImage.url}?w=1200&fm=jpg&q=80`],
+      images: post.coverImage
+        ? [`${post.coverImage.url}?w=1200&fm=jpg&q=80`]
+        : [],
     },
   };
 }
@@ -74,7 +78,9 @@ export default async function PostPage({
     "@type": "BlogPosting",
     headline: post.title,
     description: post.excerpt,
-    image: `${post.coverImage.url}?w=1200&fm=jpg&q=80`,
+    image: post.coverImage
+      ? `${post.coverImage.url}?w=1200&fm=jpg&q=80`
+      : undefined,
     datePublished: post.date,
     dateModified: post.updatedDate ?? post.date,
     author: {
@@ -95,20 +101,24 @@ export default async function PostPage({
   const showUpdated = post.updatedDate && post.updatedDate !== post.date;
 
   return (
-    <div className="max-w-4xl mx-auto px-5">
+    <div className="max-w-4xl mx-auto px-5 pt-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Full-bleed hero: spans the container, sits above the grid */}
-      <div className="pt-12 mb-6">
-        <CoverImage
-          title={post.title}
-          url={post.coverImage.url}
-          sizes="(max-width: 768px) 100vw, 896px"
-        />
-      </div>
+      {/* Full-bleed hero: spans the container, sits above the grid.
+          Guarded — a draft post may have no cover image (required at
+          publish time, but absent on drafts viewed via draft mode). */}
+      {post.coverImage && (
+        <div className="mb-6">
+          <CoverImage
+            title={post.title}
+            url={post.coverImage.url}
+            sizes="(max-width: 768px) 100vw, 896px"
+          />
+        </div>
+      )}
 
       {/*
         Two-zone grid. Below xl: single column (article only; sidebar hidden).
