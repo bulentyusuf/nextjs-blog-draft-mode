@@ -106,48 +106,48 @@ export default async function PostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/*
-        Two-zone grid: adds a sidebar column without changing the article's
-        internal order. Below xl it's a single column (sidebar hidden) — the
-        article renders exactly as before. At xl+ the sidebar takes the left
-        track and the article the right.
-      */}
-      <div className="pt-12 xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
-        {/* Sidebar zone — empty placeholder for the shell.
-            Hidden below xl; TOC/AI will live here at xl+. */}
-        <aside className="hidden xl:block">
-          <div className="sticky top-20">
-            {/* TOC + Explore with AI mount here in a later layer */}
+      <article className="mx-auto max-w-4xl pt-12">
+        <div className="mb-4 text-sm text-gray-500">
+  <span>Published <Date dateString={post.date} /></span>
+  {showUpdated && (
+    <span className="hidden md:inline ml-3">
+      · Updated <Date dateString={post.updatedDate!} />
+    </span>
+  )}
+</div>
+        <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
+          {post.title}
+        </h1>
+        {post.author && (
+          <div className="mb-6">
+            <Avatar name={post.author.name} picture={post.author.picture} />
           </div>
-        </aside>
+        )}
+        {post.coverImage && (
+          <div className="mb-6">
+            <CoverImage
+              title={post.title}
+              url={post.coverImage.url}
+              sizes="(max-width: 768px) 100vw, 896px"
+            />
+          </div>
+        )}
+        {/*
+          Grid begins AFTER the cover image. The header block above
+          (date, title, byline, image) is unchanged and full-width.
+          Below xl: single column, body renders exactly as before.
+          At xl+: sidebar in the left track, body in the right.
+        */}
+        <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
+          {/* Sidebar zone — empty placeholder for the shell.
+              Hidden below xl; TOC/AI will live here at xl+. */}
+          <aside className="hidden xl:block">
+            <div className="sticky top-20">
+              {/* TOC + Explore with AI mount here in a later layer */}
+            </div>
+          </aside>
 
-        <article>
-          <div className="mb-4 text-sm text-gray-500">
-            <span>Published <Date dateString={post.date} /></span>
-            {showUpdated && (
-              <span className="hidden md:inline ml-3">
-                · Updated <Date dateString={post.updatedDate!} />
-              </span>
-            )}
-          </div>
-          <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
-            {post.title}
-          </h1>
-          {post.author && (
-            <div className="mb-6">
-              <Avatar name={post.author.name} picture={post.author.picture} />
-            </div>
-          )}
-          {post.coverImage && (
-            <div className="mb-6">
-              <CoverImage
-                title={post.title}
-                url={post.coverImage.url}
-                sizes="(max-width: 768px) 100vw, 896px"
-              />
-            </div>
-          )}
-          <div className="mx-auto max-w-2xl">
+          <div className="mx-auto max-w-2xl xl:mx-0">
             <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
               {post.excerpt}
             </p>
@@ -155,8 +155,8 @@ export default async function PostPage({
               <RichText content={post.content} />
             </div>
           </div>
-        </article>
-      </div>
+        </div>
+      </article>
       <hr className="border-accent-2 mt-28 mb-24" />
       <MoreStories morePosts={morePosts} />
     </div>
