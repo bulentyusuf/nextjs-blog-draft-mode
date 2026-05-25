@@ -37,7 +37,7 @@ function HeroPost({
           />
         </div>
       )}
-      <div className="mx-auto max-w-2xl">
+      <div>
         <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
           <Link
             href={`/posts/${slug}`}
