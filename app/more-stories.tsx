@@ -21,7 +21,7 @@ function PostPreview({
 }) {
   if (variant === "list") {
     return (
-      <article className="grid grid-cols-1 gap-5 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start">
+      <article className="grid grid-cols-1 gap-5 py-10 first:pt-0 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start md:py-12 md:first:pt-0">
         {coverImage && (
           <div>
             <CoverImage
@@ -87,7 +87,7 @@ export default function MoreStories({
 }) {
   const container =
     variant === "list"
-      ? "flex flex-col gap-12 md:gap-16 mb-32"
+      ? "flex flex-col divide-y divide-gray-200 mb-32"
       : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32 mb-32";
 
   return (
