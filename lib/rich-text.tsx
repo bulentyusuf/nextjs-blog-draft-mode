@@ -66,7 +66,7 @@ export function RichText({ content }: { content: Content }) {
 
   return documentToReactComponents(content.json, {
     renderNode: {
-      [BLOCKS.HEADING_2]: (node: Block, children: ReactNode) => {
+      [BLOCKS.HEADING_2]: (node: Block | Inline, children: ReactNode) => {
         const id = slugger(headingText(node).trim());
         return (
           <h2 id={id} className="scroll-mt-24">
@@ -74,14 +74,14 @@ export function RichText({ content }: { content: Content }) {
           </h2>
         );
       },
-      [BLOCKS.EMBEDDED_ASSET]: (node: Block) => (
+      [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset
-          id={node.data.target.sys.id}
+          id={(node as Block).data.target.sys.id}
           assets={content.links.assets.block}
         />
       ),
-      [INLINES.HYPERLINK]: (node: Inline, children: ReactNode) => {
-        const uri: string = node.data.uri;
+      [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => {
+        const uri: string = (node as Inline).data.uri;
         if (isExternalUrl(uri)) {
           return (
             <a href={uri} target="_blank" rel="noopener noreferrer">
