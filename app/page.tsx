@@ -24,18 +24,19 @@ function HeroPost({
   slug: string;
 }) {
   return (
-    <section className="mx-auto max-w-4xl mb-20 md:mb-28">
+    <section className="mx-auto max-w-5xl mb-20 md:mb-28">
       {coverImage && (
         <div className="mb-6">
           <CoverImage
             title={title}
             slug={slug}
             url={coverImage.url}
-            sizes="(max-width: 768px) 100vw, 896px"
+            wide
+            sizes="(max-width: 768px) 100vw, 1024px"
           />
         </div>
       )}
-      <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
+     <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
         <Link href={`/posts/${slug}`} className="hover:text-brand-crimson transition-colors duration-200">
           {title}
         </Link>
@@ -56,7 +57,7 @@ export default async function Page() {
   const morePosts = allPosts.slice(1);
 
   return (
-    <div className="max-w-4xl mx-auto px-5 pt-12">
+    <div className="max-w-5xl mx-auto px-5 pt-12">
       {heroPost && (
         <HeroPost
           title={heroPost.title}
