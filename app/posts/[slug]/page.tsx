@@ -143,7 +143,7 @@ export default async function PostPage({
           Below xl: single column, body renders exactly as before.
           At xl+: sidebar in the left track, body in the right.
         */}
-        <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10 pb-28">
+        <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
           {/* Sidebar zone — empty placeholder for the shell.
               Hidden below xl; TOC/AI will live here at xl+. */}
           <aside className="hidden xl:block">
@@ -152,7 +152,7 @@ export default async function PostPage({
             </div>
           </aside>
 
-          <div className="mx-auto max-w-2xl xl:mx-0">
+          <div className="mx-auto max-w-2xl xl:mx-0 pb-28">
             <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
               {post.excerpt}
             </p>
