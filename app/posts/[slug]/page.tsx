@@ -156,7 +156,7 @@ export default async function PostPage({
             <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
               {post.excerpt}
             </p>
-            <div className="prose">
+            <div className="prose prose-headings:scroll-mt-24">
               <RichText content={post.content} />
             </div>
           </div>
