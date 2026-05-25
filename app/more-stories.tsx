@@ -31,9 +31,9 @@ function PostPreview({
         </div>
       )}
       <h3 className="text-3xl mb-3 leading-snug font-bold">
-        <Link href={`/posts/${slug}`} className="hover:text-brand-crimson transition-colors duration-200">
-          {title}
-        </Link>
+         <Link href={`/posts/${slug}`} className="hover:text-brand-crimson transition-colors duration-200">
+            {title}
+         </Link>
       </h3>
       <div className="text-lg mb-4">
         <DateComponent dateString={date} />
@@ -46,7 +46,7 @@ function PostPreview({
 
 export default function MoreStories({ morePosts }: { morePosts: any[] }) {
   return (
-    <section className="mx-auto max-w-4xl">
+    <section className="mx-auto max-w-5xl">
       <h2 className="mb-8 text-6xl md:text-7xl font-bold tracking-tighter leading-tight">
         More Stories
       </h2>
