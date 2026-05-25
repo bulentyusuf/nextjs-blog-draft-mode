@@ -46,11 +46,11 @@ function HeroPost({
               {title}
             </Link>
           </h3>
-          <div className="mb-4 text-lg md:mb-0">
-            <Date dateString={date} />
-          </div>
         </div>
         <div>
+          <div className="mb-4 text-lg">
+            <Date dateString={date} />
+          </div>
           <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
           {author && <Avatar name={author.name} picture={author.picture} />}
         </div>
