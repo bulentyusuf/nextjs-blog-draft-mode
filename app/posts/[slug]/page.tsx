@@ -101,33 +101,18 @@ export default async function PostPage({
   const showUpdated = post.updatedDate && post.updatedDate !== post.date;
 
   return (
-    <div className="max-w-4xl mx-auto px-5 pt-12">
+    <div className="max-w-4xl mx-auto px-5">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      {/* Full-bleed hero: spans the container, sits above the grid.
-          Guarded — a draft post may have no cover image (required at
-          publish time, but absent on drafts viewed via draft mode). */}
-      {post.coverImage && (
-        <div className="mb-6">
-          <CoverImage
-            title={post.title}
-            url={post.coverImage.url}
-            sizes="(max-width: 768px) 100vw, 896px"
-          />
-        </div>
-      )}
-
       {/*
-        Two-zone grid. Below xl: single column (article only; sidebar hidden).
-        At xl+: [sidebar | article] with the article holding its reading
-        measure and the sidebar carved from the space to its left.
-        The 3fr column lands near the previous max-w-2xl measure inside
-        max-w-4xl, so the prose line length is preserved.
+        Two-zone grid: adds a sidebar column without changing the article's
+        internal order. Below xl it's a single column (sidebar hidden) — the
+        article renders exactly as before. At xl+ the sidebar takes the left
+        track and the article the right.
       */}
-      <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
+      <div className="pt-12 xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
         {/* Sidebar zone — empty placeholder for the shell.
             Hidden below xl; TOC/AI will live here at xl+. */}
         <aside className="hidden xl:block">
@@ -136,12 +121,9 @@ export default async function PostPage({
           </div>
         </aside>
 
-        {/* Article zone */}
         <article>
           <div className="mb-4 text-sm text-gray-500">
-            <span>
-              Published <Date dateString={post.date} />
-            </span>
+            <span>Published <Date dateString={post.date} /></span>
             {showUpdated && (
               <span className="hidden md:inline ml-3">
                 · Updated <Date dateString={post.updatedDate!} />
@@ -156,15 +138,25 @@ export default async function PostPage({
               <Avatar name={post.author.name} picture={post.author.picture} />
             </div>
           )}
-          <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
-            {post.excerpt}
-          </p>
-          <div className="prose">
-            <RichText content={post.content} />
+          {post.coverImage && (
+            <div className="mb-6">
+              <CoverImage
+                title={post.title}
+                url={post.coverImage.url}
+                sizes="(max-width: 768px) 100vw, 896px"
+              />
+            </div>
+          )}
+          <div className="mx-auto max-w-2xl">
+            <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
+              {post.excerpt}
+            </p>
+            <div className="prose">
+              <RichText content={post.content} />
+            </div>
           </div>
         </article>
       </div>
-
       <hr className="border-accent-2 mt-28 mb-24" />
       <MoreStories morePosts={morePosts} />
     </div>
