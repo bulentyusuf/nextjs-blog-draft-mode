@@ -17,7 +17,7 @@ function HeroPost({
   slug,
 }: {
   title: string;
-  coverImage: any;
+  coverImage?: any;
   date: string;
   excerpt: string;
   author: any;
@@ -25,15 +25,17 @@ function HeroPost({
 }) {
   return (
     <section className="mx-auto max-w-4xl mb-20 md:mb-28">
-      <div className="mb-6">
-        <CoverImage
-          title={title}
-          slug={slug}
-          url={coverImage.url}
-          sizes="(max-width: 768px) 100vw, 896px"
-        />
-      </div>
-     <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
+      {coverImage && (
+        <div className="mb-6">
+          <CoverImage
+            title={title}
+            slug={slug}
+            url={coverImage.url}
+            sizes="(max-width: 768px) 100vw, 896px"
+          />
+        </div>
+      )}
+      <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
         <Link href={`/posts/${slug}`} className="hover:text-brand-crimson transition-colors duration-200">
           {title}
         </Link>
