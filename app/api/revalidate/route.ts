@@ -16,8 +16,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
   }
 
-  // Immediate invalidation (expire: 0) instead of stale-while-revalidate.
-  // For a CMS webhook we want the next request to fetch fresh data, not serve stale.
   revalidateTag("posts", { expire: 0 });
 
   // The RSS feed and sitemap use CDN-level cache headers that revalidateTag

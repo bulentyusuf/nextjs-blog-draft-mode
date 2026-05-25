@@ -7,6 +7,7 @@ import Avatar from "./avatar";
 import MoreStories from "./more-stories";
 
 import { getAllPosts } from "@/lib/api";
+import type { Author, CoverImage as CoverImageType } from "@/lib/types";
 
 function HeroPost({
   title,
@@ -17,10 +18,10 @@ function HeroPost({
   slug,
 }: {
   title: string;
-  coverImage?: any;
+  coverImage?: CoverImageType;
   date: string;
   excerpt: string;
-  author: any;
+  author?: Author;
   slug: string;
 }) {
   return (

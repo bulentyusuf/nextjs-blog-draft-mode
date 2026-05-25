@@ -1,6 +1,8 @@
 import ContentfulImage from "./contentful-image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
+import type { Block, Inline } from "@contentful/rich-text-types";
+import type { ReactNode } from "react";
 import type { Asset, Content } from "./types";
 import { SITE_HOSTNAME } from "./constants";
 import { createSlugger } from "./headings";
@@ -17,13 +19,11 @@ function isExternalUrl(url: string): boolean {
   }
 }
 
-// Pull plain text out of a heading node's inline children, so the id matches
-// the slug the TOC computes from the same text.
-function headingText(node: any): string {
+function headingText(node: Block | Inline): string {
   if (!node?.content) return "";
   return node.content
-    .map((child: any) =>
-      child.nodeType === "text" ? child.value : headingText(child),
+    .map((child) =>
+      child.nodeType === "text" ? child.value : headingText(child as Block | Inline),
     )
     .join("");
 }
@@ -66,7 +66,7 @@ export function RichText({ content }: { content: Content }) {
 
   return documentToReactComponents(content.json, {
     renderNode: {
-      [BLOCKS.HEADING_2]: (node: any, children: any) => {
+      [BLOCKS.HEADING_2]: (node: Block | Inline, children: ReactNode) => {
         const id = slugger(headingText(node).trim());
         return (
           <h2 id={id} className="scroll-mt-24">
@@ -74,17 +74,17 @@ export function RichText({ content }: { content: Content }) {
           </h2>
         );
       },
-      [BLOCKS.EMBEDDED_ASSET]: (node: any) => (
+      [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset
-          id={node.data.target.sys.id}
+          id={(node as Block).data.target.sys.id}
           assets={content.links.assets.block}
         />
       ),
-      [INLINES.HYPERLINK]: (node: any, children: any) => {
-        const uri: string = node.data.uri;
+      [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => {
+        const uri: string = (node as Inline).data.uri;
         if (isExternalUrl(uri)) {
           return (
-            <a href={uri} target="_blank" rel="noopener">
+            <a href={uri} target="_blank" rel="noopener noreferrer">
               {children}
             </a>
           );
