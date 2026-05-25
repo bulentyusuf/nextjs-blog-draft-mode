@@ -105,12 +105,12 @@ export default async function PostPage({
   const headings = extractHeadings(post.content.json);
 
   return (
-    <div className="max-w-4xl mx-auto px-5">
+    <div className="max-w-5xl mx-auto px-5">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <article className="mx-auto max-w-4xl pt-12">
+      <article className="mx-auto max-w-5xl pt-12">
         <div className="mb-4 text-sm text-gray-500">
   <span>Published <Date dateString={post.date} /></span>
   {showUpdated && (
@@ -132,7 +132,8 @@ export default async function PostPage({
             <CoverImage
               title={post.title}
               url={post.coverImage.url}
-              sizes="(max-width: 768px) 100vw, 896px"
+              wide
+              sizes="(max-width: 768px) 100vw, 1024px"
             />
           </div>
         )}
