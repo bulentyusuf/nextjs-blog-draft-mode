@@ -128,7 +128,7 @@ export default async function PostPage({
           </div>
         )}
         {post.coverImage && (
-          <div className="mb-6">
+          <div className="mb-12">
             <CoverImage
               title={post.title}
               url={post.coverImage.url}
