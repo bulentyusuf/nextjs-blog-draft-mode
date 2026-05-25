@@ -26,7 +26,7 @@ function HeroPost({
   return (
     <section className="mx-auto max-w-5xl mb-20 md:mb-28">
       {coverImage && (
-        <div className="mb-6">
+        <div className="mb-6 md:mb-8">
           <CoverImage
             title={title}
             slug={slug}
@@ -36,16 +36,25 @@ function HeroPost({
           />
         </div>
       )}
-     <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
-        <Link href={`/posts/${slug}`} className="hover:text-brand-crimson transition-colors duration-200">
-          {title}
-        </Link>
-      </h3>
-      <div className="mb-4 text-lg">
-        <Date dateString={date} />
+      <div className="md:grid md:grid-cols-2 md:gap-x-16">
+        <div>
+          <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
+            <Link
+              href={`/posts/${slug}`}
+              className="hover:text-brand-crimson transition-colors duration-200"
+            >
+              {title}
+            </Link>
+          </h3>
+          <div className="mb-4 text-lg md:mb-0">
+            <Date dateString={date} />
+          </div>
+        </div>
+        <div>
+          <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
+          {author && <Avatar name={author.name} picture={author.picture} />}
+        </div>
       </div>
-      <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
-      {author && <Avatar name={author.name} picture={author.picture} />}
     </section>
   );
 }
