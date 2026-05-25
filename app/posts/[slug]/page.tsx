@@ -7,6 +7,8 @@ import Date from "../../date";
 import CoverImage from "../../cover-image";
 import { RichText } from "@/lib/rich-text";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
+import { extractHeadings } from "@/lib/headings";
+import TableOfContents from "../../table-of-contents";
 import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
 
 export async function generateStaticParams() {
@@ -100,21 +102,23 @@ export default async function PostPage({
 
   const showUpdated = post.updatedDate && post.updatedDate !== post.date;
 
+  const headings = extractHeadings(post.content.json);
+
   return (
-    <div className="max-w-4xl mx-auto px-5">
+    <div className="max-w-5xl mx-auto px-5">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <article className="mx-auto max-w-4xl pt-12">
+      <article className="mx-auto max-w-5xl pt-12">
         <div className="mb-4 text-sm text-gray-500">
-          <span>Published <Date dateString={post.date} /></span>
-          {showUpdated && (
-            <span className="hidden md:inline ml-3">
-              · Updated <Date dateString={post.updatedDate!} />
-            </span>
-          )}
-        </div>
+  <span>Published <Date dateString={post.date} /></span>
+  {showUpdated && (
+    <span className="hidden md:inline ml-1">
+      · Updated <Date dateString={post.updatedDate!} />
+    </span>
+  )}
+</div>
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
           {post.title}
         </h1>
@@ -124,24 +128,41 @@ export default async function PostPage({
           </div>
         )}
         {post.coverImage && (
-          <div className="mb-6">
+          <div className="mb-10">
             <CoverImage
               title={post.title}
               url={post.coverImage.url}
-              sizes="(max-width: 768px) 100vw, 896px"
+              wide
+              sizes="(max-width: 768px) 100vw, 1024px"
             />
           </div>
         )}
-        <div className="mx-auto max-w-2xl">
-          <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
-            {post.excerpt}
-          </p>
-          <div className="prose">
-            <RichText content={post.content} />
+        {/*
+          Grid begins AFTER the cover image. The header block above
+          (date, title, byline, image) is unchanged and full-width.
+          Below xl: single column, body renders exactly as before.
+          At xl+: sidebar in the left track, body in the right.
+        */}
+        <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
+          {/* Sidebar zone — empty placeholder for the shell.
+              Hidden below xl; TOC/AI will live here at xl+. */}
+          <aside className="hidden xl:block">
+            <div className="sticky top-20 pb-4">
+              <TableOfContents headings={headings} />
+            </div>
+         </aside>
+
+          <div className="mx-auto max-w-2xl xl:mx-0 pb-28">
+            <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
+              {post.excerpt}
+            </p>
+            <div className="prose prose-headings:scroll-mt-20">
+              <RichText content={post.content} />
+            </div>
           </div>
         </div>
       </article>
-      <hr className="border-accent-2 mt-28 mb-24" />
+      <hr className="border-accent-2 mt-0 mb-24" />
       <MoreStories morePosts={morePosts} />
     </div>
   );

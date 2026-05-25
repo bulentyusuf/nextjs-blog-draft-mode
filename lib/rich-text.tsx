@@ -3,6 +3,7 @@ import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Asset, Content } from "./types";
 import { SITE_HOSTNAME } from "./constants";
+import { createSlugger } from "./headings";
 
 function isExternalUrl(url: string): boolean {
   try {
@@ -14,6 +15,17 @@ function isExternalUrl(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+// Pull plain text out of a heading node's inline children, so the id matches
+// the slug the TOC computes from the same text.
+function headingText(node: any): string {
+  if (!node?.content) return "";
+  return node.content
+    .map((child: any) =>
+      child.nodeType === "text" ? child.value : headingText(child),
+    )
+    .join("");
 }
 
 function RichTextAsset({
@@ -47,8 +59,21 @@ function RichTextAsset({
 }
 
 export function RichText({ content }: { content: Content }) {
+  // One slugger instance per render. documentToReactComponents walks nodes in
+  // document order, so the Nth H2 rendered draws the Nth slug — identical to
+  // the sequence extractHeadings() produces for the TOC.
+  const slugger = createSlugger();
+
   return documentToReactComponents(content.json, {
     renderNode: {
+      [BLOCKS.HEADING_2]: (node: any, children: any) => {
+        const id = slugger(headingText(node).trim());
+        return (
+          <h2 id={id} className="scroll-mt-24">
+            {children}
+          </h2>
+        );
+      },
       [BLOCKS.EMBEDDED_ASSET]: (node: any) => (
         <RichTextAsset
           id={node.data.target.sys.id}
