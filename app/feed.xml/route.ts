@@ -35,6 +35,7 @@ export async function GET() {
     .join("");
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="/feed.xsl" type="text/xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${escapeXml(SITE_TITLE)}</title>
@@ -47,9 +48,10 @@ export async function GET() {
 </rss>`;
 
   return new Response(xml, {
-    headers: {
-      "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400",
-    },
-  });
+  headers: {
+    "Content-Type": "application/xml; charset=utf-8",
+    "x-content-type-options": "nosniff",
+    "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400",
+  },
+});
 }
