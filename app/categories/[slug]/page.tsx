@@ -49,7 +49,7 @@ export default async function CategoryPage({
   const posts = await getPostsByCategory(slug, isEnabled);
 
   return (
-    <div className="max-w-5xl mx-auto px-5 pt-12">
+    <div className="max-w-5xl mx-auto px-5 pt-8">
       <header className="mx-auto max-w-5xl mb-16 md:mb-20">
         <p className="mb-3 text-sm font-bold uppercase tracking-wide text-brand-crimson">
           Category
