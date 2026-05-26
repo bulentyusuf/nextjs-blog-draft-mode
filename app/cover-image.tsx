@@ -8,6 +8,7 @@ export default function CoverImage({
   slug,
   sizes,
   wide,
+  priority = false,
 }: {
   title: string;
   url: string;
@@ -16,11 +17,14 @@ export default function CoverImage({
   // When true, the image is 3:2 on mobile and 16:9 on desktop (md+).
   // Used only by the post hero. Omitted everywhere else (cards stay 3:2).
   wide?: boolean;
+  // Set on the above-the-fold hero image only (index + post page) so the
+  // LCP element is fetched eagerly. Leave false for cards and grids.
+  priority?: boolean;
 }) {
   const image = (
     <ContentfulImage
       alt={`Cover Image for ${title}`}
-      priority={!slug}
+      priority={priority}
       fill
       sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
       className={cn("object-cover", {

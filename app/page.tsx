@@ -36,6 +36,7 @@ function HeroPost({
             slug={slug}
             url={coverImage.url}
             wide
+            priority
             sizes="(max-width: 768px) 100vw, 1024px"
           />
         </div>
