@@ -52,6 +52,10 @@ function HeroPost({
         <p className="text-lg leading-relaxed mb-6">{excerpt}</p>
         <div className="flex items-center gap-4">
           {author && <Avatar name={author.name} picture={author.picture} />}
+          <span
+            aria-hidden="true"
+            className="h-5 w-px bg-gray-300"
+          />
           <span className="text-lg leading-none text-gray-500">
             <Date dateString={date} />
             {showUpdated && (
