@@ -13,6 +13,7 @@ function HeroPost({
   title,
   coverImage,
   date,
+  updatedDate,
   excerpt,
   author,
   slug,
@@ -20,10 +21,12 @@ function HeroPost({
   title: string;
   coverImage?: CoverImageType;
   date: string;
+  updatedDate?: string;
   excerpt: string;
   author?: Author;
   slug: string;
 }) {
+  const showUpdated = updatedDate && updatedDate !== date;
   return (
     <section className="mx-auto max-w-5xl mb-20 md:mb-28">
       {coverImage && (
@@ -46,11 +49,18 @@ function HeroPost({
             {title}
           </Link>
         </h3>
-        <div className="mb-4 text-lg text-gray-500">
-          <Date dateString={date} />
-        </div>
         <p className="text-lg leading-relaxed mb-6">{excerpt}</p>
-        {author && <Avatar name={author.name} picture={author.picture} />}
+        <div className="flex items-center gap-4">
+          {author && <Avatar name={author.name} picture={author.picture} />}
+          <span className="text-lg leading-none text-gray-500">
+            <Date dateString={date} />
+            {showUpdated && (
+              <span className="ml-1">
+                {" · "}Updated <Date dateString={updatedDate!} />
+              </span>
+            )}
+          </span>
+        </div>
       </div>
     </section>
   );
@@ -69,6 +79,7 @@ export default async function Page() {
           title={heroPost.title}
           coverImage={heroPost.coverImage}
           date={heroPost.date}
+          updatedDate={heroPost.updatedDate}
           author={heroPost.author}
           slug={heroPost.slug}
           excerpt={heroPost.excerpt}
