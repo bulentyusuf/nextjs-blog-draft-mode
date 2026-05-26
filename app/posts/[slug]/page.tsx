@@ -111,7 +111,7 @@ export default async function PostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <article className="mx-auto max-w-5xl pt-12">
+      <article className="mx-auto max-w-5xl pt-8">
         {post.category && (
           <Link
             href={`/categories/${post.category.slug}`}
