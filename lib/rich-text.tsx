@@ -1,4 +1,4 @@
-import ContentfulImage from "./contentful-image";
+import LightboxImage from "../app/lightbox-image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Block, Inline } from "@contentful/rich-text-types";
@@ -41,13 +41,10 @@ function RichTextAsset({
 
   return (
     <div className="my-8">
-      <ContentfulImage
+      <LightboxImage
         src={asset.url}
         alt={asset.description || ""}
-        width={1200}
-        height={800}
-        sizes="(max-width: 768px) 100vw, 800px"
-        className="w-full h-auto border-2 border-gray-300"
+        caption={asset.description}
       />
       {asset.description && (
         <p className="text-sm text-gray-600 mt-2 text-center italic">
