@@ -81,9 +81,11 @@ function PostPreview({
 export default function MoreStories({
   morePosts,
   variant = "list",
+  heading = "More Stories",
 }: {
   morePosts: any[];
   variant?: Variant;
+  heading?: string | null;
 }) {
   const container =
     variant === "list"
@@ -92,9 +94,11 @@ export default function MoreStories({
 
   return (
     <section className="mx-auto max-w-5xl">
-      <h2 className="mb-8 text-6xl md:text-7xl font-bold tracking-tighter leading-tight">
-        More Stories
-      </h2>
+      {heading && (
+        <h2 className="mb-8 text-6xl md:text-7xl font-bold tracking-tighter leading-tight">
+          {heading}
+        </h2>
+      )}
       <div className={container}>
         {morePosts.map((post) => (
           <PostPreview

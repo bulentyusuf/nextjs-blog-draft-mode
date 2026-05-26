@@ -1,11 +1,12 @@
 import { MetadataRoute } from "next";
-import { getAllPosts, getAllPages } from "@/lib/api";
+import { getAllPosts, getAllPages, getAllCategories } from "@/lib/api";
 import { SITE_URL } from "@/lib/constants";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [posts, pages] = await Promise.all([
+  const [posts, pages, categories] = await Promise.all([
     getAllPosts(false),
     getAllPages(false),
+    getAllCategories(false),
   ]);
 
   const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
@@ -24,6 +25,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  const categoryEntries: MetadataRoute.Sitemap = categories.map((category) => ({
+    url: `${SITE_URL}/categories/${category.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.6,
+  }));
+
   return [
     {
       url: SITE_URL,
@@ -32,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     ...pageEntries,
+    ...categoryEntries,
     ...postEntries,
   ];
 }
