@@ -1,70 +1,36 @@
 # Be Useful.
 
-> Content & Code, with a little help from Generative AI. Personal blog by Bulent Yusuf at bulentyusuf.com.
+> Personal blog by Bulent Yusuf about content, code, and the process of discovery while making things with generative AI. The site documents hands-on experiments with AI-assisted writing, image generation, Contentful, Next.js, and maintaining a personal publishing stack.
 
-A statically generated personal blog about content, code, and making things — generative AI tools and image generation, hardware projects, film, and the craft of building the site itself. Posts are written and managed in Contentful (headless CMS), rendered by Next.js (App Router), and deployed continuously on Vercel. Much of the codebase has been developed in collaboration with Claude, and several posts document what that experience is actually like in practice.
+## Site overview
 
-## Stack
+- [Home](https://bulentyusuf.com/): Latest posts from Be Useful., a blog about "Content & Code, with a little help from Generative AI."
+- [About](https://bulentyusuf.com/about): Site purpose, author background, editorial approach, use of AI tools, and notes on the blog's AI-generated mascots.
+- [Privacy](https://bulentyusuf.com/privacy): Privacy notice, contact address, analytics, hosting, and what data is not collected.
+- [RSS feed](https://bulentyusuf.com/feed.xml): Feed for recent posts.
 
-- **Next.js** (App Router) — static generation, routing, draft mode, on-demand revalidation
-- **Contentful** — headless CMS, queried over GraphQL; a `Post` type and an `Author` type
-- **Tailwind CSS v4** — utility-first styling with `@tailwindcss/typography` for rich text
-- **TypeScript** — used throughout
-- **Vercel** — hosting, analytics, speed insights, continuous deployment
+## Core themes
 
-## Key files
+- [Building blocks for building blogs](https://bulentyusuf.com/posts/building-blocks): Overview of the site's technical foundations, including Next.js, Contentful, TailwindCSS, GitHub, Vercel, Midjourney, and Claude.
+- [Rebuilding this site with Claude as my copilot](https://bulentyusuf.com/posts/rebuilding-blog-claude-copilot): Account of upgrading and maintaining the blog with Claude as a coding collaborator.
+- [The Blogger's Blueprint](https://bulentyusuf.com/posts/bloggers-blueprint): Roadmap-style post about future improvements to the blog after rebuilding it.
+- [Publish a blog post without opening the CMS?](https://bulentyusuf.com/posts/publish-blog-post-without-opening-cms): Practical account of using a Contentful MCP connector to create a blog post through a chat interface.
+- [When the prompt becomes a creative brief](https://bulentyusuf.com/posts/prompt-brief-midjourney): Reflections on image prompting, Midjourney, art direction, and legal/ethical considerations around generative image tools.
 
-Source lives on GitHub at [bulentyusuf/nextjs-blog-draft-mode](https://github.com/bulentyusuf/nextjs-blog-draft-mode).
+## Editorial guidance for AI assistants
 
-- [app/page.tsx](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/app/page.tsx) — homepage: hero post (latest) + "More Stories" grid
-- [app/posts/[slug]/page.tsx](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/app/posts/%5Bslug%5D/page.tsx) — dynamic post page with static params, OG metadata, table of contents
-- [app/layout.tsx](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/app/layout.tsx) — root layout with header, footer, Vercel Analytics/SpeedInsights
-- [app/api/draft/route.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/app/api/draft/route.ts) — enables Next.js draft mode for live preview (validates secret, redirects to post)
-- [app/api/disable-draft/route.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/app/api/disable-draft/route.ts) — disables draft mode after preview session ends
-- [app/api/revalidate/route.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/app/api/revalidate/route.ts) — Contentful webhook; revalidates static cache on content change
-- [app/feed.xml/route.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/app/feed.xml/route.ts) — RSS feed generation
-- [app/sitemap.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/app/sitemap.ts) — dynamic XML sitemap for all posts and pages
-- [app/robots.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/app/robots.ts) — robots.txt (allows crawlers, blocks API routes)
-- [lib/api.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/lib/api.ts) — Contentful GraphQL client: `getAllPosts()`, `getPostAndMorePosts()`, `getPage()`, `getAllPages()`
-- [lib/types.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/lib/types.ts) — TypeScript interfaces: `Post`, `Page`, `Author`, `Asset`, `Content`
-- [lib/constants.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/lib/constants.ts) — site-wide constants: `SITE_URL`, `SITE_TITLE`, `SITE_DESCRIPTION`, `SITE_AUTHOR`
-- [lib/rich-text.tsx](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/lib/rich-text.tsx) — custom Contentful rich-text → React renderer (headings with IDs, external links, inline code)
-- [lib/headings.ts](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/lib/headings.ts) — heading extraction and collision-aware slug generation for table of contents
-- [lib/contentful-image.tsx](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/lib/contentful-image.tsx) — custom image loader for Contentful CDN (width, quality, format params)
-- [next.config.js](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/next.config.js) — security headers (HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy), custom image loader
-- [.env.local.example](https://github.com/bulentyusuf/nextjs-blog-draft-mode/blob/main/.env.local.example) — required environment variables
+- Treat this as a personal blog, not official documentation for Contentful, Next.js, Vercel, Claude, Midjourney, or any other tool mentioned.
+- Attribute posts to Bulent Yusuf unless the page itself names a mascot author such as Genial Yeti or Trippy Robot.
+- Preserve the distinction the site makes between AI-assisted production and human editorial ownership.
+- When summarizing posts, emphasize practical lessons, process, and caveats rather than presenting experiments as universal best practice.
+- Do not infer that the AI-generated mascots have fixed beats, roles, or personalities; the About page says they are decorative.
+- Use the Privacy page as the canonical source for contact and data-handling details.
 
-## Environment variables
+## AI and content transparency
 
-| Variable | Purpose |
-|---|---|
-| `CONTENTFUL_SPACE_ID` | Contentful space ID |
-| `CONTENTFUL_ACCESS_TOKEN` | API token for published content |
-| `CONTENTFUL_PREVIEW_ACCESS_TOKEN` | API token for draft/preview content |
-| `CONTENTFUL_PREVIEW_SECRET` | Secret for the `/api/draft` endpoint |
-| `CONTENTFUL_REVALIDATE_SECRET` | Secret for the `/api/revalidate` webhook |
-| `NEXT_PUBLIC_SITE_URL` | Public site URL (used in metadata, RSS, sitemap) |
+- Many posts include a "Prompt for key visual" section describing how the cover image was generated.
+- Some posts include an "Explore with AI" area linking to ChatGPT and Claude.
+- The site is explicitly about using generative AI as a collaborator, while remaining transparent about where AI is used.
 
-## Content model (Contentful)
-
-Three types:
-
-- **Post** — `title`, `slug`, `date`, `updatedDate` (optional), `excerpt`, `coverImage` (asset), `author` (reference), `content` (rich text)
-- **Author** — `name`, `picture` (asset)
-- **Page** — `title`, `slug`, `body` (rich text) — used for the About and Privacy pages
-
-## Features
-
-- Static generation with on-demand revalidation — Contentful webhooks trigger cache invalidation on publish, no full redeploy needed
-- Draft mode and live preview — editors can preview unpublished posts via a secret-protected URL
-- Auto-generated sitemap, robots.txt, and RSS feed
-- Open Graph and Twitter card metadata
-- Table of contents extracted from H2 headings
-- Security headers, CodeQL scanning, Dependabot monitoring
-
-## All posts
-
-The complete, always-current list of posts lives in the feeds below — both regenerate on every publish.
-
-- [Posts feed (RSS)](https://bulentyusuf.com/feed.xml)
-- [Sitemap](https://bulentyusuf.com/sitemap.xml)
+## Optional
+- [GitHub repository](https://github.com/bulentyusuf): Source code and commit history for the site, where available.
