@@ -30,6 +30,12 @@ export interface CoverImage {
   url: string;
 }
 
+export interface Category {
+  name: string;
+  slug: string;
+  description?: string;
+}
+
 export interface Post {
   slug: string;
   title: string;
@@ -39,6 +45,15 @@ export interface Post {
   author?: Author;
   excerpt: string;
   content: Content;
+  category?: Category;  // single reference; optional so untagged posts don't break
+}
+
+export interface CategoryCollectionResponse {
+  data?: {
+    categoryCollection?: {
+      items: Category[];
+    };
+  };
 }
 
 export interface PostCollectionResponse {
