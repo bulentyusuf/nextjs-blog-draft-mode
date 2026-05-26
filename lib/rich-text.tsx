@@ -1,4 +1,4 @@
-import LightboxImage from "../app/lightbox-image";
+import LightboxImage from "./lightbox-image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Block, Inline } from "@contentful/rich-text-types";
