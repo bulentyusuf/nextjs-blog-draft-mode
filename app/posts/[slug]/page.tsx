@@ -134,6 +134,7 @@ export default async function PostPage({
               title={post.title}
               url={post.coverImage.url}
               wide
+              priority
               sizes="(max-width: 768px) 100vw, 1024px"
             />
           </div>
