@@ -1,0 +1,66 @@
+# Be Useful.
+
+> Content & Code, with a little help from Generative AI. Personal blog by Bulent Yusuf at bulentyusuf.com.
+
+A statically generated personal blog about content, code, and making things with generative AI. Posts are written and managed in Contentful (headless CMS), rendered by Next.js (App Router), and deployed continuously on Vercel. Much of the codebase has been developed in collaboration with Claude, and several posts document what that experience is actually like in practice.
+
+## Stack
+
+- **Next.js** (App Router) — static generation, routing, draft mode, on-demand revalidation
+- **Contentful** — headless CMS, queried over GraphQL; single `Post` type and single `Author` type
+- **Tailwind CSS v4** — utility-first styling with `@tailwindcss/typography` for rich text
+- **TypeScript** — used throughout
+- **Vercel** — hosting, analytics, speed insights, continuous deployment
+
+## Key files
+
+- [/app/page.tsx](/app/page.tsx) — homepage: hero post (latest) + "More Stories" grid
+- [/app/posts/[slug]/page.tsx](/app/posts/%5Bslug%5D/page.tsx) — dynamic post page with static params, OG metadata, table of contents
+- [/app/layout.tsx](/app/layout.tsx) — root layout with header, footer, Vercel Analytics/SpeedInsights
+- [/app/api/draft/route.ts](/app/api/draft/route.ts) — enables Next.js draft mode for live preview (validates secret, redirects to post)
+- [/app/api/disable-draft/route.ts](/app/api/disable-draft/route.ts) — disables draft mode after preview session ends
+- [/app/api/revalidate/route.ts](/app/api/revalidate/route.ts) — Contentful webhook; revalidates static cache on content change
+- [/app/feed.xml/route.ts](/app/feed.xml/route.ts) — RSS feed generation
+- [/app/sitemap.ts](/app/sitemap.ts) — dynamic XML sitemap for all posts and pages
+- [/app/robots.ts](/app/robots.ts) — robots.txt (allows crawlers, blocks API routes)
+- [/lib/api.ts](/lib/api.ts) — Contentful GraphQL client: `getAllPosts()`, `getPostAndMorePosts()`, `getPage()`, `getAllPages()`
+- [/lib/types.ts](/lib/types.ts) — TypeScript interfaces: `Post`, `Page`, `Author`, `Asset`, `Content`
+- [/lib/constants.ts](/lib/constants.ts) — site-wide constants: `SITE_URL`, `SITE_TITLE`, `SITE_DESCRIPTION`, `SITE_AUTHOR`
+- [/lib/rich-text.tsx](/lib/rich-text.tsx) — custom Contentful rich-text → React renderer (headings with IDs, external links, inline code)
+- [/lib/headings.ts](/lib/headings.ts) — heading extraction and collision-aware slug generation for table of contents
+- [/lib/contentful-image.tsx](/lib/contentful-image.tsx) — custom image loader for Contentful CDN (width, quality, format params)
+- [/next.config.js](/next.config.js) — security headers (CSP, HSTS, X-Frame-Options, Permissions-Policy), custom image loader
+- [/.env.local.example](/.env.local.example) — required environment variables
+
+## Environment variables
+
+| Variable | Purpose |
+|---|---|
+| `CONTENTFUL_SPACE_ID` | Contentful space ID |
+| `CONTENTFUL_ACCESS_TOKEN` | API token for published content |
+| `CONTENTFUL_PREVIEW_ACCESS_TOKEN` | API token for draft/preview content |
+| `CONTENTFUL_PREVIEW_SECRET` | Secret for the `/api/draft` endpoint |
+| `CONTENTFUL_REVALIDATE_SECRET` | Secret for the `/api/revalidate` webhook |
+| `NEXT_PUBLIC_SITE_URL` | Public site URL (used in metadata, RSS, sitemap) |
+
+## Content model (Contentful)
+
+Two types:
+
+- **Post** — `title`, `slug`, `date`, `excerpt`, `coverImage` (asset), `author` (reference), `body` (rich text), `tags`
+- **Author** — `name`, `picture` (asset)
+- **Page** — `title`, `slug`, `body` (rich text) — used for About and Privacy pages
+
+## Features
+
+- Static generation with on-demand revalidation — Contentful webhooks trigger cache invalidation on publish, no full redeploy needed
+- Draft mode and live preview — editors can preview unpublished posts via a secret-protected URL
+- Auto-generated sitemap, robots.txt, and RSS feed
+- Open Graph and Twitter card metadata
+- Table of contents extracted from H2 headings
+- Security headers, CodeQL scanning, Dependabot monitoring
+
+## Optional: full content
+
+- [All posts feed (RSS)](/feed.xml)
+- [Sitemap](/sitemap.xml)
