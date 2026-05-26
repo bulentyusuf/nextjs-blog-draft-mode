@@ -5,6 +5,8 @@ import type {
   PageCollectionResponse,
   PageMeta,
   PageMetaCollectionResponse,
+  Category,
+  CategoryCollectionResponse,
 } from "./types";
 
 const POST_GRAPHQL_FIELDS = `
@@ -35,6 +37,10 @@ const POST_GRAPHQL_FIELDS = `
         }
       }
     }
+  }
+  category {
+    name
+    slug
   }
 `;
 
@@ -192,4 +198,64 @@ export async function getAllPages(
   );
 
   return entries?.data?.pageCollection?.items ?? [];
+}
+
+export async function getAllCategories(
+  isDraftMode = false,
+): Promise<Category[]> {
+  const entries = await fetchGraphQL<CategoryCollectionResponse>(
+    `query GetAllCategories($preview: Boolean) {
+      categoryCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview) {
+        items {
+          name
+          slug
+          description
+        }
+      }
+    }`,
+    isDraftMode,
+    { preview: isDraftMode },
+  );
+
+  return entries?.data?.categoryCollection?.items ?? [];
+}
+
+export async function getCategoryBySlug(
+  slug: string,
+  isDraftMode = false,
+): Promise<Category | undefined> {
+  const entries = await fetchGraphQL<CategoryCollectionResponse>(
+    `query GetCategory($slug: String!, $preview: Boolean) {
+      categoryCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
+        items {
+          name
+          slug
+          description
+        }
+      }
+    }`,
+    isDraftMode,
+    { slug, preview: isDraftMode },
+  );
+
+  return entries?.data?.categoryCollection?.items?.[0];
+}
+
+export async function getPostsByCategory(
+  slug: string,
+  isDraftMode = false,
+): Promise<Post[]> {
+  const entries = await fetchGraphQL<PostCollectionResponse>(
+    `query GetPostsByCategory($slug: String!, $preview: Boolean) {
+      postCollection(where: { category: { slug: $slug } }, order: date_DESC, preview: $preview) {
+        items {
+          ${POST_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    isDraftMode,
+    { slug, preview: isDraftMode },
+  );
+
+  return entries?.data?.postCollection?.items ?? [];
 }

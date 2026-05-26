@@ -112,6 +112,14 @@ export default async function PostPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <article className="mx-auto max-w-5xl pt-12">
+        {post.category && (
+          <Link
+            href={`/categories/${post.category.slug}`}
+            className="mb-3 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+          >
+            {post.category.name}
+          </Link>
+        )}
         <div className="mb-4 text-sm text-gray-500">
   <span>Published <Date dateString={post.date} /></span>
   {showUpdated && (
