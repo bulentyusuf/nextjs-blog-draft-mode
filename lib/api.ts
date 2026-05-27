@@ -109,7 +109,7 @@ function extractPostEntries(fetchResponse: PostCollectionResponse): Post[] {
   return fetchResponse?.data?.postCollection?.items ?? [];
 }
 
-export async function getAllPosts(isDraftMode: boolean): Promise<Post[]> {
+export async function getAllPosts(isDraftMode = false): Promise<Post[]> {
   const entries = await fetchGraphQL<PostCollectionResponse>(
     `query GetAllPosts($preview: Boolean) {
       postCollection(where: { slug_exists: true }, order: date_DESC, preview: $preview) {
@@ -127,7 +127,7 @@ export async function getAllPosts(isDraftMode: boolean): Promise<Post[]> {
 
 export async function getPostAndMorePosts(
   slug: string,
-  preview: boolean,
+  preview = false,
 ): Promise<{ post: Post | undefined; morePosts: Post[] }> {
   const entry = await fetchGraphQL<PostCollectionResponse>(
     `query GetPost($slug: String!, $preview: Boolean) {
@@ -161,7 +161,7 @@ export async function getPostAndMorePosts(
 
 export async function getPage(
   slug: string,
-  preview: boolean,
+  preview = false,
 ): Promise<Page | undefined> {
   const entry = await fetchGraphQL<PageCollectionResponse>(
     `query GetPage($slug: String!, $preview: Boolean) {

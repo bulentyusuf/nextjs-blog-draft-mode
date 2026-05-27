@@ -91,10 +91,6 @@ export default function LightboxImage({
     };
   }, [open, close]);
 
-  const reduceMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
   return (
     <>
       <button
@@ -123,9 +119,7 @@ export default function LightboxImage({
             aria-modal="true"
             aria-label={alt || "Enlarged image"}
             onClick={close}
-            className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 md:p-8 ${
-              reduceMotion ? "" : "transition-opacity duration-200"
-            }`}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 md:p-8 motion-safe:transition-opacity motion-safe:duration-200"
           >
             <button
               ref={closeRef}
