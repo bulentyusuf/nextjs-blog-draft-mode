@@ -79,13 +79,6 @@ export function RichText({ content }: { content: Content }) {
       ),
       [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => {
         const uri: string = (node as Inline).data.uri;
-        const ALLOWED_SCHEMES = ["http:", "https:", "mailto:"];
-        try {
-          const parsed = new URL(uri);
-          if (!ALLOWED_SCHEMES.includes(parsed.protocol)) return <>{children}</>;
-        } catch {
-          return <>{children}</>;
-        }
         if (isExternalUrl(uri)) {
           return (
             <a href={uri} target="_blank" rel="noopener noreferrer">

@@ -19,9 +19,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { isEnabled } = await draftMode();
   const { slug } = await params;
-  const category = await getCategoryBySlug(slug, isEnabled);
+  const category = await getCategoryBySlug(slug);
 
   if (!category) {
     return { title: "Category not found" };

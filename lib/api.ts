@@ -10,9 +10,6 @@ import type {
 } from "./types";
 
 const POST_GRAPHQL_FIELDS = `
-  sys {
-    id
-  }
   slug
   title
   coverImage {
@@ -51,7 +48,6 @@ const PAGE_GRAPHQL_FIELDS = `
   slug
   title
   sys {
-    id
     publishedAt
     firstPublishedAt
   }
@@ -113,7 +109,7 @@ function extractPostEntries(fetchResponse: PostCollectionResponse): Post[] {
   return fetchResponse?.data?.postCollection?.items ?? [];
 }
 
-export async function getAllPosts(isDraftMode = false): Promise<Post[]> {
+export async function getAllPosts(isDraftMode: boolean): Promise<Post[]> {
   const entries = await fetchGraphQL<PostCollectionResponse>(
     `query GetAllPosts($preview: Boolean) {
       postCollection(where: { slug_exists: true }, order: date_DESC, preview: $preview) {
@@ -131,7 +127,7 @@ export async function getAllPosts(isDraftMode = false): Promise<Post[]> {
 
 export async function getPostAndMorePosts(
   slug: string,
-  preview = false,
+  preview: boolean,
 ): Promise<{ post: Post | undefined; morePosts: Post[] }> {
   const entry = await fetchGraphQL<PostCollectionResponse>(
     `query GetPost($slug: String!, $preview: Boolean) {
@@ -165,7 +161,7 @@ export async function getPostAndMorePosts(
 
 export async function getPage(
   slug: string,
-  preview = false,
+  preview: boolean,
 ): Promise<Page | undefined> {
   const entry = await fetchGraphQL<PageCollectionResponse>(
     `query GetPage($slug: String!, $preview: Boolean) {

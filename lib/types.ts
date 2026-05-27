@@ -37,7 +37,6 @@ export interface Category {
 }
 
 export interface Post {
-  sys: { id: string };
   slug: string;
   title: string;
   coverImage?: CoverImage;
@@ -66,14 +65,13 @@ export interface PostCollectionResponse {
 }
 
 export interface Page {
-  sys: {
-    id: string;
-    publishedAt: string | null;
-    firstPublishedAt: string | null;
-  };
   slug: string;
   title: string;
   body: Content;
+  sys: {
+    publishedAt: string | null;
+    firstPublishedAt: string | null;
+  };
 }
 
 export interface PageMeta {
