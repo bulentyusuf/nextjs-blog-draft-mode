@@ -5,6 +5,8 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
 import BackToTop from "./back-to-top";
 import Link from "next/link";
+import { draftMode } from "next/headers";
+import { ExitPreviewButton } from "./exit-preview-button";
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -106,17 +108,19 @@ function Footer() {
     </footer>
   );
 }
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { isEnabled } = await draftMode();
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen">
         <Header />
         <main>{children}</main>
         <Footer />
+        {isEnabled && <ExitPreviewButton />}
         <BackToTop />
         <Analytics />
         <SpeedInsights />
