@@ -109,7 +109,12 @@ export default async function PostPage({
     <div className="max-w-5xl mx-auto px-5">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd)
+            .replace(/</g, "\\u003c")
+            .replace(/>/g, "\\u003e")
+            .replace(/&/g, "\\u0026"),
+        }}
       />
       <article className="mx-auto max-w-5xl pt-8">
         {post.category && (
