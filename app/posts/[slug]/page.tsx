@@ -10,7 +10,7 @@ import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
 import { extractHeadings } from "@/lib/headings";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
-import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
+import { SITE_URL, SITE_AUTHOR } from "@/lib/constants";
 
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
@@ -109,7 +109,12 @@ export default async function PostPage({
     <div className="max-w-5xl mx-auto px-5">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd)
+            .replace(/</g, "\\u003c")
+            .replace(/>/g, "\\u003e")
+            .replace(/&/g, "\\u0026"),
+        }}
       />
       <article className="mx-auto max-w-5xl pt-8">
         {post.category && (

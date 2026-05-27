@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
   }
 
-  revalidateTag("posts", { expire: 0 });
+  revalidateTag("posts");
 
   // The RSS feed and sitemap use CDN-level cache headers that revalidateTag
   // does not touch, so we invalidate their paths explicitly.
