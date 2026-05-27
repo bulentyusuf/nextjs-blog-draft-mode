@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 
+// Contentful's Live Preview embeds this site in an iframe at app.contentful.com,
+// so frame-ancestors must allow that origin. X-Frame-Options can't list multiple
+// origins, so it's intentionally omitted — modern browsers honour CSP's
+// frame-ancestors which fully supersedes it.
 const securityHeaders = [
-  { key: "X-Frame-Options", value: "SAMEORIGIN" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
@@ -22,7 +25,7 @@ const securityHeaders = [
       "img-src 'self' https://images.ctfassets.net data: blob:",
       "font-src 'self'",
       "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
-      "frame-ancestors 'self'",
+      "frame-ancestors 'self' https://app.contentful.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

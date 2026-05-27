@@ -2,8 +2,10 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { draftMode } from "next/headers";
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
 import BackToTop from "./back-to-top";
+import { Providers } from "./providers";
 import Link from "next/link";
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -106,18 +108,21 @@ function Footer() {
     </footer>
   );
 }
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { isEnabled } = await draftMode();
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen">
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <BackToTop />
+        <Providers draftEnabled={isEnabled}>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+          <BackToTop />
+        </Providers>
         <Analytics />
         <SpeedInsights />
       </body>
