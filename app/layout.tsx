@@ -67,7 +67,7 @@ function Header() {
 }
 function Footer() {
   return (
-    <footer className="bg-brand-dark">
+    <footer className="bg-brand-dark pb-[env(safe-area-inset-bottom)]">
       <div className="max-w-5xl mx-auto px-5">
         <div className="py-16 flex flex-col lg:flex-row items-center justify-between">
           <p className="text-sm text-center text-white/90 lg:text-left mb-4 lg:mb-0">
