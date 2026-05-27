@@ -5,11 +5,11 @@ import MoreStories from "../../more-stories";
 import Avatar from "../../avatar";
 import Date from "../../date";
 import CoverImage from "../../cover-image";
-import { RichText } from "@/lib/rich-text";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
 import { extractHeadings } from "@/lib/headings";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
+import LivePostBody from "./live-post-body";
 import { SITE_URL, SITE_AUTHOR } from "@/lib/constants";
 
 export async function generateStaticParams() {
@@ -174,7 +174,7 @@ export default async function PostPage({
               {post.excerpt}
             </p>
             <div className="prose prose-headings:scroll-mt-20">
-              <RichText content={post.content} />
+              <LivePostBody post={post} />
             </div>
           </div>
         </div>
