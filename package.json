@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@contentful/live-preview": "^4.10.6",
     "@contentful/rich-text-react-renderer": "^15.17.1",
     "@contentful/rich-text-types": "^16.2.1",
     "@tailwindcss/postcss": "^4.3.0",

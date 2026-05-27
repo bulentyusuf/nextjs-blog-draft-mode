@@ -10,6 +10,9 @@ import type {
 } from "./types";
 
 const POST_GRAPHQL_FIELDS = `
+  sys {
+    id
+  }
   slug
   title
   coverImage {
@@ -48,6 +51,7 @@ const PAGE_GRAPHQL_FIELDS = `
   slug
   title
   sys {
+    id
     publishedAt
     firstPublishedAt
   }
