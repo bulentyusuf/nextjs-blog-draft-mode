@@ -22,6 +22,10 @@ export async function GET(request: Request) {
     return new Response("Missing slug", { status: 400 });
   }
 
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) {
+    return new Response("Invalid slug", { status: 400 });
+  }
+
   (await draftMode()).enable();
   redirect(`/posts/${slug}`);
 }
