@@ -113,9 +113,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen">
+      <body className="min-h-screen bg-brand-dark">
         <Header />
-        <main>{children}</main>
+        <main className="bg-white">{children}</main>
         <Footer />
         <BackToTop />
         <Analytics />
