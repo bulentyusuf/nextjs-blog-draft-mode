@@ -5,12 +5,12 @@ import MoreStories from "../../more-stories";
 import Avatar from "../../avatar";
 import Date from "../../date";
 import CoverImage from "../../cover-image";
+import { RichText } from "@/lib/rich-text";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
 import { extractHeadings } from "@/lib/headings";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
-import LivePostBody from "./live-post-body";
-import { SITE_URL, SITE_AUTHOR } from "@/lib/constants";
+import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
 
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
@@ -109,12 +109,7 @@ export default async function PostPage({
     <div className="max-w-5xl mx-auto px-5">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd)
-            .replace(/</g, "\\u003c")
-            .replace(/>/g, "\\u003e")
-            .replace(/&/g, "\\u0026"),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <article className="mx-auto max-w-5xl pt-8">
         {post.category && (
@@ -174,7 +169,7 @@ export default async function PostPage({
               {post.excerpt}
             </p>
             <div className="prose prose-headings:scroll-mt-20">
-              <LivePostBody post={post} />
+              <RichText content={post.content} />
             </div>
           </div>
         </div>
