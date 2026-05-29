@@ -1,4 +1,5 @@
 import LightboxImage from "./lightbox-image";
+import CopyButton from "./copy-button";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Block, Inline } from "@contentful/rich-text-types";
@@ -97,10 +98,15 @@ export function RichText({
         const html = highlighted?.get(id);
 
         return (
-          <div className="not-prose my-8 overflow-hidden rounded-lg border border-gray-200">
-            {entry.filename && (
-              <div className="border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
-                {entry.filename}
+          <div className="not-prose relative my-8 overflow-hidden rounded-lg border border-gray-200">
+            {entry.filename ? (
+              <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
+                <span>{entry.filename}</span>
+                <CopyButton code={entry.code} />
+              </div>
+            ) : (
+              <div className="absolute right-2 top-2">
+                <CopyButton code={entry.code} />
               </div>
             )}
             {html ? (
