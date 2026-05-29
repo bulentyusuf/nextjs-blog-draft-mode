@@ -58,9 +58,11 @@ function RichTextAsset({
 export function RichText({
   content,
   headings,
+  highlighted,
 }: {
   content: Content;
   headings: Heading[];
+  highlighted?: Map<string, string>;
 }) {
   // Single source of truth for heading ids. `headings` comes from
   // extractHeadings() on the page. documentToReactComponents walks in document
@@ -87,6 +89,33 @@ export function RichText({
           assets={content.links.assets.block}
         />
       ),
+      [BLOCKS.EMBEDDED_ENTRY]: (node: Block | Inline) => {
+        const id = (node as Block).data.target.sys.id;
+        const entry = content.links.entries?.block?.find((e) => e.sys.id === id);
+        if (!entry || entry.__typename !== "CodeBlock") return null;
+
+        const html = highlighted?.get(id);
+
+        return (
+          <div className="not-prose my-8 overflow-hidden rounded-lg border border-gray-200">
+            {entry.filename && (
+              <div className="border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
+                {entry.filename}
+              </div>
+            )}
+            {html ? (
+              <div
+                className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4"
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            ) : (
+              <pre className="overflow-x-auto p-4 text-sm">
+                <code>{entry.code}</code>
+              </pre>
+            )}
+          </div>
+        );
+      },
       [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => {
         const uri: string = (node as Inline).data.uri;
         const ALLOWED_SCHEMES = ["http:", "https:", "mailto:"];

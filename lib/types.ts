@@ -12,10 +12,23 @@ export interface AssetLink {
   block: Asset[];
 }
 
+export interface CodeBlock {
+  __typename: "CodeBlock";
+  sys: { id: string };
+  language?: string;
+  code: string;
+  filename?: string;
+}
+
+export interface EntryLink {
+  block: CodeBlock[];
+}
+
 export interface Content {
   json: Document;
   links: {
     assets: AssetLink;
+    entries?: EntryLink;
   };
 }
 
