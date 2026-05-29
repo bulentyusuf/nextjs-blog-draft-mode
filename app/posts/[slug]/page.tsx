@@ -174,7 +174,7 @@ export default async function PostPage({
               {post.excerpt}
             </p>
             <div className="prose prose-headings:scroll-mt-20">
-              <RichText content={post.content} />
+              <RichText content={post.content} headings={headings} />
             </div>
           </div>
         </div>

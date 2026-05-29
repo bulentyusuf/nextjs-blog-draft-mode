@@ -4,8 +4,8 @@ import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Block, Inline } from "@contentful/rich-text-types";
 import type { ReactNode } from "react";
 import type { Asset, Content } from "./types";
+import type { Heading } from "./headings";
 import { SITE_HOSTNAME } from "./constants";
-import { createSlugger } from "./headings";
 
 function isExternalUrl(url: string): boolean {
   try {
@@ -55,18 +55,28 @@ function RichTextAsset({
   );
 }
 
-export function RichText({ content }: { content: Content }) {
-  // One slugger instance per render. documentToReactComponents walks nodes in
-  // document order, so the Nth H2 rendered draws the Nth slug — identical to
-  // the sequence extractHeadings() produces for the TOC.
-  const slugger = createSlugger();
+export function RichText({
+  content,
+  headings,
+}: {
+  content: Content;
+  headings: Heading[];
+}) {
+  // Single source of truth for heading ids. `headings` comes from
+  // extractHeadings() on the page. documentToReactComponents walks in document
+  // order, so advancing one index per non-empty H2 pairs each heading with its
+  // precomputed slug. The empty-heading skip below mirrors extractHeadings()
+  // exactly. rich-text.test.tsx asserts the two never drift.
+  let headingIndex = 0;
 
   return documentToReactComponents(content.json, {
     renderNode: {
       [BLOCKS.HEADING_2]: (node: Block | Inline, children: ReactNode) => {
-        const id = slugger(headingText(node).trim());
+        const text = headingText(node).trim();
+        if (!text) return <h2>{children}</h2>;
+        const slug = headings[headingIndex++]?.slug;
         return (
-          <h2 id={id} className="scroll-mt-24">
+          <h2 id={slug} className="scroll-mt-24">
             {children}
           </h2>
         );

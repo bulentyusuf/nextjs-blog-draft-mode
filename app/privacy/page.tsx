@@ -44,7 +44,7 @@ export default async function PrivacyPage() {
           </p>
         )}
         <div className="prose">
-          <RichText content={page.body} />
+          <RichText content={page.body} headings={[]} />
         </div>
       </article>
     </div>
