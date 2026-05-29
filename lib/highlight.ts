@@ -2,7 +2,7 @@ import "server-only";
 import { createHighlighter, type Highlighter } from "shiki";
 import type { Content } from "./types";
 
-const THEME = "min-light"; // single light theme; the site is light-only
+const THEME = "min-dark"; // themes
 const LANGS = [
   "typescript",
   "tsx",

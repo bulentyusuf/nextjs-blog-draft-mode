@@ -21,7 +21,7 @@ export default function CopyButton({ code }: { code: string }) {
         type="button"
         onClick={copy}
         aria-label="Copy code"
-        className="absolute right-2 top-2 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 font-mono text-xs text-gray-500 transition-colors hover:text-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="rounded-md border border-gray-300 bg-white px-2 py-1 font-mono text-xs text-gray-600 transition-colors hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         {copied ? "Copied" : "Copy"}
       </button>
