@@ -36,6 +36,19 @@ const POST_GRAPHQL_FIELDS = `
           description
         }
       }
+      entries {
+        block {
+          sys {
+            id
+          }
+          __typename
+          ... on CodeBlock {
+            language
+            code
+            filename
+          }
+        }
+      }
     }
   }
   category {

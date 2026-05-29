@@ -8,6 +8,7 @@ import CoverImage from "../../cover-image";
 import { RichText } from "@/lib/rich-text";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
 import { extractHeadings } from "@/lib/headings";
+import { highlightCodeBlocks } from "@/lib/highlight";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
 import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
@@ -104,6 +105,7 @@ export default async function PostPage({
   const showUpdated = post.updatedDate && post.updatedDate !== post.date;
 
   const headings = extractHeadings(post.content.json);
+  const highlighted = await highlightCodeBlocks(post.content);
 
   return (
     <div className="max-w-5xl mx-auto px-5">
@@ -174,7 +176,7 @@ export default async function PostPage({
               {post.excerpt}
             </p>
             <div className="prose prose-headings:scroll-mt-20">
-              <RichText content={post.content} headings={headings} />
+              <RichText content={post.content} headings={headings} highlighted={highlighted} />
             </div>
           </div>
         </div>
