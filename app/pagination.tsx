@@ -32,7 +32,7 @@ export default function Pagination({
     "inline-flex h-10 min-w-10 items-center justify-center rounded-md px-3 text-base transition-colors duration-200";
 
   return (
-    <nav aria-label="Pagination" className="mx-auto max-w-5xl border-t border-gray-200 pt-8 md:pt-8 mb-8 md:mb-8">
+    <nav aria-label="Pagination" className="mx-auto max-w-5xl border-t border-gray-200 pt-10 md:pt-12 mb-12 md:mb-12">
       <ul className="flex items-center justify-center gap-2">
         <li>
           {hasPrev ? (
