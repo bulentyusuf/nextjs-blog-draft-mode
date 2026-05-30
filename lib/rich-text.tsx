@@ -111,11 +111,19 @@ export function RichText({
             )}
             {html ? (
             <div
-              className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full"
+              tabIndex={0}
+              role="region"
+              aria-label={entry.filename || "Code block"}
+              className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               dangerouslySetInnerHTML={{ __html: html }}
             />
           ) : (
-            <pre className="overflow-x-auto p-4 text-sm">
+            <pre
+              tabIndex={0}
+              role="region"
+              aria-label={entry.filename || "Code block"}
+              className="overflow-x-auto p-4 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
               <code>{entry.code}</code>
             </pre>
           )}
