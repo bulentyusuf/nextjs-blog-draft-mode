@@ -119,19 +119,31 @@ export default async function PostPage({
         }}
       />
       <article className="mx-auto max-w-5xl pt-8">
-        {post.category && (
-          <Link
-            href={`/categories/${post.category.slug}`}
-            className="mb-3 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
-          >
-            {post.category.name}
-          </Link>
-        )}
-        <div className="mb-4 text-sm text-gray-500">
-          <span>Published <Date dateString={post.date} /></span>
-          {showUpdated && (
-            <span className="hidden md:inline ml-1">
-              · Updated <Date dateString={post.updatedDate!} />
+        <div className="mb-6 flex flex-wrap items-baseline gap-x-2 text-sm text-gray-500">
+          {post.category && (
+            <Link
+              href={`/categories/${post.category.slug}`}
+              className="font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+            >
+              {post.category.name}
+            </Link>
+          )}
+          {post.category && <span aria-hidden="true">·</span>}
+          {showUpdated ? (
+            <>
+              {/* Mobile: single most-relevant date (the update). */}
+              <span className="md:hidden">
+                Updated <Date dateString={post.updatedDate!} />
+              </span>
+              {/* md+: full published + updated. */}
+              <span className="hidden md:inline">
+                Published <Date dateString={post.date} /> · Updated{" "}
+                <Date dateString={post.updatedDate!} />
+              </span>
+            </>
+          ) : (
+            <span>
+              Published <Date dateString={post.date} />
             </span>
           )}
         </div>
@@ -151,10 +163,9 @@ export default async function PostPage({
         )}
         {/*
           Grid begins AFTER the cover image. The header block above
-          (category, date, title, image) is full-width.
-          Below xl: single column, byline sits above the excerpt.
-          At xl+: sidebar in the left track (level with the byline),
-          byline + body in the right.
+          (kicker, title, image) is full-width.
+          Below xl: single column, standfirst then byline then body.
+          At xl+: sidebar (TOC + AI) in the left track, content in the right.
         */}
         <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
           {/* Sidebar zone — TOC + AI handoff as one reading-assistance
@@ -168,14 +179,14 @@ export default async function PostPage({
           </aside>
 
           <div className="mx-auto max-w-2xl xl:mx-0 pb-28">
+            <p className="mb-6 text-lg italic leading-relaxed text-gray-600">
+              {post.excerpt}
+            </p>
             {post.author && (
               <div className="mb-8">
                 <Avatar name={post.author.name} picture={post.author.picture} />
               </div>
             )}
-            <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
-              {post.excerpt}
-            </p>
             <div className="prose prose-headings:scroll-mt-20">
               <RichText content={post.content} headings={headings} highlighted={highlighted} />
             </div>
