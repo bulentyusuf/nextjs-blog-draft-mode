@@ -29,6 +29,20 @@ function HeroPost({
   slug: string;
 }) {
   const showUpdated = updatedDate && updatedDate !== date;
+
+  // Lead with the published date (matches the index cards). The updated
+  // date is desktop-only so the mobile byline stays one tight line.
+  const dateline = (
+    <>
+      <Date dateString={date} />
+      {showUpdated && (
+        <span className="hidden sm:inline">
+          {" · "}Updated <Date dateString={updatedDate!} />
+        </span>
+      )}
+    </>
+  );
+
   return (
     <section className="mx-auto max-w-5xl mb-20 md:mb-28">
       {coverImage && (
@@ -53,17 +67,16 @@ function HeroPost({
           </Link>
         </h3>
         <p className="text-lg leading-relaxed mb-6">{excerpt}</p>
-        <div className="flex items-center gap-4">
-          {author && <Avatar name={author.name} picture={author.picture} />}
-          <span aria-hidden="true" className="h-5 w-px bg-gray-300" />
-          <span className="text-lg leading-none text-gray-500">
-            <Date dateString={date} />
-            {showUpdated && (
-              <span className="ml-1">
-                {" · "}Updated <Date dateString={updatedDate!} />
-              </span>
-            )}
-          </span>
+        <div className="flex items-center">
+          {author ? (
+            <Avatar
+              name={author.name}
+              picture={author.picture}
+              meta={dateline}
+            />
+          ) : (
+            <span className="text-sm text-gray-500">{dateline}</span>
+          )}
         </div>
       </div>
     </section>
