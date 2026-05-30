@@ -5,8 +5,10 @@ import Date from "./date";
 import CoverImage from "./cover-image";
 import Avatar from "./avatar";
 import MoreStories from "./more-stories";
+import Pagination from "./pagination";
 
 import { getAllPosts } from "@/lib/api";
+import { POSTS_PER_PAGE } from "@/lib/constants";
 import type { Author, CoverImage as CoverImageType } from "@/lib/types";
 
 function HeroPost({
@@ -53,10 +55,7 @@ function HeroPost({
         <p className="text-lg leading-relaxed mb-6">{excerpt}</p>
         <div className="flex items-center gap-4">
           {author && <Avatar name={author.name} picture={author.picture} />}
-          <span
-            aria-hidden="true"
-            className="h-5 w-px bg-gray-300"
-          />
+          <span aria-hidden="true" className="h-5 w-px bg-gray-300" />
           <span className="text-lg leading-none text-gray-500">
             <Date dateString={date} />
             {showUpdated && (
@@ -74,8 +73,12 @@ function HeroPost({
 export default async function Page() {
   const { isEnabled } = await draftMode();
   const allPosts = await getAllPosts(isEnabled);
+
   const heroPost = allPosts[0];
-  const morePosts = allPosts.slice(1);
+  // Hero counts toward the page budget, so page 1 shows the hero plus
+  // (POSTS_PER_PAGE - 1) cards.
+  const morePosts = allPosts.slice(1, POSTS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
 
   return (
     <div className="max-w-5xl mx-auto px-5 pt-8">
@@ -91,6 +94,7 @@ export default async function Page() {
         />
       )}
       <MoreStories morePosts={morePosts} variant="list" />
+      <Pagination currentPage={1} totalPages={totalPages} basePath="/" />
     </div>
   );
 }

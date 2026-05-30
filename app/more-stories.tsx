@@ -11,6 +11,7 @@ function PostPreview({
   excerpt,
   slug,
   variant,
+  priority = false,
 }: {
   title: string;
   coverImage?: any;
@@ -18,6 +19,7 @@ function PostPreview({
   excerpt: string;
   slug: string;
   variant: Variant;
+  priority?: boolean;
 }) {
   if (variant === "list") {
     return (
@@ -28,6 +30,7 @@ function PostPreview({
               title={title}
               slug={slug}
               url={coverImage.url}
+              priority={priority}
               sizes="(max-width: 768px) 100vw, 40vw"
             />
           </div>
@@ -58,6 +61,7 @@ function PostPreview({
             title={title}
             slug={slug}
             url={coverImage.url}
+            priority={priority}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 450px"
           />
         </div>
@@ -82,10 +86,15 @@ export default function MoreStories({
   morePosts,
   variant = "list",
   heading = "More Stories",
+  priorityFirst = false,
 }: {
   morePosts: any[];
   variant?: Variant;
   heading?: string | null;
+  // When true, the first post's cover image is fetched with priority. Use on
+  // heroless listing pages (index page 2+, category pages) where that image is
+  // the LCP. Leave false where a hero already owns priority (index page 1).
+  priorityFirst?: boolean;
 }) {
   const container =
     variant === "list"
@@ -100,7 +109,7 @@ export default function MoreStories({
         </h2>
       )}
       <div className={container}>
-        {morePosts.map((post) => (
+        {morePosts.map((post, i) => (
           <PostPreview
             key={post.slug}
             title={post.title}
@@ -109,6 +118,7 @@ export default function MoreStories({
             slug={post.slug}
             excerpt={post.excerpt}
             variant={variant}
+            priority={priorityFirst && i === 0}
           />
         ))}
       </div>
