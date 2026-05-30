@@ -18,4 +18,8 @@ export const SITE_DESCRIPTION =
 
 export const SITE_AUTHOR = "Bulent Yusuf";
 
+// Posts shown per listing page (index and category). On page 1 of the index
+// the hero counts as one of these, so every page holds the same number of posts.
+export const POSTS_PER_PAGE = 5;
+
 export const AUTHOR_EMAIL = `contact@${SITE_HOSTNAME}`;
