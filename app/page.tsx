@@ -81,7 +81,7 @@ export default async function Page() {
   const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
 
   return (
-    <div className="max-w-5xl mx-auto px-5 pt-8">
+    <div className="max-w-5xl mx-auto px-5 pt-8 pb-12">
       {heroPost && (
         <HeroPost
           title={heroPost.title}
