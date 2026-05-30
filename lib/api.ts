@@ -57,6 +57,20 @@ const POST_GRAPHQL_FIELDS = `
   }
 `;
 
+// Slim fragment for listing previews (e.g. the categories landing page). Pulls
+// only what a card renders, so we don't fetch full rich-text content + links
+// for posts we're only teasing. Posts returned with this fragment are partial:
+// `content`, `author`, `updatedDate`, `category` are absent. Don't read them.
+const CARD_GRAPHQL_FIELDS = `
+  slug
+  title
+  coverImage {
+    url
+  }
+  date
+  excerpt
+`;
+
 const PAGE_GRAPHQL_FIELDS = `
   slug
   title
@@ -268,6 +282,30 @@ export async function getPostsByCategory(
     }`,
     isDraftMode,
     { slug, preview: isDraftMode },
+  );
+
+  return entries?.data?.postCollection?.items ?? [];
+}
+
+// Recent posts in a category, capped server-side and fetched with the slim card
+// fragment. For listing previews only (categories landing page). Returns partial
+// Post objects: see CARD_GRAPHQL_FIELDS note. For the full category index use
+// getPostsByCategory, which also needs the full count for pagination.
+export async function getRecentPostsByCategory(
+  slug: string,
+  limit: number,
+  isDraftMode = false,
+): Promise<Post[]> {
+  const entries = await fetchGraphQL<PostCollectionResponse>(
+    `query GetRecentPostsByCategory($slug: String!, $limit: Int!, $preview: Boolean) {
+      postCollection(where: { category: { slug: $slug } }, order: date_DESC, preview: $preview, limit: $limit) {
+        items {
+          ${CARD_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    isDraftMode,
+    { slug, limit, preview: isDraftMode },
   );
 
   return entries?.data?.postCollection?.items ?? [];
