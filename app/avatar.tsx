@@ -9,10 +9,10 @@ export default function Avatar({
 }) {
   return (
     <div className="flex items-center">
-      <div className="mr-4 w-12 h-12">
+      <div className="mr-4 w-12 h-12 shrink-0">
         <ContentfulImage
           alt={name}
-          className="object-cover h-full rounded-full"
+          className="object-cover h-full w-full rounded-full"
           height={48}
           width={48}
           src={picture.url}
