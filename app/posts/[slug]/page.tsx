@@ -164,13 +164,15 @@ export default async function PostPage({
           At xl+: sidebar (TOC + AI) in the left track, content in the right.
         */}
         <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
-          {/* Sidebar zone — TOC + AI handoff as one reading-assistance
-              cluster, sharing the sticky container so they scroll together.
-              Hidden below xl. */}
-          <aside className="hidden xl:block">
-            <div className="sticky top-20 space-y-8 pb-4">
+          {/* Sidebar zone — TOC always rendered (collapsed disclosure on
+              mobile, sticky open panel at xl+). ExploreWithAI stays xl-only
+              per the separate mobile-AI decision. */}
+          <aside className="mb-4 xl:mb-0">
+            <div className="xl:sticky xl:top-20 space-y-8 xl:pb-4">
               <TableOfContents headings={headings} />
-              <ExploreWithAI slug={slug} />
+              <div className="hidden xl:block">
+                <ExploreWithAI slug={slug} />
+              </div>
             </div>
           </aside>
 
