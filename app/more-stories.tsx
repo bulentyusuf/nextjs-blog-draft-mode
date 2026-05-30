@@ -1,6 +1,7 @@
 import Link from "next/link";
 import DateComponent from "./date";
 import CoverImage from "./cover-image";
+import type { Post, CoverImage as CoverImageType } from "@/lib/types";
 
 type Variant = "grid" | "list";
 
@@ -14,7 +15,7 @@ function PostPreview({
   priority = false,
 }: {
   title: string;
-  coverImage?: any;
+  coverImage?: CoverImageType;
   date: string;
   excerpt: string;
   slug: string;
@@ -88,7 +89,7 @@ export default function MoreStories({
   heading = "More Stories",
   priorityFirst = false,
 }: {
-  morePosts: any[];
+  morePosts: Post[];
   variant?: Variant;
   heading?: string | null;
   // When true, the first post's cover image is fetched with priority. Use on

@@ -59,7 +59,7 @@ export default async function IndexPage({
   );
 
   return (
-    <div className="max-w-5xl mx-auto px-5 pt-8">
+    <div className="max-w-5xl mx-auto px-5 pt-8 pb-12">
       <MoreStories morePosts={posts} variant="list" priorityFirst />
       <Pagination currentPage={pageNumber} totalPages={totalPages} basePath="/" />
     </div>
