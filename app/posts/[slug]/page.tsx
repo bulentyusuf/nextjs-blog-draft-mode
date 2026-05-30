@@ -11,7 +11,7 @@ import { extractHeadings } from "@/lib/headings";
 import { highlightCodeBlocks } from "@/lib/highlight";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
-import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
+import { SITE_URL, SITE_AUTHOR } from "@/lib/constants";
 
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
@@ -128,21 +128,16 @@ export default async function PostPage({
           </Link>
         )}
         <div className="mb-4 text-sm text-gray-500">
-  <span>Published <Date dateString={post.date} /></span>
-  {showUpdated && (
-    <span className="hidden md:inline ml-1">
-      · Updated <Date dateString={post.updatedDate!} />
-    </span>
-  )}
-</div>
-        <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
+          <span>Published <Date dateString={post.date} /></span>
+          {showUpdated && (
+            <span className="hidden md:inline ml-1">
+              · Updated <Date dateString={post.updatedDate!} />
+            </span>
+          )}
+        </div>
+        <h1 className="mb-8 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
           {post.title}
         </h1>
-        {post.author && (
-          <div className="mb-6">
-            <Avatar name={post.author.name} picture={post.author.picture} />
-          </div>
-        )}
         {post.coverImage && (
           <div className="mb-10">
             <CoverImage
@@ -156,9 +151,10 @@ export default async function PostPage({
         )}
         {/*
           Grid begins AFTER the cover image. The header block above
-          (date, title, byline, image) is unchanged and full-width.
-          Below xl: single column, body renders exactly as before.
-          At xl+: sidebar in the left track, body in the right.
+          (category, date, title, image) is full-width.
+          Below xl: single column, byline sits above the excerpt.
+          At xl+: sidebar in the left track (level with the byline),
+          byline + body in the right.
         */}
         <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
           {/* Sidebar zone — TOC + AI handoff as one reading-assistance
@@ -169,9 +165,14 @@ export default async function PostPage({
               <TableOfContents headings={headings} />
               <ExploreWithAI slug={slug} />
             </div>
-         </aside>
+          </aside>
 
           <div className="mx-auto max-w-2xl xl:mx-0 pb-28">
+            {post.author && (
+              <div className="mb-8">
+                <Avatar name={post.author.name} picture={post.author.picture} />
+              </div>
+            )}
             <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
               {post.excerpt}
             </p>
