@@ -116,9 +116,9 @@ export default async function RootLayout({
   const { isEnabled } = await draftMode();
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen">
+      <body className="min-h-screen flex flex-col">
         <Header />
-        <main>{children}</main>
+        <main className="grow">{children}</main>
         <Footer />
         {isEnabled && <ExitPreviewButton />}
         <BackToTop />
