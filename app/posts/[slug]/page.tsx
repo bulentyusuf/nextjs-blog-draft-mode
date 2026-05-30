@@ -160,22 +160,17 @@ export default async function PostPage({
 
           <div className="mx-auto max-w-2xl xl:mx-0 pb-28">
             <div className="mb-4 text-sm text-gray-500">
-              {showUpdated ? (
+              <span>Published <Date dateString={post.date} /></span>
+              {showUpdated && (
                 <>
-                  {/* Mobile: single most-relevant date (the update). */}
-                  <span className="md:hidden">
-                    Updated <Date dateString={post.updatedDate!} />
-                  </span>
-                  {/* md+: full published + updated. */}
+                  {/* Mobile: flag the revision without a second date, so the
+                      lead date matches the published date on the index cards. */}
+                  <span className="md:hidden">{" "}(updated)</span>
+                  {/* md+: full updated date. */}
                   <span className="hidden md:inline">
-                    Published <Date dateString={post.date} /> · Updated{" "}
-                    <Date dateString={post.updatedDate!} />
+                    {" "}· Updated <Date dateString={post.updatedDate!} />
                   </span>
                 </>
-              ) : (
-                <span>
-                  Published <Date dateString={post.date} />
-                </span>
               )}
             </div>
             <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
