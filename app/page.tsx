@@ -67,17 +67,15 @@ function HeroPost({
           </Link>
         </h3>
         <p className="text-lg leading-relaxed mb-6">{excerpt}</p>
-        <div className="flex items-center">
-          {author ? (
+        {author && (
+          <div className="flex items-center">
             <Avatar
               name={author.name}
               picture={author.picture}
               meta={dateline}
             />
-          ) : (
-            <span className="text-sm text-gray-500">{dateline}</span>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

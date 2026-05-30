@@ -104,6 +104,22 @@ export default async function PostPage({
 
   const showUpdated = post.updatedDate && post.updatedDate !== post.date;
 
+  // Byline sub-line: lead with the published date (matches the index cards),
+  // flag the revision on mobile, show the full updated date on desktop.
+  const dateline = (
+    <>
+      <Date dateString={post.date} />
+      {showUpdated && (
+        <>
+          <span className="md:hidden">{" "}(updated)</span>
+          <span className="hidden md:inline">
+            {" · "}Updated <Date dateString={post.updatedDate!} />
+          </span>
+        </>
+      )}
+    </>
+  );
+
   const headings = extractHeadings(post.content.json);
   const highlighted = await highlightCodeBlocks(post.content);
 
@@ -144,7 +160,7 @@ export default async function PostPage({
         {/*
           Grid begins AFTER the cover image. The header block above
           (category, title, image) is full-width.
-          Below xl: single column — date, standfirst, byline, then body.
+          Below xl: single column — standfirst, then byline (with date), then body.
           At xl+: sidebar (TOC + AI) in the left track, content in the right.
         */}
         <div className="xl:grid xl:grid-cols-[1fr_3fr] xl:gap-x-10">
@@ -159,26 +175,16 @@ export default async function PostPage({
           </aside>
 
           <div className="mx-auto max-w-2xl xl:mx-0 pb-28">
-            <div className="mb-4 text-sm text-gray-500">
-              <span>Published <Date dateString={post.date} /></span>
-              {showUpdated && (
-                <>
-                  {/* Mobile: flag the revision without a second date, so the
-                      lead date matches the published date on the index cards. */}
-                  <span className="md:hidden">{" "}(updated)</span>
-                  {/* md+: full updated date. */}
-                  <span className="hidden md:inline">
-                    {" "}· Updated <Date dateString={post.updatedDate!} />
-                  </span>
-                </>
-              )}
-            </div>
             <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
               {post.excerpt}
             </p>
             {post.author && (
               <div className="mb-10">
-                <Avatar name={post.author.name} picture={post.author.picture} />
+                <Avatar
+                  name={post.author.name}
+                  picture={post.author.picture}
+                  meta={dateline}
+                />
               </div>
             )}
             <div className="prose prose-headings:scroll-mt-20">
