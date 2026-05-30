@@ -237,6 +237,9 @@ export async function getAllCategories(
           name
           slug
           description
+          thumbnail {
+            url
+          }
         }
       }
     }`,
