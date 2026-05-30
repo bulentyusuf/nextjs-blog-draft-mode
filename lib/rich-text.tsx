@@ -110,15 +110,15 @@ export function RichText({
               </div>
             )}
             {html ? (
-              <div
-                className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4"
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-            ) : (
-              <pre className="overflow-x-auto p-4 text-sm">
-                <code>{entry.code}</code>
-              </pre>
-            )}
+            <div
+              className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          ) : (
+            <pre className="overflow-x-auto p-4 text-sm">
+              <code>{entry.code}</code>
+            </pre>
+          )}
           </div>
         );
       },
