@@ -27,6 +27,18 @@
   }
 }
 
+/*
+  Force the TOC panel open at xl+ regardless of the <details> [open] state.
+  This lets one component instance serve both mobile (real disclosure) and
+  desktop (always-visible sidebar) without a second IntersectionObserver.
+  The summary is hidden via xl:hidden on the element itself.
+*/
+@media (min-width: 1280px) {
+  .toc-details > :not(summary) {
+    display: block;
+  }
+}
+
 @utility prose {
   & :where(code):not(:where([class~='not-prose'] *)) {
     font-family:
