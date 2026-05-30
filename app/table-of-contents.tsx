@@ -46,10 +46,21 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
         panel open regardless of the [open] attribute (see globals.css
         .toc-details rule), so one observer serves both viewports.
       */}
-      <summary className="xl:hidden list-none flex items-center justify-between cursor-pointer py-3 border-b border-gray-200 text-sm font-bold uppercase tracking-wide text-gray-500 select-none">
-        On this page
+      <summary className="xl:hidden list-none flex items-center justify-between gap-3 cursor-pointer select-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-bold uppercase tracking-wide text-brand-dark">
+        <span className="flex items-center gap-2">
+          <svg
+            className="h-4 w-4 text-brand-crimson"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M3 4.75A.75.75 0 0 1 3.75 4h12.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 4.75Zm0 5A.75.75 0 0 1 3.75 9h12.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 9.75Zm0 5a.75.75 0 0 1 .75-.75h12.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z" />
+          </svg>
+          On this page
+        </span>
         <svg
-          className="h-4 w-4 motion-safe:transition-transform motion-safe:duration-200 group-open:rotate-180"
+          className="h-4 w-4 text-gray-500 motion-safe:transition-transform motion-safe:duration-200 group-open:rotate-180"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"

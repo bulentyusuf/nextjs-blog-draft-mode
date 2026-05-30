@@ -34,8 +34,14 @@
   The summary is hidden via xl:hidden on the element itself.
 */
 @media (min-width: 1280px) {
+  /* Legacy engines hid closed <details> content via child display. */
   .toc-details > :not(summary) {
     display: block;
+  }
+  /* Modern engines hide it at the slot level (content-visibility), which the
+     child rule above can't reach. Override the slot directly. */
+  .toc-details::details-content {
+    content-visibility: visible;
   }
 }
 
