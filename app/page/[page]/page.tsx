@@ -61,7 +61,7 @@ export default async function IndexPage({
 
   return (
     <Container>
-      <MoreStories morePosts={posts} variant="list" priorityFirst />
+      <MoreStories morePosts={posts} variant="list" heading="Latest posts" priorityFirst />
       <Pagination currentPage={pageNumber} totalPages={totalPages} basePath="/" />
     </Container>
   );

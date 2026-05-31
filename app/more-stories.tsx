@@ -86,12 +86,12 @@ function PostPreview({
 export default function MoreStories({
   morePosts,
   variant = "list",
-  heading = "More Stories",
+  heading,
   priorityFirst = false,
 }: {
   morePosts: Post[];
   variant?: Variant;
-  heading?: string | null;
+  heading: string | null;
   // When true, the first post's cover image is fetched with priority. Use on
   // heroless listing pages (index page 2+, category pages) where that image is
   // the LCP. Leave false where a hero already owns priority (index page 1).
