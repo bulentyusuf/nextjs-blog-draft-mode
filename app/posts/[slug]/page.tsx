@@ -71,7 +71,7 @@ export default async function PostPage({
 }) {
   const { isEnabled } = await draftMode();
   const { slug } = await params;
-  const { post, morePosts } = await getPostAndMorePosts(slug, isEnabled);
+  const { post, morePosts, moreFromCategory } = await getPostAndMorePosts(slug, isEnabled);
 
   if (!post) {
     notFound();
@@ -198,7 +198,15 @@ export default async function PostPage({
         </div>
       </article>
       <hr className="border-accent-2 mt-0 mb-24" />
-      <MoreStories morePosts={morePosts} variant="grid" />
+      <MoreStories
+        morePosts={morePosts}
+        variant="grid"
+        heading={
+          moreFromCategory && post.category
+            ? `More in ${post.category.name}`
+            : "More Stories"
+        }
+      />
     </div>
   );
 }
