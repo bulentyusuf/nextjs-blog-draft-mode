@@ -198,15 +198,7 @@ export default async function PostPage({
         </div>
       </article>
       <hr className="border-accent-2 mt-0 mb-24" />
-      <MoreStories
-        morePosts={morePosts}
-        variant="grid"
-        heading={
-          moreFromCategory && post.category
-            ? `More in ${post.category.name}`
-            : "More Stories"
-        }
-      />
+      <MoreStories morePosts={morePosts} variant="grid" heading="More like this" />
     </div>
   );
 }
