@@ -199,7 +199,7 @@ export default async function PostPage({
         </div>
       </article>
       <div className="mt-section">
-        <MoreStories morePosts={morePosts} variant="grid" heading="More like this" />
+        <MoreStories morePosts={morePosts} variant="grid" heading={moreFromCategory ? "More like this" : "Read next"} />
       </div>
     </Container>
   );

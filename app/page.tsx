@@ -105,7 +105,7 @@ export default async function Page() {
           excerpt={heroPost.excerpt}
         />
       )}
-      <MoreStories morePosts={morePosts} variant="list" />
+      <MoreStories morePosts={morePosts} variant="list" heading="Latest posts" />
       <Pagination currentPage={1} totalPages={totalPages} basePath="/" />
     </Container>
   );
