@@ -58,11 +58,27 @@ const inter = Inter({
 function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-brand-crimson shadow-xs">
-      <div className="max-w-5xl mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-0.5 md:gap-0">
+      <div className="max-w-5xl mx-auto px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-1 md:gap-0">
         <Link href="/" className="text-base font-bold text-white">
           {SITE_TITLE}
         </Link>
-        <p className="hidden md:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
+        <div className="flex items-center gap-4 md:gap-6">
+          <p className="hidden lg:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
+          <nav aria-label="Primary" className="flex items-center gap-4 md:gap-6">
+            <Link
+              href="/categories"
+              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            >
+              Categories
+            </Link>
+            <Link
+              href="/about"
+              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            >
+              About
+            </Link>
+          </nav>
+        </div>
       </div>
     </header>
   );
