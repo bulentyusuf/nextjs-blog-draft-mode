@@ -4,6 +4,7 @@ import { draftMode } from "next/headers";
 import Date from "./date";
 import CoverImage from "./cover-image";
 import Avatar from "./avatar";
+import Container from "./container";
 import MoreStories from "./more-stories";
 import Pagination from "./pagination";
 
@@ -44,7 +45,7 @@ function HeroPost({
   );
 
   return (
-    <section className="mx-auto max-w-5xl mb-16 md:mb-20">
+    <section className="mx-auto max-w-5xl mb-section">
       {coverImage && (
         <div className="mb-6 md:mb-8">
           <CoverImage
@@ -92,7 +93,7 @@ export default async function Page() {
   const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
 
   return (
-    <div className="max-w-5xl mx-auto px-5 pt-8 pb-12">
+    <Container>
       {heroPost && (
         <HeroPost
           title={heroPost.title}
@@ -106,6 +107,6 @@ export default async function Page() {
       )}
       <MoreStories morePosts={morePosts} variant="list" />
       <Pagination currentPage={1} totalPages={totalPages} basePath="/" />
-    </div>
+    </Container>
   );
 }
