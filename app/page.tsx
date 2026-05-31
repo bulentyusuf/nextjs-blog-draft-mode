@@ -44,7 +44,7 @@ function HeroPost({
   );
 
   return (
-    <section className="mx-auto max-w-5xl mb-20 md:mb-28">
+    <section className="mx-auto max-w-5xl mb-16 md:mb-20">
       {coverImage && (
         <div className="mb-6 md:mb-8">
           <CoverImage
