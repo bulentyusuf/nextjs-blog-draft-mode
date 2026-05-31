@@ -155,7 +155,7 @@ export async function getAllPosts(isDraftMode = false): Promise<Post[]> {
 export async function getPostAndMorePosts(
   slug: string,
   preview = false,
-): Promise<{ post: Post | undefined; morePosts: Post[]; moreFromCategory: boolean }> {
+): Promise<{ post: Post | undefined; morePosts: Post[] }> {
   const entry = await fetchGraphQL<PostCollectionResponse>(
     `query GetPost($slug: String!, $preview: Boolean) {
       postCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
@@ -213,14 +213,7 @@ export async function getPostAndMorePosts(
     morePosts = [...morePosts, ...recent.filter((p) => !seen.has(p.slug))].slice(0, 2);
   }
 
-  // True only when everything shown is actually from this post's category,
-  // so the page can honestly label the module "More in {category}".
-  const moreFromCategory =
-    !!categorySlug &&
-    morePosts.length > 0 &&
-    morePosts.every((p) => p.category?.slug === categorySlug);
-
-  return { post, morePosts, moreFromCategory };
+  return { post, morePosts };
 }
 
 export async function getPage(
