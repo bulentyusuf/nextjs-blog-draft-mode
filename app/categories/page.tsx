@@ -3,6 +3,7 @@ import Link from "next/link";
 import { draftMode } from "next/headers";
 import ContentfulImage from "@/lib/contentful-image";
 import DateComponent from "../date";
+import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
 import { SITE_TITLE } from "@/lib/constants";
 
@@ -32,8 +33,14 @@ export default async function CategoriesPage() {
   );
   const postsBySlug = new Map(previews);
 
+  const crumbs: Crumb[] = [
+    { label: "Home", href: "/" },
+    { label: "Categories" },
+  ];
+
   return (
     <div className="max-w-5xl mx-auto px-5 pt-8 pb-16">
+      <Breadcrumb items={crumbs} />
       <header className="mb-6 md:mb-8">
         <p className="mb-3 text-sm font-bold uppercase tracking-wide text-brand-crimson">
           Browse

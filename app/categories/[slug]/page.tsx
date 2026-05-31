@@ -3,6 +3,7 @@ import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import MoreStories from "../../more-stories";
 import Pagination from "../../pagination";
+import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { getAllCategories, getCategoryBySlug, getPostsByCategory } from "@/lib/api";
 import { POSTS_PER_PAGE, SITE_TITLE } from "@/lib/constants";
 
@@ -48,12 +49,19 @@ export default async function CategoryPage({
     notFound();
   }
 
+  const crumbs: Crumb[] = [
+    { label: "Home", href: "/" },
+    { label: "Categories", href: "/categories" },
+    { label: category.name },
+  ];
+
   const posts = await getPostsByCategory(slug, isEnabled);
   const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
   const pagePosts = posts.slice(0, POSTS_PER_PAGE);
 
   return (
     <div className="max-w-5xl mx-auto px-5 pt-8 pb-16">
+      <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
         <p className="mb-3 text-sm font-bold uppercase tracking-wide text-brand-crimson">
           Category

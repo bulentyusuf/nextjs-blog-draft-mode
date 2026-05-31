@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import MoreStories from "../../more-stories";
@@ -11,6 +10,7 @@ import { extractHeadings } from "@/lib/headings";
 import { highlightCodeBlocks } from "@/lib/highlight";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
+import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { SITE_URL, SITE_AUTHOR } from "@/lib/constants";
 
 export async function generateStaticParams() {
@@ -123,6 +123,15 @@ export default async function PostPage({
   const headings = extractHeadings(post.content.json);
   const highlighted = await highlightCodeBlocks(post.content);
 
+  const crumbs: Crumb[] = post.category
+    ? [
+        { label: "Home", href: "/" },
+        { label: "Categories", href: "/categories" },
+        { label: post.category.name, href: `/categories/${post.category.slug}` },
+        { label: post.title },
+      ]
+    : [{ label: "Home", href: "/" }, { label: post.title }];
+
   return (
     <div className="max-w-5xl mx-auto px-5">
       <script
@@ -135,14 +144,7 @@ export default async function PostPage({
         }}
       />
       <article className="mx-auto max-w-5xl pt-8">
-        {post.category && (
-          <Link
-            href={`/categories/${post.category.slug}`}
-            className="mb-3 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
-          >
-            {post.category.name}
-          </Link>
-        )}
+        <Breadcrumb items={crumbs} />
         <h1 className="mb-8 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
           {post.title}
         </h1>
