@@ -168,22 +168,52 @@ export async function getPostAndMorePosts(
     { slug, preview },
   );
 
-  const entries = await fetchGraphQL<PostCollectionResponse>(
-    `query GetMorePosts($slug: String!, $preview: Boolean) {
-      postCollection(where: { slug_not_in: [$slug] }, order: date_DESC, preview: $preview, limit: 2) {
-        items {
-          ${POST_GRAPHQL_FIELDS}
-        }
-      }
-    }`,
-    preview,
-    { slug, preview },
-  );
+  const post = extractPost(entry);
+  const categorySlug = post?.category?.slug;
 
-  return {
-    post: extractPost(entry),
-    morePosts: extractPostEntries(entries),
-  };
+  // Same-category posts, newest first, excluding the current one.
+  const related = categorySlug
+    ? extractPostEntries(
+        await fetchGraphQL<PostCollectionResponse>(
+          `query GetRelated($slug: String!, $category: String!, $preview: Boolean) {
+            postCollection(
+              where: { slug_not_in: [$slug], category: { slug: $category } }
+              order: date_DESC, preview: $preview, limit: 2
+            ) {
+              items {
+                ${POST_GRAPHQL_FIELDS}
+              }
+            }
+          }`,
+          preview,
+          { slug, category: categorySlug, preview },
+        ),
+      )
+    : [];
+
+  // Backfill with recent sitewide posts when the category gives us < 2.
+  // limit: 3 so that after de-duping the one related post we already hold,
+  // we can still reach 2 total.
+  let morePosts = related;
+  if (morePosts.length < 2) {
+    const recent = extractPostEntries(
+      await fetchGraphQL<PostCollectionResponse>(
+        `query GetMorePosts($slug: String!, $preview: Boolean) {
+          postCollection(where: { slug_not_in: [$slug] }, order: date_DESC, preview: $preview, limit: 3) {
+            items {
+              ${POST_GRAPHQL_FIELDS}
+            }
+          }
+        }`,
+        preview,
+        { slug, preview },
+      ),
+    );
+    const seen = new Set(morePosts.map((p) => p.slug));
+    morePosts = [...morePosts, ...recent.filter((p) => !seen.has(p.slug))].slice(0, 2);
+  }
+
+  return { post, morePosts };
 }
 
 export async function getPage(
