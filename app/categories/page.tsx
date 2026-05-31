@@ -51,32 +51,10 @@ export default async function CategoriesPage() {
           const posts = postsBySlug.get(category.slug) ?? [];
           const thumbUrl = category.thumbnail?.url;
           return (
-            <article
-              key={category.slug}
-              className={
-                thumbUrl
-                  ? "grid gap-6 md:grid-cols-[2fr_3fr] md:items-start md:gap-10"
-                  : ""
-              }
-            >
-              {thumbUrl && (
-                // Decorative: the heading below carries the category name, so
-                // alt is intentionally empty to avoid screen-reader duplication.
-                <div className="shadow-lg">
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <ContentfulImage
-                      src={thumbUrl}
-                      alt=""
-                      fill
-                      sizes="(max-width: 768px) 100vw, 40vw"
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <h2 className="mb-2 text-3xl font-bold tracking-tighter leading-tight md:text-4xl">
+            <article key={category.slug}>
+              {/* Section header: name + description span the full width. */}
+              <div className="mb-6">
+                <h2 className="mb-3 text-3xl font-bold tracking-tighter leading-tight md:text-4xl">
                   <Link
                     href={`/categories/${category.slug}`}
                     className="hover:text-brand-crimson transition-colors duration-200"
@@ -84,42 +62,68 @@ export default async function CategoriesPage() {
                     {category.name}
                   </Link>
                 </h2>
-
                 {category.description && (
-                  <p className="mb-6 max-w-2xl text-lg leading-relaxed text-gray-600">
+                  <p className="max-w-3xl text-lg leading-relaxed text-gray-600">
                     {category.description}
                   </p>
                 )}
+              </div>
 
-                {posts.length > 0 ? (
-                  <>
-                    <ul className="flex flex-col divide-y divide-gray-200 border-t border-gray-200">
-                      {posts.map((post) => (
-                        <li key={post.slug} className="py-3">
-                          <Link
-                            href={`/posts/${post.slug}`}
-                            className="group flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between"
-                          >
-                            <span className="text-lg font-medium transition-colors duration-200 group-hover:text-brand-crimson">
-                              {post.title}
-                            </span>
-                            <span className="text-sm text-gray-500 md:shrink-0 md:pl-6">
-                              <DateComponent dateString={post.date} />
-                            </span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                    <Link
-                      href={`/categories/${category.slug}`}
-                      className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
-                    >
-                      See all in {category.name} &rarr;
-                    </Link>
-                  </>
-                ) : (
-                  <p className="text-lg text-gray-500">No posts here yet.</p>
+              {/* Thumbnail left, recent posts right (stacks on mobile). */}
+              <div
+                className={
+                  thumbUrl
+                    ? "grid gap-6 md:grid-cols-[2fr_3fr] md:items-start md:gap-10"
+                    : ""
+                }
+              >
+                {thumbUrl && (
+                  // Decorative: the heading above carries the category name, so
+                  // alt is intentionally empty to avoid screen-reader duplication.
+                  <div className="shadow-lg">
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <ContentfulImage
+                        src={thumbUrl}
+                        alt=""
+                        fill
+                        sizes="(max-width: 768px) 100vw, 40vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
                 )}
+
+                <div>
+                  {posts.length > 0 ? (
+                    <>
+                      <ul className="flex flex-col divide-y divide-gray-200 border-t border-gray-200">
+                        {posts.map((post) => (
+                          <li key={post.slug} className="py-3">
+                            <Link
+                              href={`/posts/${post.slug}`}
+                              className="group flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between"
+                            >
+                              <span className="text-lg font-medium transition-colors duration-200 group-hover:text-brand-crimson">
+                                {post.title}
+                              </span>
+                              <span className="text-sm text-gray-500 md:shrink-0 md:pl-6">
+                                <DateComponent dateString={post.date} />
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                      <Link
+                        href={`/categories/${category.slug}`}
+                        className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+                      >
+                        See all in {category.name} &rarr;
+                      </Link>
+                    </>
+                  ) : (
+                    <p className="text-lg text-gray-500">No posts here yet.</p>
+                  )}
+                </div>
               </div>
             </article>
           );
