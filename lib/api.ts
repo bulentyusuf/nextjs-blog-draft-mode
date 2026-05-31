@@ -155,7 +155,7 @@ export async function getAllPosts(isDraftMode = false): Promise<Post[]> {
 export async function getPostAndMorePosts(
   slug: string,
   preview = false,
-): Promise<{ post: Post | undefined; morePosts: Post[] }> {
+): Promise<{ post: Post | undefined; morePosts: Post[]; moreFromCategory: boolean }> {
   const entry = await fetchGraphQL<PostCollectionResponse>(
     `query GetPost($slug: String!, $preview: Boolean) {
       postCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
@@ -168,22 +168,59 @@ export async function getPostAndMorePosts(
     { slug, preview },
   );
 
-  const entries = await fetchGraphQL<PostCollectionResponse>(
-    `query GetMorePosts($slug: String!, $preview: Boolean) {
-      postCollection(where: { slug_not_in: [$slug] }, order: date_DESC, preview: $preview, limit: 2) {
-        items {
-          ${POST_GRAPHQL_FIELDS}
-        }
-      }
-    }`,
-    preview,
-    { slug, preview },
-  );
+  const post = extractPost(entry);
+  const categorySlug = post?.category?.slug;
 
-  return {
-    post: extractPost(entry),
-    morePosts: extractPostEntries(entries),
-  };
+  // Same-category posts, newest first, excluding the current one.
+  const related = categorySlug
+    ? extractPostEntries(
+        await fetchGraphQL<PostCollectionResponse>(
+          `query GetRelated($slug: String!, $category: String!, $preview: Boolean) {
+            postCollection(
+              where: { slug_not_in: [$slug], category: { slug: $category } }
+              order: date_DESC, preview: $preview, limit: 2
+            ) {
+              items {
+                ${POST_GRAPHQL_FIELDS}
+              }
+            }
+          }`,
+          preview,
+          { slug, category: categorySlug, preview },
+        ),
+      )
+    : [];
+
+  // Backfill with recent sitewide posts when the category gives us < 2.
+  // limit: 3 so that after de-duping the one related post we already hold,
+  // we can still reach 2 total.
+  let morePosts = related;
+  if (morePosts.length < 2) {
+    const recent = extractPostEntries(
+      await fetchGraphQL<PostCollectionResponse>(
+        `query GetMorePosts($slug: String!, $preview: Boolean) {
+          postCollection(where: { slug_not_in: [$slug] }, order: date_DESC, preview: $preview, limit: 3) {
+            items {
+              ${POST_GRAPHQL_FIELDS}
+            }
+          }
+        }`,
+        preview,
+        { slug, preview },
+      ),
+    );
+    const seen = new Set(morePosts.map((p) => p.slug));
+    morePosts = [...morePosts, ...recent.filter((p) => !seen.has(p.slug))].slice(0, 2);
+  }
+
+  // True only when everything shown is actually from this post's category,
+  // so the page can honestly label the module "More in {category}".
+  const moreFromCategory =
+    !!categorySlug &&
+    morePosts.length > 0 &&
+    morePosts.every((p) => p.category?.slug === categorySlug);
+
+  return { post, morePosts, moreFromCategory };
 }
 
 export async function getPage(
