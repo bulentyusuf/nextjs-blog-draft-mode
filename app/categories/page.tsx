@@ -42,9 +42,6 @@ export default async function CategoriesPage() {
     <div className="max-w-5xl mx-auto px-5 pt-8 pb-16">
       <Breadcrumb items={crumbs} />
       <header className="mb-6 md:mb-8">
-        <p className="mb-3 text-sm font-bold uppercase tracking-wide text-brand-crimson">
-          Browse
-        </p>
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
           Categories
         </h1>
