@@ -33,14 +33,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   return [
-    {
-      url: SITE_URL,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    ...pageEntries,
-    ...categoryEntries,
-    ...postEntries,
-  ];
+  {
+    url: SITE_URL,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 1,
+  },
+  {
+    url: `${SITE_URL}/categories`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  },
+  ...pageEntries,
+  ...categoryEntries,
+  ...postEntries,
+];
 }
