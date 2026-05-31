@@ -47,6 +47,7 @@ export interface Category {
   name: string;
   slug: string;
   description?: string;
+  thumbnail?: CoverImage;  // optional 4:3 category tile; absent on categories without one
 }
 
 export interface Post {
