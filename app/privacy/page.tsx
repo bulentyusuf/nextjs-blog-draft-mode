@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import Date from "../date";
+import Container from "../container";
 import { RichText } from "@/lib/rich-text";
 import { getPage } from "@/lib/api";
 import { SITE_TITLE } from "@/lib/constants";
@@ -33,8 +34,8 @@ export default async function PrivacyPage() {
   const lastUpdated = page.sys.publishedAt ?? page.sys.firstPublishedAt;
 
   return (
-    <div className="max-w-5xl mx-auto px-5">
-      <article className="mx-auto max-w-2xl pt-12 pb-24">
+    <Container>
+      <article className="mx-auto max-w-2xl">
         <h1 className="mb-6 text-4xl font-bold tracking-tighter md:text-5xl">
           {page.title}
         </h1>
@@ -47,6 +48,6 @@ export default async function PrivacyPage() {
           <RichText content={page.body} headings={[]} />
         </div>
       </article>
-    </div>
+    </Container>
   );
 }

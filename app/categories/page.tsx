@@ -3,6 +3,7 @@ import Link from "next/link";
 import { draftMode } from "next/headers";
 import ContentfulImage from "@/lib/contentful-image";
 import DateComponent from "../date";
+import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
 import { SITE_TITLE } from "@/lib/constants";
@@ -39,7 +40,7 @@ export default async function CategoriesPage() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto px-5 pt-8 pb-16">
+    <Container>
       <Breadcrumb items={crumbs} />
       <header className="mb-6 md:mb-8">
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
@@ -124,6 +125,6 @@ export default async function CategoriesPage() {
           );
         })}
       </div>
-    </div>
+    </Container>
   );
 }

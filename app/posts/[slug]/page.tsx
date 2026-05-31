@@ -1,5 +1,6 @@
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
+import Container from "../../container";
 import MoreStories from "../../more-stories";
 import Avatar from "../../avatar";
 import Date from "../../date";
@@ -133,7 +134,7 @@ export default async function PostPage({
     : [{ label: "Home", href: "/" }, { label: post.title }];
 
   return (
-    <div className="max-w-5xl mx-auto px-5">
+    <Container>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -143,7 +144,7 @@ export default async function PostPage({
             .replace(/&/g, "\\u0026"),
         }}
       />
-      <article className="mx-auto max-w-5xl pt-8">
+      <article className="mx-auto max-w-5xl">
         <Breadcrumb items={crumbs} />
         <h1 className="mb-8 text-5xl font-bold leading-tight tracking-tighter md:text-6xl lg:text-7xl">
           {post.title}
@@ -178,7 +179,7 @@ export default async function PostPage({
             </div>
           </aside>
 
-          <div className="mx-auto max-w-2xl xl:mx-0 pb-28">
+          <div className="mx-auto max-w-2xl xl:mx-0">
             <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
               {post.excerpt}
             </p>
@@ -197,8 +198,9 @@ export default async function PostPage({
           </div>
         </div>
       </article>
-      <hr className="border-accent-2 mt-0 mb-24" />
-      <MoreStories morePosts={morePosts} variant="grid" heading="More like this" />
-    </div>
+      <div className="mt-section">
+        <MoreStories morePosts={morePosts} variant="grid" heading="More like this" />
+      </div>
+    </Container>
   );
 }

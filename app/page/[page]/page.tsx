@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
+import Container from "../../container";
 import MoreStories from "../../more-stories";
 import Pagination from "../../pagination";
 
@@ -59,9 +60,9 @@ export default async function IndexPage({
   );
 
   return (
-    <div className="max-w-5xl mx-auto px-5 pt-8 pb-12">
+    <Container>
       <MoreStories morePosts={posts} variant="list" priorityFirst />
       <Pagination currentPage={pageNumber} totalPages={totalPages} basePath="/" />
-    </div>
+    </Container>
   );
 }

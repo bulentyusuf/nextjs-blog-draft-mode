@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import Container from "../../../../container";
 import MoreStories from "../../../../more-stories";
 import Pagination from "../../../../pagination";
 import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
@@ -82,7 +83,7 @@ export default async function CategoryPaginatedPage({
   );
 
   return (
-    <div className="max-w-5xl mx-auto px-5 pt-8 pb-16">
+    <Container>
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
@@ -106,6 +107,6 @@ export default async function CategoryPaginatedPage({
         totalPages={totalPages}
         basePath={`/categories/${slug}`}
       />
-    </div>
+    </Container>
   );
 }

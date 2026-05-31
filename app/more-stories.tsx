@@ -99,8 +99,8 @@ export default function MoreStories({
 }) {
   const container =
     variant === "list"
-      ? "flex flex-col divide-y divide-gray-200 mb-0"
-      : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32 mb-12";
+      ? "flex flex-col divide-y divide-gray-200"
+      : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32";
 
   return (
     <section className="mx-auto max-w-5xl">
