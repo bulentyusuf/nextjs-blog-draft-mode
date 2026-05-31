@@ -8,7 +8,7 @@ import { SITE_TITLE } from "@/lib/constants";
 
 // How many recent posts to tease under each category. The full list lives on
 // the individual category page (/categories/[slug]).
-const PREVIEW_COUNT = 4;
+const PREVIEW_COUNT = 3;
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -54,7 +54,7 @@ export default async function CategoriesPage() {
             <article key={category.slug}>
               {/* Section header: name + description span the full width. */}
               <div className="mb-6">
-                <h2 className="mb-3 text-3xl font-bold tracking-tighter leading-tight md:text-4xl">
+                <h2 className="mb-3 text-2xl font-bold leading-snug md:text-3xl">
                   <Link
                     href={`/categories/${category.slug}`}
                     className="hover:text-brand-crimson transition-colors duration-200"
@@ -81,7 +81,7 @@ export default async function CategoriesPage() {
                   // Decorative: the heading above carries the category name, so
                   // alt is intentionally empty to avoid screen-reader duplication.
                   <div className="shadow-lg">
-                    <div className="relative aspect-[4/3] overflow-hidden">
+                    <div className="relative aspect-3/2 overflow-hidden">
                       <ContentfulImage
                         src={thumbUrl}
                         alt=""
@@ -93,23 +93,26 @@ export default async function CategoriesPage() {
                   </div>
                 )}
 
-                <div>
+                <div className="min-w-0">
                   {posts.length > 0 ? (
                     <>
                       <ul className="flex flex-col divide-y divide-gray-200 border-t border-gray-200">
                         {posts.map((post) => (
-                          <li key={post.slug} className="py-3">
+                          <li key={post.slug} className="py-4">
                             <Link
                               href={`/posts/${post.slug}`}
-                              className="group flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between"
+                              className="text-lg font-medium hover:text-brand-crimson transition-colors duration-200"
                             >
-                              <span className="text-lg font-medium transition-colors duration-200 group-hover:text-brand-crimson">
-                                {post.title}
-                              </span>
-                              <span className="text-sm text-gray-500 md:shrink-0 md:pl-6">
-                                <DateComponent dateString={post.date} />
-                              </span>
+                              {post.title}
                             </Link>
+                            <div className="mt-1 text-sm text-gray-500">
+                              <DateComponent dateString={post.date} />
+                            </div>
+                            {post.excerpt && (
+                              <p className="mt-1 text-base leading-relaxed text-gray-600 line-clamp-1">
+                                {post.excerpt}
+                              </p>
+                            )}
                           </li>
                         ))}
                       </ul>
