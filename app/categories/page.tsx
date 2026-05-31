@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { draftMode } from "next/headers";
+import ContentfulImage from "@/lib/contentful-image";
 import DateComponent from "../date";
 import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
 import { SITE_TITLE } from "@/lib/constants";
@@ -32,8 +33,8 @@ export default async function CategoriesPage() {
   const postsBySlug = new Map(previews);
 
   return (
-    <div className="max-w-5xl mx-auto px-5 pt-8 pb-12">
-      <header className="mb-16 md:mb-20">
+    <div className="max-w-5xl mx-auto px-5 pt-8 pb-16">
+      <header className="mb-12 md:mb-16">
         <p className="mb-3 text-sm font-bold uppercase tracking-wide text-brand-crimson">
           Browse
         </p>
@@ -45,55 +46,81 @@ export default async function CategoriesPage() {
         </p>
       </header>
 
-      <div className="flex flex-col gap-16 md:gap-24">
+      <div className="flex flex-col gap-16 md:gap-20">
         {categories.map((category) => {
           const posts = postsBySlug.get(category.slug) ?? [];
+          const thumbUrl = category.thumbnail?.url;
           return (
-            <article key={category.slug}>
-              <h2 className="mb-2 text-3xl font-bold tracking-tighter leading-tight md:text-4xl">
-                <Link
-                  href={`/categories/${category.slug}`}
-                  className="hover:text-brand-crimson transition-colors duration-200"
-                >
-                  {category.name}
-                </Link>
-              </h2>
-
-              {category.description && (
-                <p className="mb-6 max-w-2xl text-lg leading-relaxed text-gray-600">
-                  {category.description}
-                </p>
+            <article
+              key={category.slug}
+              className={
+                thumbUrl
+                  ? "grid gap-6 md:grid-cols-[2fr_3fr] md:items-start md:gap-10"
+                  : ""
+              }
+            >
+              {thumbUrl && (
+                // Decorative: the heading below carries the category name, so
+                // alt is intentionally empty to avoid screen-reader duplication.
+                <div className="shadow-lg">
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <ContentfulImage
+                      src={thumbUrl}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 100vw, 40vw"
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
               )}
 
-              {posts.length > 0 ? (
-                <>
-                  <ul className="flex flex-col divide-y divide-gray-200 border-t border-gray-200">
-                    {posts.map((post) => (
-                      <li key={post.slug} className="py-3">
-                        <Link
-                          href={`/posts/${post.slug}`}
-                          className="group flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between"
-                        >
-                          <span className="text-lg font-medium transition-colors duration-200 group-hover:text-brand-crimson">
-                            {post.title}
-                          </span>
-                          <span className="text-sm text-gray-500 md:shrink-0 md:pl-6">
-                            <DateComponent dateString={post.date} />
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+              <div>
+                <h2 className="mb-2 text-3xl font-bold tracking-tighter leading-tight md:text-4xl">
                   <Link
                     href={`/categories/${category.slug}`}
-                    className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+                    className="hover:text-brand-crimson transition-colors duration-200"
                   >
-                    See all in {category.name} &rarr;
+                    {category.name}
                   </Link>
-                </>
-              ) : (
-                <p className="text-lg text-gray-500">No posts here yet.</p>
-              )}
+                </h2>
+
+                {category.description && (
+                  <p className="mb-6 max-w-2xl text-lg leading-relaxed text-gray-600">
+                    {category.description}
+                  </p>
+                )}
+
+                {posts.length > 0 ? (
+                  <>
+                    <ul className="flex flex-col divide-y divide-gray-200 border-t border-gray-200">
+                      {posts.map((post) => (
+                        <li key={post.slug} className="py-3">
+                          <Link
+                            href={`/posts/${post.slug}`}
+                            className="group flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between"
+                          >
+                            <span className="text-lg font-medium transition-colors duration-200 group-hover:text-brand-crimson">
+                              {post.title}
+                            </span>
+                            <span className="text-sm text-gray-500 md:shrink-0 md:pl-6">
+                              <DateComponent dateString={post.date} />
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={`/categories/${category.slug}`}
+                      className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+                    >
+                      See all in {category.name} &rarr;
+                    </Link>
+                  </>
+                ) : (
+                  <p className="text-lg text-gray-500">No posts here yet.</p>
+                )}
+              </div>
             </article>
           );
         })}
