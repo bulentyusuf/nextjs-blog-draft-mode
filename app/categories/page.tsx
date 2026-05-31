@@ -46,88 +46,76 @@ export default async function CategoriesPage() {
         </p>
       </header>
 
-      <div className="flex flex-col gap-16 md:gap-20">
+      {/* One card per category, two across on desktop, stacked on mobile. */}
+      <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
         {categories.map((category) => {
           const posts = postsBySlug.get(category.slug) ?? [];
           const thumbUrl = category.thumbnail?.url;
           return (
-            <article key={category.slug}>
-              {/* Section header: name + description span the full width. */}
-              <div className="mb-6">
-                <h2 className="mb-3 text-2xl font-bold leading-snug md:text-3xl">
+            <article key={category.slug} className="flex flex-col min-w-0">
+              {thumbUrl && (
+                // Decorative: the heading below carries the category name, so
+                // alt is intentionally empty to avoid screen-reader duplication.
+                <div className="mb-5 shadow-lg">
+                  <div className="relative aspect-3/2 overflow-hidden">
+                    <ContentfulImage
+                      src={thumbUrl}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <h2 className="mb-3 text-2xl font-bold leading-snug md:text-3xl">
+                <Link
+                  href={`/categories/${category.slug}`}
+                  className="hover:text-brand-crimson transition-colors duration-200"
+                >
+                  {category.name}
+                </Link>
+              </h2>
+
+              {category.description && (
+                <p className="mb-5 text-lg leading-relaxed text-gray-600">
+                  {category.description}
+                </p>
+              )}
+
+              {posts.length > 0 ? (
+                <>
+                  <ul className="flex flex-col divide-y divide-gray-200 border-t border-gray-200">
+                    {posts.map((post) => (
+                      <li key={post.slug} className="py-4">
+                        <Link
+                          href={`/posts/${post.slug}`}
+                          className="text-lg font-medium hover:text-brand-crimson transition-colors duration-200"
+                        >
+                          {post.title}
+                        </Link>
+                        <div className="mt-1 text-sm text-gray-500">
+                          <DateComponent dateString={post.date} />
+                        </div>
+                        {post.excerpt && (
+                          <p className="mt-1 text-base leading-relaxed text-gray-600 line-clamp-1">
+                            {post.excerpt}
+                          </p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
                   <Link
                     href={`/categories/${category.slug}`}
-                    className="hover:text-brand-crimson transition-colors duration-200"
+                    className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
                   >
-                    {category.name}
+                    See all in {category.name} &rarr;
                   </Link>
-                </h2>
-                {category.description && (
-                  <p className="max-w-3xl text-lg leading-relaxed text-gray-600">
-                    {category.description}
-                  </p>
-                )}
-              </div>
-
-              {/* Thumbnail left, recent posts right (stacks on mobile). */}
-              <div
-                className={
-                  thumbUrl
-                    ? "grid gap-6 md:grid-cols-[2fr_3fr] md:items-start md:gap-10"
-                    : ""
-                }
-              >
-                {thumbUrl && (
-                  // Decorative: the heading above carries the category name, so
-                  // alt is intentionally empty to avoid screen-reader duplication.
-                  <div className="shadow-lg">
-                    <div className="relative aspect-3/2 overflow-hidden">
-                      <ContentfulImage
-                        src={thumbUrl}
-                        alt=""
-                        fill
-                        sizes="(max-width: 768px) 100vw, 40vw"
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="min-w-0">
-                  {posts.length > 0 ? (
-                    <>
-                      <ul className="flex flex-col divide-y divide-gray-200 border-t border-gray-200">
-                        {posts.map((post) => (
-                          <li key={post.slug} className="py-4">
-                            <Link
-                              href={`/posts/${post.slug}`}
-                              className="text-lg font-medium hover:text-brand-crimson transition-colors duration-200"
-                            >
-                              {post.title}
-                            </Link>
-                            <div className="mt-1 text-sm text-gray-500">
-                              <DateComponent dateString={post.date} />
-                            </div>
-                            {post.excerpt && (
-                              <p className="mt-1 text-base leading-relaxed text-gray-600 line-clamp-1">
-                                {post.excerpt}
-                              </p>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                      <Link
-                        href={`/categories/${category.slug}`}
-                        className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
-                      >
-                        See all in {category.name} &rarr;
-                      </Link>
-                    </>
-                  ) : (
-                    <p className="text-lg text-gray-500">No posts here yet.</p>
-                  )}
-                </div>
-              </div>
+                </>
+              ) : (
+                <p className="text-lg text-gray-500">No posts here yet.</p>
+              )}
             </article>
           );
         })}
