@@ -53,8 +53,8 @@ export default async function CategoryPage({
   const pagePosts = posts.slice(0, POSTS_PER_PAGE);
 
   return (
-    <div className="max-w-5xl mx-auto px-5 pt-8 pb-12">
-      <header className="mx-auto max-w-5xl mb-16 md:mb-20">
+    <div className="max-w-5xl mx-auto px-5 pt-8 pb-16">
+      <header className="mx-auto max-w-5xl mb-6 md:mb-8">
         <p className="mb-3 text-sm font-bold uppercase tracking-wide text-brand-crimson">
           Category
         </p>
