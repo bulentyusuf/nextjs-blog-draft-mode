@@ -15,7 +15,10 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      // Next.js App Router requires 'unsafe-inline' for hydration scripts.
+      // 'unsafe-inline' is kept deliberately. Removing it needs a per-request
+      // nonce, which on App Router forces dynamic rendering and disables static
+      // optimisation, ISR, and CDN HTML caching. Trusted-CMS, single-author
+      // threat model makes that trade not worth it. See CLAUDE.md.
       "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' https://images.ctfassets.net data: blob:",
