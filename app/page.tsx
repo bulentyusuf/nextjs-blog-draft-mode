@@ -72,6 +72,7 @@ function HeroPost({
           <div className="flex items-center">
             <Avatar
               name={author.name}
+              slug={author.slug}
               picture={author.picture}
               meta={dateline}
             />

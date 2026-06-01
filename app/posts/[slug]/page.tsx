@@ -187,6 +187,7 @@ export default async function PostPage({
               <div className="mb-10">
                 <Avatar
                   name={post.author.name}
+                  slug={post.author.slug}
                   picture={post.author.picture}
                   meta={dateline}
                 />
