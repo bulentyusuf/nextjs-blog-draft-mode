@@ -12,15 +12,18 @@ export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const categories = await getAllCategories(false);
-  const params: { slug: string; page: string }[] = [];
-  for (const category of categories) {
-    const posts = await getPostsByCategory(category.slug, false);
-    const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
-    for (let p = 2; p <= totalPages; p++) {
-      params.push({ slug: category.slug, page: String(p) });
-    }
-  }
-  return params;
+  const perCategory = await Promise.all(
+    categories.map(async (category) => {
+      const posts = await getPostsByCategory(category.slug, false);
+      const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+      const params: { slug: string; page: string }[] = [];
+      for (let p = 2; p <= totalPages; p++) {
+        params.push({ slug: category.slug, page: String(p) });
+      }
+      return params;
+    }),
+  );
+  return perCategory.flat();
 }
 
 export async function generateMetadata({

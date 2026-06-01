@@ -138,6 +138,10 @@ function extractPostEntries(fetchResponse: PostCollectionResponse): Post[] {
   return fetchResponse?.data?.postCollection?.items ?? [];
 }
 
+function extractCardEntries(fetchResponse: CardPostCollectionResponse): CardPost[] {
+  return fetchResponse?.data?.postCollection?.items ?? [];
+}
+
 export async function getAllPosts(isDraftMode = false): Promise<Post[]> {
   const entries = await fetchGraphQL<PostCollectionResponse>(
     `query GetAllPosts($preview: Boolean) {
@@ -157,7 +161,7 @@ export async function getAllPosts(isDraftMode = false): Promise<Post[]> {
 export async function getPostAndMorePosts(
   slug: string,
   preview = false,
-): Promise<{ post: Post | undefined; morePosts: Post[] }> {
+): Promise<{ post: Post | undefined; morePosts: CardPost[] }> {
   const entry = await fetchGraphQL<PostCollectionResponse>(
     `query GetPost($slug: String!, $preview: Boolean) {
       postCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
@@ -175,15 +179,15 @@ export async function getPostAndMorePosts(
 
   // Same-category posts, newest first, excluding the current one.
   const related = categorySlug
-    ? extractPostEntries(
-        await fetchGraphQL<PostCollectionResponse>(
+    ? extractCardEntries(
+        await fetchGraphQL<CardPostCollectionResponse>(
           `query GetRelated($slug: String!, $category: String!, $preview: Boolean) {
             postCollection(
               where: { slug_not_in: [$slug], category: { slug: $category } }
               order: date_DESC, preview: $preview, limit: 2
             ) {
               items {
-                ${POST_GRAPHQL_FIELDS}
+                ${CARD_GRAPHQL_FIELDS}
               }
             }
           }`,
@@ -198,12 +202,12 @@ export async function getPostAndMorePosts(
   // we can still reach 2 total.
   let morePosts = related;
   if (morePosts.length < 2) {
-    const recent = extractPostEntries(
-      await fetchGraphQL<PostCollectionResponse>(
+    const recent = extractCardEntries(
+      await fetchGraphQL<CardPostCollectionResponse>(
         `query GetMorePosts($slug: String!, $preview: Boolean) {
           postCollection(where: { slug_not_in: [$slug] }, order: date_DESC, preview: $preview, limit: 3) {
             items {
-              ${POST_GRAPHQL_FIELDS}
+              ${CARD_GRAPHQL_FIELDS}
             }
           }
         }`,
