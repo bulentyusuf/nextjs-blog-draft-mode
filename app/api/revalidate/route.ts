@@ -18,8 +18,9 @@ export async function POST(request: NextRequest) {
 
   revalidateTag("posts", {});
 
-  // The RSS feed and sitemap use CDN-level cache headers that revalidateTag
-  // does not touch, so we invalidate their paths explicitly.
+  // /feed.xml and /sitemap.xml are ISR routes. revalidateTag covers the data
+  // they read, and these path revalidations are the instant on-demand refresh
+  // so neither waits for its time-based fallback after a publish.
   revalidatePath("/feed.xml");
   revalidatePath("/sitemap.xml");
 
