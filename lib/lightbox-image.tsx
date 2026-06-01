@@ -121,7 +121,8 @@ export default function LightboxImage({
             ref={overlayRef}
             role="dialog"
             aria-modal="true"
-            aria-label={alt || "Enlarged image"}
+            aria-labelledby={caption ? titleId : undefined}
+            aria-label={caption ? undefined : alt || "Enlarged image"}
             onClick={close}
             className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 md:p-8 ${
               reduceMotion ? "" : "transition-opacity duration-200"
