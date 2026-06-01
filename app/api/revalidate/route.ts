@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
   }
 
-  revalidateTag("posts", {});
+  revalidateTag("posts", { expire: 0 });
 
   // /feed.xml and /sitemap.xml are ISR routes. revalidateTag covers the data
   // they read, and these path revalidations are the instant on-demand refresh
