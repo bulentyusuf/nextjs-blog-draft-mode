@@ -9,6 +9,8 @@ import type {
   PageMetaCollectionResponse,
   Category,
   CategoryCollectionResponse,
+  Author,
+  AuthorCollectionResponse,
 } from "./types";
 
 const POST_GRAPHQL_FIELDS = `
@@ -21,6 +23,7 @@ const POST_GRAPHQL_FIELDS = `
   updatedDate
   author {
     name
+    slug
     picture {
       url
     }
@@ -348,4 +351,76 @@ export async function getRecentPostsByCategory(
   );
 
   return entries?.data?.postCollection?.items ?? [];
+}
+
+export async function getAuthorBySlug(
+  slug: string,
+  isDraftMode = false,
+): Promise<Author | undefined> {
+  const entries = await fetchGraphQL<AuthorCollectionResponse>(
+    `query GetAuthor($slug: String!, $preview: Boolean) {
+      authorCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
+        items {
+          name
+          slug
+          bio {
+            json
+            links {
+              assets {
+                block {
+                  sys { id }
+                  url
+                  description
+                }
+              }
+            }
+          }
+          picture { url }
+        }
+      }
+    }`,
+    isDraftMode,
+    { slug, preview: isDraftMode },
+  );
+
+  return entries?.data?.authorCollection?.items?.[0];
+}
+
+export async function getPostsByAuthor(
+  slug: string,
+  isDraftMode = false,
+): Promise<CardPost[]> {
+  const entries = await fetchGraphQL<CardPostCollectionResponse>(
+    `query GetPostsByAuthor($slug: String!, $preview: Boolean) {
+      postCollection(where: { author: { slug: $slug } }, order: date_DESC, preview: $preview) {
+        items {
+          ${CARD_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    isDraftMode,
+    { slug, preview: isDraftMode },
+  );
+
+  return entries?.data?.postCollection?.items ?? [];
+}
+
+export async function getAllAuthors(
+  isDraftMode = false,
+): Promise<Author[]> {
+  const entries = await fetchGraphQL<AuthorCollectionResponse>(
+    `query GetAllAuthors($preview: Boolean) {
+      authorCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview) {
+        items {
+          name
+          slug
+          picture { url }
+        }
+      }
+    }`,
+    isDraftMode,
+    { preview: isDraftMode },
+  );
+
+  return entries?.data?.authorCollection?.items ?? [];
 }
