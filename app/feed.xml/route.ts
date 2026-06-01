@@ -15,6 +15,10 @@ function escapeXml(unsafe: string): string {
     .replace(/'/g, "&apos;");
 }
 
+// Daily ISR fallback. The Contentful publish webhook revalidates /feed.xml on
+// demand for instant freshness. This is the catch for when the webhook fails.
+export const revalidate = 86400;
+
 export async function GET() {
   const posts = await getAllPosts(false);
 
@@ -48,10 +52,9 @@ export async function GET() {
 </rss>`;
 
   return new Response(xml, {
-  headers: {
-    "Content-Type": "application/xml; charset=utf-8",
-    "x-content-type-options": "nosniff",
-    "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400",
-  },
-});
+    headers: {
+      "Content-Type": "application/xml; charset=utf-8",
+      "x-content-type-options": "nosniff",
+    },
+  });
 }
