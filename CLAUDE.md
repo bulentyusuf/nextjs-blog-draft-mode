@@ -31,3 +31,16 @@ the site begins rendering untrusted user-generated content.
   configured secrets are high-entropy.
 - `dangerouslySetInnerHTML` for Shiki output in `lib/rich-text.tsx`. Input is
   trusted CMS content and the renderer allowlists URL schemes. Known and accepted.
+- Sitemap may list CMS `Page` slugs that have no route. Only `/about` and
+  `/privacy` exist as routes today, both hardcoded, so this is dormant. If a
+  third `Page` entry is ever published, either filter the sitemap to routed
+  slugs or add a routing story (a root catch-all `[slug]` needs collision care
+  with `/posts`, `/categories`, `/authors`). Triaged and low priority, not
+  dismissed.
+- Dependabot ignores major version updates for all packages. Deliberate, to
+  avoid breaking-change churn for a solo maintainer. Advisory-driven Dependabot
+  security updates are a separate mechanism and still cover security-flagged
+  majors, provided security updates are enabled in repo settings. Not a gap.
+- CI actions are pinned to major tags (`@v4`), not commit SHAs. Accepted as low
+  risk because they are first-party (`actions/checkout`, `github/codeql-action`).
+  SHA-pinning is optional belt-and-braces, not adopted.
