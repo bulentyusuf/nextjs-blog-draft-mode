@@ -34,8 +34,18 @@ export interface Content {
 
 export interface Author {
   name: string;
+  slug?: string; // optional: legacy/draft authors may predate the field
+  bio?: Content; // optional: not every author has a bio, and draft-safe
   picture: {
     url: string;
+  };
+}
+
+export interface AuthorCollectionResponse {
+  data?: {
+    authorCollection?: {
+      items: Author[];
+    };
   };
 }
 
