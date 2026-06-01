@@ -1,7 +1,7 @@
 import Link from "next/link";
 import DateComponent from "./date";
 import CoverImage from "./cover-image";
-import type { Post, CoverImage as CoverImageType } from "@/lib/types";
+import type { CardPost, CoverImage as CoverImageType } from "@/lib/types";
 
 type Variant = "grid" | "list";
 
@@ -89,7 +89,7 @@ export default function MoreStories({
   heading,
   priorityFirst = false,
 }: {
-  morePosts: Post[];
+  morePosts: CardPost[];
   variant?: Variant;
   heading: string | null;
   // When true, the first post's cover image is fetched with priority. Use on
