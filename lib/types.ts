@@ -78,6 +78,19 @@ export interface PostCollectionResponse {
   };
 }
 
+export type CardPost = Pick<
+  Post,
+  "slug" | "title" | "date" | "excerpt" | "coverImage"
+>;
+
+export interface CardPostCollectionResponse {
+  data?: {
+    postCollection?: {
+      items: CardPost[];
+    };
+  };
+}
+
 export interface Page {
   slug: string;
   title: string;

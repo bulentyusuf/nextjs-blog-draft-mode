@@ -1,6 +1,8 @@
 import type {
   Post,
   PostCollectionResponse,
+  CardPost,
+  CardPostCollectionResponse,
   Page,
   PageCollectionResponse,
   PageMeta,
@@ -328,8 +330,8 @@ export async function getRecentPostsByCategory(
   slug: string,
   limit: number,
   isDraftMode = false,
-): Promise<Post[]> {
-  const entries = await fetchGraphQL<PostCollectionResponse>(
+): Promise<CardPost[]> {
+  const entries = await fetchGraphQL<CardPostCollectionResponse>(
     `query GetRecentPostsByCategory($slug: String!, $limit: Int!, $preview: Boolean) {
       postCollection(where: { category: { slug: $slug } }, order: date_DESC, preview: $preview, limit: $limit) {
         items {
