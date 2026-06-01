@@ -1,13 +1,16 @@
 import ContentfulImage from "@/lib/contentful-image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 export default function Avatar({
   name,
   picture,
+  slug,
   meta,
 }: {
   name: string;
   picture: any;
+  slug?: string;
   meta?: ReactNode;
 }) {
   return (
@@ -22,7 +25,15 @@ export default function Avatar({
         />
       </div>
       <div className="leading-tight">
-        <div className="text-xl font-bold">{name}</div>
+        <div className="text-xl font-bold">
+          {slug ? (
+            <Link href={`/authors/${slug}`} className="hover:underline">
+              {name}
+            </Link>
+          ) : (
+            name
+          )}
+        </div>
         {meta && (
           <div className="mt-1 text-sm font-normal text-gray-500">{meta}</div>
         )}
