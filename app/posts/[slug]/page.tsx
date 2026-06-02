@@ -12,7 +12,7 @@ import { highlightCodeBlocks } from "@/lib/highlight";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
-import { SITE_URL, SITE_AUTHOR } from "@/lib/constants";
+import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
 
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
@@ -43,6 +43,12 @@ export async function generateMetadata({
       type: "article",
       publishedTime: post.date,
       modifiedTime: post.updatedDate ?? post.date,
+      url: `${SITE_URL}/posts/${slug}`,
+      siteName: SITE_TITLE,
+      locale: "en_US",
+      authors: post.author?.slug
+        ? [`${SITE_URL}/authors/${post.author.slug}`]
+        : undefined,
       images: post.coverImage
         ? [
             {
