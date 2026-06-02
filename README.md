@@ -1,4 +1,4 @@
-# Fun with GenAI
+# Be Useful.
 
 The source for [bulentyusuf.com](https://bulentyusuf.com), a personal blog about content, code, and making things with generative AI.
 
