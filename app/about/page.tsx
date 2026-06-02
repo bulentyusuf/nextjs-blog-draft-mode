@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: page.title,
-    description: `About ${SITE_TITLE} and the person behind it.`,
+    description: `About ${SITE_TITLE}`,
   };
 }
 
