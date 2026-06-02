@@ -13,6 +13,7 @@ const authorsDescription = `Meet the authors behind ${SITE_TITLE}`;
 export const metadata: Metadata = {
   title: "Authors",
   description: authorsDescription,
+  alternates: { canonical: `${SITE_URL}/authors` },
   openGraph: {
     description: authorsDescription,
     url: `${SITE_URL}/authors`,

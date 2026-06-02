@@ -6,15 +6,31 @@ import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
-import { SITE_TITLE } from "@/lib/constants";
+import { SITE_TITLE, SITE_URL } from "@/lib/constants";
 
 // How many recent posts to tease under each category. The full list lives on
 // the individual category page (/categories/[slug]).
 const PREVIEW_COUNT = 3;
 
+const categoriesDescription = `Browse posts by category on ${SITE_TITLE}`;
+
 export const metadata: Metadata = {
   title: "Categories",
-  description: `Browse posts by category on ${SITE_TITLE}`,
+  description: categoriesDescription,
+  alternates: { canonical: `${SITE_URL}/categories` },
+  openGraph: {
+    description: categoriesDescription,
+    url: `${SITE_URL}/categories`,
+    siteName: SITE_TITLE,
+    images: [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    description: categoriesDescription,
+    images: ["/be_useful.jpg"],
+  },
 };
 
 export default async function CategoriesPage() {

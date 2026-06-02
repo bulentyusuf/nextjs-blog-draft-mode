@@ -35,13 +35,15 @@ export async function generateMetadata({
 
   const description = `Posts by ${author.name} on ${SITE_TITLE}`;
   const images = author.picture?.url ? [author.picture.url] : undefined;
+  const canonical = `${SITE_URL}/authors/${slug}`;
 
   return {
     title: author.name,
     description,
+    alternates: { canonical },
     openGraph: {
       description,
-      url: `${SITE_URL}/authors/${slug}`,
+      url: canonical,
       siteName: SITE_TITLE,
       images: images ?? [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
       type: "website",
