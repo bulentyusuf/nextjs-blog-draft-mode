@@ -10,7 +10,7 @@ import { SITE_TITLE } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Authors",
-  description: `Meet the authors behind ${SITE_TITLE}.`,
+  description: `Meet the authors behind ${SITE_TITLE}`,
 };
 
 export default async function AuthorsPage() {
