@@ -27,7 +27,7 @@ export default function Avatar({
       <div className="leading-tight">
         <div className="text-xl font-bold">
           {slug ? (
-            <Link href={`/authors/${slug}`} className="hover:underline">
+            <Link href={`/authors/${slug}`} className="hover:text-brand-crimson transition-colors duration-200">
               {name}
             </Link>
           ) : (

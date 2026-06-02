@@ -72,7 +72,11 @@ export default async function AuthorPaginatedPage({
     notFound();
   }
 
-  const crumbs: Crumb[] = [{ label: "Home", href: "/" }, { label: author.name }];
+  const crumbs: Crumb[] = [
+    { label: "Home", href: "/" },
+    { label: "Authors", href: "/authors" },
+    { label: author.name },
+  ];
 
   const posts = await getPostsByAuthor(slug, isEnabled);
   const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));

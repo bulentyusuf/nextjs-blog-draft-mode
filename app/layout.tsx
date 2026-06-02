@@ -93,6 +93,12 @@ function Footer() {
           </p>
           <div className="flex items-center gap-6">
             <Link
+              href="/authors"
+              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            >
+              Authors
+            </Link>
+            <Link
               href="/privacy"
               className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
             >
