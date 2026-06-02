@@ -1,5 +1,10 @@
 import { MetadataRoute } from "next";
-import { getAllPosts, getAllPages, getAllCategories } from "@/lib/api";
+import {
+  getAllPosts,
+  getAllPages,
+  getAllCategories,
+  getAllAuthors,
+} from "@/lib/api";
 import { SITE_URL } from "@/lib/constants";
 import type { Post } from "@/lib/types";
 
@@ -10,10 +15,11 @@ import type { Post } from "@/lib/types";
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [posts, pages, categories] = await Promise.all([
+  const [posts, pages, categories, authors] = await Promise.all([
     getAllPosts(false),
     getAllPages(false),
     getAllCategories(false),
+    getAllAuthors(false),
   ]);
 
   const postDate = (post: Post): Date => new Date(post.updatedDate ?? post.date);
@@ -30,6 +36,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const date = postDate(post);
     const current = newestByCategory.get(slug);
     if (!current || date > current) newestByCategory.set(slug, date);
+  }
+
+  // Same idea per author slug. Posts carry author.slug via POST_GRAPHQL_FIELDS.
+  const newestByAuthor = new Map<string, Date>();
+  for (const post of posts) {
+    const slug = post.author?.slug;
+    if (!slug) continue;
+    const date = postDate(post);
+    const current = newestByAuthor.get(slug);
+    if (!current || date > current) newestByAuthor.set(slug, date);
   }
 
   const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
@@ -55,6 +71,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const authorEntries: MetadataRoute.Sitemap = authors
+    .filter((author) => author.slug)
+    .map((author) => ({
+      url: `${SITE_URL}/authors/${author.slug}`,
+      lastModified: newestByAuthor.get(author.slug as string) ?? newestSitewide,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    }));
+
   return [
     {
       url: SITE_URL,
@@ -70,6 +95,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...pageEntries,
     ...categoryEntries,
+    ...authorEntries,
     ...postEntries,
   ];
 }
