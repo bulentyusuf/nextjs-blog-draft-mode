@@ -7,7 +7,7 @@ import MoreStories from "../../more-stories";
 import Pagination from "../../pagination";
 
 import { getAllPosts } from "@/lib/api";
-import { POSTS_PER_PAGE } from "@/lib/constants";
+import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
 
 // Render pages added after build on demand; out-of-range pages 404 below.
 export const dynamicParams = true;
@@ -27,7 +27,10 @@ export async function generateMetadata({
   params: Promise<{ page: string }>;
 }): Promise<Metadata> {
   const { page } = await params;
-  return { title: `Page ${page}` };
+  return {
+    title: `Page ${page}`,
+    alternates: { canonical: `${SITE_URL}/page/${page}` },
+  };
 }
 
 export default async function IndexPage({
