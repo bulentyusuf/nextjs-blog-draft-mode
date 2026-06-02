@@ -6,7 +6,7 @@ import MoreStories from "../../../../more-stories";
 import Pagination from "../../../../pagination";
 import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
 import { getAllCategories, getCategoryBySlug, getPostsByCategory } from "@/lib/api";
-import { POSTS_PER_PAGE, SITE_TITLE } from "@/lib/constants";
+import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL } from "@/lib/constants";
 
 export const dynamicParams = true;
 
@@ -39,9 +39,28 @@ export async function generateMetadata({
     return { title: "Category not found" };
   }
 
+  const title = `${category.name}, page ${page}`;
+  const description = category.description || `Posts in ${category.name} on ${SITE_TITLE}`;
+  const canonical = `${SITE_URL}/categories/${slug}/page/${page}`;
+
   return {
-    title: `${category.name}, page ${page}`,
-    description: category.description || `Posts in ${category.name} on ${SITE_TITLE}.`,
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      description,
+      url: canonical,
+      siteName: SITE_TITLE,
+      images: [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
+      type: "website",
+      locale: "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/be_useful.jpg"],
+    },
   };
 }
 
