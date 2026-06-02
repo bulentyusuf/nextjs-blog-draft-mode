@@ -1,39 +1,57 @@
 import Link from "next/link";
+import { SITE_URL } from "@/lib/constants";
 
 export type Crumb = { label: string; href?: string };
 
 export default function Breadcrumb({ items }: { items: Crumb[] }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.label,
+      ...(item.href ? { item: `${SITE_URL}${item.href}` } : {}),
+    })),
+  };
+
   return (
-    <nav aria-label="Breadcrumb" className="mb-4">
-      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500">
-        {items.map((item, i) => {
-          const isLast = i === items.length - 1;
-          return (
-            <li key={i} className="flex items-center gap-x-2">
-              {item.href && !isLast ? (
-                <Link
-                  href={item.href}
-                  className="hover:text-brand-crimson transition-colors duration-200"
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <span
-                  className={isLast ? "font-medium text-gray-700" : undefined}
-                  aria-current={isLast ? "page" : undefined}
-                >
-                  {item.label}
-                </span>
-              )}
-              {!isLast && (
-                <span aria-hidden="true" className="text-gray-300">
-                  /
-                </span>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <nav aria-label="Breadcrumb" className="mb-4">
+        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500">
+          {items.map((item, i) => {
+            const isLast = i === items.length - 1;
+            return (
+              <li key={i} className="flex items-center gap-x-2">
+                {item.href && !isLast ? (
+                  <Link
+                    href={item.href}
+                    className="hover:text-brand-crimson transition-colors duration-200"
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span
+                    className={isLast ? "font-medium text-gray-700" : undefined}
+                    aria-current={isLast ? "page" : undefined}
+                  >
+                    {item.label}
+                  </span>
+                )}
+                {!isLast && (
+                  <span aria-hidden="true" className="text-gray-300">
+                    /
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+    </>
   );
 }

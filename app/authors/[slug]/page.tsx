@@ -82,8 +82,23 @@ export default async function AuthorPage({
   const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
   const pagePosts = posts.slice(0, POSTS_PER_PAGE);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    mainEntity: {
+      "@type": "Person",
+      name: author.name,
+      url: `${SITE_URL}/authors/${slug}`,
+      image: author.picture?.url,
+    },
+  };
+
   return (
     <Container>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
         <div className="flex items-center gap-4 mb-6">

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { draftMode } from "next/headers";
 
@@ -9,7 +10,11 @@ import MoreStories from "./more-stories";
 import Pagination from "./pagination";
 
 import { getAllPosts } from "@/lib/api";
-import { POSTS_PER_PAGE } from "@/lib/constants";
+import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  alternates: { canonical: SITE_URL },
+};
 import type { Author, CoverImage as CoverImageType } from "@/lib/types";
 
 function HeroPost({
