@@ -43,10 +43,20 @@ export async function generateMetadata({
     return { title: "Author not found" };
   }
 
+  const title = `${author.name}, page ${page}`;
+  const description = `Posts by ${author.name} on ${SITE_TITLE}`;
+  const images = author.picture?.url ? [author.picture.url] : undefined;
+
   return {
-    title: `${author.name}, page ${page}`,
-    description: `Posts by ${author.name} on ${SITE_TITLE}.`,
-    openGraph: author.picture?.url ? { images: [author.picture.url] } : undefined,
+    title,
+    description,
+    openGraph: images ? { images } : undefined,
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
+    },
   };
 }
 
