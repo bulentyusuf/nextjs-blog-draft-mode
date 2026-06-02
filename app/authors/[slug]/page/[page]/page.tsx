@@ -7,7 +7,7 @@ import MoreStories from "../../../../more-stories";
 import Pagination from "../../../../pagination";
 import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
 import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
-import { POSTS_PER_PAGE, SITE_TITLE } from "@/lib/constants";
+import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL } from "@/lib/constants";
 
 export const dynamicParams = true;
 
@@ -50,7 +50,14 @@ export async function generateMetadata({
   return {
     title,
     description,
-    openGraph: images ? { images } : undefined,
+    openGraph: {
+      description,
+      url: `${SITE_URL}/authors/${slug}/page/${page}`,
+      siteName: SITE_TITLE,
+      images: images ?? [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
+      type: "website",
+      locale: "en_US",
+    },
     twitter: {
       card: "summary_large_image",
       title,
