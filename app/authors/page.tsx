@@ -6,11 +6,26 @@ import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import { getAllAuthors, getAuthorBySlug } from "@/lib/api";
-import { SITE_TITLE } from "@/lib/constants";
+import { SITE_TITLE, SITE_URL } from "@/lib/constants";
+
+const authorsDescription = `Meet the authors behind ${SITE_TITLE}`;
 
 export const metadata: Metadata = {
   title: "Authors",
-  description: `Meet the authors behind ${SITE_TITLE}`,
+  description: authorsDescription,
+  openGraph: {
+    description: authorsDescription,
+    url: `${SITE_URL}/authors`,
+    siteName: SITE_TITLE,
+    images: [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    description: authorsDescription,
+    images: ["/be_useful.jpg"],
+  },
 };
 
 export default async function AuthorsPage() {
