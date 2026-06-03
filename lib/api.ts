@@ -52,6 +52,10 @@ const POST_GRAPHQL_FIELDS = `
             code
             filename
           }
+          ... on PromptBlock {
+            prompt
+            label
+          }
         }
       }
     }
