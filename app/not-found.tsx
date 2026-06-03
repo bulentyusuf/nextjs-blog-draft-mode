@@ -37,6 +37,11 @@ export default function NotFound() {
             width={720}
             height={480}
             priority
+            // This repo sets images.loader: "custom" globally, so next/image
+            // expects a loader. The Contentful loader (lib/contentful-image)
+            // only handles remote CMS images; this is a local public/ asset, so
+            // we serve it directly with unoptimized. img-src 'self' allows it.
+            unoptimized
             className="gremlin-img w-full max-w-md h-auto rounded-lg"
           />
         </div>
