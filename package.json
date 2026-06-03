@@ -4,7 +4,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:links": "node scripts/check-llms-links.mjs"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^15.17.1",
