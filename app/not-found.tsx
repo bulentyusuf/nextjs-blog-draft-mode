@@ -54,11 +54,11 @@ export default function NotFound() {
           Whoops
         </p>
         <h1 className="mt-4 text-4xl lg:text-6xl leading-tight font-bold">
-          404: A gremlin pulled the plug.
+          404: Here be gremlins.
         </h1>
 
         <p className="mt-6 text-lg leading-relaxed">
-          The page you seek isn't available, moved, or never existed. Now scram!
+          The page you seek isn't available or never existed. Close the door behind you, yeah?
         </p>
 
         <nav
