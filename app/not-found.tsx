@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import ContentfulImage from "@/lib/contentful-image";
 import Container from "./container";
 
 export const metadata: Metadata = {
@@ -31,19 +31,21 @@ export default function NotFound() {
 
       <section className="mx-auto max-w-2xl text-center">
         <div className="mb-8 flex justify-center">
-          <Image
+          {/*
+            This repo sets images.loader: "custom" globally, so every
+            next/image needs a loader. ContentfulImage is the house client
+            component that supplies one; its loader returns any non-Contentful
+            src untouched, so a local public/ asset is served directly.
+            img-src 'self' allows it. Using a raw next/image here would either
+            miss the loader or try to serialise an inline loader function from
+            this server component, both of which break the build.
+          */}
+          <ContentfulImage
             src="/404-gremlin.webp"
             alt="A gremlin yanking a power plug out of the wall"
             width={720}
             height={480}
             priority
-            // This repo sets images.loader: "custom" globally, so every
-            // next/image must supply a loader. The Contentful loader
-            // (lib/contentful-image) only handles remote CMS images; this is a
-            // local public/ asset, so use an identity loader that serves the
-            // file directly. img-src 'self' allows it.
-            loader={({ src }) => src}
-            unoptimized
             className="gremlin-img w-full max-w-md h-auto rounded-lg"
           />
         </div>
