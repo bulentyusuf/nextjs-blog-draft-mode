@@ -42,7 +42,7 @@ export default function NotFound() {
           */}
           <ContentfulImage
             src="/404-gremlin.webp"
-            alt="A gremlin yanking a power plug out of the wall"
+            alt="A gremlin sitting in a tangle of wires, holding the two ends of an unplugged cable"
             width={720}
             height={480}
             priority
@@ -50,12 +50,13 @@ export default function NotFound() {
           />
         </div>
 
-        <p className="text-sm font-bold uppercase tracking-wide text-brand-crimson">
-          404
+                <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">
+          Whoops
         </p>
         <h1 className="mt-4 text-4xl lg:text-6xl leading-tight font-bold">
-          A gremlin pulled the plug on this one.
+          404: Here be gremlins.
         </h1>
+
         <p className="mt-6 text-lg leading-relaxed">
           The page you wanted is unplugged, moved, or never existed. Here are a
           few ways back.
