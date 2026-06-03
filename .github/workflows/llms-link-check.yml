@@ -1,0 +1,33 @@
+name: llms.txt link check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "public/llms.txt"
+      - "scripts/check-llms-links.mjs"
+      - ".github/workflows/llms-link-check.yml"
+  schedule:
+    # Weekly, so a slug renamed in the CMS is caught even when no PR touches the file.
+    - cron: "0 7 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check llms.txt links
+        run: node scripts/check-llms-links.mjs
+        env:
+          SITE_URL: https://bulentyusuf.com
