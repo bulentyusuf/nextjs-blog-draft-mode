@@ -136,7 +136,7 @@ export function RichText({
           return (
             <div className="not-prose my-8 overflow-hidden rounded-lg border border-gray-200">
               <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 font-mono text-xs text-white">
-                <span>{entry.label || "Prompt"}</span>
+                <span className="text-sm font-semibold">{entry.label || "Prompt"}</span>
                 <CopyButton code={entry.prompt} label="prompt" />
               </div>
               <div
