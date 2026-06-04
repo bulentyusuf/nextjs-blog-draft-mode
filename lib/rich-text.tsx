@@ -135,31 +135,28 @@ export function RichText({
 
         if (entry.__typename === "PromptBlock") {
           return (
-            <div className="not-prose my-8 overflow-hidden rounded-lg border border-gray-200">
-              <div className="flex items-center gap-3 bg-brand-crimson px-4 py-2 font-mono text-xs text-white">
+            <div className="not-prose my-8 rounded-lg border border-gray-200">
+              <div className="flex h-12 items-center rounded-t-lg bg-brand-crimson pl-28 pr-4 font-mono text-white">
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold">
+                  {entry.label || "Prompt"}
+                </span>
+                <CopyButton code={entry.prompt} label="prompt" />
+              </div>
+              <div className="flow-root whitespace-pre-wrap break-words rounded-b-lg bg-gray-50 px-4 py-3 font-mono text-sm text-gray-800">
                 {entry.image?.url && (
-                  <div
+                  <span
                     aria-hidden="true"
-                    className="relative h-[42px] w-[42px] shrink-0 overflow-hidden rounded"
+                    className="relative float-left mb-1 -mt-[38px] mr-3 block h-[52px] w-[78px] overflow-hidden rounded-md shadow-md ring-1 ring-black/10"
                   >
                     <ContentfulImage
                       src={entry.image.url}
                       alt=""
                       fill
-                      sizes="42px"
+                      sizes="78px"
                       className="object-cover"
                     />
-                  </div>
+                  </span>
                 )}
-                <span className="flex-1 text-sm font-semibold">{entry.label || "Prompt"}</span>
-                <CopyButton code={entry.prompt} label="prompt" />
-              </div>
-              <div
-                tabIndex={0}
-                role="region"
-                aria-label={entry.label || "Prompt"}
-                className="overflow-x-auto whitespace-pre-wrap break-words bg-gray-50 px-4 py-3 font-mono text-sm text-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-              >
                 {entry.prompt}
               </div>
             </div>
