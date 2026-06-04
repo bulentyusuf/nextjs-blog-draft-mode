@@ -136,7 +136,7 @@ export function RichText({
         if (entry.__typename === "PromptBlock") {
           return (
             <div className="not-prose my-8 rounded-lg border border-gray-200">
-              <div className="flex h-12 items-center rounded-t-lg bg-brand-crimson pl-28 pr-4 font-mono text-white">
+              <div className="flex h-9 items-center rounded-t-lg bg-brand-crimson pl-28 pr-4 font-mono text-white">
                 <span className="min-w-0 flex-1 truncate text-sm font-semibold">
                   {entry.label || "Prompt"}
                 </span>
