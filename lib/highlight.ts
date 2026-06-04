@@ -1,6 +1,6 @@
 import "server-only";
 import { createHighlighter, type Highlighter } from "shiki";
-import type { Content } from "./types";
+import type { CodeBlock, Content } from "./types";
 
 const THEME = "min-dark"; // themes
 const LANGS = [
@@ -39,7 +39,7 @@ export async function highlightCodeBlocks(
   content: Content,
 ): Promise<Map<string, string>> {
   const blocks = (content.links.entries?.block ?? []).filter(
-    (b) => b.__typename === "CodeBlock",
+    (b): b is CodeBlock => b.__typename === "CodeBlock",
   );
   if (blocks.length === 0) return new Map();
 

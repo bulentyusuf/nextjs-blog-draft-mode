@@ -20,8 +20,15 @@ export interface CodeBlock {
   filename?: string;
 }
 
+export interface PromptBlock {
+  __typename: "PromptBlock";
+  sys: { id: string };
+  prompt: string;
+  label?: string; // optional header text; falls back to "Prompt" when absent
+}
+
 export interface EntryLink {
-  block: CodeBlock[];
+  block: (CodeBlock | PromptBlock)[];
 }
 
 export interface Content {

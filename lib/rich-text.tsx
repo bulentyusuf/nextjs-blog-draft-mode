@@ -93,42 +93,65 @@ export function RichText({
       [BLOCKS.EMBEDDED_ENTRY]: (node: Block | Inline) => {
         const id = (node as Block).data.target.sys.id;
         const entry = content.links.entries?.block?.find((e) => e.sys.id === id);
-        if (!entry || entry.__typename !== "CodeBlock") return null;
+        if (!entry) return null;
 
-        const html = highlighted?.get(id);
+        if (entry.__typename === "CodeBlock") {
+          const html = highlighted?.get(id);
 
-        return (
-          <div className="not-prose relative my-8 overflow-hidden rounded-lg border border-gray-200">
-            {entry.filename ? (
-              <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
-                <span>{entry.filename}</span>
-                <CopyButton code={entry.code} />
-              </div>
+          return (
+            <div className="not-prose relative my-8 overflow-hidden rounded-lg border border-gray-200">
+              {entry.filename ? (
+                <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
+                  <span>{entry.filename}</span>
+                  <CopyButton code={entry.code} />
+                </div>
+              ) : (
+                <div className="absolute right-2 top-2">
+                  <CopyButton code={entry.code} />
+                </div>
+              )}
+              {html ? (
+              <div
+                tabIndex={0}
+                role="region"
+                aria-label={entry.filename || "Code block"}
+                className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
             ) : (
-              <div className="absolute right-2 top-2">
-                <CopyButton code={entry.code} />
-              </div>
+              <pre
+                tabIndex={0}
+                role="region"
+                aria-label={entry.filename || "Code block"}
+                className="overflow-x-auto p-4 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                <code>{entry.code}</code>
+              </pre>
             )}
-            {html ? (
-            <div
-              tabIndex={0}
-              role="region"
-              aria-label={entry.filename || "Code block"}
-              className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
-          ) : (
-            <pre
-              tabIndex={0}
-              role="region"
-              aria-label={entry.filename || "Code block"}
-              className="overflow-x-auto p-4 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-            >
-              <code>{entry.code}</code>
-            </pre>
-          )}
-          </div>
-        );
+            </div>
+          );
+        }
+
+        if (entry.__typename === "PromptBlock") {
+          return (
+            <div className="not-prose my-8 overflow-hidden rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 font-mono text-xs text-white">
+                <span className="text-sm font-semibold">{entry.label || "Prompt"}</span>
+                <CopyButton code={entry.prompt} label="prompt" />
+              </div>
+              <div
+                tabIndex={0}
+                role="region"
+                aria-label={entry.label || "Prompt"}
+                className="overflow-x-auto whitespace-pre-wrap break-words bg-gray-50 px-4 py-3 font-mono text-sm text-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                {entry.prompt}
+              </div>
+            </div>
+          );
+        }
+
+        return null;
       },
       [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => {
         const uri: string = (node as Inline).data.uri;
