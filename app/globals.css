@@ -5,8 +5,9 @@
 @theme {
   --font-sans: var(--font-inter);
 
-  --color-brand-crimson: #8b0000;
-  --color-brand-dark: #1a1a1a;
+  --color-brand-crimson: #A4243B;
+  --color-brand-dark: #241B1D;
+  --color-brand-bg: #FAF5F1;
 
   --spacing-section: 6rem;
 }
