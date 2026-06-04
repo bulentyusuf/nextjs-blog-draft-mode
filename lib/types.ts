@@ -25,6 +25,7 @@ export interface PromptBlock {
   sys: { id: string };
   prompt: string;
   label?: string; // optional header text; falls back to "Prompt" when absent
+  image?: { url: string; description?: string }; // linked asset; absent on text-only prompts
 }
 
 export interface EntryLink {

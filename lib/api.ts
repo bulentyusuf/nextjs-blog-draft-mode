@@ -55,6 +55,10 @@ const POST_GRAPHQL_FIELDS = `
           ... on PromptBlock {
             prompt
             label
+            image {
+              url
+              description
+            }
           }
         }
       }
