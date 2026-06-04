@@ -46,7 +46,7 @@ export const metadata = {
   },
 };
 export const viewport = {
-  themeColor: "#8b0000",
+  themeColor: "#A4243B",
   width: "device-width",
   initialScale: 1,
 };
@@ -132,7 +132,7 @@ export default async function RootLayout({
   const { isEnabled } = await draftMode();
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col bg-brand-bg">
         <Header />
         <main className="grow">{children}</main>
         <Footer />
