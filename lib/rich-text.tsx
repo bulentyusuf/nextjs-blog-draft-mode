@@ -1,5 +1,6 @@
 import LightboxImage from "./lightbox-image";
 import CopyButton from "./copy-button";
+import ContentfulImage from "./contentful-image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Block, Inline } from "@contentful/rich-text-types";
@@ -135,8 +136,22 @@ export function RichText({
         if (entry.__typename === "PromptBlock") {
           return (
             <div className="not-prose my-8 overflow-hidden rounded-lg border border-gray-200">
-              <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 font-mono text-xs text-white">
-                <span className="text-sm font-semibold">{entry.label || "Prompt"}</span>
+              <div className="flex items-center gap-3 bg-brand-crimson px-4 py-2 font-mono text-xs text-white">
+                {entry.image?.url && (
+                  <div
+                    aria-hidden="true"
+                    className="relative h-[42px] w-[42px] shrink-0 overflow-hidden rounded"
+                  >
+                    <ContentfulImage
+                      src={entry.image.url}
+                      alt=""
+                      fill
+                      sizes="42px"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <span className="flex-1 text-sm font-semibold">{entry.label || "Prompt"}</span>
                 <CopyButton code={entry.prompt} label="prompt" />
               </div>
               <div
