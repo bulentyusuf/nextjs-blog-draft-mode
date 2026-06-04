@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "check:links": "node scripts/check-llms-links.mjs"
+    "check:links": "node scripts/check-llms-links.mjs",
+    "import:contentful": "contentful-import --content-file contentful/export.json --environment-id master"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^15.17.1",
@@ -29,6 +30,7 @@
     "typescript": "^5.6.3"
   },
   "devDependencies": {
+    "contentful-import": "^10.0.10",
     "vitest": "^4.1.8"
   }
 }
