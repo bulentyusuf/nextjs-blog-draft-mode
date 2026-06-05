@@ -9,6 +9,7 @@ import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
 import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL } from "@/lib/constants";
+import { jsonLdHtml } from "@/lib/json-ld";
 
 // Allow on-demand rendering of authors added after build time.
 export const dynamicParams = true;
@@ -97,7 +98,7 @@ export default async function AuthorPage({
     <Container>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">

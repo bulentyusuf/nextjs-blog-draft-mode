@@ -11,7 +11,7 @@ export interface Heading {
 // whitespace to single hyphens, trim stray hyphens. Stripping punctuation
 // is deliberate — an apostrophe left in an id (e.g. "what's-inside") makes
 // a fragile fragment identifier.
-export function slugify(text: string): string {
+function slugify(text: string): string {
   return text
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -40,7 +40,7 @@ function nodeText(node: Node): string {
 // repeats. Both the TOC extraction and the renderer's id emission must drive
 // their own instance of this in the SAME document order, so the Nth heading
 // gets the same slug on both sides.
-export function createSlugger() {
+function createSlugger() {
   const seen = new Map<string, number>();
   return function nextSlug(text: string): string {
     const base = slugify(text) || "section";

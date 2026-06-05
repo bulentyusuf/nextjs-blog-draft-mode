@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SITE_URL } from "@/lib/constants";
+import { jsonLdHtml } from "@/lib/json-ld";
 
 export type Crumb = { label: string; href?: string };
 
@@ -19,7 +20,7 @@ export default function Breadcrumb({ items }: { items: Crumb[] }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
       <nav aria-label="Breadcrumb" className="mb-4">
         <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500">
