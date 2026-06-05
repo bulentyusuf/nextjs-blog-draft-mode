@@ -14,8 +14,6 @@ const STRIP_SYS = [
   "firstPublishedAt",
   "publishedAt",
   "publishedCounter",
-  "publishedVersion",
-  "version",
   "urn",
 ];
 
