@@ -82,10 +82,13 @@ const entries = [
     content: loc(
       doc(
         paragraph(text(LOREM)),
-        heading2("A code block follows"),
+        heading2("Background"),
         paragraph(text(LOREM2)),
+        heading2("A code block"),
+        paragraph(text(LOREM)),
         embed("code-example"),
-        paragraph(text(LOREM))
+        heading2("Where this leaves us"),
+        paragraph(text(LOREM2))
       )
     ),
     author: loc(link("author-alex")),
