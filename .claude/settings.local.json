@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(git branch *)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git config *)",
+      "Bash(git fetch *)",
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "Bash(git ls-tree *)",
+      "Bash(node -e 'const d=JSON.parse\\(require\\(\"fs\"\\).readFileSync\\(0\\)\\);console.log\\(\"contentTypes\",d.contentTypes.length\\);console.log\\(\"ctHasPV\",d.contentTypes.map\\(c=>c.sys.publishedVersion\\)\\);console.log\\(\"locales\",\\(d.locales||[]\\).length,\\(d.locales||[]\\).map\\(l=>l.sys.publishedVersion\\)\\);')",
+      "Bash(git stash *)",
+      "Bash(sed -n '6,20p' contentful/sanitize-export.mjs)",
+      "Bash(gh pr *)",
+      "Bash(gh pr create --base main --head fix/contentful-export-activation-main --title 'fix: import content types as activated' --body ' *)",
+      "Bash(git merge *)",
+      "Bash(node -e 'JSON.parse\\(require\\(\"fs\"\\).readFileSync\\(\"package.json\"\\)\\);console.log\\(\"package.json valid\"\\)')",
+      "Bash(git commit *)"
+    ]
+  }
+}
