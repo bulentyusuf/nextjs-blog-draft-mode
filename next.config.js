@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -19,7 +21,10 @@ const securityHeaders = [
       // nonce, which on App Router forces dynamic rendering and disables static
       // optimisation, ISR, and CDN HTML caching. Trusted-CMS, single-author
       // threat model makes that trade not worth it. See CLAUDE.md.
-      "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+      // 'unsafe-eval' is added in development only. Turbopack and React need it
+      // for dev debugging features, and React never uses eval in production, so
+      // the production policy stays strict.
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' https://images.ctfassets.net data: blob:",
       "font-src 'self'",
