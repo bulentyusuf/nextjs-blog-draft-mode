@@ -76,17 +76,24 @@ export default async function CategoriesPage() {
             <article key={category.slug} className="flex flex-col min-w-0">
               {thumbUrl && (
                 // Decorative: the heading below carries the category name, so
-                // alt is intentionally empty to avoid screen-reader duplication.
+                // alt is intentionally empty. The link gets an aria-label so it
+                // is not announced as an unlabelled link.
                 <div className="mb-5 shadow-lg">
-                  <div className="relative aspect-3/2 overflow-hidden">
-                    <ContentfulImage
-                      src={thumbUrl}
-                      alt=""
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                  </div>
+                  <Link
+                    href={`/categories/${category.slug}`}
+                    aria-label={category.name}
+                    className="block"
+                  >
+                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer">
+                      <ContentfulImage
+                        src={thumbUrl}
+                        alt=""
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover hover:opacity-90 transition-opacity duration-200"
+                      />
+                    </div>
+                  </Link>
                 </div>
               )}
 
