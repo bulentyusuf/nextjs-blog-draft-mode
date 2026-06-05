@@ -1,0 +1,664 @@
+{
+  "assets": [
+    {
+      "sys": {
+        "id": "placeholder-image",
+        "type": "Asset",
+        "publishedVersion": 1
+      },
+      "fields": {
+        "title": {
+          "en-US": "Placeholder image"
+        },
+        "description": {
+          "en-US": "Seed placeholder. Replace with your own image."
+        },
+        "file": {
+          "en-US": {
+            "contentType": "image/jpeg",
+            "fileName": "placeholder.jpg",
+            "upload": "https://raw.githubusercontent.com/bulentyusuf/nextjs-blog-draft-mode/main/contentful/seed-assets/placeholder.jpg"
+          }
+        }
+      }
+    }
+  ],
+  "entries": [
+    {
+      "sys": {
+        "id": "cat-main-quest",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "category"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "name": {
+          "en-US": "Main Quest"
+        },
+        "slug": {
+          "en-US": "main-quest"
+        },
+        "description": {
+          "en-US": "The headline projects and the long builds."
+        },
+        "thumbnail": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "placeholder-image"
+            }
+          }
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "cat-side-quests",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "category"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "name": {
+          "en-US": "Side Quests"
+        },
+        "slug": {
+          "en-US": "side-quests"
+        },
+        "description": {
+          "en-US": "Smaller experiments and detours."
+        },
+        "thumbnail": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "placeholder-image"
+            }
+          }
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "author-alex",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "author"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "name": {
+          "en-US": "Alex Placeholder"
+        },
+        "slug": {
+          "en-US": "alex-placeholder"
+        },
+        "picture": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "placeholder-image"
+            }
+          }
+        },
+        "bio": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "author-sam",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "author"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "name": {
+          "en-US": "Sam Example"
+        },
+        "slug": {
+          "en-US": "sam-example"
+        },
+        "picture": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "placeholder-image"
+            }
+          }
+        },
+        "bio": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "code-example",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "codeBlock"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "filename": {
+          "en-US": "example.tsx"
+        },
+        "language": {
+          "en-US": "tsx"
+        },
+        "code": {
+          "en-US": "export default function Hello() {\n  return <p>Hello from the template</p>;\n}"
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "prompt-example",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "promptBlock"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "label": {
+          "en-US": "Midjourney"
+        },
+        "prompt": {
+          "en-US": "a calm editorial illustration, warm directional light, gouache texture"
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "post-first",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "post"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "title": {
+          "en-US": "The first placeholder post"
+        },
+        "slug": {
+          "en-US": "first-placeholder-post"
+        },
+        "date": {
+          "en-US": "2026-05-01"
+        },
+        "coverImage": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "placeholder-image"
+            }
+          }
+        },
+        "excerpt": {
+          "en-US": "A short placeholder excerpt for the first seeded post."
+        },
+        "content": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "heading-2",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "A code block follows",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "embedded-entry-block",
+                "data": {
+                  "target": {
+                    "sys": {
+                      "type": "Link",
+                      "linkType": "Entry",
+                      "id": "code-example"
+                    }
+                  }
+                },
+                "content": []
+              },
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "author": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Entry",
+              "id": "author-alex"
+            }
+          }
+        },
+        "category": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Entry",
+              "id": "cat-main-quest"
+            }
+          }
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "post-second",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "post"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "title": {
+          "en-US": "A second sample entry"
+        },
+        "slug": {
+          "en-US": "second-sample-entry"
+        },
+        "date": {
+          "en-US": "2026-05-08"
+        },
+        "coverImage": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "placeholder-image"
+            }
+          }
+        },
+        "excerpt": {
+          "en-US": "A short placeholder excerpt for the second seeded post."
+        },
+        "content": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "heading-2",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "A prompt block follows",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "embedded-entry-block",
+                "data": {
+                  "target": {
+                    "sys": {
+                      "type": "Link",
+                      "linkType": "Entry",
+                      "id": "prompt-example"
+                    }
+                  }
+                },
+                "content": []
+              }
+            ]
+          }
+        },
+        "author": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Entry",
+              "id": "author-sam"
+            }
+          }
+        },
+        "category": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Entry",
+              "id": "cat-side-quests"
+            }
+          }
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "post-third",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "post"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "title": {
+          "en-US": "One more for the archive"
+        },
+        "slug": {
+          "en-US": "one-more-for-the-archive"
+        },
+        "date": {
+          "en-US": "2026-05-15"
+        },
+        "coverImage": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "placeholder-image"
+            }
+          }
+        },
+        "excerpt": {
+          "en-US": "A short placeholder excerpt for the third seeded post."
+        },
+        "content": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "author": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Entry",
+              "id": "author-alex"
+            }
+          }
+        },
+        "category": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Entry",
+              "id": "cat-main-quest"
+            }
+          }
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "page-about",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "page"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "title": {
+          "en-US": "About"
+        },
+        "slug": {
+          "en-US": "about"
+        },
+        "body": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "page-privacy",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "page"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "title": {
+          "en-US": "Privacy"
+        },
+        "slug": {
+          "en-US": "privacy"
+        },
+        "body": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
