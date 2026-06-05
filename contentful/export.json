@@ -3,7 +3,8 @@
     {
       "sys": {
         "id": "author",
-        "type": "ContentType"
+        "type": "ContentType",
+        "publishedVersion": 1
       },
       "displayField": "name",
       "name": "Author",
@@ -83,7 +84,8 @@
     {
       "sys": {
         "id": "post",
-        "type": "ContentType"
+        "type": "ContentType",
+        "publishedVersion": 1
       },
       "displayField": "title",
       "name": "Post",
@@ -289,7 +291,8 @@
     {
       "sys": {
         "id": "page",
-        "type": "ContentType"
+        "type": "ContentType",
+        "publishedVersion": 1
       },
       "displayField": "title",
       "name": "Page",
@@ -372,7 +375,8 @@
     {
       "sys": {
         "id": "category",
-        "type": "ContentType"
+        "type": "ContentType",
+        "publishedVersion": 1
       },
       "displayField": "name",
       "name": "Category",
@@ -447,7 +451,8 @@
     {
       "sys": {
         "id": "codeBlock",
-        "type": "ContentType"
+        "type": "ContentType",
+        "publishedVersion": 1
       },
       "displayField": "filename",
       "name": "Code Block",
@@ -503,7 +508,8 @@
     {
       "sys": {
         "id": "promptBlock",
-        "type": "ContentType"
+        "type": "ContentType",
+        "publishedVersion": 1
       },
       "displayField": "label",
       "name": "Prompt Block",
@@ -829,7 +835,8 @@
       "contentDeliveryApi": true,
       "sys": {
         "id": "0PaBZ3tmoMqNLW8jhYLG3J",
-        "type": "Locale"
+        "type": "Locale",
+        "publishedVersion": 1
       }
     }
   ]
