@@ -13,6 +13,7 @@ import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
+import { jsonLdHtml } from "@/lib/json-ld";
 
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
@@ -136,12 +137,7 @@ export default async function PostPage({
     <Container>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd)
-            .replace(/</g, "\\u003c")
-            .replace(/>/g, "\\u003e")
-            .replace(/&/g, "\\u0026"),
-        }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
       <article className="mx-auto max-w-5xl">
         <Breadcrumb items={crumbs} />
