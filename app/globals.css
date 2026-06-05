@@ -55,9 +55,10 @@
       'Liberation Mono', monospace;
     font-weight: 400;
     font-style: normal;
-    background-color: #f3f4f6;
-    color: #1a1a1a;
-    padding: 0.15em 0.4em;
+    background-color: color-mix(in srgb, var(--color-brand-crimson) 8%, transparent);
+    color: var(--color-brand-dark);
+    border: 1px solid color-mix(in srgb, var(--color-brand-crimson) 20%, transparent);
+    padding: 0.1em 0.4em;
     border-radius: 0.25rem;
     font-size: 0.875em;
   }
