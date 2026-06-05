@@ -100,7 +100,22 @@ The site runs at `http://localhost:3000`.
 
 Push to GitHub and import the repository into Vercel, then set the same environment variables in the Vercel project settings.
 
-### 7. Live updates and preview (optional)
+### 7. Live updates and preview
 
-- **Revalidation.** In Contentful, add a webhook that sends a `POST` to `https://YOUR_DOMAIN/api/revalidate` with a header `x-vercel-reval-key` set to your `CONTENTFUL_REVALIDATE_SECRET`. Trigger it on entry publish and unpublish. Published edits then go live without a redeploy.
-- **Preview.** Set the Post type's content preview URL to `https://YOUR_DOMAIN/api/draft?secret=YOUR_PREVIEW_SECRET&slug={entry.fields.slug}`. Editors can then open a draft in place.
+A deployed build is static, so by default a published edit will not appear on the live site until the next deploy. The revalidation webhook is what makes edits go live on their own, and skipping it is the most common reason a fresh deploy shows stale content. Worth setting up.
+
+**Revalidation.** In your space, go to Settings then Webhooks and add a webhook:
+
+- URL `https://YOUR_DOMAIN/api/revalidate`, method `POST`
+- Add a custom header `x-vercel-reval-key` with the value of your `CONTENTFUL_REVALIDATE_SECRET`
+- Under triggers, select publish and unpublish for both Entry and Asset
+- If your space has more than one environment, filter to `master` so staging edits do not revalidate production
+
+Once it is live, publishing in Contentful refreshes the affected pages within seconds with no redeploy. Full reference in Contentful's docs at https://www.contentful.com/developers/docs/webhooks/configure-webhook/
+
+**Preview.** Set the Post type's content preview URL to
+`https://YOUR_DOMAIN/api/draft?secret=YOUR_PREVIEW_SECRET&slug={entry.fields.slug}`. Editors can then open a draft in place.
+
+## Troubleshooting
+
+**Edited content not showing on the deployed site?** Check two things. First, the entry is Published, not just saved, since the live site reads published content only. Second, the revalidation webhook above is set up, because without it static pages serve build-time content until the next deploy. Quick test, trigger a redeploy in Vercel. If the change then appears, the webhook is the missing piece.
