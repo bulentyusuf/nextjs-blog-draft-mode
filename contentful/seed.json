@@ -17,7 +17,7 @@
           "en-US": {
             "contentType": "image/jpeg",
             "fileName": "placeholder.jpg",
-            "upload": "https://raw.githubusercontent.com/bulentyusuf/nextjs-blog-draft-mode/main/contentful/seed-assets/placeholder.jpg"
+            "url": "https://raw.githubusercontent.com/bulentyusuf/nextjs-blog-draft-mode/main/contentful/seed-assets/placeholder.jpg"
           }
         }
       }
