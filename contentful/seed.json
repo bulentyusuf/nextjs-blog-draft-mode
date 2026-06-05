@@ -299,7 +299,7 @@
                 "content": [
                   {
                     "nodeType": "text",
-                    "value": "A code block follows",
+                    "value": "Background",
                     "marks": [],
                     "data": {}
                   }
@@ -312,6 +312,30 @@
                   {
                     "nodeType": "text",
                     "value": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "heading-2",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "A code block",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
                     "marks": [],
                     "data": {}
                   }
@@ -331,12 +355,24 @@
                 "content": []
               },
               {
+                "nodeType": "heading-2",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Where this leaves us",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              },
+              {
                 "nodeType": "paragraph",
                 "data": {},
                 "content": [
                   {
                     "nodeType": "text",
-                    "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+                    "value": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa.",
                     "marks": [],
                     "data": {}
                   }
