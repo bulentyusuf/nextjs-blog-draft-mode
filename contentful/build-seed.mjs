@@ -31,7 +31,7 @@ const asset = {
     file: loc({
       contentType: "image/jpeg",
       fileName: "placeholder.jpg",
-      upload:
+      url:
         "https://raw.githubusercontent.com/bulentyusuf/nextjs-blog-draft-mode/main/contentful/seed-assets/placeholder.jpg",
     }),
   },
