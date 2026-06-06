@@ -120,7 +120,7 @@ Once it is live, publishing in Contentful refreshes the affected pages within se
 **Preview.** Set the Post type's content preview URL to
 `https://YOUR_DOMAIN/api/draft?secret=YOUR_PREVIEW_SECRET&slug={entry.fields.slug}`. Editors can then open a draft in place.
 
-## 🎨 Make it yoursrs
+## 🎨 Make it yours
 
 Forking this template carries over the original author's specifics. Change these before you deploy:
 
