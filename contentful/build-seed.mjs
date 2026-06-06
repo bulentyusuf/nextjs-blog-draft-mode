@@ -4,6 +4,9 @@ const L = "en-US";
 const loc = (v) => ({ [L]: v });
 const link = (id, linkType = "Entry") => ({ sys: { type: "Link", linkType, id } });
 
+const PLACEHOLDER_ASSET_URL =
+  "https://raw.githubusercontent.com/bulentyusuf/nextjs-blog-draft-mode/main/contentful/seed-assets/placeholder.jpg";
+
 const text = (value) => ({ nodeType: "text", value, marks: [], data: {} });
 const paragraph = (...kids) => ({ nodeType: "paragraph", data: {}, content: kids });
 const heading2 = (value) => ({ nodeType: "heading-2", data: {}, content: [text(value)] });
@@ -31,8 +34,7 @@ const asset = {
     file: loc({
       contentType: "image/jpeg",
       fileName: "placeholder.jpg",
-      url:
-        "https://raw.githubusercontent.com/bulentyusuf/nextjs-blog-draft-mode/main/contentful/seed-assets/placeholder.jpg",
+      url: PLACEHOLDER_ASSET_URL,
     }),
   },
 };
