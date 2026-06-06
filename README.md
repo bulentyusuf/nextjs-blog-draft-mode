@@ -4,7 +4,7 @@ The source for [bulentyusuf.com](https://bulentyusuf.com), a personal blog about
 
 The code in this repo is an extension of the [Next.js Blog with Draft Mode](https://vercel.com/templates/next.js/nextjs-blog-draft-mode) starter template published by Vercel and shared under a MIT license.
 
-## About
+## 👋 About
 
 A small, statically generated blog. Posts are written and managed in a headless CMS, rendered by Next.js, and deployed continuously. 
 
@@ -12,7 +12,7 @@ The content model is deliberately compact, a Post type backed by Author and Cate
 
 A recurring subject of the blog is the process of building and maintaining it. Much of the codebase has been developed in collaboration with [Claude](https://claude.ai), and several posts document what that's actually like in practice. The visual identity uses editorial-style cover images generated with [Midjourney](https://www.midjourney.com).
 
-## Stack
+## 🧱 Stack
 
 - **[Next.js](https://nextjs.org)** (App Router), rendering and routing
 - **[Contentful](https://www.contentful.com)**, headless CMS queried over GraphQL, with draft mode and live preview
@@ -20,7 +20,7 @@ A recurring subject of the blog is the process of building and maintaining it. M
 - **[Vercel](https://vercel.com)**, hosting and deployment
 - **TypeScript** throughout
 
-## Content model
+## 🧩 Content model
 
 - **Post**, the main entry type. Title, slug, publish and updated dates, cover image, excerpt, rich-text body, and links to one author and one category
 - **Author**, name, picture, slug, and a short bio, with its own landing page
@@ -29,7 +29,7 @@ A recurring subject of the blog is the process of building and maintaining it. M
 - **Prompt Block**, embedded into post bodies to publish the generative-image prompt behind a cover, with an optional label and image
 - **Page**, standalone rich-text pages such as About and Privacy
 
-## Features
+## ✨ Features
 
 - Static generation with on-demand revalidation. Content edits in the CMS go live immediately via a webhook, without a full redeploy
 - Draft mode and live preview for editing posts before publishing
@@ -41,7 +41,7 @@ A recurring subject of the blog is the process of building and maintaining it. M
 - Open Graph and Twitter card metadata for shareable links
 - Security-reviewed, with branch protection, CodeQL scanning, and dependency monitoring
 
-## Getting started
+## 🚀 Getting started
 
 This repository works as a template. Fork it, point it at your own Contentful space, and deploy your own version. It is MIT licensed.
 
@@ -120,7 +120,7 @@ Once it is live, publishing in Contentful refreshes the affected pages within se
 **Preview.** Set the Post type's content preview URL to
 `https://YOUR_DOMAIN/api/draft?secret=YOUR_PREVIEW_SECRET&slug={entry.fields.slug}`. Editors can then open a draft in place.
 
-## Make it yours
+## 🎨 Make it yoursrs
 
 Forking this template carries over the original author's specifics. Change these before you deploy:
 
@@ -131,6 +131,6 @@ Forking this template carries over the original author's specifics. Change these
 - **Seed images (optional).** If you re-run the seed, repoint `PLACEHOLDER_ASSET_URL` in `contentful/build-seed.mjs` to your own copy, then replace the placeholder cover, avatar, and thumbnail with real assets afterwards.
 - **CLAUDE.md (optional).** Useful as-is for working with Claude Code on the repo. Review it for any notes specific to the original author.
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
 **Edited content not showing on the deployed site?** Check two things. First, the entry is Published, not just saved, since the live site reads published content only. Second, the revalidation webhook above is set up, because without it static pages serve build-time content until the next deploy. Quick test, trigger a redeploy in Vercel. If the change then appears, the webhook is the missing piece.
