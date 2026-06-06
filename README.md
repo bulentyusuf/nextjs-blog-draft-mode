@@ -1,6 +1,6 @@
 # Be Useful.
 
-The source for [bulentyusuf.com](https://bulentyusuf.com), a personal blog about content, code, and making things with generative AI.
+The source for [bulentyusuf.com](https://bulentyusuf.com), a personal blog about content, code, and making things with generative AI. The code in ths repo is an extension of the [Next.js Blog with Draft Mode](https://vercel.com/templates/next.js/nextjs-blog-draft-mode) starter template published by Vercel and shared under a MIT license.
 
 ## About
 
