@@ -116,6 +116,17 @@ Once it is live, publishing in Contentful refreshes the affected pages within se
 **Preview.** Set the Post type's content preview URL to
 `https://YOUR_DOMAIN/api/draft?secret=YOUR_PREVIEW_SECRET&slug={entry.fields.slug}`. Editors can then open a draft in place.
 
+## Make it yours
+
+Forking this template carries over the original author's specifics. Change these before you deploy:
+
+- **Site URL (required).** Set `NEXT_PUBLIC_SITE_URL` to your own domain in `.env.local` and in your host. Without it the canonical links, sitemap, OG tags, and RSS fall back to a localhost URL.
+- **Site identity.** Edit `SITE_TITLE`, `SITE_DESCRIPTION`, `SITE_AUTHOR`, and `SITE_REPO_URL` in `lib/constants.ts`.
+- **llms.txt.** `public/llms.txt` is a hand-written file describing the original site. Replace it with your own, or delete it.
+- **Brand assets.** Replace the Open Graph image `public/be_useful.jpg`, swap the favicon and app icon, and retune the palette tokens and `themeColor` in `app/globals.css` and `app/layout.tsx` if you want a different look.
+- **Seed images (optional).** If you re-run the seed, repoint `PLACEHOLDER_ASSET_URL` in `contentful/build-seed.mjs` to your own copy, then replace the placeholder cover, avatar, and thumbnail with real assets afterwards.
+- **CLAUDE.md (optional).** Useful as-is for working with Claude Code on the repo. Review it for any notes specific to the original author.
+
 ## Troubleshooting
 
 **Edited content not showing on the deployed site?** Check two things. First, the entry is Published, not just saved, since the live site reads published content only. Second, the revalidation webhook above is set up, because without it static pages serve build-time content until the next deploy. Quick test, trigger a redeploy in Vercel. If the change then appears, the webhook is the missing piece.

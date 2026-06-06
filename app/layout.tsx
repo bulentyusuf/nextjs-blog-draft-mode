@@ -2,7 +2,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL } from "@/lib/constants";
 import BackToTop from "./back-to-top";
 import Link from "next/link";
 import { draftMode } from "next/headers";
@@ -105,7 +105,7 @@ function Footer() {
               Privacy
             </Link>
             <a
-              href="https://github.com/bulentyusuf/nextjs-blog-draft-mode"
+              href={SITE_REPO_URL}
               className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
               target="_blank"
               rel="noopener noreferrer"
