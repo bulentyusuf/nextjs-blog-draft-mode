@@ -62,7 +62,7 @@ export default async function PrivacyPage() {
           </p>
         )}
         <div className="prose">
-          <RichText content={page.body} headings={[]} />
+          <RichText content={page.body} headings={[]} lightbox={false} prioritizeFirstImage />
         </div>
       </article>
     </Container>

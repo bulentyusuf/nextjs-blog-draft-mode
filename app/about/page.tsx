@@ -62,7 +62,7 @@ export default async function AboutPage() {
           </p>
         )}
         <div className="prose">
-          <RichText content={page.body} headings={[]} />
+          <RichText content={page.body} headings={[]} lightbox={false} prioritizeFirstImage />
         </div>
       </article>
     </Container>
