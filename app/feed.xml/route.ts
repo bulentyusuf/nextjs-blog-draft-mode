@@ -5,15 +5,7 @@ import {
   SITE_DESCRIPTION,
   AUTHOR_EMAIL,
 } from "@/lib/constants";
-
-function escapeXml(unsafe: string): string {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
+import { escapeXml } from "@/lib/xml";
 
 // Daily ISR fallback. The Contentful publish webhook revalidates /feed.xml on
 // demand for instant freshness. This is the catch for when the webhook fails.

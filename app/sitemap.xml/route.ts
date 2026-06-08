@@ -1,4 +1,3 @@
-import { MetadataRoute } from "next";
 import {
   getAllPosts,
   getAllPages,
@@ -6,15 +5,23 @@ import {
   getAllAuthors,
 } from "@/lib/api";
 import { SITE_URL } from "@/lib/constants";
+import { escapeXml } from "@/lib/xml";
 import type { Post } from "@/lib/types";
 
-// On-demand revalidation via the Contentful webhook is the fast path, but a
-// statically built metadata sitemap does not reliably respond to it, so this
-// daily ISR interval is the self-heal fallback for when the webhook fails to
-// propagate. The webhook stays the instant path on publish.
+// On-demand revalidation via the Contentful webhook is the fast path. As a
+// route handler this responds to revalidatePath("/sitemap.xml") immediately,
+// the way feed.xml already does. This daily ISR interval is the self-heal
+// fallback for when the webhook fails to propagate.
 export const revalidate = 86400;
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+type SitemapEntry = {
+  url: string;
+  lastModified: Date;
+  changeFrequency: string;
+  priority: number;
+};
+
+export async function GET() {
   const [posts, pages, categories, authors] = await Promise.all([
     getAllPosts(false),
     getAllPages(false),
@@ -22,7 +29,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getAllAuthors(false),
   ]);
 
-  const postDate = (post: Post): Date => new Date(post.updatedDate ?? post.date);
+  const postDate = (post: Post): Date =>
+    new Date(post.updatedDate ?? post.date);
 
   // getAllPosts orders date_DESC, so posts[0] is the freshest sitewide entry.
   const newestSitewide = posts.length ? postDate(posts[0]) : new Date();
@@ -48,14 +56,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (!current || date > current) newestByAuthor.set(slug, date);
   }
 
-  const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
+  const postEntries: SitemapEntry[] = posts.map((post) => ({
     url: `${SITE_URL}/posts/${post.slug}`,
     lastModified: postDate(post),
     changeFrequency: "monthly",
     priority: 0.8,
   }));
 
-  const pageEntries: MetadataRoute.Sitemap = pages.map((page) => ({
+  const pageEntries: SitemapEntry[] = pages.map((page) => ({
     url: `${SITE_URL}/${page.slug}`,
     lastModified: new Date(
       page.sys.publishedAt ?? page.sys.firstPublishedAt ?? Date.now(),
@@ -64,14 +72,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
-  const categoryEntries: MetadataRoute.Sitemap = categories.map((category) => ({
+  const categoryEntries: SitemapEntry[] = categories.map((category) => ({
     url: `${SITE_URL}/categories/${category.slug}`,
     lastModified: newestByCategory.get(category.slug) ?? newestSitewide,
     changeFrequency: "weekly",
     priority: 0.6,
   }));
 
-  const authorEntries: MetadataRoute.Sitemap = authors
+  const authorEntries: SitemapEntry[] = authors
     .filter((author) => author.slug)
     .map((author) => ({
       url: `${SITE_URL}/authors/${author.slug}`,
@@ -80,7 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-  return [
+  const entries: SitemapEntry[] = [
     {
       url: SITE_URL,
       lastModified: newestSitewide,
@@ -104,4 +112,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...authorEntries,
     ...postEntries,
   ];
+
+  const urls = entries
+    .map(
+      (entry) => `  <url>
+    <loc>${escapeXml(entry.url)}</loc>
+    <lastmod>${entry.lastModified.toISOString()}</lastmod>
+    <changefreq>${entry.changeFrequency}</changefreq>
+    <priority>${entry.priority}</priority>
+  </url>`,
+    )
+    .join("\n");
+
+  const body = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>
+`;
+
+  return new Response(body, {
+    headers: {
+      "Content-Type": "application/xml; charset=utf-8",
+      "x-content-type-options": "nosniff",
+    },
+  });
 }

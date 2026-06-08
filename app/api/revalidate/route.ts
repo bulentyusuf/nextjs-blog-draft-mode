@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
 
   revalidateTag("posts", { expire: 0 });
 
-  // /feed.xml and /sitemap.xml are ISR routes. revalidateTag covers the data
-  // they read, and these path revalidations are the instant on-demand refresh
-  // so neither waits for its time-based fallback after a publish.
+  // /feed.xml and /sitemap.xml are ISR route handlers. revalidateTag covers
+  // the data they read, and these path revalidations are the instant
+  // on-demand refresh so neither waits for its 24h time-based fallback.
   revalidatePath("/feed.xml");
   revalidatePath("/sitemap.xml");
 
