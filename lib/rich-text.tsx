@@ -33,9 +33,13 @@ function headingText(node: Block | Inline): string {
 function RichTextAsset({
   id,
   assets,
+  lightbox,
+  priority,
 }: {
   id: string;
   assets: Asset[] | undefined;
+  lightbox: boolean;
+  priority?: boolean;
 }) {
   const asset = assets?.find((asset) => asset.sys.id === id);
 
@@ -43,11 +47,23 @@ function RichTextAsset({
 
   return (
     <div className="my-8">
-      <LightboxImage
-        src={asset.url}
-        alt={asset.description || ""}
-        caption={asset.description}
-      />
+      {lightbox ? (
+        <LightboxImage
+          src={asset.url}
+          alt={asset.description || ""}
+          caption={asset.description}
+        />
+      ) : (
+        <ContentfulImage
+          src={asset.url}
+          alt={asset.description || ""}
+          width={1200}
+          height={800}
+          priority={priority}
+          sizes="(max-width: 768px) 100vw, 672px"
+          className="w-full h-auto border-2 border-gray-300"
+        />
+      )}
       {asset.description && (
         <p className="text-sm text-gray-600 mt-2 text-center italic">
           {asset.description}
@@ -61,10 +77,14 @@ export function RichText({
   content,
   headings,
   highlighted,
+  lightbox = true,
+  prioritizeFirstImage = false,
 }: {
   content: Content;
   headings: Heading[];
   highlighted?: Map<string, string>;
+  lightbox?: boolean;
+  prioritizeFirstImage?: boolean;
 }) {
   // Single source of truth for heading ids. `headings` comes from
   // extractHeadings() on the page. documentToReactComponents walks in document
@@ -72,6 +92,9 @@ export function RichText({
   // precomputed slug. The empty-heading skip below mirrors extractHeadings()
   // exactly. rich-text.test.tsx asserts the two never drift.
   let headingIndex = 0;
+  // Pages prioritise their first embedded image (the lead image is the LCP).
+  // Posts leave this false: the LCP is the cover, body images stay lazy.
+  let assetIndex = 0;
 
   return documentToReactComponents(content.json, {
     renderNode: {
@@ -89,6 +112,8 @@ export function RichText({
         <RichTextAsset
           id={(node as Block).data.target.sys.id}
           assets={content.links.assets.block}
+          lightbox={lightbox}
+          priority={prioritizeFirstImage && assetIndex++ === 0}
         />
       ),
       [BLOCKS.EMBEDDED_ENTRY]: (node: Block | Inline) => {
