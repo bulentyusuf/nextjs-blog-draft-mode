@@ -2,7 +2,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL } from "@/lib/constants";
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, BRAND_HEADER_COLOR } from "@/lib/constants";
 import BackToTop from "./back-to-top";
 import Link from "next/link";
 import { draftMode } from "next/headers";
@@ -46,7 +46,7 @@ export const metadata = {
   },
 };
 export const viewport = {
-  themeColor: "#A4243B",
+  themeColor: BRAND_HEADER_COLOR,
   width: "device-width",
   initialScale: 1,
 };
@@ -57,7 +57,7 @@ const inter = Inter({
 });
 function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full bg-brand-crimson shadow-xs">
+    <header className="sticky top-0 z-50 w-full bg-brand-header shadow-xs">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-3">
           <Link href="/" className="text-base font-bold text-white">

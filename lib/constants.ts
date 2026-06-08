@@ -27,3 +27,7 @@ export const SITE_REPO_URL =
 export const POSTS_PER_PAGE = 5;
 
 export const AUTHOR_EMAIL = `contact@${SITE_HOSTNAME}`;
+
+// Header band colour. CSS twin lives in app/globals.css as --color-brand-header;
+// keep both at #1E3A8A (CSS @theme cannot import from TS).
+export const BRAND_HEADER_COLOR = "#1E3A8A";
