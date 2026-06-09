@@ -133,6 +133,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen flex flex-col bg-brand-bg">
+        <link rel="preconnect" href="https://images.ctfassets.net" />
         <Header />
         <main className="grow">{children}</main>
         <Footer />
