@@ -13,11 +13,11 @@ export async function POST(request: NextRequest) {
 
   revalidateTag("posts", { expire: 0 });
 
-  // /feed.xml and /sitemap.xml are ISR route handlers. revalidateTag covers
-  // the data they read, and these path revalidations are the instant
-  // on-demand refresh so neither waits for its 24h time-based fallback.
+  // /feed.xml is an ordinary ISR route handler. revalidateTag("posts") busts it
+  // along with the home and listing pages, since they all render with the posts
+  // tag. The path revalidation is the instant on-demand refresh for feed. The
+  // sitemap is served from /sitemap-xml and is busted by revalidateTag above.
   revalidatePath("/feed.xml");
-  revalidatePath("/sitemap.xml");
 
   return NextResponse.json({ revalidated: true, now: Date.now() });
 }
