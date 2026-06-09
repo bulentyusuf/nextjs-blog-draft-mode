@@ -44,3 +44,11 @@ the site begins rendering untrusted user-generated content.
 - CI actions are pinned to major tags (`@v4`), not commit SHAs. Accepted as low
   risk because they are first-party (`actions/checkout`, `github/codeql-action`).
   SHA-pinning is optional belt-and-braces, not adopted.
+- `npm audit` flags postcss `<8.5.10` (GHSA-qx2v-qp2m-jg93, XSS via unescaped
+  `</style>` in CSS stringify output) via Next.js's bundled copy at
+  `node_modules/next/node_modules/postcss`. The direct dependency is already
+  pinned to the patched `postcss ^8.5.10`; only Next's internal copy lags. The
+  advisory requires running untrusted CSS through PostCSS's stringifier, which
+  this static blog never does — CSS is first-party Tailwind, build-time only.
+  The only offered fix downgrades `next` to 9.3.3, a non-starter. Dormant;
+  resolves when Next bumps its bundled postcss. Do not re-flag.
