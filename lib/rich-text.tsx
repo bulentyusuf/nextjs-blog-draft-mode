@@ -96,11 +96,11 @@ export function RichText({
   // Posts leave this false: the LCP is the cover, body images stay lazy.
   let assetIndex = 0;
 
-  // Defensive guard. The content contract is H2-only (see headings.ts) and the
-  // page title is the only h1. If a stray H1 or H3 to H6 ever appears in CMS
-  // body content, coalesce it to h2 so heading order never breaks. These get no
-  // id and do not advance headingIndex, so the H2 slug and ToC pairing is
-  // untouched.
+  // The post title is the page's only h1, so a stray h1 in body content would
+  // duplicate it. Coalesce body h1 to h2. H3 to H6 are intentional sub-structure
+  // in long-form posts and pass through to the renderer defaults (prose styles
+  // them), so they keep their real levels. They carry no id and are not in the
+  // ToC, which stays H2-only by design.
   const coalesceToH2 = (_node: Block | Inline, children: ReactNode) => (
     <h2>{children}</h2>
   );
@@ -118,10 +118,6 @@ export function RichText({
         );
       },
       [BLOCKS.HEADING_1]: coalesceToH2,
-      [BLOCKS.HEADING_3]: coalesceToH2,
-      [BLOCKS.HEADING_4]: coalesceToH2,
-      [BLOCKS.HEADING_5]: coalesceToH2,
-      [BLOCKS.HEADING_6]: coalesceToH2,
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset
           id={(node as Block).data.target.sys.id}
