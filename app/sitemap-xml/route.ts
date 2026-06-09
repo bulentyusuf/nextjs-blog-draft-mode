@@ -8,10 +8,13 @@ import { SITE_URL } from "@/lib/constants";
 import { escapeXml } from "@/lib/xml";
 import type { Post } from "@/lib/types";
 
-// On-demand revalidation via the Contentful webhook is the fast path. As a
-// route handler this responds to revalidatePath("/sitemap.xml") immediately,
-// the way feed.xml already does. This daily ISR interval is the self-heal
-// fallback for when the webhook fails to propagate.
+// Served at /sitemap.xml via a rewrite in next.config.js. This handler lives on
+// an ordinary path (/sitemap-xml) on purpose. Next treats the reserved
+// /sitemap.xml route as a special metadata route handler whose cache entry does
+// not carry our explicit fetch tags, so revalidateTag("posts") never reaches it
+// there. On an ordinary path it behaves like /feed.xml, its cache entry carries
+// the posts tag, and the publish webhook's revalidateTag("posts") busts it on
+// demand. revalidate is the daily self-heal fallback.
 export const revalidate = 86400;
 
 type SitemapEntry = {
@@ -20,6 +23,13 @@ type SitemapEntry = {
   changeFrequency: string;
   priority: number;
 };
+
+// toISOString throws RangeError on an invalid date, and a throw inside this
+// render makes Next serve the last good copy, which silently freezes the
+// sitemap. feed.xml uses toUTCString, which returns a harmless string instead,
+// which is why it never hit this. Clamp an unparseable date to the epoch.
+const safeIso = (d: Date): string =>
+  Number.isNaN(d.getTime()) ? new Date(0).toISOString() : d.toISOString();
 
 export async function GET() {
   const [posts, pages, categories, authors] = await Promise.all([
@@ -117,7 +127,7 @@ export async function GET() {
     .map(
       (entry) => `  <url>
     <loc>${escapeXml(entry.url)}</loc>
-    <lastmod>${entry.lastModified.toISOString()}</lastmod>
+    <lastmod>${safeIso(entry.lastModified)}</lastmod>
     <changefreq>${entry.changeFrequency}</changefreq>
     <priority>${entry.priority}</priority>
   </url>`,

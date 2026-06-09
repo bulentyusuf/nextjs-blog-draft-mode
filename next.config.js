@@ -50,4 +50,11 @@ module.exports = {
       },
     ];
   },
+  async rewrites() {
+    // /sitemap.xml is a Next-reserved metadata path whose special route does
+    // not honour on-demand tag invalidation. Serve our ordinary /sitemap-xml
+    // route handler at the canonical /sitemap.xml instead. This is an
+    // afterFiles rewrite, so it only fires because no /sitemap.xml file exists.
+    return [{ source: "/sitemap.xml", destination: "/sitemap-xml" }];
+  },
 };
