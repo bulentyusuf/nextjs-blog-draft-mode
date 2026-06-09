@@ -117,7 +117,7 @@ export default async function AuthorPage({
           </h1>
         </div>
         {author.bio && (
-          <div className="max-w-3xl text-lg leading-relaxed text-gray-600">
+          <div className="max-w-3xl text-lg leading-relaxed text-brand-muted">
             <RichText content={author.bio} headings={[]} />
           </div>
         )}
@@ -129,7 +129,7 @@ export default async function AuthorPage({
           <Pagination currentPage={1} totalPages={totalPages} basePath={`/authors/${slug}`} />
         </>
       ) : (
-        <p className="mx-auto max-w-5xl text-lg text-gray-600">
+        <p className="mx-auto max-w-5xl text-lg text-brand-muted">
           No posts by this author yet.
         </p>
       )}

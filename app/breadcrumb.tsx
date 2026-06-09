@@ -23,7 +23,7 @@ export default function Breadcrumb({ items }: { items: Crumb[] }) {
         dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
       <nav aria-label="Breadcrumb" className="mb-4">
-        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-600">
+        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-brand-muted">
           {items.map((item, i) => {
             const isLast = i === items.length - 1;
             return (
@@ -44,7 +44,7 @@ export default function Breadcrumb({ items }: { items: Crumb[] }) {
                   </span>
                 )}
                 {!isLast && (
-                  <span aria-hidden="true" className="text-gray-600">
+                  <span aria-hidden="true" className="text-brand-muted">
                     /
                   </span>
                 )}

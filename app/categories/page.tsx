@@ -62,7 +62,7 @@ export default async function CategoriesPage() {
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
           Categories
         </h1>
-        <p className="max-w-3xl text-lg leading-relaxed text-gray-600">
+        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
           One main quest, the rest are side quests. Pick a path.
         </p>
       </header>
@@ -107,7 +107,7 @@ export default async function CategoriesPage() {
               </h2>
 
               {category.description && (
-                <p className="mb-5 text-lg leading-relaxed text-gray-600">
+                <p className="mb-5 text-lg leading-relaxed text-brand-muted">
                   {category.description}
                 </p>
               )}
@@ -123,11 +123,11 @@ export default async function CategoriesPage() {
                         >
                           {post.title}
                         </Link>
-                        <div className="mt-1 text-sm text-gray-600">
+                        <div className="mt-1 text-sm text-brand-muted">
                           <DateComponent dateString={post.date} />
                         </div>
                         {post.excerpt && (
-                          <p className="mt-1 text-base leading-relaxed text-gray-600 line-clamp-1">
+                          <p className="mt-1 text-base leading-relaxed text-brand-muted line-clamp-1">
                             {post.excerpt}
                           </p>
                         )}
@@ -142,7 +142,7 @@ export default async function CategoriesPage() {
                   </Link>
                 </>
               ) : (
-                <p className="text-lg text-gray-600">No posts here yet.</p>
+                <p className="text-lg text-brand-muted">No posts here yet.</p>
               )}
             </article>
           );

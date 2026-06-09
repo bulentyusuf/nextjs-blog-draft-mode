@@ -175,7 +175,7 @@ export default async function PostPage({
           </aside>
 
           <div className="mx-auto max-w-2xl xl:mx-0">
-            <p className="mb-8 text-lg italic leading-relaxed text-gray-600">
+            <p className="mb-8 text-lg italic leading-relaxed text-brand-muted">
               {post.excerpt}
             </p>
             {post.author && (

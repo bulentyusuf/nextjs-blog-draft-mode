@@ -86,7 +86,7 @@ export default async function CategoryPage({
           {category.name}
         </h1>
         {category.description && (
-          <p className="max-w-3xl text-lg leading-relaxed text-gray-600">
+          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
             {category.description}
           </p>
         )}
@@ -107,7 +107,7 @@ export default async function CategoryPage({
           />
         </>
       ) : (
-        <p className="mx-auto max-w-5xl text-lg text-gray-600">
+        <p className="mx-auto max-w-5xl text-lg text-brand-muted">
           No posts in this category yet.
         </p>
       )}

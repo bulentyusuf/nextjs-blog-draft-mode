@@ -50,7 +50,7 @@ export default async function AuthorsPage() {
         <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
           Authors
         </h1>
-        <p className="max-w-3xl text-lg leading-relaxed text-gray-600">
+        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
           Two of these are not real. The site never pretends otherwise.
         </p>
       </header>
@@ -84,7 +84,7 @@ export default async function AuthorsPage() {
             </div>
 
             {author.bio && (
-              <div className="mb-5 text-lg leading-relaxed text-gray-600">
+              <div className="mb-5 text-lg leading-relaxed text-brand-muted">
                 <RichText content={author.bio} headings={[]} />
               </div>
             )}

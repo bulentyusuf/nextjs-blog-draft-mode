@@ -65,7 +65,7 @@ function RichTextAsset({
         />
       )}
       {asset.description && (
-        <p className="text-sm text-gray-600 mt-2 text-center italic">
+        <p className="text-sm text-brand-muted mt-2 text-center italic">
           {asset.description}
         </p>
       )}
@@ -127,7 +127,7 @@ export function RichText({
           return (
             <div className="not-prose relative my-8 overflow-hidden rounded-lg border border-gray-200">
               {entry.filename ? (
-                <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-600">
+                <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-brand-muted">
                   <span>{entry.filename}</span>
                   <CopyButton code={entry.code} />
                 </div>

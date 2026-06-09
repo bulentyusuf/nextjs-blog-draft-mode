@@ -18,7 +18,7 @@ export default function ExploreWithAI({ slug }: { slug: string }) {
 
   return (
     <nav aria-label="Explore this post with AI" className="text-sm">
-      <p className="mb-3 font-bold uppercase tracking-wide text-gray-600">
+      <p className="mb-3 font-bold uppercase tracking-wide text-brand-muted">
         Explore with AI
       </p>
       <ul className="space-y-2">
@@ -28,7 +28,7 @@ export default function ExploreWithAI({ slug }: { slug: string }) {
               href={t.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="block leading-snug text-gray-600 transition-colors duration-200 hover:text-brand-crimson"
+              className="block leading-snug text-brand-muted transition-colors duration-200 hover:text-brand-crimson"
             >
               {t.label}
             </a>

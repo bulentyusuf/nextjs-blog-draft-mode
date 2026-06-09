@@ -39,7 +39,7 @@ export default function GlobalError({
             clears it.
           </p>
           {error.digest && (
-            <p className="mt-4 text-sm text-gray-600">Reference {error.digest}</p>
+            <p className="mt-4 text-sm text-brand-muted">Reference {error.digest}</p>
           )}
           <button
             type="button"
