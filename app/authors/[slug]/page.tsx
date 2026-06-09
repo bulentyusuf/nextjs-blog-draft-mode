@@ -129,7 +129,7 @@ export default async function AuthorPage({
           <Pagination currentPage={1} totalPages={totalPages} basePath={`/authors/${slug}`} />
         </>
       ) : (
-        <p className="mx-auto max-w-5xl text-lg text-gray-500">
+        <p className="mx-auto max-w-5xl text-lg text-gray-600">
           No posts by this author yet.
         </p>
       )}

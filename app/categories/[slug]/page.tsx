@@ -107,7 +107,7 @@ export default async function CategoryPage({
           />
         </>
       ) : (
-        <p className="mx-auto max-w-5xl text-lg text-gray-500">
+        <p className="mx-auto max-w-5xl text-lg text-gray-600">
           No posts in this category yet.
         </p>
       )}

@@ -68,12 +68,12 @@ export default function Pagination({
               href={hrefFor(currentPage - 1)}
               rel="prev"
               aria-label="Go to previous page"
-              className={`${cell} text-gray-500 hover:text-brand-crimson`}
+              className={`${cell} text-gray-600 hover:text-brand-crimson`}
             >
               {"← Prev"}
             </Link>
           ) : (
-            <span aria-hidden="true" className={`${cell} text-gray-300`}>
+            <span aria-hidden="true" className={`${cell} text-gray-600`}>
               {"← Prev"}
             </span>
           )}
@@ -83,7 +83,7 @@ export default function Pagination({
           if (item.kind === "ellipsis") {
             return (
               <li key={item.key}>
-                <span aria-hidden="true" className={`${cell} text-gray-400`}>
+                <span aria-hidden="true" className={`${cell} text-gray-600`}>
                   {"…"}
                 </span>
               </li>
@@ -103,7 +103,7 @@ export default function Pagination({
                 <Link
                   href={hrefFor(item.page)}
                   aria-label={`Go to page ${item.page}`}
-                  className={`${cell} text-gray-500 hover:text-brand-crimson`}
+                  className={`${cell} text-gray-600 hover:text-brand-crimson`}
                 >
                   {item.page}
                 </Link>
@@ -118,12 +118,12 @@ export default function Pagination({
               href={hrefFor(currentPage + 1)}
               rel="next"
               aria-label="Go to next page"
-              className={`${cell} text-gray-500 hover:text-brand-crimson`}
+              className={`${cell} text-gray-600 hover:text-brand-crimson`}
             >
               {"Next →"}
             </Link>
           ) : (
-            <span aria-hidden="true" className={`${cell} text-gray-300`}>
+            <span aria-hidden="true" className={`${cell} text-gray-600`}>
               {"Next →"}
             </span>
           )}

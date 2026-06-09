@@ -45,7 +45,7 @@ function PostPreview({
               {title}
             </Link>
           </h3>
-          <div className="text-base text-gray-500 mb-3">
+          <div className="text-base text-gray-600 mb-3">
             <DateComponent dateString={date} />
           </div>
           <p className="text-lg leading-relaxed">{excerpt}</p>
@@ -75,7 +75,7 @@ function PostPreview({
           {title}
         </Link>
       </h3>
-      <div className="text-lg text-gray-500 mb-4">
+      <div className="text-lg text-gray-600 mb-4">
         <DateComponent dateString={date} />
       </div>
       <p className="text-lg leading-relaxed">{excerpt}</p>
