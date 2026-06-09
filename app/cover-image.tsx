@@ -25,6 +25,7 @@ export default function CoverImage({
     <ContentfulImage
       alt={`Cover Image for ${title}`}
       priority={priority}
+      fetchPriority={priority ? "high" : undefined}
       fill
       sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
       className={cn("object-cover", {
