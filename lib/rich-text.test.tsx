@@ -80,8 +80,8 @@ describe("TOC slug sync", () => {
   });
 });
 
-describe("stray heading coalescing", () => {
-  it("renders H1 and H3 to H6 as bare h2 with no id and no slug consumed", () => {
+describe("body heading handling", () => {
+  it("coalesces a body h1 to h2 and passes h3 through, neither consuming a slug", () => {
     const strayDoc = {
       nodeType: BLOCKS.DOCUMENT,
       data: {},
@@ -107,8 +107,8 @@ describe("stray heading coalescing", () => {
     expect(ids).toEqual(["real-heading"]);
     expect(headings.map((h) => h.slug)).toEqual(["real-heading"]);
 
-    // Every stray heading renders as an h2, none with an id of its own.
+    // Body h1 coalesces to a bare h2; h3 passes through as h3. Neither gets an id.
     expect(html).toContain("<h2>Stray title</h2>");
-    expect(html).toContain("<h2>Stray sub</h2>");
+    expect(html).toContain("<h3>Stray sub</h3>");
   });
 });
