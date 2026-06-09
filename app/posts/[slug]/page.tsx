@@ -189,7 +189,7 @@ export default async function PostPage({
                 />
               </div>
             )}
-            <div className="prose prose-headings:scroll-mt-20">
+            <div className="prose prose-headings:scroll-mt-20 prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
               <RichText content={post.content} headings={headings} highlighted={highlighted} />
             </div>
           </div>
