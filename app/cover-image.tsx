@@ -23,7 +23,7 @@ export default function CoverImage({
 }) {
   const image = (
     <ContentfulImage
-      alt={`Cover Image for ${title}`}
+      alt=""
       priority={priority}
       fetchPriority={priority ? "high" : undefined}
       fill
