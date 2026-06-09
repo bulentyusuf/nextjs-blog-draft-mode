@@ -69,7 +69,7 @@ export default async function CategoriesPage() {
 
       {/* One card per category, two across on desktop, stacked on mobile. */}
       <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
-        {categories.map((category) => {
+        {categories.map((category, index) => {
           const posts = postsBySlug.get(category.slug) ?? [];
           const thumbUrl = category.thumbnail?.url;
           return (
@@ -89,6 +89,8 @@ export default async function CategoriesPage() {
                         src={thumbUrl}
                         alt=""
                         fill
+                        priority={index === 0}
+                        fetchPriority={index === 0 ? "high" : undefined}
                         sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-cover hover:opacity-90 transition-opacity duration-200"
                       />
