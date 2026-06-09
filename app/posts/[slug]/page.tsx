@@ -36,7 +36,7 @@ export async function generateMetadata({
   }
 
   const canonical = `${SITE_URL}/posts/${slug}`;
-  const coverUrl = post.coverImage ? `${post.coverImage.url}?w=1200&fm=jpg&q=80` : "/be_useful.jpg";
+  const coverUrl = post.coverImage ? `${post.coverImage.url}?w=1200&h=630&fit=fill&fm=jpg&q=80` : "/be_useful.jpg";
 
   return {
     title: post.title,
@@ -84,13 +84,14 @@ export default async function PostPage({
     headline: post.title,
     description: post.excerpt,
     image: post.coverImage
-      ? `${post.coverImage.url}?w=1200&fm=jpg&q=80`
-      : undefined,
+      ? `${post.coverImage.url}?w=1200&h=630&fit=fill&fm=jpg&q=80`
+      : `${SITE_URL}/be_useful.jpg`,
     datePublished: post.date,
     dateModified: post.updatedDate ?? post.date,
     author: {
       "@type": "Person",
       name: post.author?.name || SITE_AUTHOR,
+      ...(post.author?.slug ? { url: `${SITE_URL}/authors/${post.author.slug}` } : {}),
     },
     publisher: {
       "@type": "Person",
