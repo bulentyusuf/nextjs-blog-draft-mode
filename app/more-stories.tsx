@@ -13,6 +13,7 @@ function PostPreview({
   slug,
   variant,
   priority = false,
+  as = "h3",
 }: {
   title: string;
   coverImage?: CoverImageType;
@@ -21,7 +22,10 @@ function PostPreview({
   slug: string;
   variant: Variant;
   priority?: boolean;
+  as?: "h2" | "h3";
 }) {
+  const Heading = as;
+
   if (variant === "list") {
     return (
       <article className="grid grid-cols-1 gap-5 py-10 first:pt-0 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start md:py-12 md:first:pt-0">
@@ -37,14 +41,14 @@ function PostPreview({
           </div>
         )}
         <div>
-          <h3 className="text-2xl md:text-3xl mb-2 leading-snug font-bold">
+          <Heading className="text-2xl md:text-3xl mb-2 leading-snug font-bold">
             <Link
               href={`/posts/${slug}`}
               className="hover:text-brand-crimson transition-colors duration-200"
             >
               {title}
             </Link>
-          </h3>
+          </Heading>
           <div className="text-base text-brand-muted mb-3">
             <DateComponent dateString={date} />
           </div>
@@ -67,14 +71,14 @@ function PostPreview({
           />
         </div>
       )}
-      <h3 className="text-3xl mb-3 leading-snug font-bold">
+      <Heading className="text-3xl mb-3 leading-snug font-bold">
         <Link
           href={`/posts/${slug}`}
           className="hover:text-brand-crimson transition-colors duration-200"
         >
           {title}
         </Link>
-      </h3>
+      </Heading>
       <div className="text-lg text-brand-muted mb-4">
         <DateComponent dateString={date} />
       </div>
@@ -102,6 +106,11 @@ export default function MoreStories({
       ? "flex flex-col divide-y divide-gray-200"
       : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32";
 
+  // When the section renders its own h2 heading, post titles sit one level
+  // below it (h3). With no section heading, the page h1 is the parent, so post
+  // titles step up to h2 to avoid skipping a level.
+  const titleAs = heading ? "h3" : "h2";
+
   return (
     <section className="mx-auto max-w-5xl">
       {heading && (
@@ -120,6 +129,7 @@ export default function MoreStories({
             excerpt={post.excerpt}
             variant={variant}
             priority={priorityFirst && i === 0}
+            as={titleAs}
           />
         ))}
       </div>
