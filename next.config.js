@@ -48,6 +48,14 @@ module.exports = {
         source: "/(.*)",
         headers: securityHeaders,
       },
+      {
+        // The dupe route. Crawlers only know /sitemap.xml. This marks the bare
+        // /sitemap-xml URL noindex without touching /sitemap.xml, because header
+        // source matching runs against the requested path, not the rewrite
+        // destination.
+        source: "/sitemap-xml",
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+      },
     ];
   },
   async rewrites() {
