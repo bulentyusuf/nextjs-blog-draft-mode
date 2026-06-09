@@ -64,7 +64,7 @@ function HeroPost({
         </div>
       )}
       <div>
-        <h1 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
+        <h1 className="mb-4 text-5xl md:text-6xl lg:text-7xl leading-tight font-bold">
           <Link
             href={`/posts/${slug}`}
             className="hover:text-brand-crimson transition-colors duration-200"
