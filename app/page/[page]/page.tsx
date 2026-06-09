@@ -64,7 +64,12 @@ export default async function IndexPage({
 
   return (
     <Container>
-      <MoreStories morePosts={posts} variant="list" heading="Latest posts" priorityFirst />
+      <header className="mb-6 md:mb-8">
+        <h1 className="text-6xl font-bold leading-tight tracking-tighter md:text-7xl">
+          Latest posts
+        </h1>
+      </header>
+      <MoreStories morePosts={posts} variant="list" heading={null} priorityFirst />
       <Pagination currentPage={pageNumber} totalPages={totalPages} basePath="/" />
     </Container>
   );

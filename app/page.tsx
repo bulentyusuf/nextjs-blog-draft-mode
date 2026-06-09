@@ -64,14 +64,14 @@ function HeroPost({
         </div>
       )}
       <div>
-        <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
+        <h1 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
           <Link
             href={`/posts/${slug}`}
             className="hover:text-brand-crimson transition-colors duration-200"
           >
             {title}
           </Link>
-        </h3>
+        </h1>
         <p className="text-lg leading-relaxed mb-6">{excerpt}</p>
         {author && (
           <div className="flex items-center">
