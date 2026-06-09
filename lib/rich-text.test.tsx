@@ -20,6 +20,12 @@ const heading2 = (...children: unknown[]) => ({
   content: children,
 });
 
+const heading = (nodeType: string, ...children: unknown[]) => ({
+  nodeType,
+  data: {},
+  content: children,
+});
+
 const paragraph = (value: string) => ({
   nodeType: BLOCKS.PARAGRAPH,
   data: {},
@@ -71,5 +77,38 @@ describe("TOC slug sync", () => {
       "see-the-docs",
       "wrapping-up",
     ]);
+  });
+});
+
+describe("stray heading coalescing", () => {
+  it("renders H1 and H3 to H6 as bare h2 with no id and no slug consumed", () => {
+    const strayDoc = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [
+        heading(BLOCKS.HEADING_1, text("Stray title")),
+        heading(BLOCKS.HEADING_3, text("Stray sub")),
+        heading2(text("Real heading")),
+      ],
+    } as unknown as Document;
+
+    const strayContent: Content = {
+      json: strayDoc,
+      links: { assets: { block: [] } },
+    };
+
+    const headings = extractHeadings(strayDoc);
+    const html = renderToStaticMarkup(
+      <RichText content={strayContent} headings={headings} />,
+    );
+
+    // Only the real H2 carries an id, and it is the first (and only) slug.
+    const ids = [...html.matchAll(/<h2\b[^>]*\bid="([^"]+)"/g)].map((m) => m[1]);
+    expect(ids).toEqual(["real-heading"]);
+    expect(headings.map((h) => h.slug)).toEqual(["real-heading"]);
+
+    // Every stray heading renders as an h2, none with an id of its own.
+    expect(html).toContain("<h2>Stray title</h2>");
+    expect(html).toContain("<h2>Stray sub</h2>");
   });
 });
