@@ -58,7 +58,7 @@ export default async function AboutPage() {
         </h1>
         {lastUpdated && (
           <p className="mb-4 text-sm text-brand-muted">
-            Last updated: <Date dateString={lastUpdated} />
+            Last updated <Date dateString={lastUpdated} />
           </p>
         )}
         <div className="prose">

@@ -105,7 +105,7 @@ export default async function AuthorPage({
         <div className="flex items-center gap-4 mb-6">
           {author.picture?.url && (
             <ContentfulImage
-              alt={author.name}
+              alt=""
               className="rounded-full object-cover h-20 w-20 shrink-0"
               width={80}
               height={80}

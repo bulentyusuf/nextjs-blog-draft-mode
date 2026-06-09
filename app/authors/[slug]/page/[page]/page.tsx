@@ -116,7 +116,7 @@ export default async function AuthorPaginatedPage({
         <div className="flex items-center gap-4">
           {author.picture?.url && (
             <ContentfulImage
-              alt={author.name}
+              alt=""
               className="rounded-full object-cover h-20 w-20 shrink-0"
               width={80}
               height={80}
