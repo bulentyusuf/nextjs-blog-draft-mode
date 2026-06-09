@@ -58,7 +58,7 @@ export default async function PrivacyPage() {
         </h1>
         {lastUpdated && (
           <p className="mb-8 text-sm text-brand-muted">
-            Last updated: <Date dateString={lastUpdated} />
+            Last updated <Date dateString={lastUpdated} />
           </p>
         )}
         <div className="prose">
