@@ -18,7 +18,7 @@ export default function ExploreWithAI({ slug }: { slug: string }) {
 
   return (
     <nav aria-label="Explore this post with AI" className="text-sm">
-      <p className="mb-3 font-bold uppercase tracking-wide text-gray-500">
+      <p className="mb-3 font-bold uppercase tracking-wide text-gray-600">
         Explore with AI
       </p>
       <ul className="space-y-2">

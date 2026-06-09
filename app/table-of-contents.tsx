@@ -60,7 +60,7 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
           On this page
         </span>
         <svg
-          className="h-4 w-4 text-gray-500 motion-safe:transition-transform motion-safe:duration-200 group-open:rotate-180"
+          className="h-4 w-4 text-gray-600 motion-safe:transition-transform motion-safe:duration-200 group-open:rotate-180"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
@@ -74,7 +74,7 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
         </svg>
       </summary>
       <nav aria-label="Table of contents" className="text-sm pt-3 xl:pt-0">
-        <p className="mb-3 font-bold uppercase tracking-wide text-gray-500 hidden xl:block">
+        <p className="mb-3 font-bold uppercase tracking-wide text-gray-600 hidden xl:block">
           On this page
         </p>
         <ul className="space-y-2 border-l border-gray-200">

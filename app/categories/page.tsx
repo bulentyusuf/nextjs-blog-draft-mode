@@ -123,7 +123,7 @@ export default async function CategoriesPage() {
                         >
                           {post.title}
                         </Link>
-                        <div className="mt-1 text-sm text-gray-500">
+                        <div className="mt-1 text-sm text-gray-600">
                           <DateComponent dateString={post.date} />
                         </div>
                         {post.excerpt && (
@@ -142,7 +142,7 @@ export default async function CategoriesPage() {
                   </Link>
                 </>
               ) : (
-                <p className="text-lg text-gray-500">No posts here yet.</p>
+                <p className="text-lg text-gray-600">No posts here yet.</p>
               )}
             </article>
           );

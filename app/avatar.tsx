@@ -53,7 +53,7 @@ export default function Avatar({
           )}
         </div>
         {meta && (
-          <div className="mt-1 text-sm font-normal text-gray-500">{meta}</div>
+          <div className="mt-1 text-sm font-normal text-gray-600">{meta}</div>
         )}
       </div>
     </div>
