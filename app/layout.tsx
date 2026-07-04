@@ -2,7 +2,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, BRAND_HEADER_COLOR } from "@/lib/constants";
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, BRAND_HEADER_COLOR, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import BackToTop from "./back-to-top";
 import Link from "next/link";
 import { draftMode } from "next/headers";
@@ -31,7 +31,7 @@ export const metadata = {
       },
     ],
     type: "website",
-    locale: "en_US",
+    locale: DEFAULT_OG_LOCALE,
   },
   twitter: {
     card: "summary_large_image",
@@ -131,7 +131,7 @@ export default async function RootLayout({
 }) {
   const { isEnabled } = await draftMode();
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang={DEFAULT_LOCALE} className={inter.variable}>
       <body className="min-h-screen flex flex-col bg-brand-bg">
         <a
           href="#main"

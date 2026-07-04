@@ -6,7 +6,7 @@ import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
-import { SITE_TITLE, SITE_URL } from "@/lib/constants";
+import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
 
 // How many recent posts to tease under each category. The full list lives on
 // the individual category page (/categories/[slug]).
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: SITE_TITLE,
     images: [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
     type: "website",
-    locale: "en_US",
+    locale: DEFAULT_OG_LOCALE,
   },
   twitter: {
     card: "summary_large_image",

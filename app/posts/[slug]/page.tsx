@@ -12,7 +12,7 @@ import { highlightCodeBlocks } from "@/lib/highlight";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
-import { SITE_URL, SITE_AUTHOR, SITE_TITLE } from "@/lib/constants";
+import { SITE_URL, SITE_AUTHOR, SITE_TITLE, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
 
 export async function generateStaticParams() {
@@ -50,7 +50,7 @@ export async function generateMetadata({
       modifiedTime: post.updatedDate ?? post.date,
       url: canonical,
       siteName: SITE_TITLE,
-      locale: "en_US",
+      locale: DEFAULT_OG_LOCALE,
       authors: post.author?.slug
         ? [`${SITE_URL}/authors/${post.author.slug}`]
         : undefined,

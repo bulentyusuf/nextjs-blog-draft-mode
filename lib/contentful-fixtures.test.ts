@@ -11,7 +11,7 @@ const seedData = readJson("contentful/seed.json");
 
 const defaultLocale =
   (exportData.locales || []).find((l: { default?: boolean }) => l.default)
-    ?.code || "en-US";
+    ?.code || "en-GB";
 
 describe("contentful export.json", () => {
   it("has content types", () => {

@@ -5,7 +5,7 @@ import Date from "../date";
 import Container from "../container";
 import { RichText } from "@/lib/rich-text";
 import { getPage } from "@/lib/api";
-import { SITE_TITLE, SITE_URL } from "@/lib/constants";
+import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
 
 const SLUG = "about";
 
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: SITE_TITLE,
       images: [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
       type: "website",
-      locale: "en_US",
+      locale: DEFAULT_OG_LOCALE,
     },
     twitter: {
       card: "summary_large_image",
