@@ -31,3 +31,10 @@ export const AUTHOR_EMAIL = `contact@${SITE_HOSTNAME}`;
 // Header band colour. CSS twin lives in app/globals.css as --color-brand-header;
 // keep both at #1E3A8A (CSS @theme cannot import from TS).
 export const BRAND_HEADER_COLOR = "#1E3A8A";
+
+// BCP-47 default locale for html lang and hreflang. Matches the renamed
+// Contentful default locale (en-GB). Phase 1 localisation makes this per-route.
+export const DEFAULT_LOCALE = "en-GB";
+
+// Open Graph locale format uses an underscore, not a hyphen.
+export const DEFAULT_OG_LOCALE = "en_GB";

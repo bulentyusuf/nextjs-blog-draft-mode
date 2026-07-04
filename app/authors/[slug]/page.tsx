@@ -8,7 +8,7 @@ import Pagination from "../../pagination";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
-import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL } from "@/lib/constants";
+import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
 
 // Allow on-demand rendering of authors added after build time.
@@ -48,7 +48,7 @@ export async function generateMetadata({
       siteName: SITE_TITLE,
       images: images ?? [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
       type: "website",
-      locale: "en_US",
+      locale: DEFAULT_OG_LOCALE,
     },
     twitter: {
       card: "summary_large_image",

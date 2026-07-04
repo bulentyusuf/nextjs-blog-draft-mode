@@ -25,7 +25,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en">
+    <html lang="en-GB">
       <body className="min-h-screen flex items-center justify-center bg-white px-5">
         <main className="mx-auto max-w-xl text-center">
           <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">

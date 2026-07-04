@@ -7,7 +7,7 @@ import MoreStories from "../../../../more-stories";
 import Pagination from "../../../../pagination";
 import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
 import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
-import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL } from "@/lib/constants";
+import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
 
 export const dynamicParams = true;
 
@@ -58,7 +58,7 @@ export async function generateMetadata({
       siteName: SITE_TITLE,
       images: images ?? [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
       type: "website",
-      locale: "en_US",
+      locale: DEFAULT_OG_LOCALE,
     },
     twitter: {
       card: "summary_large_image",
