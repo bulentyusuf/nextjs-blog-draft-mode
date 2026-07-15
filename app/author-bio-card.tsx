@@ -25,9 +25,7 @@ export default function AuthorBioCard({ author }: { author: Author }) {
         <p className="text-xs font-bold uppercase tracking-widest text-brand-muted">
           Written by
         </p>
-        {/* Not a heading element — the base-layer h1–h3 rule intentionally
-            doesn't reach it, so the display face is applied directly. */}
-        <p className="mt-1 font-display text-xl font-semibold text-brand-dark">
+        <p className="mt-1 text-xl font-bold text-brand-dark">
           {author.name}
         </p>
         <div className="mt-2 text-sm text-brand-muted">

@@ -167,7 +167,7 @@ export default function LightboxImage({
               {caption && (
                 <figcaption
                   id={titleId}
-                  className="mt-2 text-center text-sm italic text-white/80"
+                  className="mt-2 text-center text-sm text-white/80"
                 >
                   {caption}
                 </figcaption>
