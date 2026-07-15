@@ -121,9 +121,6 @@ export default async function AuthorPage({
             <RichText content={author.bio} headings={[]} />
           </div>
         )}
-        <p className="mt-4 text-sm text-brand-muted">
-          {posts.length === 1 ? "1 post" : `${posts.length} posts`}
-        </p>
       </header>
 
       {posts.length > 0 ? (

@@ -90,9 +90,6 @@ export default async function CategoryPage({
             {category.description}
           </p>
         )}
-        <p className="mt-4 text-sm text-brand-muted">
-          {posts.length === 1 ? "1 post" : `${posts.length} posts`}
-        </p>
       </header>
 
       {posts.length > 0 ? (
