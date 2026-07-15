@@ -2,7 +2,7 @@ import "./globals.css";
 import { Inter, Fraunces } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, BRAND_HEADER_COLOR, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, SITE_FOOTER_BLURB, BRAND_HEADER_COLOR, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import { getAllCategories } from "@/lib/api";
 import type { Category } from "@/lib/types";
 import BackToTop from "./back-to-top";
@@ -118,15 +118,15 @@ async function Footer() {
               {SITE_TITLE}
             </p>
             <p className="mt-3 max-w-sm text-sm text-white/80">
-              A blog about content, code, and collaborating with generative AI.
-              Written in Munich and published from a headless CMS.
+              {SITE_FOOTER_BLURB}
             </p>
           </div>
 
-          {/* Column 2 — categories */}
-          <nav aria-label="Categories">
+          {/* Column 2 — browse: dynamic categories, then static section links.
+              The static links never disappear, even when the fetch fails. */}
+          <nav aria-label="Browse">
             <h4 className="text-xs font-bold uppercase tracking-widest text-white/60">
-              Categories
+              Browse
             </h4>
             <ul className="mt-4 space-y-2 text-sm">
               {showCategoryList ? (
@@ -144,6 +144,16 @@ async function Footer() {
                   </Link>
                 </li>
               )}
+              <li>
+                <Link href="/authors" className={footerLink}>
+                  Authors
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className={footerLink}>
+                  About
+                </Link>
+              </li>
             </ul>
           </nav>
 
@@ -164,19 +174,14 @@ async function Footer() {
                 </a>
               </li>
               <li>
-                <Link href="/authors" className={footerLink}>
-                  Authors
-                </Link>
+                <a href="/feed.xml" className={footerLink}>
+                  RSS feed
+                </a>
               </li>
               <li>
                 <Link href="/privacy" className={footerLink}>
                   Privacy
                 </Link>
-              </li>
-              <li>
-                <a href="/feed.xml" className={footerLink}>
-                  RSS feed
-                </a>
               </li>
             </ul>
           </nav>
