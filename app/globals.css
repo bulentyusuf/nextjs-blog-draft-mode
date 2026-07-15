@@ -46,6 +46,13 @@
   }
 }
 
+/* Selection uses the brand accent, with the light page background as the
+   readable foreground. Applies everywhere, code blocks included. */
+::selection {
+  background-color: var(--color-brand-crimson);
+  color: var(--color-brand-bg);
+}
+
 /*
   Force the TOC panel open at xl+ regardless of the <details> [open] state.
   This lets one component instance serve both mobile (real disclosure) and

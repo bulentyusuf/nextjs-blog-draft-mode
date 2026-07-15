@@ -36,6 +36,7 @@ function PostPreview({
               slug={slug}
               url={coverImage.url}
               priority={priority}
+              hover
               sizes="(max-width: 768px) 100vw, 40vw"
             />
           </div>
@@ -67,6 +68,7 @@ function PostPreview({
             slug={slug}
             url={coverImage.url}
             priority={priority}
+            hover
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 450px"
           />
         </div>

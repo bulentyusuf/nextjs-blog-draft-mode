@@ -82,7 +82,7 @@ export default async function CategoryPage({
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
+        <h1 className="mb-6 text-5xl font-semibold leading-tight md:text-6xl">
           {category.name}
         </h1>
         {category.description && (
@@ -90,6 +90,9 @@ export default async function CategoryPage({
             {category.description}
           </p>
         )}
+        <p className="mt-4 text-sm text-brand-muted">
+          {posts.length === 1 ? "1 post" : `${posts.length} posts`}
+        </p>
       </header>
 
       {posts.length > 0 ? (
