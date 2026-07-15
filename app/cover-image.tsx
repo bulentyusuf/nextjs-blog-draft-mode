@@ -1,8 +1,9 @@
 import ContentfulImage from "../lib/contentful-image";
 import Link from "next/link";
 import { clsx as cn } from "clsx";
+import { getBlurDataURL } from "@/lib/blur";
 
-export default function CoverImage({
+export default async function CoverImage({
   title,
   url,
   slug,
@@ -26,6 +27,10 @@ export default function CoverImage({
   // Reduced-motion users get no movement (motion-safe: prefix), no JS.
   hover?: boolean;
 }) {
+  // Cold-cache LQIP: a tiny blurred preview sharpens in rather than popping
+  // from a stark frame. Undefined when the fetch fails — then we render with no
+  // placeholder props, never a broken shell.
+  const blurDataURL = await getBlurDataURL(url);
   const image = (
     <ContentfulImage
       alt=""
@@ -34,15 +39,16 @@ export default function CoverImage({
       fill
       sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
       className={cn("object-cover", {
-        "motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-safe:group-focus-within:scale-[1.03]":
+        "motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-safe:group-focus-within:scale-[1.03] motion-safe:will-change-transform":
           hover,
       })}
       src={url}
+      {...(blurDataURL ? { placeholder: "blur" as const, blurDataURL } : {})}
     />
   );
   return (
     <div className="shadow-lg sm:mx-0">
-      <div className={cn("relative overflow-hidden", wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2", {
+      <div className={cn("relative overflow-hidden bg-brand-dark/5", wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2", {
         "cursor-pointer": slug,
         group: hover,
       })}>
