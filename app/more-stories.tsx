@@ -41,7 +41,7 @@ function PostPreview({
           </div>
         )}
         <div>
-          <Heading className="text-2xl md:text-3xl mb-2 leading-snug font-bold">
+          <Heading className="text-2xl md:text-3xl mb-2 leading-snug font-semibold">
             <Link
               href={`/posts/${slug}`}
               className="hover:text-brand-crimson transition-colors duration-200"
@@ -71,7 +71,7 @@ function PostPreview({
           />
         </div>
       )}
-      <Heading className="text-3xl mb-3 leading-snug font-bold">
+      <Heading className="text-3xl mb-3 leading-snug font-semibold">
         <Link
           href={`/posts/${slug}`}
           className="hover:text-brand-crimson transition-colors duration-200"

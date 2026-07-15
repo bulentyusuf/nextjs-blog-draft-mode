@@ -15,7 +15,7 @@ import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
 export const metadata: Metadata = {
   alternates: { canonical: SITE_URL },
 };
-import type { Author, CoverImage as CoverImageType } from "@/lib/types";
+import type { Author, Category, CoverImage as CoverImageType } from "@/lib/types";
 
 function HeroPost({
   title,
@@ -25,6 +25,7 @@ function HeroPost({
   excerpt,
   author,
   slug,
+  category,
 }: {
   title: string;
   coverImage?: CoverImageType;
@@ -33,6 +34,7 @@ function HeroPost({
   excerpt: string;
   author?: Author;
   slug: string;
+  category?: Category;
 }) {
   const showUpdated = updatedDate && updatedDate !== date;
 
@@ -51,20 +53,15 @@ function HeroPost({
 
   return (
     <section className="mx-auto max-w-5xl mb-section">
-      {coverImage && (
-        <div className="mb-6 md:mb-8">
-          <CoverImage
-            title={title}
-            slug={slug}
-            url={coverImage.url}
-            wide
-            priority
-            sizes="(max-width: 768px) 100vw, 1024px"
-          />
-        </div>
-      )}
       <div>
-        <h1 className="mb-4 text-5xl md:text-6xl lg:text-7xl leading-tight font-bold">
+        {category && (
+          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand-crimson">
+            <Link href={`/categories/${category.slug}`} className="hover:underline">
+              {category.name}
+            </Link>
+          </p>
+        )}
+        <h1 className="mb-4 text-5xl md:text-6xl leading-tight font-semibold">
           <Link
             href={`/posts/${slug}`}
             className="hover:text-brand-crimson transition-colors duration-200"
@@ -84,6 +81,18 @@ function HeroPost({
           </div>
         )}
       </div>
+      {coverImage && (
+        <div className="mt-8 md:mt-10">
+          <CoverImage
+            title={title}
+            slug={slug}
+            url={coverImage.url}
+            wide
+            priority
+            sizes="(max-width: 768px) 100vw, 1024px"
+          />
+        </div>
+      )}
     </section>
   );
 }
@@ -109,6 +118,7 @@ export default async function Page() {
           author={heroPost.author}
           slug={heroPost.slug}
           excerpt={heroPost.excerpt}
+          category={heroPost.category}
         />
       )}
       <MoreStories morePosts={morePosts} variant="list" heading="Latest posts" />

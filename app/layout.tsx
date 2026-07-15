@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, BRAND_HEADER_COLOR, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
@@ -55,12 +55,18 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
 });
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  display: "swap",
+  axes: ["opsz"],
+});
 function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-brand-header shadow-xs">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-3">
-          <Link href="/" className="text-base font-bold text-white">
+          <Link href="/" className="font-display text-lg font-semibold text-white">
             {SITE_TITLE}
           </Link>
           <p className="hidden lg:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
@@ -131,7 +137,7 @@ export default async function RootLayout({
 }) {
   const { isEnabled } = await draftMode();
   return (
-    <html lang={DEFAULT_LOCALE} className={inter.variable}>
+    <html lang={DEFAULT_LOCALE} className={`${inter.variable} ${fraunces.variable}`}>
       <body className="min-h-screen flex flex-col bg-brand-bg">
         <a
           href="#main"
