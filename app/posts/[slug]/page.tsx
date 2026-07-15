@@ -8,6 +8,7 @@ import CoverImage from "../../cover-image";
 import { RichText } from "@/lib/rich-text";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
 import { extractHeadings } from "@/lib/headings";
+import { readingTimeMinutes } from "@/lib/reading-time";
 import { highlightCodeBlocks } from "@/lib/highlight";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
@@ -105,9 +106,11 @@ export default async function PostPage({
   };
 
   const showUpdated = post.updatedDate && post.updatedDate !== post.date;
+  const minutes = readingTimeMinutes(post.content.json);
 
   // Byline sub-line: lead with the published date (matches the index cards),
-  // flag the revision on mobile, show the full updated date on desktop.
+  // flag the revision on mobile, show the full updated date on desktop, then
+  // the estimated reading time.
   const dateline = (
     <>
       <Date dateString={post.date} />
@@ -119,6 +122,7 @@ export default async function PostPage({
           </span>
         </>
       )}
+      {" · "}{minutes} min read
     </>
   );
 

@@ -46,7 +46,11 @@ function RichTextAsset({
   if (!asset?.url) return null;
 
   return (
-    <div className="my-8">
+    // Break the figure out past the prose measure where space allows. The
+    // negative insets stay smaller than the container's px-5 padding at md/lg
+    // and, at xl, smaller than the grid's gap-x-10, so the image never causes
+    // horizontal scroll nor overlaps the sticky TOC sidebar.
+    <figure className="my-8 md:-mx-10 lg:-mx-16 xl:-mx-6">
       {lightbox ? (
         <LightboxImage
           src={asset.url}
@@ -60,16 +64,16 @@ function RichTextAsset({
           width={1200}
           height={800}
           priority={priority}
-          sizes="(max-width: 768px) 100vw, 672px"
+          sizes="(max-width: 768px) 100vw, 800px"
           className="w-full h-auto border-2 border-gray-300"
         />
       )}
       {asset.description && (
-        <p className="text-sm text-brand-muted mt-2 text-center italic">
+        <figcaption className="text-sm text-brand-muted mt-2 text-center italic">
           {asset.description}
-        </p>
+        </figcaption>
       )}
-    </div>
+    </figure>
   );
 }
 
@@ -118,6 +122,14 @@ export function RichText({
         );
       },
       [BLOCKS.HEADING_1]: coalesceToH2,
+      [BLOCKS.QUOTE]: (_node: Block | Inline, children: ReactNode) => (
+        // Pull quote: crimson rule, display face. not-prose so the typography
+        // plugin's blockquote styling doesn't fight ours; inner paragraphs are
+        // de-margined ([&_p]:m-0) with a gap only between multiple paragraphs.
+        <blockquote className="not-prose my-9 border-l-4 border-brand-crimson pl-5 font-display text-2xl font-medium leading-snug text-brand-dark md:text-[1.75rem] [&_p]:m-0 [&_p+p]:mt-4">
+          {children}
+        </blockquote>
+      ),
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset
           id={(node as Block).data.target.sys.id}
