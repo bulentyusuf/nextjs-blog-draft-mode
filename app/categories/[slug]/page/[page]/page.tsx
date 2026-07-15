@@ -108,7 +108,7 @@ export default async function CategoryPaginatedPage({
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
+        <h1 className="mb-6 text-4xl font-semibold leading-tight md:text-6xl">
           {category.name}
         </h1>
         {category.description && (

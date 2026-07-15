@@ -59,7 +59,7 @@ export default async function CategoriesPage() {
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mb-6 md:mb-8">
-        <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
+        <h1 className="mb-6 text-4xl font-semibold leading-tight md:text-6xl">
           Categories
         </h1>
         <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
@@ -82,7 +82,7 @@ export default async function CategoriesPage() {
                   <Link
                     href={`/categories/${category.slug}`}
                     aria-label={category.name}
-                    className="block"
+                    className="group block"
                   >
                     <div className="relative aspect-3/2 overflow-hidden cursor-pointer">
                       <ContentfulImage
@@ -92,7 +92,7 @@ export default async function CategoriesPage() {
                         priority={index === 0}
                         fetchPriority={index === 0 ? "high" : undefined}
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover hover:opacity-90 transition-opacity duration-200"
+                        className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-safe:group-focus-within:scale-[1.03]"
                       />
                     </div>
                   </Link>

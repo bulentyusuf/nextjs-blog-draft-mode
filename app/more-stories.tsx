@@ -116,7 +116,7 @@ export default function MoreStories({
   return (
     <section className="mx-auto max-w-5xl">
       {heading && (
-        <h2 className="mb-8 text-4xl md:text-5xl font-bold tracking-tighter leading-tight">
+        <h2 className="mb-8 text-4xl md:text-5xl font-semibold leading-tight">
           {heading}
         </h2>
       )}

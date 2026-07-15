@@ -53,7 +53,7 @@ export default async function AboutPage() {
   return (
     <Container>
       <article className="mx-auto max-w-2xl">
-        <h1 className="mb-6 text-4xl font-bold tracking-tighter md:text-5xl">
+        <h1 className="mb-6 text-4xl font-semibold md:text-5xl">
           {page.title}
         </h1>
         {lastUpdated && (
