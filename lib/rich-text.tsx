@@ -69,7 +69,7 @@ function RichTextAsset({
         />
       )}
       {asset.description && (
-        <figcaption className="text-sm text-brand-muted mt-2 text-center italic">
+        <figcaption className="text-sm text-brand-muted mt-2 text-center">
           {asset.description}
         </figcaption>
       )}

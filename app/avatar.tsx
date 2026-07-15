@@ -36,7 +36,7 @@ export default function Avatar({
         ) : (
           <div
             aria-hidden="true"
-            className="flex h-full w-full items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-600"
+            className="flex h-full w-full items-center justify-center rounded-full bg-brand-dark/10 text-sm font-bold text-brand-muted"
           >
             {initials(name)}
           </div>
@@ -53,7 +53,7 @@ export default function Avatar({
           )}
         </div>
         {meta && (
-          <div className="mt-1 text-sm font-normal text-gray-600">{meta}</div>
+          <div className="mt-1 text-sm font-normal text-brand-muted">{meta}</div>
         )}
       </div>
     </div>

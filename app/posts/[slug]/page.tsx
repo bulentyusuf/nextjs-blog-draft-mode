@@ -12,6 +12,7 @@ import { readingTimeMinutes } from "@/lib/reading-time";
 import { highlightCodeBlocks } from "@/lib/highlight";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
+import AuthorBioCard from "../../author-bio-card";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { SITE_URL, SITE_AUTHOR, SITE_TITLE, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
@@ -146,7 +147,7 @@ export default async function PostPage({
       />
       <article className="mx-auto max-w-5xl">
         <Breadcrumb items={crumbs} />
-        <h1 className="mb-8 text-5xl font-semibold leading-tight md:text-6xl">
+        <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl">
           {post.title}
         </h1>
         {post.coverImage && (
@@ -180,7 +181,7 @@ export default async function PostPage({
           </aside>
 
           <div className="mx-auto max-w-2xl xl:mx-0">
-            <p className="mb-8 text-lg italic leading-relaxed text-brand-muted">
+            <p className="mb-8 text-lg leading-relaxed text-brand-muted">
               {post.excerpt}
             </p>
             {post.author && (
@@ -196,6 +197,11 @@ export default async function PostPage({
             <div className="prose prose-headings:scroll-mt-20 prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
               <RichText content={post.content} headings={headings} highlighted={highlighted} />
             </div>
+            {post.author?.bio && (
+              <div className="mt-12 border-t border-gray-200 pt-8">
+                <AuthorBioCard author={post.author} />
+              </div>
+            )}
           </div>
         </div>
       </article>

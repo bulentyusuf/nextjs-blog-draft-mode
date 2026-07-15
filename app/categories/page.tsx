@@ -6,6 +6,7 @@ import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
+import { getBlurDataURL } from "@/lib/blur";
 import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
 
 // How many recent posts to tease under each category. The full list lives on
@@ -50,6 +51,16 @@ export default async function CategoriesPage() {
   );
   const postsBySlug = new Map(previews);
 
+  // One LQIP per category thumbnail, fetched in parallel. Cached by URL, so
+  // this is a one-time cost per asset. Undefined entries fall back to no blur.
+  const blurs = await Promise.all(
+    categories.map(
+      async (c) =>
+        [c.slug, c.thumbnail?.url ? await getBlurDataURL(c.thumbnail.url) : undefined] as const,
+    ),
+  );
+  const blurBySlug = new Map(blurs);
+
   const crumbs: Crumb[] = [
     { label: "Home", href: "/" },
     { label: "Categories" },
@@ -59,7 +70,7 @@ export default async function CategoriesPage() {
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mb-6 md:mb-8">
-        <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
+        <h1 className="mb-6 text-4xl leading-tight md:text-5xl lg:text-6xl">
           Categories
         </h1>
         <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
@@ -72,6 +83,7 @@ export default async function CategoriesPage() {
         {categories.map((category, index) => {
           const posts = postsBySlug.get(category.slug) ?? [];
           const thumbUrl = category.thumbnail?.url;
+          const blurDataURL = blurBySlug.get(category.slug);
           return (
             <article key={category.slug} className="flex flex-col min-w-0">
               {thumbUrl && (
@@ -82,9 +94,16 @@ export default async function CategoriesPage() {
                   <Link
                     href={`/categories/${category.slug}`}
                     aria-label={category.name}
-                    className="block"
+                    className="group block"
                   >
-                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer">
+                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer bg-brand-dark/5 motion-safe:transform-gpu">
+                      {blurDataURL && (
+                        <div
+                          aria-hidden
+                          className="absolute inset-0 bg-cover bg-center"
+                          style={{ backgroundImage: `url(${blurDataURL})` }}
+                        />
+                      )}
                       <ContentfulImage
                         src={thumbUrl}
                         alt=""
@@ -92,14 +111,14 @@ export default async function CategoriesPage() {
                         priority={index === 0}
                         fetchPriority={index === 0 ? "high" : undefined}
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover hover:opacity-90 transition-opacity duration-200"
+                        className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.02] motion-safe:group-focus-within:scale-[1.02] pointer-fine:motion-safe:will-change-transform"
                       />
                     </div>
                   </Link>
                 </div>
               )}
 
-              <h2 className="mb-3 text-2xl font-bold leading-snug md:text-3xl">
+              <h2 className="mb-3 text-2xl leading-snug md:text-3xl">
                 <Link
                   href={`/categories/${category.slug}`}
                   className="hover:text-brand-crimson transition-colors duration-200"

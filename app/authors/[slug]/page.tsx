@@ -102,17 +102,17 @@ export default async function AuthorPage({
       />
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-6 mb-6">
           {author.picture?.url && (
             <ContentfulImage
               alt=""
-              className="rounded-full object-cover h-20 w-20 shrink-0"
-              width={80}
-              height={80}
+              className="rounded-full object-cover h-28 w-28 shrink-0"
+              width={112}
+              height={112}
               src={author.picture.url}
             />
           )}
-          <h1 className="text-5xl font-bold leading-tight tracking-tighter md:text-6xl">
+          <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl">
             {author.name}
           </h1>
         </div>

@@ -36,12 +36,13 @@ function PostPreview({
               slug={slug}
               url={coverImage.url}
               priority={priority}
+              hover
               sizes="(max-width: 768px) 100vw, 40vw"
             />
           </div>
         )}
         <div>
-          <Heading className="text-2xl md:text-3xl mb-2 leading-snug font-semibold">
+          <Heading className="text-2xl md:text-3xl mb-2 leading-snug">
             <Link
               href={`/posts/${slug}`}
               className="hover:text-brand-crimson transition-colors duration-200"
@@ -49,7 +50,7 @@ function PostPreview({
               {title}
             </Link>
           </Heading>
-          <div className="text-base text-brand-muted mb-3">
+          <div className="text-sm text-brand-muted mb-3">
             <DateComponent dateString={date} />
           </div>
           <p className="text-lg leading-relaxed">{excerpt}</p>
@@ -67,11 +68,12 @@ function PostPreview({
             slug={slug}
             url={coverImage.url}
             priority={priority}
+            hover
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 450px"
           />
         </div>
       )}
-      <Heading className="text-3xl mb-3 leading-snug font-semibold">
+      <Heading className="text-3xl mb-3 leading-snug">
         <Link
           href={`/posts/${slug}`}
           className="hover:text-brand-crimson transition-colors duration-200"
@@ -79,7 +81,7 @@ function PostPreview({
           {title}
         </Link>
       </Heading>
-      <div className="text-lg text-brand-muted mb-4">
+      <div className="text-sm text-brand-muted mb-4">
         <DateComponent dateString={date} />
       </div>
       <p className="text-lg leading-relaxed">{excerpt}</p>
@@ -114,7 +116,7 @@ export default function MoreStories({
   return (
     <section className="mx-auto max-w-5xl">
       {heading && (
-        <h2 className="mb-8 text-4xl md:text-5xl font-bold tracking-tighter leading-tight">
+        <h2 className="mb-8 text-4xl md:text-5xl leading-tight">
           {heading}
         </h2>
       )}

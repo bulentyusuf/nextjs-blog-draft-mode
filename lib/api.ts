@@ -27,6 +27,20 @@ const POST_GRAPHQL_FIELDS = `
     picture {
       url
     }
+    bio {
+      json
+      links {
+        assets {
+          block {
+            sys {
+              id
+            }
+            url
+            description
+          }
+        }
+      }
+    }
   }
   excerpt
   content {
