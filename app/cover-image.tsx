@@ -27,9 +27,9 @@ export default async function CoverImage({
   // Reduced-motion users get no movement (motion-safe: prefix), no JS.
   hover?: boolean;
 }) {
-  // Cold-cache LQIP: a tiny blurred preview sharpens in rather than popping
-  // from a stark frame. Undefined when the fetch fails — then we render with no
-  // placeholder props, never a broken shell.
+  // Cold-cache LQIP: a tiny blurred preview underlays the frame so covers show a
+  // full colour wash from first paint rather than a stark void. Undefined when
+  // the fetch fails — the bg-brand-dark/5 tint on the wrapper is the fallback.
   const blurDataURL = await getBlurDataURL(url);
   const image = (
     <ContentfulImage
@@ -43,7 +43,6 @@ export default async function CoverImage({
           hover,
       })}
       src={url}
-      {...(blurDataURL ? { placeholder: "blur" as const, blurDataURL } : {})}
     />
   );
   return (
@@ -52,6 +51,13 @@ export default async function CoverImage({
         "cursor-pointer": slug,
         group: hover,
       })}>
+        {blurDataURL && (
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${blurDataURL})` }}
+          />
+        )}
         {slug ? (
           <Link href={`/posts/${slug}`} aria-label={title} className="block h-full">
             {image}

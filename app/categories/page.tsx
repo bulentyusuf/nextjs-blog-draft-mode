@@ -97,6 +97,13 @@ export default async function CategoriesPage() {
                     className="group block"
                   >
                     <div className="relative aspect-3/2 overflow-hidden cursor-pointer bg-brand-dark/5">
+                      {blurDataURL && (
+                        <div
+                          aria-hidden
+                          className="absolute inset-0 bg-cover bg-center"
+                          style={{ backgroundImage: `url(${blurDataURL})` }}
+                        />
+                      )}
                       <ContentfulImage
                         src={thumbUrl}
                         alt=""
@@ -105,7 +112,6 @@ export default async function CategoriesPage() {
                         fetchPriority={index === 0 ? "high" : undefined}
                         sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-safe:group-focus-within:scale-[1.03] motion-safe:will-change-transform"
-                        {...(blurDataURL ? { placeholder: "blur" as const, blurDataURL } : {})}
                       />
                     </div>
                   </Link>
