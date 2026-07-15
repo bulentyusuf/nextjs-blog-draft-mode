@@ -112,7 +112,7 @@ export default async function AuthorPage({
               src={author.picture.url}
             />
           )}
-          <h1 className="text-5xl font-semibold leading-tight md:text-6xl">
+          <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
             {author.name}
           </h1>
         </div>
