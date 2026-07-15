@@ -34,7 +34,6 @@ export default function CoverImage({
       fill
       sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
       className={cn("object-cover", {
-        "hover:opacity-90 transition-opacity duration-200": slug,
         "motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-safe:group-focus-within:scale-[1.03]":
           hover,
       })}
