@@ -18,6 +18,10 @@ export const SITE_DESCRIPTION =
 
 export const SITE_AUTHOR = "Bulent Yusuf";
 
+// Shown in the footer's first column. Replace this with your own blurb.
+export const SITE_FOOTER_BLURB =
+  "A blog about content, code, and collaborating with generative AI. Written in Munich and published from a headless CMS.";
+
 // Shown as the footer "GitHub" link. Point this at your own repository.
 export const SITE_REPO_URL =
   "https://github.com/bulentyusuf/nextjs-blog-draft-mode";

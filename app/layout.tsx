@@ -1,8 +1,10 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, BRAND_HEADER_COLOR, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, SITE_FOOTER_BLURB, BRAND_HEADER_COLOR, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { getAllCategories } from "@/lib/api";
+import type { Category } from "@/lib/types";
 import BackToTop from "./back-to-top";
 import Link from "next/link";
 import { draftMode } from "next/headers";
@@ -55,12 +57,18 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
 });
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  display: "swap",
+  axes: ["opsz"],
+});
 function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-brand-header shadow-xs">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-3">
-          <Link href="/" className="text-base font-bold text-white">
+          <Link href="/" className="font-display text-lg font-semibold text-white">
             {SITE_TITLE}
           </Link>
           <p className="hidden lg:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
@@ -83,42 +91,108 @@ function Header() {
     </header>
   );
 }
-function Footer() {
+// Shared link treatment for the footer: quiet by default, visible focus ring
+// matching the skip-link convention above.
+const footerLink =
+  "text-white/80 hover:text-white transition-colors duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white";
+
+async function Footer() {
+  // A Contentful outage must not break the layout shell. On any error (or an
+  // empty result) we fall back to a single "All categories" link.
+  let categories: Category[] = [];
+  let categoriesFailed = false;
+  try {
+    categories = await getAllCategories();
+  } catch {
+    categoriesFailed = true;
+  }
+  const showCategoryList = !categoriesFailed && categories.length > 0;
+
   return (
-    <footer className="bg-brand-dark">
-      <div className="max-w-5xl mx-auto px-5">
-        <div className="py-16 flex flex-col lg:flex-row items-center justify-between">
-          <p className="text-sm text-center text-white/90 lg:text-left mb-4 lg:mb-0">
-            © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js & Contentful
-          </p>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/authors"
-              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
-            >
-              Authors
-            </Link>
-            <Link
-              href="/privacy"
-              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
-            >
-              Privacy
-            </Link>
-            <a
-              href={SITE_REPO_URL}
-              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
-            <a
-              href="/feed.xml"
-              className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
-            >
-              RSS
-            </a>
+    <footer className="bg-brand-dark text-white">
+      <div className="max-w-5xl mx-auto px-5 py-16">
+        <div className="grid gap-8 md:grid-cols-[2fr_1fr_1fr] md:gap-12">
+          {/* Column 1 — masthead + blurb */}
+          <div>
+            <p className="font-display text-2xl font-semibold text-white">
+              {SITE_TITLE}
+            </p>
+            <p className="mt-3 max-w-sm text-sm text-white/80">
+              {SITE_FOOTER_BLURB}
+            </p>
           </div>
+
+          {/* Column 2 — browse: dynamic categories, then static section links.
+              The static links never disappear, even when the fetch fails. */}
+          <nav aria-label="Browse">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-white/60">
+              Browse
+            </h4>
+            <ul className="mt-4 space-y-2 text-sm">
+              {showCategoryList ? (
+                categories.map((category) => (
+                  <li key={category.slug}>
+                    <Link href={`/categories/${category.slug}`} className={footerLink}>
+                      {category.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li>
+                  <Link href="/categories" className={footerLink}>
+                    All categories
+                  </Link>
+                </li>
+              )}
+              <li>
+                <Link href="/authors" className={footerLink}>
+                  Authors
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className={footerLink}>
+                  About
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
+          {/* Column 3 — colophon */}
+          <nav aria-label="Colophon">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-white/60">
+              Colophon
+            </h4>
+            <ul className="mt-4 space-y-2 text-sm">
+              <li>
+                <a
+                  href={SITE_REPO_URL}
+                  className={footerLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Fork this blog on GitHub
+                </a>
+              </li>
+              <li>
+                <a href="/feed.xml" className={footerLink}>
+                  RSS feed
+                </a>
+              </li>
+              <li>
+                <Link href="/privacy" className={footerLink}>
+                  Privacy
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="mt-12 border-t border-white/10 pt-8">
+          <p className="text-xs text-white/60">
+            © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js &
+            Contentful · Type set in Fraunces and Inter
+          </p>
         </div>
       </div>
     </footer>
@@ -131,7 +205,7 @@ export default async function RootLayout({
 }) {
   const { isEnabled } = await draftMode();
   return (
-    <html lang={DEFAULT_LOCALE} className={inter.variable}>
+    <html lang={DEFAULT_LOCALE} className={`${inter.variable} ${fraunces.variable}`}>
       <body className="min-h-screen flex flex-col bg-brand-bg">
         <a
           href="#main"

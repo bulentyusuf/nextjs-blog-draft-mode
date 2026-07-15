@@ -38,6 +38,12 @@ const link = (uri: string, value: string) => ({
   content: [text(value)],
 });
 
+const quote = (value: string) => ({
+  nodeType: BLOCKS.QUOTE,
+  data: {},
+  content: [paragraph(value)],
+});
+
 const doc = {
   nodeType: BLOCKS.DOCUMENT,
   data: {},
@@ -110,5 +116,27 @@ describe("body heading handling", () => {
     // Body h1 coalesces to a bare h2; h3 passes through as h3. Neither gets an id.
     expect(html).toContain("<h2>Stray title</h2>");
     expect(html).toContain("<h3>Stray sub</h3>");
+  });
+});
+
+describe("blockquote handling", () => {
+  it("renders BLOCKS.QUOTE as a semantic blockquote pull quote", () => {
+    const quoteDoc = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [quote("The medium is the message.")],
+    } as unknown as Document;
+
+    const quoteContent: Content = {
+      json: quoteDoc,
+      links: { assets: { block: [] } },
+    };
+
+    const html = renderToStaticMarkup(
+      <RichText content={quoteContent} headings={[]} />,
+    );
+
+    expect(html).toContain("<blockquote");
+    expect(html).toContain("The medium is the message.");
   });
 });

@@ -4,6 +4,7 @@
 
 @theme {
   --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
 
   --color-brand-crimson: #A4243B;
   --color-brand-header: #1E3A8A;
@@ -29,6 +30,19 @@
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+/*
+  All top-level headings inherit the display face (Fraunces) sitewide. This is
+  the single mechanism — do not add per-component font-display classes. h4 and
+  below stay in Inter deliberately (footer column labels, small UI headings).
+*/
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
   }
 }
 
