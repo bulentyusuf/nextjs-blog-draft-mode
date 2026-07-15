@@ -73,6 +73,26 @@
 }
 
 @utility prose {
+  /* Map the typography plugin's slate palette to brand tokens (F9). This block
+     already outranks the plugin's own `.prose` variable defaults by source
+     order, so setting the variables here re-tints every prose-inherited style
+     (body, links, bold, bullets, hr, captions, table borders) at once. Code and
+     pre variables are deliberately left unmapped — code blocks keep their
+     neutral idiom. */
+  --tw-prose-body: var(--color-brand-dark);
+  --tw-prose-headings: var(--color-brand-dark);
+  --tw-prose-lead: var(--color-brand-muted);
+  --tw-prose-links: var(--color-brand-crimson);
+  --tw-prose-bold: var(--color-brand-dark);
+  --tw-prose-counters: var(--color-brand-muted);
+  --tw-prose-bullets: var(--color-brand-muted);
+  --tw-prose-hr: color-mix(in srgb, var(--color-brand-dark) 10%, transparent);
+  --tw-prose-quotes: var(--color-brand-dark);
+  --tw-prose-quote-borders: var(--color-brand-crimson);
+  --tw-prose-captions: var(--color-brand-muted);
+  --tw-prose-th-borders: color-mix(in srgb, var(--color-brand-dark) 15%, transparent);
+  --tw-prose-td-borders: color-mix(in srgb, var(--color-brand-dark) 10%, transparent);
+
   /* Body headings inherit the sitewide 600 weight. The typography plugin's
      `.prose :where(h2)` rule (700) outranks the base-layer `h2` rule by
      specificity, so the weight must be reasserted at prose specificity here —
