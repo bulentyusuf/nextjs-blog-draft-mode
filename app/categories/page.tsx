@@ -6,6 +6,7 @@ import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
+import { getBlurDataURL } from "@/lib/blur";
 import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
 
 // How many recent posts to tease under each category. The full list lives on
@@ -50,6 +51,16 @@ export default async function CategoriesPage() {
   );
   const postsBySlug = new Map(previews);
 
+  // One LQIP per category thumbnail, fetched in parallel. Cached by URL, so
+  // this is a one-time cost per asset. Undefined entries fall back to no blur.
+  const blurs = await Promise.all(
+    categories.map(
+      async (c) =>
+        [c.slug, c.thumbnail?.url ? await getBlurDataURL(c.thumbnail.url) : undefined] as const,
+    ),
+  );
+  const blurBySlug = new Map(blurs);
+
   const crumbs: Crumb[] = [
     { label: "Home", href: "/" },
     { label: "Categories" },
@@ -72,6 +83,7 @@ export default async function CategoriesPage() {
         {categories.map((category, index) => {
           const posts = postsBySlug.get(category.slug) ?? [];
           const thumbUrl = category.thumbnail?.url;
+          const blurDataURL = blurBySlug.get(category.slug);
           return (
             <article key={category.slug} className="flex flex-col min-w-0">
               {thumbUrl && (
@@ -84,7 +96,7 @@ export default async function CategoriesPage() {
                     aria-label={category.name}
                     className="group block"
                   >
-                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer">
+                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer bg-brand-dark/5">
                       <ContentfulImage
                         src={thumbUrl}
                         alt=""
@@ -92,14 +104,15 @@ export default async function CategoriesPage() {
                         priority={index === 0}
                         fetchPriority={index === 0 ? "high" : undefined}
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-safe:group-focus-within:scale-[1.03]"
+                        className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-safe:group-focus-within:scale-[1.03] motion-safe:will-change-transform"
+                        {...(blurDataURL ? { placeholder: "blur" as const, blurDataURL } : {})}
                       />
                     </div>
                   </Link>
                 </div>
               )}
 
-              <h2 className="mb-3 text-2xl font-bold leading-snug md:text-3xl">
+              <h2 className="mb-3 text-2xl font-semibold leading-snug md:text-3xl">
                 <Link
                   href={`/categories/${category.slug}`}
                   className="hover:text-brand-crimson transition-colors duration-200"
