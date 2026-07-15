@@ -31,7 +31,7 @@ export default function GlobalError({
           <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">
             Whoops
           </p>
-          <h1 className="mt-4 text-4xl font-semibold text-brand-dark">
+          <h1 className="mt-4 text-4xl text-brand-dark">
             The site hit a wall.
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-brand-dark">

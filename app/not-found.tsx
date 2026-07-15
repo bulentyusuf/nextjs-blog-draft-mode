@@ -53,7 +53,7 @@ export default function NotFound() {
                 <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">
           Whoops
         </p>
-        <h1 className="mt-4 text-4xl lg:text-6xl leading-tight font-semibold">
+        <h1 className="mt-4 text-4xl lg:text-6xl leading-tight">
           404: A gremlin pulled the plug.
         </h1>
 

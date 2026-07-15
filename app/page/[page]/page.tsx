@@ -65,7 +65,7 @@ export default async function IndexPage({
   return (
     <Container>
       <header className="mb-6 md:mb-8">
-        <h1 className="text-5xl font-semibold leading-tight md:text-7xl">
+        <h1 className="text-5xl leading-tight md:text-7xl">
           Latest posts
         </h1>
       </header>

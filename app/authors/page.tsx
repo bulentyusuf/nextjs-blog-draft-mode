@@ -47,7 +47,7 @@ export default async function AuthorsPage() {
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mb-6 md:mb-8">
-        <h1 className="mb-6 text-4xl font-semibold leading-tight md:text-6xl">
+        <h1 className="mb-6 text-4xl leading-tight md:text-6xl">
           Authors
         </h1>
         <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
@@ -73,7 +73,7 @@ export default async function AuthorsPage() {
                   className="rounded-full object-cover h-20 w-20 shrink-0"
                 />
               )}
-              <h2 className="text-2xl font-semibold leading-snug md:text-3xl">
+              <h2 className="text-2xl leading-snug md:text-3xl">
                 <Link
                   href={`/authors/${author.slug}`}
                   className="hover:text-brand-crimson transition-colors duration-200"

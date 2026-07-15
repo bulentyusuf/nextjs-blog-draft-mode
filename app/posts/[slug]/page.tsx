@@ -147,7 +147,7 @@ export default async function PostPage({
       />
       <article className="mx-auto max-w-5xl">
         <Breadcrumb items={crumbs} />
-        <h1 className="mb-8 text-4xl font-semibold leading-tight md:text-6xl">
+        <h1 className="mb-8 text-4xl leading-tight md:text-6xl">
           {post.title}
         </h1>
         {post.coverImage && (
