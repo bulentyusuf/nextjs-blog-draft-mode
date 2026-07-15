@@ -54,6 +54,15 @@
   color: var(--color-brand-bg);
 }
 
+/* Images fade in once loaded (see ContentfulImage). Without JS the load event
+   never fires, so force every image visible for no-JS visitors — important for
+   the forkable template. */
+@media (scripting: none) {
+  img {
+    opacity: 1 !important;
+  }
+}
+
 /*
   Force the TOC panel open at xl+ regardless of the <details> [open] state.
   This lets one component instance serve both mobile (real disclosure) and
