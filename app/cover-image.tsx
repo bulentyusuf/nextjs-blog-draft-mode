@@ -39,7 +39,7 @@ export default async function CoverImage({
       fill
       sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
       className={cn("object-cover", {
-        "motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-safe:group-focus-within:scale-[1.03] motion-safe:will-change-transform":
+        "motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.02] motion-safe:group-focus-within:scale-[1.02] pointer-fine:motion-safe:will-change-transform":
           hover,
       })}
       src={url}
@@ -50,6 +50,7 @@ export default async function CoverImage({
       <div className={cn("relative overflow-hidden bg-brand-dark/5", wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2", {
         "cursor-pointer": slug,
         group: hover,
+        "motion-safe:transform-gpu": hover,
       })}>
         {blurDataURL && (
           <div

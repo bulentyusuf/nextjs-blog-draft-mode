@@ -96,7 +96,7 @@ export default async function CategoriesPage() {
                     aria-label={category.name}
                     className="group block"
                   >
-                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer bg-brand-dark/5">
+                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer bg-brand-dark/5 motion-safe:transform-gpu">
                       {blurDataURL && (
                         <div
                           aria-hidden
@@ -111,7 +111,7 @@ export default async function CategoriesPage() {
                         priority={index === 0}
                         fetchPriority={index === 0 ? "high" : undefined}
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-safe:group-focus-within:scale-[1.03] motion-safe:will-change-transform"
+                        className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.02] motion-safe:group-focus-within:scale-[1.02] pointer-fine:motion-safe:will-change-transform"
                       />
                     </div>
                   </Link>
