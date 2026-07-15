@@ -48,19 +48,23 @@ function HeroPost({
           {" · "}Updated <Date dateString={updatedDate!} />
         </span>
       )}
+      {category && (
+        <>
+          {" · "}
+          <Link
+            href={`/categories/${category.slug}`}
+            className="hover:text-brand-crimson transition-colors duration-200"
+          >
+            {category.name}
+          </Link>
+        </>
+      )}
     </>
   );
 
   return (
     <section className="mx-auto max-w-5xl mb-section">
       <div>
-        {category && (
-          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand-crimson">
-            <Link href={`/categories/${category.slug}`} className="hover:underline">
-              {category.name}
-            </Link>
-          </p>
-        )}
         <h1 className="mb-4 text-5xl md:text-6xl leading-tight font-semibold">
           <Link
             href={`/posts/${slug}`}
