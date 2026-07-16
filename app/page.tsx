@@ -11,6 +11,7 @@ import Pagination from "./pagination";
 
 import { getAllPosts } from "@/lib/api";
 import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
+import { createCoverNamer } from "@/lib/view-transition-name";
 
 export const metadata: Metadata = {
   alternates: { canonical: SITE_URL },
@@ -26,6 +27,7 @@ function HeroPost({
   author,
   slug,
   category,
+  transitionName,
 }: {
   title: string;
   coverImage?: CoverImageType;
@@ -35,6 +37,7 @@ function HeroPost({
   author?: Author;
   slug: string;
   category?: Category;
+  transitionName?: string;
 }) {
   const showUpdated = updatedDate && updatedDate !== date;
 
@@ -93,6 +96,7 @@ function HeroPost({
             url={coverImage.url}
             wide
             priority
+            transitionName={transitionName}
             sizes="(max-width: 768px) 100vw, 1024px"
           />
         </div>
@@ -111,6 +115,11 @@ export default async function Page() {
   const morePosts = allPosts.slice(1, POSTS_PER_PAGE);
   const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
 
+  // One name allocator for the whole page so the hero and the cards below can
+  // never emit the same cover-{slug} twice (a duplicate would invalidate the
+  // entire view transition). First occurrence — the hero — wins.
+  const coverName = createCoverNamer();
+
   return (
     <Container>
       {heroPost && (
@@ -123,9 +132,10 @@ export default async function Page() {
           slug={heroPost.slug}
           excerpt={heroPost.excerpt}
           category={heroPost.category}
+          transitionName={coverName(heroPost.slug)}
         />
       )}
-      <MoreStories morePosts={morePosts} variant="list" heading="Latest posts" />
+      <MoreStories morePosts={morePosts} variant="list" heading="Latest posts" coverName={coverName} />
       <Pagination currentPage={1} totalPages={totalPages} basePath="/" />
     </Container>
   );
