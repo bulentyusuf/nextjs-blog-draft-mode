@@ -28,8 +28,11 @@ export default function CopyButton({
   const variantStyles =
     variant === "dark"
       ? // On the crimson prompt header. In dark mode the lifted crimson fails AA
-        // with white ink, so the button flips to dark ink to match the header.
-        "border border-white/40 bg-white/10 text-white hover:bg-white/20 dark:border-surface-dark/40 dark:bg-surface-dark/10 dark:text-surface-dark dark:hover:bg-surface-dark/20"
+        // with white ink, so the button flips to dark ink. Its fill stays a
+        // LIGHT wash (not a dark tint): darkening the fill would drop the dark
+        // ink below 4.5:1, whereas white/10 lifts the local bg so the ink reads
+        // at 5.8:1 (6.5:1 on hover), well past AA.
+        "border border-white/40 bg-white/10 text-white hover:bg-white/20 dark:border-surface-dark/40 dark:bg-white/10 dark:text-surface-dark dark:hover:bg-white/20"
       : // On the code filename bar / floating over code. Light chrome glares on a
         // dark page, so give it a dark-surface treatment in dark mode.
         "border border-gray-300 bg-white text-gray-600 hover:text-gray-900 dark:border-white/20 dark:bg-white/10 dark:text-brand-dark dark:hover:bg-white/20";
