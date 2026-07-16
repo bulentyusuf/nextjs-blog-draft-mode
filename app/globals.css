@@ -2,6 +2,37 @@
 
 @plugin '@tailwindcss/typography';
 
+/*
+  Opt into CSS-only cross-document view transitions. Navigations here are full
+  document loads, which is exactly what this animates — a card cover morphs into
+  the post hero cover (matched by viewTransitionName, set in cover-image.tsx).
+  Browsers without support navigate instantly, unchanged. No JS, no library.
+*/
+@view-transition {
+  navigation: auto;
+}
+
+/* Keep the morph quick and calm to match the site, and give the root crossfade
+   a shorter beat so it does not linger behind the cover morph. */
+::view-transition-group(*) {
+  animation-duration: 0.35s;
+  animation-timing-function: ease;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+}
+
+/* Honour prefers-reduced-motion: no morph, no root fade — navigation is
+   instant for users who opt out. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 @theme {
   --font-sans: var(--font-inter);
   --font-display: var(--font-fraunces);
