@@ -27,20 +27,23 @@ export default function CopyButton({
 
   const variantStyles =
     variant === "dark"
-      ? // On the crimson prompt header. In dark mode the lifted crimson fails AA
-        // with white ink, so the button flips to dark ink on a light wash fill
-        // (white/10 keeps the ink at 5.8:1, 6.5:1 on hover). The dark edge is
-        // raised to surface-dark/70 so the boundary clears 3:1 vs the crimson
-        // bar; the fill lightens on hover so the control gains prominence.
-        "border border-white/40 bg-white/10 text-white hover:bg-white/20 dark:border-surface-dark/70 dark:bg-white/10 dark:text-surface-dark dark:hover:bg-white/20"
-      : // On the code filename bar / floating over code. Light chrome glares on a
-        // dark page, so give it a dark-surface treatment in dark mode. The edge
-        // is white/40 (3.8:1 vs the bar, clears the 3:1 control-boundary target)
-        // and hover BRIGHTENS it — lighter border and fill — so interacting adds
-        // prominence. dark:hover:text-brand-dark pins the ink light on hover,
+      ? // On the crimson prompt header. In light mode the white edge is raised to
+        // white/60 (3.5:1 vs the crimson bar, clears the 3:1 control-boundary
+        // target) and strengthens to white/80 on hover. In dark mode the lifted
+        // crimson fails AA with white ink, so the button flips to dark ink on a
+        // light wash fill (white/10 keeps the ink at 5.8:1, 6.5:1 on hover) with
+        // a surface-dark/70 edge (3.2:1 vs the bar); the dark hover edge is pinned
+        // so the light hover:border-white/80 does not leak into dark mode.
+        "border border-white/60 bg-white/10 text-white hover:border-white/80 hover:bg-white/20 dark:border-surface-dark/70 dark:bg-white/10 dark:text-surface-dark dark:hover:border-surface-dark/70 dark:hover:bg-white/20"
+      : // On the code filename bar / floating over code. In light mode the edge is
+        // gray-500 (4.6:1 vs the gray-50 bar, 3.4:1 vs the dark code when floating,
+        // both clear the 3:1 control-boundary target) and darkens to gray-600 on
+        // hover. In dark mode it gets a dark-surface treatment: a white/40 edge
+        // (3.8:1 vs the bar) that BRIGHTENS to white/60 on hover so interacting
+        // adds prominence. dark:hover:text-brand-dark pins the ink light on hover,
         // overriding the light-mode hover:text-gray-900 that would otherwise
         // darken it and make the control recede.
-        "border border-gray-300 bg-white text-gray-600 hover:text-gray-900 dark:border-white/40 dark:bg-white/10 dark:text-brand-dark dark:hover:border-white/60 dark:hover:bg-white/20 dark:hover:text-brand-dark";
+        "border border-gray-500 bg-white text-gray-600 hover:border-gray-600 hover:text-gray-900 dark:border-white/40 dark:bg-white/10 dark:text-brand-dark dark:hover:border-white/60 dark:hover:bg-white/20 dark:hover:text-brand-dark";
 
   return (
     <>
