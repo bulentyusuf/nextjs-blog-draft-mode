@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { draftMode } from "next/headers";
-import ContentfulImage from "@/lib/contentful-image";
+import CoverImage from "../cover-image";
 import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
-import { getBlurDataURL } from "@/lib/blur";
 import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
 
 // How many recent posts to tease under each category. The full list lives on
@@ -51,16 +50,6 @@ export default async function CategoriesPage() {
   );
   const postsBySlug = new Map(previews);
 
-  // One LQIP per category thumbnail, fetched in parallel. Cached by URL, so
-  // this is a one-time cost per asset. Undefined entries fall back to no blur.
-  const blurs = await Promise.all(
-    categories.map(
-      async (c) =>
-        [c.slug, c.thumbnail?.url ? await getBlurDataURL(c.thumbnail.url) : undefined] as const,
-    ),
-  );
-  const blurBySlug = new Map(blurs);
-
   const crumbs: Crumb[] = [
     { label: "Home", href: "/" },
     { label: "Categories" },
@@ -83,38 +72,23 @@ export default async function CategoriesPage() {
         {categories.map((category, index) => {
           const posts = postsBySlug.get(category.slug) ?? [];
           const thumbUrl = category.thumbnail?.url;
-          const blurDataURL = blurBySlug.get(category.slug);
           return (
             <article key={category.slug} className="flex flex-col min-w-0">
               {thumbUrl && (
-                // Decorative: the heading below carries the category name, so
-                // alt is intentionally empty. The link gets an aria-label so it
-                // is not announced as an unlabelled link.
-                <div className="mb-5 shadow-lg">
-                  <Link
+                // Thumbnails render through the shared CoverImage so they inherit
+                // its frame (border, blur underlay, shadow, aspect) rather than
+                // duplicating it. Deliberately NOT previews of the cover morph:
+                // no `hover` zoom, no `transitionName`, no `wide`. alt is empty
+                // (the heading names the category); CoverImage sets aria-label
+                // from `title` on the link so it is not announced unlabelled.
+                <div className="mb-5">
+                  <CoverImage
+                    title={category.name}
+                    url={thumbUrl}
                     href={`/categories/${category.slug}`}
-                    aria-label={category.name}
-                    className="group block"
-                  >
-                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer bg-brand-dark/5 dark:border dark:border-brand-dark/12">
-                      {blurDataURL && (
-                        <div
-                          aria-hidden
-                          className="absolute inset-0 bg-cover bg-center"
-                          style={{ backgroundImage: `url(${blurDataURL})` }}
-                        />
-                      )}
-                      <ContentfulImage
-                        src={thumbUrl}
-                        alt=""
-                        fill
-                        priority={index === 0}
-                        fetchPriority={index === 0 ? "high" : undefined}
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover"
-                      />
-                    </div>
-                  </Link>
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority={index === 0}
+                  />
                 </div>
               )}
 
