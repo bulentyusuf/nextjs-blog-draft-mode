@@ -96,7 +96,7 @@ export default async function CategoriesPage() {
                     aria-label={category.name}
                     className="group block"
                   >
-                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer bg-brand-dark/5">
+                    <div className="relative aspect-3/2 overflow-hidden cursor-pointer bg-brand-dark/5 dark:border dark:border-brand-dark/12">
                       {blurDataURL && (
                         <div
                           aria-hidden
