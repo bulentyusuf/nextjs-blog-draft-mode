@@ -57,7 +57,7 @@ export default async function CoverImage({
       className="shadow-lg sm:mx-0"
       style={transitionName ? { viewTransitionName: transitionName } : undefined}
     >
-      <div className={cn("relative overflow-hidden bg-brand-dark/5 dark:ring-1 dark:ring-inset dark:ring-brand-dark/15", wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2", {
+      <div className={cn("relative overflow-hidden bg-brand-dark/5 dark:border dark:border-brand-dark/12", wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2", {
         "cursor-pointer": slug,
         group: hover,
         "motion-safe:transform-gpu": hover,

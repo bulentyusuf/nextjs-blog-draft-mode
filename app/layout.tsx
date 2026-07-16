@@ -115,7 +115,7 @@ async function Footer() {
   const showCategoryList = !categoriesFailed && categories.length > 0;
 
   return (
-    <footer className="bg-surface-dark text-white">
+    <footer className="bg-footer-bg text-white">
       <div className="max-w-5xl mx-auto px-5 py-16">
         <div className="grid gap-8 md:grid-cols-[2fr_1fr_1fr] md:gap-12">
           {/* Column 1 — masthead + blurb */}
