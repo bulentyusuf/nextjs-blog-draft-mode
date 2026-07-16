@@ -7,6 +7,7 @@ export default async function CoverImage({
   title,
   url,
   slug,
+  href,
   sizes,
   wide,
   priority = false,
@@ -16,6 +17,10 @@ export default async function CoverImage({
   title: string;
   url: string;
   slug?: string;
+  // Link destination override. When omitted, a `slug` links to /posts/${slug}
+  // (the default for post covers and cards). Pass `href` to point the cover
+  // elsewhere — e.g. the categories thumbnails link to /categories/${slug}.
+  href?: string;
   sizes?: string;
   // When true, the image is 3:2 on mobile and 16:9 on desktop (md+).
   // Used only by the post hero. Omitted everywhere else (cards stay 3:2).
@@ -38,6 +43,9 @@ export default async function CoverImage({
   // full colour wash from first paint rather than a stark void. Undefined when
   // the fetch fails — the bg-brand-dark/5 tint on the wrapper is the fallback.
   const blurDataURL = await getBlurDataURL(url);
+  // Prefer an explicit href; otherwise fall back to the post route for a slug.
+  // The frame is a link (with pointer cursor) whenever either is present.
+  const linkHref = href ?? (slug ? `/posts/${slug}` : undefined);
   const image = (
     <ContentfulImage
       alt=""
@@ -58,7 +66,7 @@ export default async function CoverImage({
       style={transitionName ? { viewTransitionName: transitionName } : undefined}
     >
       <div className={cn("relative overflow-hidden bg-brand-dark/5 dark:border dark:border-brand-dark/12", wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2", {
-        "cursor-pointer": slug,
+        "cursor-pointer": linkHref,
         group: hover,
         "motion-safe:transform-gpu": hover,
       })}>
@@ -69,8 +77,8 @@ export default async function CoverImage({
             style={{ backgroundImage: `url(${blurDataURL})` }}
           />
         )}
-        {slug ? (
-          <Link href={`/posts/${slug}`} aria-label={title} className="block h-full">
+        {linkHref ? (
+          <Link href={linkHref} aria-label={title} className="block h-full">
             {image}
           </Link>
         ) : (
