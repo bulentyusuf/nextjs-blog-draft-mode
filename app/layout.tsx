@@ -212,7 +212,7 @@ export default async function RootLayout({
   const { isEnabled } = await draftMode();
   return (
     <html lang={DEFAULT_LOCALE} className={`${inter.variable} ${fraunces.variable}`}>
-      <body className="min-h-screen flex flex-col bg-brand-bg">
+      <body className="min-h-screen flex flex-col bg-brand-bg text-brand-dark">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-brand-header focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
