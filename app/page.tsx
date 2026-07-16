@@ -135,7 +135,7 @@ export default async function Page() {
           transitionName={coverName(heroPost.slug)}
         />
       )}
-      <MoreStories morePosts={morePosts} variant="list" heading="Latest posts" coverName={coverName} />
+      <MoreStories morePosts={morePosts} variant="list" heading="Latest Posts" coverName={coverName} />
       <Pagination currentPage={1} totalPages={totalPages} basePath="/" />
     </Container>
   );
