@@ -6,7 +6,7 @@ import {
 } from "@/lib/api";
 import { SITE_URL } from "@/lib/constants";
 import { escapeXml } from "@/lib/xml";
-import type { Post } from "@/lib/types";
+import type { ListPost } from "@/lib/types";
 
 // Served at /sitemap.xml via a rewrite in next.config.js. This handler lives on
 // an ordinary path (/sitemap-xml) on purpose. Next treats the reserved
@@ -39,7 +39,7 @@ export async function GET() {
     getAllAuthors(false),
   ]);
 
-  const postDate = (post: Post): Date =>
+  const postDate = (post: ListPost): Date =>
     new Date(post.updatedDate ?? post.date);
 
   // getAllPosts orders date_DESC, so posts[0] is the freshest sitewide entry.

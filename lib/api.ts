@@ -1,6 +1,8 @@
 import type {
   Post,
   PostCollectionResponse,
+  ListPost,
+  ListPostCollectionResponse,
   CardPost,
   CardPostCollectionResponse,
   Page,
@@ -98,6 +100,36 @@ const CARD_GRAPHQL_FIELDS = `
   excerpt
 `;
 
+// Listing fragment for getAllPosts. It is the union of fields the sitewide
+// listing consumers actually render — the home hero + cards, pagination, the RSS
+// feed, and the sitemap — which is everything in POST_GRAPHQL_FIELDS minus the
+// two heavy branches none of them read: the full rich-text `content` (body JSON
+// plus every embedded asset and CodeBlock source) and the author `bio`. Omitting
+// them keeps the entire body text of every post out of the home/feed/sitemap ISR
+// cache entries. Posts returned with this fragment are partial: `content` and
+// `author.bio` are absent. The per-post detail page uses POST_GRAPHQL_FIELDS.
+const LIST_GRAPHQL_FIELDS = `
+  slug
+  title
+  coverImage {
+    url
+  }
+  date
+  updatedDate
+  author {
+    name
+    slug
+    picture {
+      url
+    }
+  }
+  excerpt
+  category {
+    name
+    slug
+  }
+`;
+
 const PAGE_GRAPHQL_FIELDS = `
   slug
   title
@@ -159,20 +191,16 @@ function extractPost(fetchResponse: PostCollectionResponse): Post | undefined {
   return fetchResponse?.data?.postCollection?.items?.[0];
 }
 
-function extractPostEntries(fetchResponse: PostCollectionResponse): Post[] {
-  return fetchResponse?.data?.postCollection?.items ?? [];
-}
-
 function extractCardEntries(fetchResponse: CardPostCollectionResponse): CardPost[] {
   return fetchResponse?.data?.postCollection?.items ?? [];
 }
 
-export async function getAllPosts(isDraftMode = false): Promise<Post[]> {
-  const entries = await fetchGraphQL<PostCollectionResponse>(
+export async function getAllPosts(isDraftMode = false): Promise<ListPost[]> {
+  const entries = await fetchGraphQL<ListPostCollectionResponse>(
     `query GetAllPosts($preview: Boolean) {
       postCollection(where: { slug_exists: true }, order: date_DESC, preview: $preview) {
         items {
-          ${POST_GRAPHQL_FIELDS}
+          ${LIST_GRAPHQL_FIELDS}
         }
       }
     }`,
@@ -180,7 +208,7 @@ export async function getAllPosts(isDraftMode = false): Promise<Post[]> {
     { preview: isDraftMode },
   );
 
-  return extractPostEntries(entries);
+  return entries?.data?.postCollection?.items ?? [];
 }
 
 export async function getPostAndMorePosts(
