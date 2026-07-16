@@ -1,5 +1,10 @@
 import { writeFileSync } from "node:fs";
 
+// The seed uses en-US as its locale key deliberately: it is the default locale
+// of a fresh, unconfigured Contentful space, which is what a forker imports
+// into. This is independent of any downstream locale rename a forker may do
+// later (e.g. to en-GB); the import targets the space's default locale. Do not
+// change this key.
 const L = "en-US";
 const loc = (v) => ({ [L]: v });
 const link = (id, linkType = "Entry") => ({ sys: { type: "Link", linkType, id } });
@@ -11,6 +16,11 @@ const text = (value) => ({ nodeType: "text", value, marks: [], data: {} });
 const paragraph = (...kids) => ({ nodeType: "paragraph", data: {}, content: kids });
 const heading2 = (value) => ({ nodeType: "heading-2", data: {}, content: [text(value)] });
 const embed = (id) => ({ nodeType: "embedded-entry-block", data: { target: link(id) }, content: [] });
+// A pull quote: BLOCKS.QUOTE must wrap a paragraph, not raw text.
+const quote = (value) => ({ nodeType: "blockquote", data: {}, content: [paragraph(text(value))] });
+// A wide inline figure. Unlike embed() (an embedded ENTRY), this links an
+// ASSET, so linkType must be "Asset".
+const embedAsset = (id) => ({ nodeType: "embedded-asset-block", data: { target: link(id, "Asset") }, content: [] });
 const doc = (...content) => ({ nodeType: "document", data: {}, content });
 
 // publishedVersion makes contentful-import publish the entity. Verify after import.
@@ -84,8 +94,10 @@ const entries = [
     content: loc(
       doc(
         paragraph(text(LOREM)),
+        quote("A pull quote lifts a single line out of the flow and gives it room to breathe."),
         heading2("Background"),
         paragraph(text(LOREM2)),
+        embedAsset("placeholder-image"),
         heading2("A code block"),
         paragraph(text(LOREM)),
         embed("code-example"),
@@ -105,6 +117,7 @@ const entries = [
     content: loc(
       doc(
         paragraph(text(LOREM2)),
+        embedAsset("placeholder-image"),
         heading2("A prompt block follows"),
         paragraph(text(LOREM)),
         embed("prompt-example")
