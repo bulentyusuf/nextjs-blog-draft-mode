@@ -36,6 +36,11 @@ export const AUTHOR_EMAIL = `contact@${SITE_HOSTNAME}`;
 // keep both at #1E3A8A (CSS @theme cannot import from TS).
 export const BRAND_HEADER_COLOR = "#1E3A8A";
 
+// Dark-scheme header band, used for the scheme-aware viewport themeColor so the
+// mobile address bar matches the header in dark mode. CSS twin is the
+// --color-brand-header override under prefers-color-scheme: dark in globals.css.
+export const BRAND_HEADER_COLOR_DARK = "#2E4A9E";
+
 // BCP-47 default locale for html lang and hreflang. Matches the renamed
 // Contentful default locale (en-GB). Phase 1 localisation makes this per-route.
 export const DEFAULT_LOCALE = "en-GB";
