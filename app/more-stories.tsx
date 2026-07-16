@@ -2,6 +2,7 @@ import Link from "next/link";
 import DateComponent from "./date";
 import CoverImage from "./cover-image";
 import type { CardPost, CoverImage as CoverImageType } from "@/lib/types";
+import { createCoverNamer } from "@/lib/view-transition-name";
 
 type Variant = "grid" | "list";
 
@@ -14,6 +15,7 @@ function PostPreview({
   variant,
   priority = false,
   as = "h3",
+  transitionName,
 }: {
   title: string;
   coverImage?: CoverImageType;
@@ -23,6 +25,7 @@ function PostPreview({
   variant: Variant;
   priority?: boolean;
   as?: "h2" | "h3";
+  transitionName?: string;
 }) {
   const Heading = as;
 
@@ -37,6 +40,7 @@ function PostPreview({
               url={coverImage.url}
               priority={priority}
               hover
+              transitionName={transitionName}
               sizes="(max-width: 768px) 100vw, 40vw"
             />
           </div>
@@ -69,6 +73,7 @@ function PostPreview({
             url={coverImage.url}
             priority={priority}
             hover
+            transitionName={transitionName}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 450px"
           />
         </div>
@@ -94,6 +99,7 @@ export default function MoreStories({
   variant = "list",
   heading,
   priorityFirst = false,
+  coverName = createCoverNamer(),
 }: {
   morePosts: CardPost[];
   variant?: Variant;
@@ -102,6 +108,11 @@ export default function MoreStories({
   // heroless listing pages (index page 2+, category pages) where that image is
   // the LCP. Leave false where a hero already owns priority (index page 1).
   priorityFirst?: boolean;
+  // Per-render view-transition-name allocator. Pages with a hero pass their own
+  // namer so the hero and any repeated card share one name only once (see
+  // lib/view-transition-name.ts). Standalone listings get a fresh namer by
+  // default, which is enough to dedupe within this list.
+  coverName?: (slug: string) => string | undefined;
 }) {
   const container =
     variant === "list"
@@ -132,6 +143,7 @@ export default function MoreStories({
             variant={variant}
             priority={priorityFirst && i === 0}
             as={titleAs}
+            transitionName={coverName(post.slug)}
           />
         ))}
       </div>

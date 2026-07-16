@@ -157,6 +157,7 @@ export default async function PostPage({
               url={post.coverImage.url}
               wide
               priority
+              transitionName={`cover-${post.slug}`}
               sizes="(max-width: 768px) 100vw, 1024px"
             />
           </div>
