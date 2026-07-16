@@ -294,6 +294,24 @@
                 ]
               },
               {
+                "nodeType": "blockquote",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "paragraph",
+                    "data": {},
+                    "content": [
+                      {
+                        "nodeType": "text",
+                        "value": "A pull quote lifts a single line out of the flow and gives it room to breathe.",
+                        "marks": [],
+                        "data": {}
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
                 "nodeType": "heading-2",
                 "data": {},
                 "content": [
@@ -316,6 +334,19 @@
                     "data": {}
                   }
                 ]
+              },
+              {
+                "nodeType": "embedded-asset-block",
+                "data": {
+                  "target": {
+                    "sys": {
+                      "type": "Link",
+                      "linkType": "Asset",
+                      "id": "placeholder-image"
+                    }
+                  }
+                },
+                "content": []
               },
               {
                 "nodeType": "heading-2",
@@ -452,6 +483,19 @@
                     "data": {}
                   }
                 ]
+              },
+              {
+                "nodeType": "embedded-asset-block",
+                "data": {
+                  "target": {
+                    "sys": {
+                      "type": "Link",
+                      "linkType": "Asset",
+                      "id": "placeholder-image"
+                    }
+                  }
+                },
+                "content": []
               },
               {
                 "nodeType": "heading-2",
