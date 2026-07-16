@@ -36,11 +36,16 @@ export default function ContentfulImage({
   onLoad,
   ...props
 }: ContentfulImageProps) {
-  // Hold the image invisible until its bitmap is genuinely ready, then crossfade
-  // in. The blur underlay (rendered by the caller) shows through until then, so
-  // there is never a white frame. The `@media (scripting: none)` rule in
-  // globals.css forces img opacity to 1, keeping images visible without JS.
-  const [loaded, setLoaded] = useState(false);
+  // Reveal the image only once its bitmap is genuinely ready; the blur underlay
+  // (rendered by the caller) shows through during the brief 'pending' window, so
+  // there is never a white frame. The 300ms fade runs only for the network path
+  // — cached images that are already complete at hydration reveal instantly, no
+  // fade theatre. The `@media (scripting: none)` rule in globals.css forces img
+  // opacity to 1, keeping images visible without JS.
+  //   'pending' = not yet shown (blur underlay visible)
+  //   'instant' = already complete at hydration (cached) -> show with no fade
+  //   'fade'    = arrived over the network -> crossfade in
+  const [reveal, setReveal] = useState<"pending" | "instant" | "fade">("pending");
 
   return (
     <Image
@@ -48,15 +53,16 @@ export default function ContentfulImage({
       {...props}
       className={cn(
         className,
-        "transition-opacity duration-300",
-        loaded ? "opacity-100" : "opacity-0",
+        reveal === "fade" && "transition-opacity duration-300",
+        reveal === "pending" ? "opacity-0" : "opacity-100",
       )}
-      // Covers the warm-cache case where the load event may never fire.
+      // Cached case: complete at mount, reveal with no fade theatre.
       ref={(img) => {
-        if (img?.complete) setLoaded(true);
+        if (img?.complete) setReveal((r) => (r === "pending" ? "instant" : r));
       }}
+      // Network case: only fade if we had not already revealed instantly.
       onLoad={(event) => {
-        setLoaded(true);
+        setReveal((r) => (r === "pending" ? "fade" : r));
         onLoad?.(event);
       }}
     />
