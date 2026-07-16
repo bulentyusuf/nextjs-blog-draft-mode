@@ -147,9 +147,9 @@ export function RichText({
           const html = highlighted?.get(id);
 
           return (
-            <div className="not-prose relative my-8 overflow-hidden rounded-lg border border-gray-200">
+            <div className="not-prose relative my-8 overflow-hidden rounded-lg border border-gray-200 dark:border-white/10">
               {entry.filename ? (
-                <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-brand-muted">
+                <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-brand-muted dark:border-white/10 dark:bg-white/5">
                   <span>{entry.filename}</span>
                   <CopyButton code={entry.code} />
                 </div>
@@ -182,14 +182,16 @@ export function RichText({
 
         if (entry.__typename === "PromptBlock") {
           return (
-            <div className="not-prose my-8 overflow-hidden rounded-lg border border-gray-200">
-              <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 font-mono text-xs text-white">
+            <div className="not-prose my-8 overflow-hidden rounded-lg border border-gray-200 dark:border-white/10">
+              {/* In dark mode brand-crimson lifts (for link legibility); white
+                  text on the lifted hue fails AA, so the header ink goes dark. */}
+              <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 font-mono text-xs text-white dark:text-surface-dark">
                 <span className="min-w-0 flex-1 truncate">
                   {entry.label || "Prompt"}
                 </span>
                 <CopyButton code={entry.prompt} label="prompt" variant="dark" />
               </div>
-              <div className="flow-root whitespace-pre-wrap break-words bg-gray-50 p-4 font-mono text-sm text-gray-800">
+              <div className="flow-root whitespace-pre-wrap break-words bg-gray-50 p-4 font-mono text-sm text-gray-800 dark:bg-white/5 dark:text-brand-dark">
                 {entry.image?.url && (
                   <span
                     aria-hidden="true"

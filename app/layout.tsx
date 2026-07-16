@@ -2,7 +2,7 @@ import "./globals.css";
 import { Inter, Fraunces } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, SITE_FOOTER_BLURB, BRAND_HEADER_COLOR, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, SITE_FOOTER_BLURB, BRAND_HEADER_COLOR, BRAND_HEADER_COLOR_DARK, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import { getAllCategories } from "@/lib/api";
 import type { Category } from "@/lib/types";
 import BackToTop from "./back-to-top";
@@ -48,7 +48,13 @@ export const metadata = {
   },
 };
 export const viewport = {
-  themeColor: BRAND_HEADER_COLOR,
+  // Scheme-aware so the mobile address bar matches the header band in both
+  // modes. colorScheme lets the UA theme native controls and scrollbars.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: BRAND_HEADER_COLOR },
+    { media: "(prefers-color-scheme: dark)", color: BRAND_HEADER_COLOR_DARK },
+  ],
+  colorScheme: "light dark",
   width: "device-width",
   initialScale: 1,
 };
@@ -109,7 +115,7 @@ async function Footer() {
   const showCategoryList = !categoriesFailed && categories.length > 0;
 
   return (
-    <footer className="bg-brand-dark text-white">
+    <footer className="bg-footer-bg text-white">
       <div className="max-w-5xl mx-auto px-5 py-16">
         <div className="grid gap-8 md:grid-cols-[2fr_1fr_1fr] md:gap-12">
           {/* Column 1 — masthead + blurb */}

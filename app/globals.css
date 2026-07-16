@@ -43,7 +43,46 @@
   --color-brand-bg: #FAF5F1;
   --color-brand-muted: #6B5A52;
 
+  /* Always-dark surface, in BOTH schemes. brand-dark doubles as body ink and,
+     historically, as dark chrome; because ink must invert in dark mode (below),
+     chrome that must STAY dark — the back-to-top button, and the dark ink used
+     on the lifted-crimson prompt header — points here instead so it never flips
+     to light. Deliberately excluded from the dark override. */
+  --color-surface-dark: #241B1D;
+
+  /* Footer band. In light mode it equals surface-dark (#241B1D on the light
+     page). It gets its OWN token because dark mode raises it (below) for band
+     separation, whereas surface-dark must stay put to keep the on-crimson ink
+     contrast — the two roles diverge in dark mode. */
+  --color-footer-bg: #241B1D;
+
   --spacing-section: 6rem;
+}
+
+/*
+  Dark mode follows the OS via prefers-color-scheme — no toggle, no class, no
+  persisted preference, so the browser applies it before first paint and there
+  is no flash. We keep every --color-brand-* NAME and only swap its VALUE here,
+  so no utility class in any component changes. Values are tuned to WCAG AA on
+  their real usage (body ink 15.7:1, meta 7.8:1, links 5.6:1 on the dark bg);
+  accents are lifted because the light hexes fail on a dark background. The
+  light values above are byte-identical to production and untouched.
+*/
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-brand-bg: #17110F;      /* warm near-black page (not pure #000) */
+    --color-brand-dark: #F2EAE4;    /* warm off-white ink */
+    --color-brand-muted: #B3A49C;   /* lifted so meta text keeps AA on dark */
+    --color-brand-crimson: #E0667A; /* lifted so links stay vivid + AA on dark */
+    --color-brand-header: #2E4A9E;  /* lifted so the bar reads distinct from page */
+
+    /* Raise the footer band so it reads as distinct above the page. Pinned to
+       surface-dark (#241B1D) it sat at only 1.11:1 vs the #17110F page and
+       dissolved into it; #2E2420 clears the ~1.2 separation threshold (1.24:1)
+       while footer white/60 text stays at 6.3:1. In light mode the footer is
+       darker than the page to stand out; in dark mode it must be lighter. */
+    --color-footer-bg: #2E2420;
+  }
 }
 
 /*
