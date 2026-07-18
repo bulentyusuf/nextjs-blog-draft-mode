@@ -87,9 +87,9 @@ export default async function ArchivePage() {
                 {yearPosts.map((post) => (
                   <li
                     key={post.slug}
-                    className="group relative flex flex-col gap-y-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-6"
+                    className="group flex flex-col gap-y-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-6"
                   >
-                    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span className="relative flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <Link
                         href={`/posts/${post.slug}`}
                         className="hover:text-brand-crimson transition-colors duration-200"
@@ -101,25 +101,25 @@ export default async function ArchivePage() {
                           {post.category.name}
                         </span>
                       )}
+                      {post.coverImage && (
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute bottom-full left-0 z-10 mb-2 hidden w-60 overflow-hidden rounded-lg shadow-lg group-focus-within:block pointer-fine:group-hover:block"
+                        >
+                          <ContentfulImage
+                            alt=""
+                            src={post.coverImage.url}
+                            width={240}
+                            height={135}
+                            sizes="240px"
+                            className="block h-auto w-full"
+                          />
+                        </span>
+                      )}
                     </span>
                     <span className="shrink-0 text-sm tabular-nums text-brand-muted sm:text-right">
                       <DateComponent dateString={post.date} formatString="d MMM" />
                     </span>
-                    {post.coverImage && (
-                      <span
-                        aria-hidden="true"
-                        className="pointer-events-none absolute bottom-full right-0 z-10 mb-3 hidden w-60 overflow-hidden rounded-lg shadow-lg group-focus-within:block pointer-fine:group-hover:block"
-                      >
-                        <ContentfulImage
-                          alt=""
-                          src={post.coverImage.url}
-                          width={240}
-                          height={135}
-                          sizes="240px"
-                          className="block h-auto w-full"
-                        />
-                      </span>
-                    )}
                   </li>
                 ))}
               </ul>
