@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { draftMode } from "next/headers";
+import { format } from "date-fns";
+import { enGB } from "date-fns/locale";
 import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
+import ContentfulImage from "@/lib/contentful-image";
 import { getAllPosts } from "@/lib/api";
 import type { ListPost } from "@/lib/types";
 import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
@@ -45,46 +48,84 @@ export default async function ArchivePage() {
   }
   const years = [...byYear.keys()].sort((a, b) => b - a); // newest year first
 
+  // Oldest post anchors the header strapline. posts is date_DESC, so it is
+  // the final item.
+  const oldest = posts.length > 0 ? posts[posts.length - 1] : undefined;
+
   const crumbs: Crumb[] = [{ label: "Home", href: "/" }, { label: "Archive" }];
 
   return (
     <Container>
       <Breadcrumb items={crumbs} />
-      <header className="mb-6 md:mb-8">
+      <header className="mb-8 md:mb-10">
         <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
           Archive
         </h1>
-        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
-          Every post, oldest to newest.
-        </p>
+        {oldest && (
+          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
+            {posts.length} {posts.length === 1 ? "post" : "posts"} since{" "}
+            {format(new Date(oldest.date), "LLLL yyyy", { locale: enGB })},
+            newest first.
+          </p>
+        )}
       </header>
 
       {years.length === 0 ? (
         <p className="text-lg text-brand-muted">No posts yet.</p>
       ) : (
-        years.map((year) => (
-          <section key={year} className="mb-10 last:mb-0">
-            <h2 className="mb-4 text-2xl">{year}</h2>
-            <ul className="space-y-3">
-              {byYear.get(year)!.map((post) => (
-                <li
-                  key={post.slug}
-                  className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3"
-                >
-                  <Link
-                    href={`/posts/${post.slug}`}
-                    className="hover:text-brand-crimson transition-colors duration-200"
+        years.map((year) => {
+          const yearPosts = byYear.get(year)!;
+          return (
+            <section key={year} className="mb-12 last:mb-0">
+              <h2 className="mb-5 flex items-baseline gap-x-4 text-5xl text-brand-muted md:text-6xl">
+                {year}
+                <span className="font-sans text-sm font-normal text-brand-muted">
+                  {yearPosts.length} {yearPosts.length === 1 ? "post" : "posts"}
+                </span>
+              </h2>
+              <ul className="space-y-3">
+                {yearPosts.map((post) => (
+                  <li
+                    key={post.slug}
+                    className="group relative flex flex-col gap-y-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-6"
                   >
-                    {post.title}
-                  </Link>
-                  <span className="shrink-0 text-sm text-brand-muted">
-                    <DateComponent dateString={post.date} />
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))
+                    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <Link
+                        href={`/posts/${post.slug}`}
+                        className="hover:text-brand-crimson transition-colors duration-200"
+                      >
+                        {post.title}
+                      </Link>
+                      {post.category && (
+                        <span className="text-xs uppercase tracking-wide text-brand-muted">
+                          {post.category.name}
+                        </span>
+                      )}
+                    </span>
+                    <span className="shrink-0 text-sm tabular-nums text-brand-muted sm:text-right">
+                      <DateComponent dateString={post.date} formatString="d MMM" />
+                    </span>
+                    {post.coverImage && (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute bottom-full right-0 z-10 mb-3 hidden w-60 overflow-hidden rounded-lg shadow-lg group-focus-within:block pointer-fine:group-hover:block"
+                      >
+                        <ContentfulImage
+                          alt=""
+                          src={post.coverImage.url}
+                          width={240}
+                          height={135}
+                          sizes="240px"
+                          className="block h-auto w-full"
+                        />
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })
       )}
     </Container>
   );
