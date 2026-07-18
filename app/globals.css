@@ -56,7 +56,7 @@
      contrast — the two roles diverge in dark mode. */
   --color-footer-bg: #241B1D;
 
-  --spacing-section: 6rem;
+  --spacing-section: 4rem;
 }
 
 /*
@@ -113,7 +113,7 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 600;
+    font-weight: 650;
   }
 }
 
@@ -177,7 +177,7 @@
      specificity, so the weight must be reasserted at prose specificity here —
      the same override channel the code styling below uses. */
   & :where(h1, h2, h3):not(:where([class~='not-prose'] *)) {
-    font-weight: 600;
+    font-weight: 650;
   }
   & :where(code):not(:where([class~='not-prose'] *)) {
     font-family:
