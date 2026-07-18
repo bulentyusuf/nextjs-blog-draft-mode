@@ -156,6 +156,11 @@ async function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/archive" className={footerLink}>
+                  Archive
+                </Link>
+              </li>
+              <li>
                 <Link href="/about" className={footerLink}>
                   About
                 </Link>
