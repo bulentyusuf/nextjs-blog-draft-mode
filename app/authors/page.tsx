@@ -47,7 +47,7 @@ export default async function AuthorsPage() {
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mb-6 md:mb-8">
-        <h1 className="mb-6 text-4xl leading-tight md:text-5xl lg:text-6xl">
+        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
           Authors
         </h1>
         <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
