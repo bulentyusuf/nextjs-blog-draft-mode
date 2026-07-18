@@ -72,7 +72,7 @@ function Header() {
     <header className="sticky top-0 z-50 w-full bg-brand-header shadow-xs">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-3">
-          <Link href="/" className="font-display text-lg font-semibold text-white">
+          <Link href="/" className="font-display text-lg font-[650] text-white">
             {SITE_TITLE}
           </Link>
           <p className="hidden lg:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
@@ -107,7 +107,7 @@ function Footer() {
         <div className="grid gap-8 md:grid-cols-[2fr_1fr_1fr] md:gap-12">
           {/* Column 1 — masthead + blurb */}
           <div>
-            <p className="font-display text-2xl font-semibold text-white">
+            <p className="font-display text-2xl font-[650] text-white">
               {SITE_TITLE}
             </p>
             <p className="mt-3 max-w-sm text-sm text-white/80">
