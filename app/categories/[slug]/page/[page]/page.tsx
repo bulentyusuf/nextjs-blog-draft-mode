@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import Container from "../../../../container";
 import MoreStories from "../../../../more-stories";
 import Pagination from "../../../../pagination";
+import PageContext from "../../../../page-context";
 import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
 import { getAllCategories, getCategoryBySlug, getPostsByCategory } from "@/lib/api";
 import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
@@ -39,7 +40,7 @@ export async function generateMetadata({
     return { title: "Category not found" };
   }
 
-  const title = `${category.name}, page ${page}`;
+  const title = `${category.name}, Page ${page}`;
   const description = category.description || `Posts in ${category.name} on ${SITE_TITLE}`;
   const canonical = `${SITE_URL}/categories/${slug}/page/${page}`;
 
@@ -108,11 +109,12 @@ export default async function CategoryPaginatedPage({
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <h1 className="mb-6 text-4xl leading-tight md:text-5xl lg:text-6xl">
+        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl">
           {category.name}
         </h1>
+        <PageContext currentPage={pageNumber} totalPages={totalPages} />
         {category.description && (
-          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
+          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted">
             {category.description}
           </p>
         )}

@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import Container from "../../container";
 import MoreStories from "../../more-stories";
 import Pagination from "../../pagination";
+import PageContext from "../../page-context";
 
 import { getAllPosts } from "@/lib/api";
 import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
@@ -28,7 +29,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { page } = await params;
   return {
-    title: `Page ${page}`,
+    title: `Latest Posts, Page ${page}`,
     alternates: { canonical: `${SITE_URL}/page/${page}` },
   };
 }
@@ -65,9 +66,10 @@ export default async function IndexPage({
   return (
     <Container>
       <header className="mb-6 md:mb-8">
-        <h1 className="text-5xl leading-tight md:text-6xl lg:text-7xl">
+        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl">
           Latest posts
         </h1>
+        <PageContext currentPage={pageNumber} totalPages={totalPages} />
       </header>
       <MoreStories morePosts={posts} variant="list" heading={null} priorityFirst />
       <Pagination currentPage={pageNumber} totalPages={totalPages} basePath="/" />
