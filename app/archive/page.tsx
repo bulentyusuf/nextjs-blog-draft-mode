@@ -51,7 +51,7 @@ export default async function ArchivePage() {
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mb-6 md:mb-8">
-        <h1 className="mb-6 text-4xl leading-tight md:text-5xl lg:text-6xl">
+        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
           Archive
         </h1>
         <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
@@ -63,7 +63,7 @@ export default async function ArchivePage() {
         <p className="text-lg text-brand-muted">No posts yet.</p>
       ) : (
         years.map((year) => (
-          <section key={year} className="mb-10">
+          <section key={year} className="mb-10 last:mb-0">
             <h2 className="mb-4 text-2xl">{year}</h2>
             <ul className="space-y-3">
               {byYear.get(year)!.map((post) => (
