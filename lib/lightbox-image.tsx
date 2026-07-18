@@ -109,7 +109,7 @@ export default function LightboxImage({
           alt={alt}
           width={1200}
           height={800}
-          sizes="(max-width: 768px) 100vw, 800px"
+          sizes="(max-width: 768px) 100vw, 672px"
           className="w-full h-auto border-2 border-gray-300"
         />
       </button>
@@ -167,7 +167,7 @@ export default function LightboxImage({
               {caption && (
                 <figcaption
                   id={titleId}
-                  className="mt-2 text-center text-sm text-white/80"
+                  className="mt-1.5 text-center text-sm text-white/80"
                 >
                   {caption}
                 </figcaption>

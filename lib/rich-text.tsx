@@ -46,11 +46,7 @@ function RichTextAsset({
   if (!asset?.url) return null;
 
   return (
-    // Break the figure out past the prose measure where space allows. The
-    // negative insets stay smaller than the container's px-5 padding at md/lg
-    // and, at xl, smaller than the grid's gap-x-10, so the image never causes
-    // horizontal scroll nor overlaps the sticky TOC sidebar.
-    <figure className="my-8 md:-mx-10 lg:-mx-16 xl:-mx-6">
+    <figure className="my-8">
       {lightbox ? (
         <LightboxImage
           src={asset.url}
@@ -64,12 +60,12 @@ function RichTextAsset({
           width={1200}
           height={800}
           priority={priority}
-          sizes="(max-width: 768px) 100vw, 800px"
+          sizes="(max-width: 768px) 100vw, 672px"
           className="w-full h-auto border-2 border-gray-300"
         />
       )}
       {asset.description && (
-        <figcaption className="text-sm text-brand-muted mt-2 text-center">
+        <figcaption className="text-sm text-brand-muted mt-1.5 text-center">
           {asset.description}
         </figcaption>
       )}
