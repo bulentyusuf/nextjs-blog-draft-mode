@@ -46,7 +46,11 @@ function RichTextAsset({
   if (!asset?.url) return null;
 
   return (
-    <figure className="my-8">
+    // not-prose so the typography plugin does not inject its own margins into
+    // the image (2em) and caption — those would dominate the image-to-caption
+    // gap and make mt-1.5 invisible. Spacing is owned here: my-8 around the
+    // figure, mt-1.5 under the caption. Matches the code/prompt blocks.
+    <figure className="not-prose my-8">
       {lightbox ? (
         <LightboxImage
           src={asset.url}
