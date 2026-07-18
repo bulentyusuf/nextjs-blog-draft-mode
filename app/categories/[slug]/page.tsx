@@ -82,7 +82,7 @@ export default async function CategoryPage({
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <h1 className="mb-6 text-4xl leading-tight md:text-5xl lg:text-6xl">
+        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
           {category.name}
         </h1>
         {category.description && (
