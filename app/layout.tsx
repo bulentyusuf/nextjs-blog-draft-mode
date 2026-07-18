@@ -3,8 +3,6 @@ import { Inter, Fraunces } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, SITE_FOOTER_BLURB, BRAND_HEADER_COLOR, BRAND_HEADER_COLOR_DARK, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
-import { getAllCategories } from "@/lib/api";
-import type { Category } from "@/lib/types";
 import BackToTop from "./back-to-top";
 import Link from "next/link";
 import { draftMode } from "next/headers";
@@ -102,21 +100,10 @@ function Header() {
 const footerLink =
   "text-white/80 hover:text-white transition-colors duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white";
 
-async function Footer() {
-  // A Contentful outage must not break the layout shell. On any error (or an
-  // empty result) we fall back to a single "All categories" link.
-  let categories: Category[] = [];
-  let categoriesFailed = false;
-  try {
-    categories = await getAllCategories();
-  } catch {
-    categoriesFailed = true;
-  }
-  const showCategoryList = !categoriesFailed && categories.length > 0;
-
+function Footer() {
   return (
     <footer className="bg-footer-bg text-white">
-      <div className="max-w-5xl mx-auto px-5 py-16">
+      <div className="max-w-5xl mx-auto px-5 py-12 md:py-16">
         <div className="grid gap-8 md:grid-cols-[2fr_1fr_1fr] md:gap-12">
           {/* Column 1 — masthead + blurb */}
           <div>
@@ -128,31 +115,25 @@ async function Footer() {
             </p>
           </div>
 
-          {/* Column 2 — browse: dynamic categories, then static section links.
-              The static links never disappear, even when the fetch fails. */}
+          {/* Column 2 — browse: top-level section links. */}
           <nav aria-label="Browse">
             <h4 className="text-xs font-bold uppercase tracking-widest text-white/60">
               Browse
             </h4>
             <ul className="mt-4 space-y-2 text-sm">
-              {showCategoryList ? (
-                categories.map((category) => (
-                  <li key={category.slug}>
-                    <Link href={`/categories/${category.slug}`} className={footerLink}>
-                      {category.name}
-                    </Link>
-                  </li>
-                ))
-              ) : (
-                <li>
-                  <Link href="/categories" className={footerLink}>
-                    All categories
-                  </Link>
-                </li>
-              )}
+              <li>
+                <Link href="/categories" className={footerLink}>
+                  Categories
+                </Link>
+              </li>
               <li>
                 <Link href="/authors" className={footerLink}>
                   Authors
+                </Link>
+              </li>
+              <li>
+                <Link href="/archive" className={footerLink}>
+                  Archive
                 </Link>
               </li>
               <li>

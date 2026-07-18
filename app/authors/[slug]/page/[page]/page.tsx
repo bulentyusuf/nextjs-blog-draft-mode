@@ -5,6 +5,7 @@ import ContentfulImage from "@/lib/contentful-image";
 import Container from "../../../../container";
 import MoreStories from "../../../../more-stories";
 import Pagination from "../../../../pagination";
+import PageContext from "../../../../page-context";
 import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
 import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
 import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
@@ -43,7 +44,7 @@ export async function generateMetadata({
     return { title: "Author not found" };
   }
 
-  const title = `${author.name}, page ${page}`;
+  const title = `${author.name}, Page ${page}`;
   const description = `Posts by ${author.name} on ${SITE_TITLE}`;
   const images = author.picture?.url ? [author.picture.url] : undefined;
   const canonical = `${SITE_URL}/authors/${slug}/page/${page}`;
@@ -127,6 +128,7 @@ export default async function AuthorPaginatedPage({
             {author.name}
           </h1>
         </div>
+        <PageContext currentPage={pageNumber} totalPages={totalPages} />
       </header>
 
       <MoreStories morePosts={pagePosts} variant="list" heading={null} priorityFirst />
