@@ -110,7 +110,7 @@ export default function LightboxImage({
           width={1200}
           height={800}
           sizes="(max-width: 768px) 100vw, 672px"
-          className="w-full h-auto border-2 border-gray-300"
+          className="w-full h-auto border-2 border-gray-300 dark:border-brand-dark/15"
         />
       </button>
 
@@ -162,7 +162,10 @@ export default function LightboxImage({
                 width={2000}
                 height={1333}
                 sizes="100vw"
-                className="h-auto w-full"
+                // Framed like the inline figure, but the scrim is always black,
+                // so a light gray-300 edge would glare — a soft white hairline
+                // reads as the same intentional frame here.
+                className="h-auto w-full border-2 border-white/15"
               />
               {caption && (
                 <figcaption
