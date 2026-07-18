@@ -65,7 +65,7 @@ function RichTextAsset({
           height={800}
           priority={priority}
           sizes="(max-width: 768px) 100vw, 672px"
-          className="w-full h-auto border-2 border-gray-300"
+          className="w-full h-auto border-2 border-gray-300 dark:border-brand-dark/15"
         />
       )}
       {asset.description && (
