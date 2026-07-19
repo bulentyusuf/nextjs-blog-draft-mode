@@ -13,7 +13,7 @@ export default function SearchPage() {
   return (
     <Container>
       <section className="mx-auto max-w-2xl">
-        <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl">
+        <h1 className="mb-6 text-4xl md:text-5xl">
           Search
         </h1>
         <SearchClient />
