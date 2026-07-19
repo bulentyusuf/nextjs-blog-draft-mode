@@ -13,6 +13,24 @@ declare global {
   }
 }
 
+// The shape of a Pagefind result we touch in processResult. Pagefind returns
+// more fields; we only rewrite the URLs, so the rest is left opaque.
+type PagefindResult = {
+  url: string;
+  sub_results?: { url: string }[];
+  [key: string]: unknown;
+};
+
+// Pagefind derives result URLs from the prerendered file paths under
+// .next/server/app, which are flat `<route>.html` files — so it emits
+// `/posts/slug.html` (and `/posts/slug.html#heading` for sub-results). Next
+// serves those routes extensionless, so the `.html` form 404s. Strip the
+// extension, keeping any #anchor, so both the headline and its deep links
+// resolve.
+function stripHtmlExtension(url: string): string {
+  return url.replace(/\.html(?=#|$)/, "");
+}
+
 export default function SearchClient() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
@@ -36,6 +54,16 @@ export default function SearchClient() {
         element: containerRef.current,
         showSubResults: true,
         showImages: false,
+        // Rewrite the .html paths Pagefind derives from the build directory so
+        // the links match Next's extensionless routes instead of 404ing.
+        processResult: (result: PagefindResult) => {
+          result.url = stripHtmlExtension(result.url);
+          result.sub_results = result.sub_results?.map((sub) => ({
+            ...sub,
+            url: stripHtmlExtension(sub.url),
+          }));
+          return result;
+        },
       });
     };
     script.onerror = () => {
