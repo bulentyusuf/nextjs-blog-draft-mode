@@ -90,6 +90,29 @@ function Header() {
           >
             About
           </Link>
+          {/* Icon-only link: the accessible name comes from aria-label, and
+              the SVG is hidden from assistive tech so it is not announced as
+              an unlabelled image. No icon library — inline SVG keeps the
+              dependency count at zero. */}
+          <Link
+            href="/search"
+            aria-label="Search"
+            title="Search"
+            className="p-2 -m-2 text-white hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              className="h-5 w-5"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+          </Link>
         </nav>
       </div>
     </header>
@@ -134,6 +157,11 @@ function Footer() {
               <li>
                 <Link href="/archive" className={footerLink}>
                   Archive
+                </Link>
+              </li>
+              <li>
+                <Link href="/search" className={footerLink}>
+                  Search
                 </Link>
               </li>
               <li>

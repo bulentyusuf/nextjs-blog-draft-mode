@@ -199,3 +199,18 @@
     content: none;
   }
 }
+
+/* Pagefind default UI mapped to house tokens. The vars are Pagefind's
+   documented theming API. Dark mode is free: the brand tokens referenced
+   here are already redefined by the dark override above. */
+.pagefind-scope {
+  --pagefind-ui-scale: 1;
+  --pagefind-ui-primary: var(--color-brand-crimson);
+  --pagefind-ui-text: var(--color-brand-dark);
+  --pagefind-ui-background: var(--color-brand-bg);
+  --pagefind-ui-border: color-mix(in srgb, var(--color-brand-dark) 15%, transparent);
+  --pagefind-ui-tag: color-mix(in srgb, var(--color-brand-dark) 8%, transparent);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 0.375rem;
+  --pagefind-ui-font: var(--font-inter), system-ui, sans-serif;
+}
