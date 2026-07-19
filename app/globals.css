@@ -248,12 +248,25 @@
   font-size: 1.5rem !important; /* text-2xl */
   line-height: 1.25 !important;
 }
+
+/* Result links follow the site's list idiom (more-stories cards, archive):
+   ink at rest, crimson on hover, colour transition, never underlined.
+   Crimson-at-rest is the prose-link idiom and reads as a wall of links
+   in a results list. */
 .pagefind-scope .pagefind-ui__result-link {
+  color: var(--color-brand-dark) !important;
+  text-decoration: none !important;
+  transition: color 0.2s !important;
+}
+.pagefind-scope .pagefind-ui__result-link:hover {
   color: var(--color-brand-crimson) !important;
   text-decoration: none !important;
 }
-.pagefind-scope .pagefind-ui__result-link:hover {
-  text-decoration: underline !important;
+
+/* Sub-results step down a size so hierarchy comes from scale, not colour. */
+.pagefind-scope .pagefind-ui__result-nested .pagefind-ui__result-title,
+.pagefind-scope .pagefind-ui__result-nested .pagefind-ui__result-link {
+  font-size: 1.125rem !important; /* text-lg */
 }
 
 /* Excerpts — Body role. */
