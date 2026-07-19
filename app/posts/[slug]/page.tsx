@@ -145,7 +145,9 @@ export default async function PostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
-      <article className="mx-auto max-w-5xl">
+      {/* data-pagefind-body scopes the Pagefind index to post content only.
+          Pages without this attribute are excluded from search entirely. */}
+      <article data-pagefind-body className="mx-auto max-w-5xl">
         <Breadcrumb items={crumbs} />
         <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl">
           {post.title}
@@ -172,7 +174,9 @@ export default async function PostPage({
           {/* Sidebar zone — TOC always rendered (collapsed disclosure on
               mobile, sticky open panel at xl+). ExploreWithAI stays xl-only
               per the separate mobile-AI decision. */}
-          <aside className="mb-4 xl:mb-0">
+          {/* TOC repeats every heading; excluded so headings are not
+              double-weighted in search. */}
+          <aside data-pagefind-ignore className="mb-4 xl:mb-0">
             <div className="xl:sticky xl:top-20 space-y-8 xl:pb-4">
               <TableOfContents headings={headings} />
               <div className="hidden xl:block">

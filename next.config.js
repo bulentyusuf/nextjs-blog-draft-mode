@@ -24,7 +24,10 @@ const securityHeaders = [
       // 'unsafe-eval' is added in development only. Turbopack and React need it
       // for dev debugging features, and React never uses eval in production, so
       // the production policy stays strict.
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com`,
+      // 'wasm-unsafe-eval' permits WebAssembly compilation only (not JS eval).
+      // Required by Pagefind's search core; without it, search silently fails
+      // in production under this CSP.
+      `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' https://images.ctfassets.net data: blob:",
       "font-src 'self'",
