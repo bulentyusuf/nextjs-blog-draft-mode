@@ -211,6 +211,30 @@ export async function getAllPosts(isDraftMode = false): Promise<ListPost[]> {
   return entries?.data?.postCollection?.items ?? [];
 }
 
+// A single post, listing fragment only — no related/backfill queries and no
+// heavy `content`/`bio`. For consumers that need just the post's own fields
+// (e.g. generateMetadata), where fetching morePosts via getPostAndMorePosts
+// would fire 1–2 extra GraphQL round-trips whose result is then discarded.
+// Returns a partial post: `content` and `author.bio` are absent (see ListPost).
+export async function getPost(
+  slug: string,
+  preview = false,
+): Promise<ListPost | undefined> {
+  const entry = await fetchGraphQL<ListPostCollectionResponse>(
+    `query GetPostMeta($slug: String!, $preview: Boolean) {
+      postCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
+        items {
+          ${LIST_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    preview,
+    { slug, preview },
+  );
+
+  return entry?.data?.postCollection?.items?.[0];
+}
+
 export async function getPostAndMorePosts(
   slug: string,
   preview = false,
