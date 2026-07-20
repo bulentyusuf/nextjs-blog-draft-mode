@@ -99,21 +99,30 @@ re-flag as a broken pattern.
 It is linked from the nav yet excluded from search engines. A search page is
 thin content; crawlers should reach posts directly. Not an SEO gap.
 
-### The search emblem sits on a light plate in dark mode, and must use literal hex values
+### The search emblem sits on a light seal in dark mode, and must use literal hex values
 
 The emblem in `app/search/` is knockout artwork: the hat, face and eye are not
 drawn, they are gaps where the ground shows through the ink. That only reads on
-a light ground, so in dark mode the emblem sits on a cream plate.
+a light ground, so in dark mode the emblem sits on a cream disc.
+
+The ground is a **circle** (`dark:rounded-full`), not a rounded rectangle. A
+rectangular plate read as a floating card dropped into the dark layout; the disc
+echoes the magnifying-glass lens and reads as a deliberate stamp. A partial disc
+behind only the lens was tried and rejected — the lens rim and handle then spill
+onto the dark page in `#A4243B`, which is muddy and low-contrast, so the whole
+emblem must sit on the ground. `p-8` is shared by both schemes (not `dark:`) so
+the emblem renders at one size in light and dark; in light mode the padding is
+simply transparent space with no plate.
 
 The complete figure className:
 
 ```
-search-empty mx-auto mt-10 max-w-[16rem] text-brand-crimson
-dark:rounded-3xl dark:bg-[#FAF5F1] dark:p-8 dark:text-[#A4243B]
+search-empty mx-auto mt-10 max-w-[16rem] p-8 text-brand-crimson
+dark:rounded-full dark:bg-[#FAF5F1] dark:text-[#A4243B]
 ```
 
-**The rule that matters: anything rendered on that plate must use literal hex
-values in dark mode, never brand tokens.** The plate is a fixed cream island
+**The rule that matters: anything rendered on that disc must use literal hex
+values in dark mode, never brand tokens.** The disc is a fixed cream island
 that does not change between colour schemes, but every brand token does. Both
 hexes above exist for that reason:
 
@@ -128,7 +137,7 @@ hexes above exist for that reason:
 Anything added to this figure later — a border, a caption, a hover state —
 falls under the same rule.
 
-`rounded-3xl` and `p-8` are tuned by eye and may be nudged. The two hex values
+`rounded-full` and `p-8` are tuned by eye and may be nudged. The two hex values
 are not tuning knobs.
 
 Two alternatives were tried and rejected. Inverting the ink to cream so the
