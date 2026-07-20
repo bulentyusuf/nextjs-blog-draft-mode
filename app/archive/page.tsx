@@ -6,7 +6,6 @@ import { enGB } from "date-fns/locale";
 import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
-import ContentfulImage from "@/lib/contentful-image";
 import { getAllPosts } from "@/lib/api";
 import type { ListPost } from "@/lib/types";
 import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
@@ -76,8 +75,11 @@ export default async function ArchivePage() {
         years.map((year) => {
           const yearPosts = byYear.get(year)!;
           return (
-            <section key={year} className="mb-12 last:mb-0">
-              <h2 className="mb-5 flex items-baseline gap-x-4 text-5xl text-brand-muted md:text-6xl">
+            <section key={year} className="mb-10 last:mb-0">
+              {/* Section marker, deliberately subordinate to the h1. Fraunces
+                  comes from the base layer; brand-muted keeps it legible in
+                  both colour schemes without any scheme-specific code. */}
+              <h2 className="mb-4 flex items-baseline gap-x-3 text-2xl text-brand-muted md:text-3xl">
                 {year}
                 <span className="font-sans text-sm font-normal text-brand-muted">
                   {yearPosts.length} {yearPosts.length === 1 ? "post" : "posts"}
@@ -87,9 +89,9 @@ export default async function ArchivePage() {
                 {yearPosts.map((post) => (
                   <li
                     key={post.slug}
-                    className="group flex flex-col gap-y-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-6"
+                    className="flex flex-col gap-y-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-6"
                   >
-                    <span className="relative flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <Link
                         href={`/posts/${post.slug}`}
                         className="hover:text-brand-crimson transition-colors duration-200"
@@ -99,21 +101,6 @@ export default async function ArchivePage() {
                       {post.category && (
                         <span className="text-xs uppercase tracking-wide text-brand-muted">
                           {post.category.name}
-                        </span>
-                      )}
-                      {post.coverImage && (
-                        <span
-                          aria-hidden="true"
-                          className="pointer-events-none absolute bottom-full left-0 z-10 mb-2 hidden w-60 overflow-hidden rounded-lg shadow-lg group-focus-within:block pointer-fine:group-hover:block"
-                        >
-                          <ContentfulImage
-                            alt=""
-                            src={post.coverImage.url}
-                            width={240}
-                            height={135}
-                            sizes="240px"
-                            className="block h-auto w-full"
-                          />
                         </span>
                       )}
                     </span>
