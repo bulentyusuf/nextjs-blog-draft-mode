@@ -1,0 +1,19 @@
+// U+00A0 non-breaking space, built by code point so no invisible character
+// lives in the source and there is no escaping ambiguity.
+const NBSP = String.fromCharCode(0x00a0);
+
+/**
+ * widont — glue the final two words of a string with a non-breaking space so a
+ * wrapped title never ends on a lone last word (the "2-word overhang").
+ *
+ * Unlike `text-wrap: pretty` — which only Chromium and recent Safari honour, so
+ * Firefox and older Safari still orphan the last word — this is deterministic
+ * and works in every browser. A no-op on single-word strings.
+ *
+ * Use on short display strings (titles and headings), not on body prose: it
+ * only protects the very last line, and gluing two long words can force a wide
+ * last line in a narrow column.
+ */
+export function widont(text: string): string {
+  return text.replace(/\s+(\S+)\s*$/u, `${NBSP}$1`);
+}

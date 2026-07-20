@@ -3,6 +3,7 @@ import DateComponent from "./date";
 import CoverImage from "./cover-image";
 import type { CardPost, CoverImage as CoverImageType } from "@/lib/types";
 import { createCoverNamer } from "@/lib/view-transition-name";
+import { widont } from "@/lib/typography";
 
 type Variant = "grid" | "list";
 
@@ -51,7 +52,7 @@ function PostPreview({
               href={`/posts/${slug}`}
               className="hover:text-brand-crimson transition-colors duration-200"
             >
-              {title}
+              {widont(title)}
             </Link>
           </Heading>
           <div className="text-sm text-brand-muted mb-3 tabular-nums">
@@ -83,7 +84,7 @@ function PostPreview({
           href={`/posts/${slug}`}
           className="hover:text-brand-crimson transition-colors duration-200"
         >
-          {title}
+          {widont(title)}
         </Link>
       </Heading>
       <div className="text-sm text-brand-muted mb-4 tabular-nums">
@@ -128,7 +129,7 @@ export default function MoreStories({
     <section className="mx-auto max-w-5xl">
       {heading && (
         <h2 className="mb-8 text-4xl md:text-5xl leading-tight text-pretty">
-          {heading}
+          {widont(heading)}
         </h2>
       )}
       <div className={container}>

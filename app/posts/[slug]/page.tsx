@@ -16,6 +16,7 @@ import AuthorBioCard from "../../author-bio-card";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { SITE_URL, SITE_AUTHOR, SITE_TITLE, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
+import { widont } from "@/lib/typography";
 
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
@@ -161,7 +162,7 @@ export default async function PostPage({
       >
         <Breadcrumb items={crumbs} />
         <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-          {post.title}
+          {widont(post.title)}
         </h1>
         {post.coverImage && (
           <div className="mb-10">

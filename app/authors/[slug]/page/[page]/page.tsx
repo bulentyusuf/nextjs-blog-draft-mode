@@ -9,6 +9,7 @@ import PageContext from "../../../../page-context";
 import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
 import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
 import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { widont } from "@/lib/typography";
 
 export const dynamicParams = true;
 
@@ -125,7 +126,7 @@ export default async function AuthorPaginatedPage({
             />
           )}
           <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-            {author.name}
+            {widont(author.name)}
           </h1>
         </div>
         <PageContext currentPage={pageNumber} totalPages={totalPages} />

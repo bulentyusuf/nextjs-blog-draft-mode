@@ -10,6 +10,7 @@ import { RichText } from "@/lib/rich-text";
 import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
 import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
+import { widont } from "@/lib/typography";
 
 // Allow on-demand rendering of authors added after build time.
 export const dynamicParams = true;
@@ -113,7 +114,7 @@ export default async function AuthorPage({
             />
           )}
           <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-            {author.name}
+            {widont(author.name)}
           </h1>
         </div>
         {author.bio && (
