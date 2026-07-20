@@ -27,9 +27,13 @@ export default function SearchPage() {
             black plate), and --color-brand-crimson is lifted to #E0667A for
             link legibility on dark, which looks washed out on cream — so the
             ink is forced back to the light crimson #A4243B, the same colour on
-            cream in both schemes. Light mode carries no plate; the dark:
-            variants simply do not apply on the already-cream page. */}
-        <figure className="search-empty mx-auto mt-10 max-w-[16rem] text-brand-crimson dark:rounded-3xl dark:bg-[#FAF5F1] dark:p-8 dark:text-[#A4243B]">
+            cream in both schemes. The cream ground is a circular seal
+            (dark:rounded-full), not a rectangle: the disc echoes the lens and
+            reads as a deliberate stamp rather than a floating card. p-8 is
+            shared by both schemes so the emblem renders at one size — in light
+            mode the padding is transparent (no plate); the dark: variants add
+            the seal without changing the artwork's size. */}
+        <figure className="search-empty mx-auto mt-10 max-w-[16rem] p-8 text-brand-crimson dark:rounded-full dark:bg-[#FAF5F1] dark:text-[#A4243B]">
           <SearchEmblem />
         </figure>
       </section>
