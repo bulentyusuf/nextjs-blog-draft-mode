@@ -114,7 +114,7 @@ export default async function CategoriesPage() {
                       <li key={post.slug} className="py-4">
                         <Link
                           href={`/posts/${post.slug}`}
-                          className="text-lg font-medium text-balance hover:text-brand-crimson transition-colors duration-200"
+                          className="block text-lg font-medium text-balance hover:text-brand-crimson transition-colors duration-200"
                         >
                           {post.title}
                         </Link>
