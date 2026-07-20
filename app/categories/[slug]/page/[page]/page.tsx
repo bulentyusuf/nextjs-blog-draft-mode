@@ -109,12 +109,12 @@ export default async function CategoryPaginatedPage({
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl">
+        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-balance">
           {category.name}
         </h1>
         <PageContext currentPage={pageNumber} totalPages={totalPages} />
         {category.description && (
-          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted">
+          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
             {category.description}
           </p>
         )}

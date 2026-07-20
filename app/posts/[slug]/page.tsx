@@ -113,7 +113,7 @@ export default async function PostPage({
   // flag the revision on mobile, show the full updated date on desktop, then
   // the estimated reading time.
   const dateline = (
-    <>
+    <span className="tabular-nums">
       <Date dateString={post.date} />
       {showUpdated && (
         <>
@@ -124,7 +124,7 @@ export default async function PostPage({
         </>
       )}
       {" · "}{minutes} min read
-    </>
+    </span>
   );
 
   const headings = extractHeadings(post.content.json);
@@ -160,7 +160,7 @@ export default async function PostPage({
         className="mx-auto max-w-5xl"
       >
         <Breadcrumb items={crumbs} />
-        <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl">
+        <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl text-balance">
           {post.title}
         </h1>
         {post.coverImage && (
@@ -197,7 +197,7 @@ export default async function PostPage({
           </aside>
 
           <div className="mx-auto max-w-2xl xl:mx-0">
-            <p className="mb-8 text-lg leading-relaxed text-brand-muted">
+            <p className="mb-8 text-lg leading-relaxed text-brand-muted text-pretty">
               {post.excerpt}
             </p>
             {post.author && (
@@ -210,7 +210,11 @@ export default async function PostPage({
                 />
               </div>
             )}
-            <div className="prose prose-headings:scroll-mt-20 prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
+            {/* text-pretty on the prose container inherits into every
+                paragraph, sparing the rich-text renderer; prose-headings:
+                text-balance then gives in-body headings the stronger balance
+                treatment that inherited text-pretty would otherwise weaken. */}
+            <div className="prose text-pretty prose-headings:text-balance prose-headings:scroll-mt-20 prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
               <RichText content={post.content} headings={headings} highlighted={highlighted} />
             </div>
             {post.author?.bio && (

@@ -62,7 +62,7 @@ export default async function CategoriesPage() {
         <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
           Categories
         </h1>
-        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
+        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
           One main quest, the rest are side quests. Pick a path.
         </p>
       </header>
@@ -92,7 +92,7 @@ export default async function CategoriesPage() {
                 </div>
               )}
 
-              <h2 className="mb-3 text-2xl leading-snug md:text-3xl">
+              <h2 className="mb-3 text-2xl leading-snug md:text-3xl text-balance">
                 <Link
                   href={`/categories/${category.slug}`}
                   className="hover:text-brand-crimson transition-colors duration-200"
@@ -102,7 +102,7 @@ export default async function CategoriesPage() {
               </h2>
 
               {category.description && (
-                <p className="mb-5 text-lg leading-relaxed text-brand-muted">
+                <p className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
                   {category.description}
                 </p>
               )}

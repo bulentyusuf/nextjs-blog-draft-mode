@@ -124,7 +124,7 @@ export default async function AuthorPaginatedPage({
               src={author.picture.url}
             />
           )}
-          <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl">
+          <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-balance">
             {author.name}
           </h1>
         </div>

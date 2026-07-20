@@ -31,10 +31,10 @@ export default function GlobalError({
           <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">
             Whoops
           </p>
-          <h1 className="mt-4 text-4xl text-brand-dark">
+          <h1 className="mt-4 text-4xl text-brand-dark text-balance">
             The site hit a wall.
           </h1>
-          <p className="mt-6 text-lg leading-relaxed text-brand-dark">
+          <p className="mt-6 text-lg leading-relaxed text-brand-dark text-pretty">
             A critical error stopped the page from rendering. Reloading usually
             clears it.
           </p>

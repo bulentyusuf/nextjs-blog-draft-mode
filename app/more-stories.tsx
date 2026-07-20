@@ -46,7 +46,7 @@ function PostPreview({
           </div>
         )}
         <div>
-          <Heading className="text-2xl md:text-3xl mb-2 leading-snug">
+          <Heading className="text-2xl md:text-3xl mb-2 leading-snug text-balance">
             <Link
               href={`/posts/${slug}`}
               className="hover:text-brand-crimson transition-colors duration-200"
@@ -54,10 +54,10 @@ function PostPreview({
               {title}
             </Link>
           </Heading>
-          <div className="text-sm text-brand-muted mb-3">
+          <div className="text-sm text-brand-muted mb-3 tabular-nums">
             <DateComponent dateString={date} />
           </div>
-          <p className="text-lg leading-relaxed">{excerpt}</p>
+          <p className="text-lg leading-relaxed text-pretty">{excerpt}</p>
         </div>
       </article>
     );
@@ -78,7 +78,7 @@ function PostPreview({
           />
         </div>
       )}
-      <Heading className="text-3xl mb-3 leading-snug">
+      <Heading className="text-3xl mb-3 leading-snug text-balance">
         <Link
           href={`/posts/${slug}`}
           className="hover:text-brand-crimson transition-colors duration-200"
@@ -86,10 +86,10 @@ function PostPreview({
           {title}
         </Link>
       </Heading>
-      <div className="text-sm text-brand-muted mb-4">
+      <div className="text-sm text-brand-muted mb-4 tabular-nums">
         <DateComponent dateString={date} />
       </div>
-      <p className="text-lg leading-relaxed">{excerpt}</p>
+      <p className="text-lg leading-relaxed text-pretty">{excerpt}</p>
     </div>
   );
 }
@@ -127,7 +127,7 @@ export default function MoreStories({
   return (
     <section className="mx-auto max-w-5xl">
       {heading && (
-        <h2 className="mb-8 text-4xl md:text-5xl leading-tight">
+        <h2 className="mb-8 text-4xl md:text-5xl leading-tight text-balance">
           {heading}
         </h2>
       )}
