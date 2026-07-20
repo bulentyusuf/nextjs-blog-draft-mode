@@ -185,6 +185,15 @@ without a new reason.
   this static blog never does — CSS is first-party Tailwind, build-time only.
   The only offered fix downgrades `next` to 9.3.3, a non-starter. Dormant;
   resolves when Next bumps its bundled postcss. Do not re-flag.
+- `npm audit` flags uuid `<11.1.1` (GHSA-w5hq-g745-h8pq, missing buffer bounds
+  check in v3/v5/v6 when a caller passes its own `buf`) via the
+  `contentful-import` → `contentful-batch-libs` dependency chain.
+  `contentful-import` is a devDependency: a one-shot CLI seed/import tool that
+  never ships to the site and never runs at build or request time, and it does
+  not pass a `buf` to uuid. Zero runtime exposure. The only offered fix
+  downgrades `contentful-import` six majors (to 8.2.24), a non-starter for the
+  forkable-template import flow. Accepted on the same terms as the postcss
+  advisory above; resolves when the chain bumps uuid. Do not re-flag.
 
 ## House conventions
 
