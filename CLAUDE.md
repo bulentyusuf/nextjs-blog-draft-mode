@@ -99,16 +99,25 @@ re-flag as a broken pattern.
 It is linked from the nav yet excluded from search engines. A search page is
 thin content; crawlers should reach posts directly. Not an SEO gap.
 
-### The search emblem inverts its ink in dark mode, and must not get a plate
+### The search emblem needs a light plate in dark mode
 
-The emblem in `app/search/` is knockout artwork: the hat, face and eye are page
-colour showing through the ink, which only reads on a light ground. In dark
-mode the ink is set to cream (`dark:text-[#D8CFC6]`) so the knockouts become
-page-dark — maximum contrast, and it reads as a white-ink print. Setting it to
-crimson in dark mode makes the detail vanish into the background.
+The emblem in `app/search/` is knockout artwork: the hat, face and eye are not
+drawn, they are gaps where the page colour shows through the ink. That only
+reads on a light ground.
 
-A light background plate behind the emblem was tried and rejected: it reads as
-a sticker pasted onto the page. Do not reintroduce `dark:bg-*` on that figure.
+In dark mode it therefore sits on a cream plate (`dark:rounded-3xl
+dark:bg-[#FAF5F1] dark:p-8`) and the ink stays `text-brand-crimson` in both
+schemes. The plate colour must be the literal hex, not the page-background
+token — that token flips to the dark value in dark mode and would render a
+black plate, defeating the purpose. Same class of trap as the header colour
+constants below.
+
+Two alternatives were tried and rejected. Inverting the ink to cream so the
+knockouts become page-dark is legible but reads as a photographic negative,
+because a face made of holes is absence rather than marks. Stripping the face
+and showing only the magnifying glass in dark mode loses the joke and damages
+the linocut line where the interior was cut away. Do not revisit either; the
+plate is the decision.
 
 ### Brand colour exists in two places on purpose
 
