@@ -16,6 +16,7 @@ declare module "react" {
     interface IntrinsicElements {
       "pagefind-config": CustomElement<{ "excerpt-length"?: string }>;
       "pagefind-input": CustomElement<{ placeholder?: string }>;
+      "pagefind-summary": CustomElement;
       "pagefind-results": CustomElement;
     }
   }
@@ -99,6 +100,10 @@ export default function SearchClient() {
     <div className="pagefind-scope">
       <pagefind-config excerpt-length="30"></pagefind-config>
       <pagefind-input placeholder="What are you looking for?"></pagefind-input>
+      {/* Result count / no-results line ("N results for X" / "No results for
+          X"). The component fills the text; globals.css styles it and hides it
+          while the input is empty. */}
+      <pagefind-summary></pagefind-summary>
       {/* The result template is a static, self-authored string (see
           RESULT_TEMPLATE) injected as the element's only child; there is no
           user input, so dangerouslySetInnerHTML is safe here. */}

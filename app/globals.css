@@ -215,6 +215,7 @@
   --pf-border-focus: var(--color-brand-crimson);
   --pf-border-radius: 0.375rem; /* rounded-md */
   --pf-input-font-size: 1.125rem; /* text-lg */
+  --pf-summary-font-size: 0.875rem; /* text-sm; default 12px is too small */
   --pf-outline-focus: var(--color-brand-crimson);
 }
 
@@ -243,6 +244,24 @@
    lives here rather than as a utility class on our template. */
 .pagefind-scope .pf-results > li + li {
   border-top: 1px solid var(--color-gray-200);
+}
+
+/* Result summary ("N results for X" / "No results for X"), from
+   <pagefind-summary>. Text colour and size come from --pf-text-muted and
+   --pf-summary-font-size above (the component styles .pf-summary from those, at
+   a specificity a plain override would not beat). Here we only lay out the host
+   with a hairline above the results, and hide it while the input is empty via a
+   sibling :has — the same pattern the emblem uses; a descendant :has / :empty
+   does not invalidate reliably in Chromium, so the host is toggled from its
+   preceding <pagefind-input> instead. */
+.pagefind-scope pagefind-summary {
+  display: block;
+  margin-top: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+.pagefind-scope pagefind-input:has(input:placeholder-shown) ~ pagefind-summary {
+  display: none;
 }
 
 /* Empty-state emblem: visible only while the search input is empty.
