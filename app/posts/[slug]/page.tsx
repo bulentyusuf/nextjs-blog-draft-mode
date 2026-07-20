@@ -146,8 +146,19 @@ export default async function PostPage({
         dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
       {/* data-pagefind-body scopes the Pagefind index to post content only.
-          Pages without this attribute are excluded from search entirely. */}
-      <article data-pagefind-body className="mx-auto max-w-5xl">
+          Pages without this attribute are excluded from search entirely.
+          data-pagefind-meta="url" records the clean, extensionless route as the
+          result URL: Pagefind indexes the prerendered `<slug>.html` files, so
+          its derived url carries a `.html` that 404s on Next's routes. The
+          Component UI has no JS layer to rewrite it, so the fix lives in the
+          index — the result template reads `meta.url` in preference to that
+          derived url. */}
+      <article
+        data-pagefind-body
+        data-pagefind-meta="url[data-url]"
+        data-url={`/posts/${slug}`}
+        className="mx-auto max-w-5xl"
+      >
         <Breadcrumb items={crumbs} />
         <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl">
           {post.title}

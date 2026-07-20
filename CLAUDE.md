@@ -27,17 +27,61 @@ directive permits wasm compilation only, not JS `eval` — production
 `script-src` remains otherwise as strict as before. Removing it silently
 breaks search in every Chromium browser. Do not re-flag as CSP loosening.
 
-### Pagefind `!important` overrides in `globals.css` are deliberate
+### Search runs on Pagefind's Component UI, not the legacy default UI
 
-Pagefind's default-UI stylesheet is injected at runtime AFTER globals.css,
-carries hashed selectors (`.svelte-*`) at higher specificity, and hard-codes
-result links to its text-colour variable rather than primary — so the
-documented variable API cannot colour links, and ordinary overrides lose on
-both order and specificity. Scoped `!important` under `.pagefind-scope` is the
-only mechanism that survives both, and it survives Pagefind upgrades because
-it targets the stable public `.pagefind-ui__*` class names. Do not "clean up"
-the `!important`s; the clean alternative is a bespoke UI on Pagefind's JS API,
-which is a feature, not a fix.
+`app/search/` mounts Pagefind's web components (`<pagefind-input>`,
+`<pagefind-results>`) with a house result template supplied via
+`<script type="text/pagefind-template">`. The markup and class names in that
+template are ours; keyboard navigation, WAI-ARIA behaviour and assistive-text
+translation come from upstream and are deliberately not reimplemented.
+
+Two earlier approaches were tried and abandoned, so do not propose either
+again. The legacy default UI (`@pagefind/default-ui`) needed a wall of
+`!important` overrides to fight its runtime-injected stylesheet and its hashed
+selectors. A fully bespoke React UI on the JS API removed that problem but made
+us the maintainer of the entire search interface, including its accessibility.
+The Component UI gives template-level control without either cost.
+
+Because the template is ours, search CSS needs no `!important`. If a rule seems
+to require it, the template is the wrong shape — fix the template.
+
+The `pagefind` devDependency must stay at `^1.5.2` or later. The Component UI
+does not exist in 1.3.x.
+
+### Ghost search results for near-miss terms are an upstream limitation
+
+Searching a term that matches nothing causes Pagefind to truncate it and retry,
+so "musk" returns posts containing "music" and "Munich", with no highlighted
+term in the excerpt. This is search-core behaviour, not a UI fault, and it
+cannot be configured away: the complete browser-side option set is `baseUrl`,
+`bundlePath`/`basePath`, `excerptLength`, `highlightParam`, `exactDiacritics`,
+`metaCacheTag`, `ranking`, index weight, merge filter and `noWorker`. None of
+them is a minimum-match threshold.
+
+The related over-broad case, where "contentful" surfaces pages containing only
+"content", is **not** fixed either. `ranking.termSimilarity` (documented as
+suppressing pages that rank on long extensions of a search term) exists on the
+raw JS API, but the Component UI does not expose it: the string `ranking`
+appears nowhere in its bundle, and `<pagefind-config>` forwards only
+`excerpt-length`, `base-url`, `highlight-param`, `exact-diacritics` and
+`no-worker`. It is accepted on the same terms as the ghosts above — the price
+of staying on upstream-maintained components. A "content"-only page can even
+rank above the literal "contentful" match; do not treat that as a bug.
+
+A client-side filter dropping results whose excerpt contains no `<mark>` does
+remove the ghosts, but only by owning the result pipeline, which is the bespoke
+approach rejected above. Do not reintroduce it. An issue requesting an opt-in
+threshold has been drafted but not filed; the behaviour is accepted until
+upstream offers a supported fix. Do not re-flag as a bug.
+
+### The search empty state is coupled to the input's placeholder
+
+The `.search-empty` rule in `globals.css` hides the emblem using
+`:placeholder-shown` on the search input. Two things therefore matter: the
+placeholder must stay non-empty, and if the component's internal input ever
+moves into a shadow root the selector will stop matching and the emblem will
+never hide. If that happens, drive the toggle from the instance's `results`
+event instead. Check this after any Pagefind version bump.
 
 ### Search index staleness between deploys is accepted
 
@@ -54,6 +98,44 @@ re-flag as a broken pattern.
 
 It is linked from the nav yet excluded from search engines. A search page is
 thin content; crawlers should reach posts directly. Not an SEO gap.
+
+### The search emblem sits on a light plate in dark mode, and must use literal hex values
+
+The emblem in `app/search/` is knockout artwork: the hat, face and eye are not
+drawn, they are gaps where the ground shows through the ink. That only reads on
+a light ground, so in dark mode the emblem sits on a cream plate.
+
+The complete figure className:
+
+```
+search-empty mx-auto mt-10 max-w-[16rem] text-brand-crimson
+dark:rounded-3xl dark:bg-[#FAF5F1] dark:p-8 dark:text-[#A4243B]
+```
+
+**The rule that matters: anything rendered on that plate must use literal hex
+values in dark mode, never brand tokens.** The plate is a fixed cream island
+that does not change between colour schemes, but every brand token does. Both
+hexes above exist for that reason:
+
+- `dark:bg-[#FAF5F1]` — the page-background token flips to the dark value and
+  would render a black plate.
+- `dark:text-[#A4243B]` — `--color-brand-crimson` is deliberately lifted to
+  `#E0667A` in dark mode so links stay vivid and pass AA against near-black
+  (see globals.css). On the cream plate that lifted value looks washed out.
+  Forcing the light-mode crimson back is correct: the artwork is on cream in
+  both schemes, so it should be the same colour in both.
+
+Anything added to this figure later — a border, a caption, a hover state —
+falls under the same rule.
+
+`rounded-3xl` and `p-8` are tuned by eye and may be nudged. The two hex values
+are not tuning knobs.
+
+Two alternatives were tried and rejected. Inverting the ink to cream so the
+knockouts become page-dark is legible but reads as a photographic negative,
+because a face made of holes is absence rather than marks. Stripping the face
+and showing only the magnifying glass loses the joke and damages the linocut
+line where the interior was cut away. Do not revisit either.
 
 ### Brand colour exists in two places on purpose
 
