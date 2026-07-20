@@ -43,7 +43,7 @@ const RESULT_TEMPLATE = `
       {{#each sub_results as sub}}
       <li>
         <p class="font-display text-lg font-semibold leading-tight">
-          <a class="text-brand-dark transition-colors duration-200 hover:text-brand-crimson" href="{{ sub.url | safeUrl }}">{{ sub.title }}</a>
+          <span aria-hidden="true" class="mr-2 font-normal text-brand-muted">↳</span><a class="text-brand-dark transition-colors duration-200 hover:text-brand-crimson" href="{{ sub.url | safeUrl }}">{{ sub.title }}</a>
         </p>
         <p class="mt-1 leading-relaxed text-brand-dark">{{+ sub.excerpt +}}</p>
       </li>
