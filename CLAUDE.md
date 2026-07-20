@@ -99,25 +99,43 @@ re-flag as a broken pattern.
 It is linked from the nav yet excluded from search engines. A search page is
 thin content; crawlers should reach posts directly. Not an SEO gap.
 
-### The search emblem needs a light plate in dark mode
+### The search emblem sits on a light plate in dark mode, and must use literal hex values
 
 The emblem in `app/search/` is knockout artwork: the hat, face and eye are not
-drawn, they are gaps where the page colour shows through the ink. That only
-reads on a light ground.
+drawn, they are gaps where the ground shows through the ink. That only reads on
+a light ground, so in dark mode the emblem sits on a cream plate.
 
-In dark mode it therefore sits on a cream plate (`dark:rounded-3xl
-dark:bg-[#FAF5F1] dark:p-8`) and the ink stays `text-brand-crimson` in both
-schemes. The plate colour must be the literal hex, not the page-background
-token — that token flips to the dark value in dark mode and would render a
-black plate, defeating the purpose. Same class of trap as the header colour
-constants below.
+The complete figure className:
+
+```
+search-empty mx-auto mt-10 max-w-[16rem] text-brand-crimson
+dark:rounded-3xl dark:bg-[#FAF5F1] dark:p-8 dark:text-[#A4243B]
+```
+
+**The rule that matters: anything rendered on that plate must use literal hex
+values in dark mode, never brand tokens.** The plate is a fixed cream island
+that does not change between colour schemes, but every brand token does. Both
+hexes above exist for that reason:
+
+- `dark:bg-[#FAF5F1]` — the page-background token flips to the dark value and
+  would render a black plate.
+- `dark:text-[#A4243B]` — `--color-brand-crimson` is deliberately lifted to
+  `#E0667A` in dark mode so links stay vivid and pass AA against near-black
+  (see globals.css). On the cream plate that lifted value looks washed out.
+  Forcing the light-mode crimson back is correct: the artwork is on cream in
+  both schemes, so it should be the same colour in both.
+
+Anything added to this figure later — a border, a caption, a hover state —
+falls under the same rule.
+
+`rounded-3xl` and `p-8` are tuned by eye and may be nudged. The two hex values
+are not tuning knobs.
 
 Two alternatives were tried and rejected. Inverting the ink to cream so the
 knockouts become page-dark is legible but reads as a photographic negative,
 because a face made of holes is absence rather than marks. Stripping the face
-and showing only the magnifying glass in dark mode loses the joke and damages
-the linocut line where the interior was cut away. Do not revisit either; the
-plate is the decision.
+and showing only the magnifying glass loses the joke and damages the linocut
+line where the interior was cut away. Do not revisit either.
 
 ### Brand colour exists in two places on purpose
 
