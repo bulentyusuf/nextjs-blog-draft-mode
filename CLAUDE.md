@@ -27,17 +27,20 @@ directive permits wasm compilation only, not JS `eval` — production
 `script-src` remains otherwise as strict as before. Removing it silently
 breaks search in every Chromium browser. Do not re-flag as CSP loosening.
 
-### Pagefind `!important` overrides in `globals.css` are deliberate
+### The search UI is bespoke, built on the Pagefind JS API
 
-Pagefind's default-UI stylesheet is injected at runtime AFTER globals.css,
-carries hashed selectors (`.svelte-*`) at higher specificity, and hard-codes
-result links to its text-colour variable rather than primary — so the
-documented variable API cannot colour links, and ordinary overrides lose on
-both order and specificity. Scoped `!important` under `.pagefind-scope` is the
-only mechanism that survives both, and it survives Pagefind upgrades because
-it targets the stable public `.pagefind-ui__*` class names. Do not "clean up"
-the `!important`s; the clean alternative is a bespoke UI on Pagefind's JS API,
-which is a feature, not a fix.
+`/search` no longer uses Pagefind's default UI. It is our own React component
+(`app/search/search-client.tsx`) driving the Pagefind JavaScript API loaded at
+runtime from `/pagefind/pagefind.js`, styled with ordinary house Tailwind
+classes — no `!important`, no `.pagefind-ui__*` overrides. This was adopted to
+fix two result-quality quirks the default UI exposed no hooks for: trimmed-term
+"ghost" results (e.g. "musk" matching "music") and over-broad prefix matches.
+The fix keys off the fact that Pagefind wraps genuine matches in `<mark>`, so
+any result — or sub-result — whose excerpt contains no `<mark>` is dropped
+before render. Excerpts are injected with `dangerouslySetInnerHTML`; the HTML
+is our own build-time index over trusted CMS content, the same precedent as the
+Shiki output in `lib/rich-text.tsx`. The `postbuild` step still runs the
+Pagefind CLI to build the index; only the UI layer changed.
 
 ### Search index staleness between deploys is accepted
 
