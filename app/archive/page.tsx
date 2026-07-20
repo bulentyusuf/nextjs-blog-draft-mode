@@ -61,7 +61,7 @@ export default async function ArchivePage() {
           Archive
         </h1>
         {oldest && (
-          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
+          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
             {posts.length} {posts.length === 1 ? "post" : "posts"} since{" "}
             {format(new Date(oldest.date), "LLLL yyyy", { locale: enGB })},
             newest first.
@@ -79,7 +79,7 @@ export default async function ArchivePage() {
               {/* Section marker, deliberately subordinate to the h1. Fraunces
                   comes from the base layer; brand-muted keeps it legible in
                   both colour schemes without any scheme-specific code. */}
-              <h2 className="mb-4 flex items-baseline gap-x-3 text-2xl text-brand-muted md:text-3xl">
+              <h2 className="mb-4 flex items-baseline gap-x-3 text-2xl text-brand-muted md:text-3xl tabular-nums">
                 {year}
                 <span className="font-sans text-sm font-normal text-brand-muted">
                   {yearPosts.length} {yearPosts.length === 1 ? "post" : "posts"}

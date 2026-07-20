@@ -112,12 +112,12 @@ export default async function AuthorPage({
               src={author.picture.url}
             />
           )}
-          <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl">
+          <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-balance">
             {author.name}
           </h1>
         </div>
         {author.bio && (
-          <div className="max-w-3xl text-lg leading-relaxed text-brand-muted">
+          <div className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
             <RichText content={author.bio} headings={[]} />
           </div>
         )}

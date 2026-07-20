@@ -53,11 +53,11 @@ export default function NotFound() {
                 <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">
           Whoops
         </p>
-        <h1 className="mt-4 text-4xl lg:text-6xl leading-tight">
+        <h1 className="mt-4 text-4xl lg:text-6xl leading-tight text-balance">
           404: A gremlin pulled the plug.
         </h1>
 
-        <p className="mt-6 text-lg leading-relaxed">
+        <p className="mt-6 text-lg leading-relaxed text-pretty">
           The page you seek isn't available or never existed. Apologies!
         </p>
 

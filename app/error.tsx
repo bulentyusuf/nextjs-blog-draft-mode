@@ -29,11 +29,11 @@ export default function Error({
         <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">
           Whoops
         </p>
-        <h1 className="mt-4 text-4xl lg:text-6xl leading-tight">
+        <h1 className="mt-4 text-4xl lg:text-6xl leading-tight text-balance">
           Something broke on our end.
         </h1>
 
-        <p className="mt-6 text-lg leading-relaxed">
+        <p className="mt-6 text-lg leading-relaxed text-pretty">
           An unexpected error stopped this page from loading. Try again, and if it
           keeps happening it is the site to blame, not you.
         </p>

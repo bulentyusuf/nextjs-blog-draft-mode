@@ -68,7 +68,7 @@ function HeroPost({
   return (
     <section className="mx-auto max-w-5xl mb-section">
       <div>
-        <h1 className="mb-4 text-4xl md:text-5xl lg:text-6xl leading-tight">
+        <h1 className="mb-4 text-4xl md:text-5xl lg:text-6xl leading-tight text-balance">
           <Link
             href={`/posts/${slug}`}
             className="hover:text-brand-crimson transition-colors duration-200"
@@ -76,7 +76,7 @@ function HeroPost({
             {title}
           </Link>
         </h1>
-        <p className="text-lg leading-relaxed mb-6">{excerpt}</p>
+        <p className="text-lg leading-relaxed mb-6 text-pretty">{excerpt}</p>
         {author && (
           <div className="flex items-center">
             <Avatar

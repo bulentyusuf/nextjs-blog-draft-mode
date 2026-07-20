@@ -61,7 +61,7 @@ export default async function AboutPage() {
             Last updated <Date dateString={lastUpdated} />
           </p>
         )}
-        <div className="prose">
+        <div className="prose text-pretty prose-headings:text-balance">
           <RichText content={page.body} headings={[]} lightbox={false} prioritizeFirstImage />
         </div>
       </article>

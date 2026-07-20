@@ -50,7 +50,7 @@ export default async function AuthorsPage() {
         <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
           Authors
         </h1>
-        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted">
+        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
           Two of these are not real. The site never pretends otherwise.
         </p>
       </header>
@@ -73,7 +73,7 @@ export default async function AuthorsPage() {
                   className="rounded-full object-cover h-20 w-20 shrink-0"
                 />
               )}
-              <h2 className="text-2xl leading-snug md:text-3xl">
+              <h2 className="text-2xl leading-snug md:text-3xl text-balance">
                 <Link
                   href={`/authors/${author.slug}`}
                   className="hover:text-brand-crimson transition-colors duration-200"
@@ -84,7 +84,7 @@ export default async function AuthorsPage() {
             </div>
 
             {author.bio && (
-              <div className="mb-5 text-lg leading-relaxed text-brand-muted">
+              <div className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
                 <RichText content={author.bio} headings={[]} />
               </div>
             )}
