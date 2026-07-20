@@ -21,10 +21,11 @@ export default function SearchPage() {
         {/* Empty state. Hidden by CSS as soon as the input has text (see
             globals.css). Inline SVG so currentColor picks up the brand token.
             Knockout artwork: the hat, face and eye are page colour showing
-            through the ink, so in dark mode it needs a light ground or it turns
-            to mud inside the red ring. The plate is knocked back from the page
-            cream so it does not glare against the ink. */}
-        <figure className="search-empty mx-auto mt-10 max-w-[14rem] text-brand-crimson dark:rounded-xl dark:bg-[#E9E2DA] dark:p-6">
+            through the ink. On dark, invert the ink to cream so those knockouts
+            become the dark page — maximum contrast, reads as a white-ink print
+            — instead of pasting a light plate behind it. #D8CFC6 is cream
+            knocked back a step so it does not glare against the page ink. */}
+        <figure className="search-empty mx-auto mt-10 max-w-[16rem] text-brand-crimson dark:text-[#D8CFC6]">
           <SearchEmblem />
         </figure>
       </section>

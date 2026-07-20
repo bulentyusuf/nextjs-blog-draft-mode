@@ -27,20 +27,37 @@ directive permits wasm compilation only, not JS `eval` — production
 `script-src` remains otherwise as strict as before. Removing it silently
 breaks search in every Chromium browser. Do not re-flag as CSP loosening.
 
-### The search UI is bespoke, built on the Pagefind JS API
+### The search UI runs on Pagefind's Component UI
 
-`/search` no longer uses Pagefind's default UI. It is our own React component
-(`app/search/search-client.tsx`) driving the Pagefind JavaScript API loaded at
-runtime from `/pagefind/pagefind.js`, styled with ordinary house Tailwind
-classes — no `!important`, no `.pagefind-ui__*` overrides. This was adopted to
-fix two result-quality quirks the default UI exposed no hooks for: trimmed-term
-"ghost" results (e.g. "musk" matching "music") and over-broad prefix matches.
-The fix keys off the fact that Pagefind wraps genuine matches in `<mark>`, so
-any result — or sub-result — whose excerpt contains no `<mark>` is dropped
-before render. Excerpts are injected with `dangerouslySetInnerHTML`; the HTML
-is our own build-time index over trusted CMS content, the same precedent as the
-Shiki output in `lib/rich-text.tsx`. The `postbuild` step still runs the
-Pagefind CLI to build the index; only the UI layer changed.
+`/search` uses Pagefind's Component UI — upstream web components
+(`<pagefind-input>`, `<pagefind-results>`, `<pagefind-config>`) emitted into
+`public/pagefind/` by the same `postbuild` step and loaded at runtime from
+`/pagefind/pagefind-component-ui.js`. Accessibility and keyboard navigation are
+upstream code, not ours. Result markup comes from our own
+`text/pagefind-template` in `app/search/search-client.tsx`, so it carries house
+Tailwind classes directly; the input and chrome are themed through Pagefind's
+documented `--pf-*` CSS custom properties, so there is no `!important` and no
+specificity war. Excerpts render the template's `{{+ excerpt +}}` (raw) because
+they carry the `<mark>` highlights — trusted build-time index HTML, the same
+precedent as the Shiki output in `lib/rich-text.tsx`.
+
+Two result-quality quirks are knowingly accepted as the price of staying on
+upstream-maintained code:
+
+- Trimmed-term "ghost" results (e.g. "musk" matching "music"/"Munich"): Pagefind
+  trims a term that finds nothing and retries. There is no config to disable it
+  at any layer; an upstream issue requests a threshold option. Do not
+  reintroduce client-side result filtering to hide these.
+- Over-broad prefix matches (e.g. "contentful" ranking a "content"-only page
+  above the literal match). `ranking.termSimilarity` exists on the raw JS API
+  but is **not** exposed by the Component UI (the string `ranking` appears
+  nowhere in its bundle), so it cannot be configured here.
+
+The result URL is taken from `data-pagefind-meta="url"` on the post `<article>`,
+not Pagefind's file-path-derived url, because the index is built over the
+prerendered `<slug>.html` files and that derived url carries a `.html` that
+404s on Next's extensionless routes. The template reads `meta.url` first for
+this reason — do not remove the meta.
 
 ### Search index staleness between deploys is accepted
 
