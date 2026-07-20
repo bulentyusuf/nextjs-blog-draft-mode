@@ -46,7 +46,7 @@ function PostPreview({
           </div>
         )}
         <div>
-          <Heading className="text-2xl md:text-3xl mb-2 leading-snug text-balance">
+          <Heading className="text-2xl md:text-3xl mb-2 leading-snug text-pretty">
             <Link
               href={`/posts/${slug}`}
               className="hover:text-brand-crimson transition-colors duration-200"
@@ -78,7 +78,7 @@ function PostPreview({
           />
         </div>
       )}
-      <Heading className="text-3xl mb-3 leading-snug text-balance">
+      <Heading className="text-3xl mb-3 leading-snug text-pretty">
         <Link
           href={`/posts/${slug}`}
           className="hover:text-brand-crimson transition-colors duration-200"
@@ -127,7 +127,7 @@ export default function MoreStories({
   return (
     <section className="mx-auto max-w-5xl">
       {heading && (
-        <h2 className="mb-8 text-4xl md:text-5xl leading-tight text-balance">
+        <h2 className="mb-8 text-4xl md:text-5xl leading-tight text-pretty">
           {heading}
         </h2>
       )}

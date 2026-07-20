@@ -92,7 +92,7 @@ export default async function CategoriesPage() {
                 </div>
               )}
 
-              <h2 className="mb-3 text-2xl leading-snug md:text-3xl text-balance">
+              <h2 className="mb-3 text-2xl leading-snug md:text-3xl text-pretty">
                 <Link
                   href={`/categories/${category.slug}`}
                   className="hover:text-brand-crimson transition-colors duration-200"
@@ -114,7 +114,7 @@ export default async function CategoriesPage() {
                       <li key={post.slug} className="py-4">
                         <Link
                           href={`/posts/${post.slug}`}
-                          className="text-lg font-medium text-balance hover:text-brand-crimson transition-colors duration-200"
+                          className="block text-lg font-medium text-pretty hover:text-brand-crimson transition-colors duration-200"
                         >
                           {post.title}
                         </Link>

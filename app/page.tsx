@@ -68,7 +68,7 @@ function HeroPost({
   return (
     <section className="mx-auto max-w-5xl mb-section">
       <div>
-        <h1 className="mb-4 text-4xl md:text-5xl lg:text-6xl leading-tight text-balance">
+        <h1 className="mb-4 text-4xl md:text-5xl lg:text-6xl leading-tight text-pretty">
           <Link
             href={`/posts/${slug}`}
             className="hover:text-brand-crimson transition-colors duration-200"

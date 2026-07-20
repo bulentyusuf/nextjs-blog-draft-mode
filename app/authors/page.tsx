@@ -73,7 +73,7 @@ export default async function AuthorsPage() {
                   className="rounded-full object-cover h-20 w-20 shrink-0"
                 />
               )}
-              <h2 className="text-2xl leading-snug md:text-3xl text-balance">
+              <h2 className="text-2xl leading-snug md:text-3xl text-pretty">
                 <Link
                   href={`/authors/${author.slug}`}
                   className="hover:text-brand-crimson transition-colors duration-200"
