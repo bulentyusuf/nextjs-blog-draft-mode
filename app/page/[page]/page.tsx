@@ -66,7 +66,7 @@ export default async function IndexPage({
   return (
     <Container>
       <header className="mb-6 md:mb-8">
-        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-balance">
+        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
           Latest posts
         </h1>
         <PageContext currentPage={pageNumber} totalPages={totalPages} />

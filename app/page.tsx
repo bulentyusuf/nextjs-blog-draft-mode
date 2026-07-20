@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   alternates: { canonical: SITE_URL },
 };
 import type { Author, Category, CoverImage as CoverImageType } from "@/lib/types";
+import { widont } from "@/lib/typography";
 
 function HeroPost({
   title,
@@ -68,12 +69,12 @@ function HeroPost({
   return (
     <section className="mx-auto max-w-5xl mb-section">
       <div>
-        <h1 className="mb-4 text-4xl md:text-5xl lg:text-6xl leading-tight text-balance">
+        <h1 className="mb-4 text-4xl md:text-5xl lg:text-6xl leading-tight text-pretty">
           <Link
             href={`/posts/${slug}`}
             className="hover:text-brand-crimson transition-colors duration-200"
           >
-            {title}
+            {widont(title)}
           </Link>
         </h1>
         <p className="text-lg leading-relaxed mb-6 text-pretty">{excerpt}</p>

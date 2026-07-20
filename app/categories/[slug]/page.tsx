@@ -7,6 +7,7 @@ import Pagination from "../../pagination";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { getAllCategories, getCategoryBySlug, getPostsByCategory } from "@/lib/api";
 import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { widont } from "@/lib/typography";
 
 // Allow on-demand rendering of categories added after build time, so a new
 // category in Contentful doesn't 404 until the next deploy.
@@ -82,8 +83,8 @@ export default async function CategoryPage({
     <Container>
       <Breadcrumb items={crumbs} />
       <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl text-balance">
-          {category.name}
+        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
+          {widont(category.name)}
         </h1>
         {category.description && (
           <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">

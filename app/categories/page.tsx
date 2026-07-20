@@ -7,6 +7,7 @@ import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
 import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { widont } from "@/lib/typography";
 
 // How many recent posts to tease under each category. The full list lives on
 // the individual category page (/categories/[slug]).
@@ -92,12 +93,12 @@ export default async function CategoriesPage() {
                 </div>
               )}
 
-              <h2 className="mb-3 text-2xl leading-snug md:text-3xl text-balance">
+              <h2 className="mb-3 text-2xl leading-snug md:text-3xl text-pretty">
                 <Link
                   href={`/categories/${category.slug}`}
                   className="hover:text-brand-crimson transition-colors duration-200"
                 >
-                  {category.name}
+                  {widont(category.name)}
                 </Link>
               </h2>
 
@@ -114,9 +115,9 @@ export default async function CategoriesPage() {
                       <li key={post.slug} className="py-4">
                         <Link
                           href={`/posts/${post.slug}`}
-                          className="text-lg font-medium text-balance hover:text-brand-crimson transition-colors duration-200"
+                          className="block text-lg font-medium text-pretty hover:text-brand-crimson transition-colors duration-200"
                         >
-                          {post.title}
+                          {widont(post.title)}
                         </Link>
                         <div className="mt-1 text-sm text-brand-muted">
                           <DateComponent dateString={post.date} />

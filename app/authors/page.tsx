@@ -7,6 +7,7 @@ import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import { getAllAuthors, getAuthorBySlug } from "@/lib/api";
 import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { widont } from "@/lib/typography";
 
 const authorsDescription = `Meet the authors behind ${SITE_TITLE}`;
 
@@ -73,12 +74,12 @@ export default async function AuthorsPage() {
                   className="rounded-full object-cover h-20 w-20 shrink-0"
                 />
               )}
-              <h2 className="text-2xl leading-snug md:text-3xl text-balance">
+              <h2 className="text-2xl leading-snug md:text-3xl text-pretty">
                 <Link
                   href={`/authors/${author.slug}`}
                   className="hover:text-brand-crimson transition-colors duration-200"
                 >
-                  {author.name}
+                  {widont(author.name)}
                 </Link>
               </h2>
             </div>

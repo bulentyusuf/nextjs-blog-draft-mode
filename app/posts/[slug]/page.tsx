@@ -16,6 +16,7 @@ import AuthorBioCard from "../../author-bio-card";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { SITE_URL, SITE_AUTHOR, SITE_TITLE, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
+import { widont } from "@/lib/typography";
 
 export async function generateStaticParams() {
   const allPosts = await getAllPosts(false);
@@ -160,8 +161,8 @@ export default async function PostPage({
         className="mx-auto max-w-5xl"
       >
         <Breadcrumb items={crumbs} />
-        <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl text-balance">
-          {post.title}
+        <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
+          {widont(post.title)}
         </h1>
         {post.coverImage && (
           <div className="mb-10">
@@ -210,11 +211,11 @@ export default async function PostPage({
                 />
               </div>
             )}
-            {/* text-pretty on the prose container inherits into every
-                paragraph, sparing the rich-text renderer; prose-headings:
-                text-balance then gives in-body headings the stronger balance
-                treatment that inherited text-pretty would otherwise weaken. */}
-            <div className="prose text-pretty prose-headings:text-balance prose-headings:scroll-mt-20 prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
+            {/* text-pretty on the prose container inherits into every child —
+                paragraphs and in-body headings alike — so line breaking just
+                avoids a lone last word, without the aggressive re-balancing of
+                text-wrap: balance. One class covers the whole article body. */}
+            <div className="prose text-pretty prose-headings:scroll-mt-20 prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
               <RichText content={post.content} headings={headings} highlighted={highlighted} />
             </div>
             {post.author?.bio && (
