@@ -39,11 +39,11 @@ const RESULT_TEMPLATE = `
     <p class="mt-2 leading-relaxed text-brand-dark">{{+ excerpt +}}</p>
     {{/if}}
     {{#if sub_results}}
-    <ul class="mt-3 space-y-3">
+    <ul class="mt-3 space-y-3 pl-4">
       {{#each sub_results as sub}}
       <li>
         <p class="font-display text-lg font-semibold leading-tight">
-          <a class="text-brand-dark transition-colors duration-200 hover:text-brand-crimson" href="{{ sub.url | safeUrl }}">{{ sub.title }}</a>
+          <span aria-hidden="true" class="mr-2 font-normal text-brand-muted">↳</span><a class="text-brand-dark transition-colors duration-200 hover:text-brand-crimson" href="{{ sub.url | safeUrl }}">{{ sub.title }}</a>
         </p>
         <p class="mt-1 leading-relaxed text-brand-dark">{{+ sub.excerpt +}}</p>
       </li>
