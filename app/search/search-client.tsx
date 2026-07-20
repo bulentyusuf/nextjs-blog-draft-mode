@@ -54,6 +54,17 @@ export default function SearchClient() {
         element: containerRef.current,
         showSubResults: true,
         showImages: false,
+        // Prefer exact-term matches over prefix/similar-word matches, so
+        // "content" ranks pages containing the literal word above pages that
+        // only contain "contentful". Reorders results; does not remove weak
+        // matches. Pagefind's trim-fallback for no-result terms (why "musk"
+        // returns posts containing "music" and "Munich") has no off switch in
+        // the default UI — accepted, see CLAUDE.md.
+        ranking: { termSimilarity: 2 },
+        // The page h1 already says "Search"; repeating it in the input is
+        // redundant. Also load-bearing for the empty-state CSS, which keys off
+        // :placeholder-shown.
+        translations: { placeholder: "What are you looking for?" },
         // Rewrite the .html paths Pagefind derives from the build directory so
         // the links match Next's extensionless routes instead of 404ing.
         processResult: (result: PagefindResult) => {

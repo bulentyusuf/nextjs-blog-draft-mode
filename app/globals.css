@@ -299,3 +299,10 @@
 .pagefind-scope .pagefind-ui__search-clear:hover {
   color: var(--color-brand-crimson) !important;
 }
+
+/* Empty-state emblem: visible only while the search input is empty.
+   :placeholder-shown flips on the first keystroke, so this needs no JS and no
+   re-render. Targets our own element, so no !important required. */
+.pagefind-scope:has(.pagefind-ui__search-input:not(:placeholder-shown)) + .search-empty {
+  display: none;
+}
