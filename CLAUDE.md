@@ -27,37 +27,61 @@ directive permits wasm compilation only, not JS `eval` — production
 `script-src` remains otherwise as strict as before. Removing it silently
 breaks search in every Chromium browser. Do not re-flag as CSP loosening.
 
-### The search UI runs on Pagefind's Component UI
+### Search runs on Pagefind's Component UI, not the legacy default UI
 
-`/search` uses Pagefind's Component UI — upstream web components
-(`<pagefind-input>`, `<pagefind-results>`, `<pagefind-config>`) emitted into
-`public/pagefind/` by the same `postbuild` step and loaded at runtime from
-`/pagefind/pagefind-component-ui.js`. Accessibility and keyboard navigation are
-upstream code, not ours. Result markup comes from our own
-`text/pagefind-template` in `app/search/search-client.tsx`, so it carries house
-Tailwind classes directly; the input and chrome are themed through Pagefind's
-documented `--pf-*` CSS custom properties, so there is no `!important` and no
-specificity war. Excerpts render the template's `{{+ excerpt +}}` (raw) because
-they carry the `<mark>` highlights — trusted build-time index HTML, the same
-precedent as the Shiki output in `lib/rich-text.tsx`.
+`app/search/` mounts Pagefind's web components (`<pagefind-input>`,
+`<pagefind-results>`) with a house result template supplied via
+`<script type="text/pagefind-template">`. The markup and class names in that
+template are ours; keyboard navigation, WAI-ARIA behaviour and assistive-text
+translation come from upstream and are deliberately not reimplemented.
 
-Two result-quality quirks are knowingly accepted as the price of staying on
-upstream-maintained code:
+Two earlier approaches were tried and abandoned, so do not propose either
+again. The legacy default UI (`@pagefind/default-ui`) needed a wall of
+`!important` overrides to fight its runtime-injected stylesheet and its hashed
+selectors. A fully bespoke React UI on the JS API removed that problem but made
+us the maintainer of the entire search interface, including its accessibility.
+The Component UI gives template-level control without either cost.
 
-- Trimmed-term "ghost" results (e.g. "musk" matching "music"/"Munich"): Pagefind
-  trims a term that finds nothing and retries. There is no config to disable it
-  at any layer; an upstream issue requests a threshold option. Do not
-  reintroduce client-side result filtering to hide these.
-- Over-broad prefix matches (e.g. "contentful" ranking a "content"-only page
-  above the literal match). `ranking.termSimilarity` exists on the raw JS API
-  but is **not** exposed by the Component UI (the string `ranking` appears
-  nowhere in its bundle), so it cannot be configured here.
+Because the template is ours, search CSS needs no `!important`. If a rule seems
+to require it, the template is the wrong shape — fix the template.
 
-The result URL is taken from `data-pagefind-meta="url"` on the post `<article>`,
-not Pagefind's file-path-derived url, because the index is built over the
-prerendered `<slug>.html` files and that derived url carries a `.html` that
-404s on Next's extensionless routes. The template reads `meta.url` first for
-this reason — do not remove the meta.
+The `pagefind` devDependency must stay at `^1.5.2` or later. The Component UI
+does not exist in 1.3.x.
+
+### Ghost search results for near-miss terms are an upstream limitation
+
+Searching a term that matches nothing causes Pagefind to truncate it and retry,
+so "musk" returns posts containing "music" and "Munich", with no highlighted
+term in the excerpt. This is search-core behaviour, not a UI fault, and it
+cannot be configured away: the complete browser-side option set is `baseUrl`,
+`bundlePath`/`basePath`, `excerptLength`, `highlightParam`, `exactDiacritics`,
+`metaCacheTag`, `ranking`, index weight, merge filter and `noWorker`. None of
+them is a minimum-match threshold.
+
+The related over-broad case, where "contentful" surfaces pages containing only
+"content", is **not** fixed either. `ranking.termSimilarity` (documented as
+suppressing pages that rank on long extensions of a search term) exists on the
+raw JS API, but the Component UI does not expose it: the string `ranking`
+appears nowhere in its bundle, and `<pagefind-config>` forwards only
+`excerpt-length`, `base-url`, `highlight-param`, `exact-diacritics` and
+`no-worker`. It is accepted on the same terms as the ghosts above — the price
+of staying on upstream-maintained components. A "content"-only page can even
+rank above the literal "contentful" match; do not treat that as a bug.
+
+A client-side filter dropping results whose excerpt contains no `<mark>` does
+remove the ghosts, but only by owning the result pipeline, which is the bespoke
+approach rejected above. Do not reintroduce it. An issue requesting an opt-in
+threshold has been drafted but not filed; the behaviour is accepted until
+upstream offers a supported fix. Do not re-flag as a bug.
+
+### The search empty state is coupled to the input's placeholder
+
+The `.search-empty` rule in `globals.css` hides the emblem using
+`:placeholder-shown` on the search input. Two things therefore matter: the
+placeholder must stay non-empty, and if the component's internal input ever
+moves into a shadow root the selector will stop matching and the emblem will
+never hide. If that happens, drive the toggle from the instance's `results`
+event instead. Check this after any Pagefind version bump.
 
 ### Search index staleness between deploys is accepted
 
@@ -74,6 +98,17 @@ re-flag as a broken pattern.
 
 It is linked from the nav yet excluded from search engines. A search page is
 thin content; crawlers should reach posts directly. Not an SEO gap.
+
+### The search emblem inverts its ink in dark mode, and must not get a plate
+
+The emblem in `app/search/` is knockout artwork: the hat, face and eye are page
+colour showing through the ink, which only reads on a light ground. In dark
+mode the ink is set to cream (`dark:text-[#D8CFC6]`) so the knockouts become
+page-dark — maximum contrast, and it reads as a white-ink print. Setting it to
+crimson in dark mode makes the detail vanish into the background.
+
+A light background plate behind the emblem was tried and rejected: it reads as
+a sticker pasted onto the page. Do not reintroduce `dark:bg-*` on that figure.
 
 ### Brand colour exists in two places on purpose
 
