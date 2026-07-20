@@ -39,7 +39,7 @@ const RESULT_TEMPLATE = `
     <p class="mt-2 leading-relaxed text-brand-dark">{{+ excerpt +}}</p>
     {{/if}}
     {{#if sub_results}}
-    <ul class="mt-3 space-y-3">
+    <ul class="mt-3 space-y-3 pl-4">
       {{#each sub_results as sub}}
       <li>
         <p class="font-display text-lg font-semibold leading-tight">
