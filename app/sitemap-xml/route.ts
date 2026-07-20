@@ -31,6 +31,13 @@ type SitemapEntry = {
 const safeIso = (d: Date): string =>
   Number.isNaN(d.getTime()) ? new Date(0).toISOString() : d.toISOString();
 
+// The only CMS `Page` slugs that have a matching route (app/about, app/privacy).
+// Every other Page entry would map to a URL with no route — a 404 in the
+// sitemap, which wastes crawl budget and erodes sitemap trust. Filtering here
+// means a newly published Page can never inject a dead URL. Add a slug only
+// when a real route ships for it.
+const ROUTED_PAGE_SLUGS = new Set(["about", "privacy"]);
+
 export async function GET() {
   const [posts, pages, categories, authors] = await Promise.all([
     getAllPosts(false),
@@ -73,14 +80,16 @@ export async function GET() {
     priority: 0.8,
   }));
 
-  const pageEntries: SitemapEntry[] = pages.map((page) => ({
-    url: `${SITE_URL}/${page.slug}`,
-    lastModified: new Date(
-      page.sys.publishedAt ?? page.sys.firstPublishedAt ?? Date.now(),
-    ),
-    changeFrequency: "yearly",
-    priority: 0.5,
-  }));
+  const pageEntries: SitemapEntry[] = pages
+    .filter((page) => ROUTED_PAGE_SLUGS.has(page.slug))
+    .map((page) => ({
+      url: `${SITE_URL}/${page.slug}`,
+      lastModified: new Date(
+        page.sys.publishedAt ?? page.sys.firstPublishedAt ?? Date.now(),
+      ),
+      changeFrequency: "yearly",
+      priority: 0.5,
+    }));
 
   const categoryEntries: SitemapEntry[] = categories.map((category) => ({
     url: `${SITE_URL}/categories/${category.slug}`,
@@ -116,6 +125,14 @@ export async function GET() {
       lastModified: newestSitewide,
       changeFrequency: "weekly",
       priority: 0.7,
+    },
+    {
+      // Browse hub, indexable and internally linked from the footer. lastmod
+      // tracks the freshest post since the archive lists every post.
+      url: `${SITE_URL}/archive`,
+      lastModified: newestSitewide,
+      changeFrequency: "weekly",
+      priority: 0.6,
     },
     ...pageEntries,
     ...categoryEntries,

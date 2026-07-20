@@ -163,12 +163,13 @@ without a new reason.
   configured secrets are high-entropy.
 - `dangerouslySetInnerHTML` for Shiki output in `lib/rich-text.tsx`. Input is
   trusted CMS content and the renderer allowlists URL schemes. Known and accepted.
-- Sitemap may list CMS `Page` slugs that have no route. Only `/about` and
-  `/privacy` exist as routes today, both hardcoded, so this is dormant. If a
-  third `Page` entry is ever published, either filter the sitemap to routed
-  slugs or add a routing story (a root catch-all `[slug]` needs collision care
-  with `/posts`, `/categories`, `/authors`). Triaged and low priority, not
-  dismissed.
+- The sitemap only lists CMS `Page` slugs that have a real route. Just `/about`
+  and `/privacy` are routed today (both hardcoded), so the sitemap filters
+  `Page` entries through `ROUTED_PAGE_SLUGS` in `app/sitemap-xml/route.ts` — a
+  newly published Page cannot inject a URL with no route (a 404) into the
+  sitemap. If a real route is ever added for another Page slug, add it to that
+  set. The alternative, a root catch-all `[slug]` route, still needs collision
+  care with `/posts`, `/categories`, `/authors` and was not taken.
 - Dependabot ignores major version updates for all packages. Deliberate, to
   avoid breaking-change churn for a solo maintainer. Advisory-driven Dependabot
   security updates are a separate mechanism and still cover security-flagged
