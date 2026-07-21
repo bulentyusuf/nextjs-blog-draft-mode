@@ -1,4 +1,5 @@
 import Container from "../container";
+import Breadcrumb, { type Crumb } from "../breadcrumb";
 import SearchClient from "./search-client";
 import SearchEmblem from "./search-emblem";
 
@@ -11,8 +12,18 @@ export const metadata = {
 };
 
 export default function SearchPage() {
+  const crumbs: Crumb[] = [{ label: "Home", href: "/" }, { label: "Search" }];
+
   return (
     <Container>
+      {/* Constrained to the section's own measure. Container is max-w-5xl, so
+          an unwrapped breadcrumb starts 176px left of the heading it labels.
+          Must sit BEFORE the <section>: the empty-state emblem is hidden by a
+          .pagefind-scope + .search-empty sibling selector, both inside the
+          section — a breadcrumb placed within would break that adjacency. */}
+      <div className="mx-auto max-w-2xl">
+        <Breadcrumb items={crumbs} />
+      </div>
       <section className="mx-auto max-w-2xl">
         <h1 className="mb-6 text-4xl md:text-5xl">
           Search
