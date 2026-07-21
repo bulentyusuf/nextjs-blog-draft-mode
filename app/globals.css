@@ -127,6 +127,21 @@
   }
 }
 
+/*
+  One focus indicator for the whole site. Crimson picks up the accent token, so
+  it inverts with the scheme automatically (#A4243B light, #E0667A dark) and
+  clears 3:1 against both page backgrounds. Elements sitting on the coloured
+  header or footer bands override this locally with a white ring, because
+  crimson on navy does not clear contrast — see app/layout.tsx.
+*/
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-brand-crimson);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
 /* Selection uses the brand accent, with the light page background as the
    readable foreground. Applies everywhere, code blocks included. */
 ::selection {
