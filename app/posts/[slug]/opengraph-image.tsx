@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getPost } from "@/lib/api";
 import { SITE_TITLE, SITE_AUTHOR } from "@/lib/constants";
+import { widont } from "@/lib/typography";
 
 // Branded Open Graph card generated per post at request time. This colocated
 // file-based route takes precedence over any `openGraph.images` set in the
@@ -34,8 +35,13 @@ const BRAND_INK = "#241B1D";
 const BRAND_CRIMSON = "#A4243B";
 
 // Satori has no text-overflow: ellipsis, so long titles are truncated in JS.
-function clampTitle(title: string): string {
-  return title.length > 90 ? `${title.slice(0, 90).trimEnd()}…` : title;
+// widont then glues the final two words with a non-breaking space so the
+// wrapped card title never ends on a lone last word, matching the on-page h1
+// (Satori honours U+00A0 as non-breaking). Clamp first so the glue lands on the
+// words that actually render.
+function cardTitle(title: string): string {
+  const clamped = title.length > 90 ? `${title.slice(0, 90).trimEnd()}…` : title;
+  return widont(clamped);
 }
 
 export default async function OpengraphImage({
@@ -47,7 +53,7 @@ export default async function OpengraphImage({
   // OG cards are for public URLs, so draft mode is off.
   const post = await getPost(slug, false).catch(() => undefined);
 
-  const title = post ? clampTitle(post.title) : SITE_TITLE;
+  const title = post ? cardTitle(post.title) : SITE_TITLE;
   const author = post?.author?.name ?? SITE_AUTHOR;
   // A modestly sized cover derivative keeps generation fast; full assets are
   // wasteful for a 480px-wide panel.
