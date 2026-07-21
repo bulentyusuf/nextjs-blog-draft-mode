@@ -73,7 +73,7 @@ function Header() {
     <header className="sticky top-0 z-50 w-full bg-brand-header shadow-xs">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-3">
-          <Link href="/" className="font-display text-lg font-[650] text-white">
+          <Link href="/" className="font-display text-lg font-[650] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white">
             {SITE_TITLE}
           </Link>
           <p className="hidden lg:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
@@ -81,13 +81,13 @@ function Header() {
         <nav aria-label="Primary" className="flex items-center gap-4 md:gap-6">
           <Link
             href="/categories"
-            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             Categories
           </Link>
           <Link
             href="/about"
-            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             About
           </Link>
