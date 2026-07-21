@@ -22,11 +22,20 @@ export default function BackToTop() {
   }
 
   return (
+    /* The one deliberate exception to the sitewide crimson focus outline.
+       This is the only position:fixed control on the site, so its indicator
+       floats over unknown ground — light page, dark page, the footer band, a
+       code block. No single colour clears 3:1 against all of those: crimson is
+       2.32:1 on the light-mode footer (#A4243B on #241B1D), which is where it
+       was caught. The white ring plus dark offset is a two-tone indicator —
+       whichever tone loses contrast against the background, the other carries
+       (white is 18.7:1 on the dark page, the dark offset is 15.5:1 on the light
+       page). Do not "simplify" this to the base outline. */
     <button
       type="button"
       aria-label="Back to top"
       onClick={scrollToTop}
-      className={`fixed bottom-6 right-12 z-50 flex h-11 w-11 items-center justify-center rounded-full border-2 border-gray-400 bg-surface-dark text-white shadow-lg transition-opacity duration-200 hover:bg-brand-crimson focus:outline-hidden focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 ${
+      className={`fixed bottom-6 right-12 z-50 flex h-11 w-11 items-center justify-center rounded-full border-2 border-gray-400 bg-surface-dark text-white shadow-lg transition-opacity duration-200 hover:bg-brand-crimson focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-surface-dark ${
          visible ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
     >

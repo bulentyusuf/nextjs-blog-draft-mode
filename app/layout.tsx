@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, SITE_FOOTER_BLURB, BRAND_HEADER_COLOR, BRAND_HEADER_COLOR_DARK, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import BackToTop from "./back-to-top";
+import NewWindowHint from "./new-window-hint";
 import Link from "next/link";
 import { draftMode } from "next/headers";
 import { ExitPreviewButton } from "./exit-preview-button";
@@ -72,7 +73,7 @@ function Header() {
     <header className="sticky top-0 z-50 w-full bg-brand-header shadow-xs">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-3">
-          <Link href="/" className="font-display text-lg font-[650] text-white">
+          <Link href="/" className="font-display text-lg font-[650] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white">
             {SITE_TITLE}
           </Link>
           <p className="hidden lg:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
@@ -80,13 +81,13 @@ function Header() {
         <nav aria-label="Primary" className="flex items-center gap-4 md:gap-6">
           <Link
             href="/categories"
-            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             Categories
           </Link>
           <Link
             href="/about"
-            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200"
+            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             About
           </Link>
@@ -186,6 +187,7 @@ function Footer() {
                   rel="noopener noreferrer"
                 >
                   Fork this blog on GitHub
+                  <NewWindowHint />
                 </a>
               </li>
               <li>
@@ -222,9 +224,12 @@ export default async function RootLayout({
   return (
     <html lang={DEFAULT_LOCALE} className={`${inter.variable} ${fraunces.variable}`}>
       <body className="min-h-screen flex flex-col bg-brand-bg text-brand-dark">
+        {/* top-2 centres the 36px link in the 52px header band. If the header's
+            py-3 or the masthead's text-lg ever changes, this needs revisiting —
+            it is a computed value, not an arbitrary one. */}
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-brand-header focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-[100] focus:rounded-md focus:bg-brand-header focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
         >
           Skip to content
         </a>

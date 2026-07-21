@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/constants";
+import NewWindowHint from "./new-window-hint";
 
 // A small reading-assistance block: hands the current post's URL off to a
 // chat tool with a pre-filled, open-ended prompt. No server call, no key —
@@ -31,6 +32,7 @@ export default function ExploreWithAI({ slug }: { slug: string }) {
               className="block leading-snug text-brand-muted transition-colors duration-200 hover:text-brand-crimson"
             >
               {t.label}
+              <NewWindowHint />
             </a>
           </li>
         ))}

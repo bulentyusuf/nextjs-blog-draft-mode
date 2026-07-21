@@ -110,7 +110,7 @@ export default async function CategoriesPage() {
 
               {posts.length > 0 ? (
                 <>
-                  <ul className="flex flex-col divide-y divide-gray-200 border-t border-gray-200">
+                  <ul className="flex flex-col divide-y divide-hairline border-t border-hairline">
                     {posts.map((post) => (
                       <li key={post.slug} className="py-4">
                         <Link
