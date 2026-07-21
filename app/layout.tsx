@@ -224,9 +224,12 @@ export default async function RootLayout({
   return (
     <html lang={DEFAULT_LOCALE} className={`${inter.variable} ${fraunces.variable}`}>
       <body className="min-h-screen flex flex-col bg-brand-bg text-brand-dark">
+        {/* top-2 centres the 36px link in the 52px header band. If the header's
+            py-3 or the masthead's text-lg ever changes, this needs revisiting —
+            it is a computed value, not an arbitrary one. */}
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-brand-header focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-[100] focus:rounded-md focus:bg-brand-header focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
         >
           Skip to content
         </a>
