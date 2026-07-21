@@ -31,9 +31,14 @@ export default function BackToTop() {
        whichever tone loses contrast against the background, the other carries
        (white is 18.7:1 on the dark page, the dark offset is 15.5:1 on the light
        page). Do not "simplify" this to the base outline. */
+    /* opacity-0 and pointer-events-none hide it visually but leave it in the
+       tab order, so keyboard users landed on an invisible control near the top
+       of every page. inert removes it from both the tab order and the
+       accessibility tree while it is hidden. */
     <button
       type="button"
       aria-label="Back to top"
+      inert={!visible}
       onClick={scrollToTop}
       className={`fixed bottom-6 right-12 z-50 flex h-11 w-11 items-center justify-center rounded-full border-2 border-gray-400 bg-surface-dark text-white shadow-lg transition-opacity duration-200 hover:bg-brand-crimson focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-surface-dark ${
          visible ? "opacity-100" : "pointer-events-none opacity-0"
