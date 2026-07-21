@@ -1,9 +1,13 @@
 export default function SearchEmblem() {
-  return (
-    // Decorative only: the search input beside it is already labelled, so the
-    // emblem is aria-hidden and carries no title.
-    <svg viewBox="0 0 1735 1867" className="h-auto w-full" aria-hidden="true" focusable="false">
-      <g transform="translate(0,1867) scale(0.1,-0.1)" fill="currentColor" stroke="none"><path d="M7380 18257 c-41 -5 -128 -9 -192 -7 -66 1 -133 -3 -152 -10 -21 -7
+  // The emblem is a two-part linocut path in a flipped/scaled group. PATH1 is
+  // the magnifying glass (its FIRST subpath is the outer silhouette — the lens
+  // ring plus handle); PATH2 is the detective's features. We fill just that
+  // first subpath as a cream underlay so, in dark mode, the knockouts (hat,
+  // face, eye) read against a light ground shaped exactly like the glass — no
+  // plate, no guesswork. Deriving it with slice() means the underlay can never
+  // drift from the art: if the emblem is replaced, both constants change and
+  // LENS follows automatically.
+  const PATH1 = `M7380 18257 c-41 -5 -128 -9 -192 -7 -66 1 -133 -3 -152 -10 -21 -7
 -47 -8 -72 -2 -28 6 -56 4 -99 -8 -45 -12 -70 -14 -103 -7 -33 7 -52 5 -83 -7
 -24 -10 -69 -16 -118 -16 -44 0 -97 -7 -121 -15 -23 -8 -59 -15 -79 -15 -20 0
 -58 -7 -85 -15 -27 -8 -63 -15 -80 -15 -33 0 -183 -34 -256 -57 -25 -9 -74
@@ -258,7 +262,8 @@ c22 -11 67 -41 101 -66 33 -25 65 -46 71 -46 18 0 43 -47 28 -53 -18 -7 -146
 -14 23 -57 78 -95 124 -84 100 -108 106 -179 44 -24 -21 -69 -53 -100 -70 -31
 -17 -87 -55 -125 -83 -118 -88 -160 -95 -199 -35 -36 54 -15 100 94 207 53 53
 119 108 147 124 27 15 76 45 110 67 100 63 217 118 254 119 19 0 51 7 70 14
-39 15 63 11 103 -17z"/><path d="M7190 17114 c-30 -8 -118 -22 -195 -29 -77 -8 -167 -19 -200 -24
+39 15 63 11 103 -17z`;
+  const PATH2 = `M7190 17114 c-30 -8 -118 -22 -195 -29 -77 -8 -167 -19 -200 -24
 -267 -41 -345 -54 -380 -67 -22 -8 -67 -17 -100 -20 -33 -4 -72 -13 -87 -20
 -15 -8 -41 -14 -59 -14 -30 0 -56 -6 -194 -46 -27 -8 -68 -18 -90 -23 -44 -11
 -121 -35 -175 -56 -19 -8 -55 -17 -80 -21 -24 -3 -60 -17 -80 -29 -19 -13 -50
@@ -476,7 +481,24 @@ m-1854 -149 c131 -44 240 -121 404 -283 89 -88 177 -181 195 -207 18 -27 37
 78 29 105 25 107 54 150 129 199 38 24 84 57 103 74 33 28 106 72 121 72 7 0
 159 110 275 200 29 22 108 67 175 100 73 35 153 84 198 119 46 37 92 64 120
 72 50 13 111 46 180 94 25 18 54 35 65 38 11 3 43 14 70 25 28 11 79 28 115
-37 36 9 92 30 125 46 67 32 170 40 236 17z"/></g>
+37 36 9 92 30 125 46 67 32 170 40 236 17z`;
+  const LENS = PATH1.slice(0, PATH1.indexOf("z") + 1);
+  const TRANSFORM = "translate(0,1867) scale(0.1,-0.1)";
+
+  return (
+    // Decorative only: the search input beside it is already labelled, so the
+    // emblem is aria-hidden and carries no title.
+    <svg viewBox="0 0 1735 1867" className="h-auto w-full" aria-hidden="true" focusable="false">
+      {/* Cream underlay = the glass silhouette. Transparent in light mode, a
+          literal #FAF5F1 in dark (see .search-lens-ground in globals.css) —
+          never a brand token, which would flip to near-black. */}
+      <g transform={TRANSFORM}>
+        <path className="search-lens-ground" d={LENS} stroke="none" />
+      </g>
+      <g transform={TRANSFORM} fill="currentColor" stroke="none">
+        <path d={PATH1} />
+        <path d={PATH2} />
+      </g>
     </svg>
   );
 }

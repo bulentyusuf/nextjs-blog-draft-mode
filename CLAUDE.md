@@ -100,46 +100,59 @@ re-flag as a broken pattern.
 It is linked from the nav yet excluded from search engines. A search page is
 thin content; crawlers should reach posts directly. Not an SEO gap.
 
-### The search emblem sits on a light seal in dark mode, and must use literal hex values
+### The search emblem lights its own silhouette in dark mode, and must use literal hex values
 
 The emblem in `app/search/` is knockout artwork: the hat, face and eye are not
 drawn, they are gaps where the ground shows through the ink. That only reads on
-a light ground, so in dark mode the emblem sits on a cream disc.
+a light ground, so in dark mode a cream ground sits behind the ink.
 
-The ground is a **circle** (`dark:rounded-full`), not a rounded rectangle. A
-rectangular plate read as a floating card dropped into the dark layout; the disc
-echoes the magnifying-glass lens and reads as a deliberate stamp. A partial disc
-behind only the lens was tried and rejected — the lens rim and handle then spill
-onto the dark page in `#A4243B`, which is muddy and low-contrast, so the whole
-emblem must sit on the ground. `p-8` is shared by both schemes (not `dark:`) so
-the emblem renders at one size in light and dark; in light mode the padding is
-simply transparent space with no plate.
+The ground is **the magnifying glass's own outer silhouette**, not a plate and
+not a hand-tuned ellipse. In `search-emblem.tsx` the emblem path is held in two
+constants, `PATH1` (the glass) and `PATH2` (the face). `PATH1`'s first subpath
+is the outer contour of the glass — lens ring plus handle — so
+`LENS = PATH1.slice(0, PATH1.indexOf("z") + 1)` is exactly that silhouette. It is
+filled once as a cream underlay (`<path class="search-lens-ground">`, drawn
+before the ink), giving a pixel-perfect light ground shaped like the glass, with
+the handle included. Because `LENS` is sliced from `PATH1` at render time it can
+**never drift** from the art: replace the emblem and both constants change
+together. `p-8` on the figure, shared by both schemes, sets one emblem size
+across light and dark.
 
-The complete figure className:
+Why the silhouette and not a disc: on grey (ink vs. see-through holes) the right
+third of the glass and the whole ring are solid ink, and the glass is drawn as a
+*tilted* ellipse. A geometric disc either clips the inked side of the face
+(muddy `#A4243B` on near-black, a bite out of the face) or spills cream past the
+ring. Two earlier attempts — a rounded plate behind the whole figure
+(`dark:rounded-3xl`/`dark:rounded-full` + `dark:bg`, read as a floating card),
+and a tuned tilted ellipse (`rotate(-8 …)`, always a hair of spill and a muddy
+handle) — were both replaced by the silhouette, which needs no tuning.
+
+The relevant classes:
 
 ```
-search-empty mx-auto mt-10 max-w-[16rem] p-8 text-brand-crimson
-dark:rounded-full dark:bg-[#FAF5F1] dark:text-[#A4243B]
+figure:   search-empty mx-auto mt-10 max-w-[16rem] p-8 text-brand-crimson dark:text-[#A4243B]
+underlay: search-lens-ground   (fill: transparent; dark → fill #FAF5F1, in globals.css)
 ```
 
-**The rule that matters: anything rendered on that disc must use literal hex
-values in dark mode, never brand tokens.** The disc is a fixed cream island
+**The rule that matters: anything rendered on that ground must use literal hex
+values in dark mode, never brand tokens.** The ground is a fixed cream island
 that does not change between colour schemes, but every brand token does. Both
-hexes above exist for that reason:
+hexes exist for that reason:
 
-- `dark:bg-[#FAF5F1]` — the page-background token flips to the dark value and
-  would render a black plate.
+- `.search-lens-ground { fill: #FAF5F1 }` in dark mode — the page-background
+  token (`--color-brand-bg`) flips to near-black and would paint a black glass.
 - `dark:text-[#A4243B]` — `--color-brand-crimson` is deliberately lifted to
   `#E0667A` in dark mode so links stay vivid and pass AA against near-black
-  (see globals.css). On the cream plate that lifted value looks washed out.
-  Forcing the light-mode crimson back is correct: the artwork is on cream in
+  (see globals.css). On the cream ground that lifted value looks washed out.
+  Forcing the light-mode crimson back is correct: the emblem is on cream in
   both schemes, so it should be the same colour in both.
 
 Anything added to this figure later — a border, a caption, a hover state —
-falls under the same rule.
+falls under the same literal-hex rule.
 
-`rounded-full` and `p-8` are tuned by eye and may be nudged. The two hex values
-are not tuning knobs.
+`p-8` is tuned by eye and may be nudged. The two hex values are not tuning
+knobs, and `LENS` is not a tuning knob either — it is derived from the art, so
+do not replace it with a hand-drawn shape.
 
 Two alternatives were tried and rejected. Inverting the ink to cream so the
 knockouts become page-dark is legible but reads as a photographic negative,
