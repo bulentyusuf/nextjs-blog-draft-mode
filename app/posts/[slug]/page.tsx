@@ -222,7 +222,7 @@ export default async function PostPage({
               <RichText content={post.content} headings={headings} highlighted={highlighted} />
             </div>
             {post.author?.bio && (
-              <div className="mt-12 border-t border-gray-200 pt-8">
+              <div className="mt-12 border-t border-hairline pt-8">
                 <AuthorBioCard author={post.author} />
               </div>
             )}

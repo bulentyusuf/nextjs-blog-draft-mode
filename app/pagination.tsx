@@ -60,7 +60,7 @@ export default function Pagination({
   }
 
   return (
-    <nav aria-label="Pagination" className="mx-auto max-w-5xl border-t border-gray-200 pt-10 md:pt-12">
+    <nav aria-label="Pagination" className="mx-auto max-w-5xl border-t border-hairline pt-10 md:pt-12">
       <ul className="flex items-center justify-center gap-2">
         <li>
           {hasPrev ? (
