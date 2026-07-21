@@ -1,5 +1,6 @@
 import LightboxImage from "./lightbox-image";
 import CopyButton from "./copy-button";
+import NewWindowHint from "@/app/new-window-hint";
 import ContentfulImage from "./contentful-image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
@@ -227,6 +228,7 @@ export function RichText({
           return (
             <a href={uri} target="_blank" rel="noopener noreferrer">
               {children}
+              <NewWindowHint />
             </a>
           );
         }
