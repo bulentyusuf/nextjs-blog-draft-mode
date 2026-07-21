@@ -42,12 +42,14 @@ export async function generateMetadata({
   }
 
   const canonical = `${SITE_URL}/posts/${slug}`;
-  const coverUrl = post.coverImage ? `${post.coverImage.url}?w=1200&h=630&fit=fill&fm=jpg&q=80` : "/be_useful.jpg";
 
   return {
     title: post.title,
     description: post.excerpt,
     alternates: { canonical },
+    // The og:image (and the Twitter image Next derives from it) now comes from
+    // the colocated opengraph-image route, which generates a branded card and
+    // takes precedence over config-based metadata — so no images are set here.
     openGraph: {
       title: post.title,
       description: post.excerpt,
@@ -60,13 +62,11 @@ export async function generateMetadata({
       authors: post.author?.slug
         ? [`${SITE_URL}/authors/${post.author.slug}`]
         : undefined,
-      images: [{ url: coverUrl, width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: [coverUrl],
     },
   };
 }
