@@ -164,7 +164,7 @@ export function RichText({
                 tabIndex={0}
                 role="region"
                 aria-label={entry.filename || "Code block"}
-                className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full"
+                className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline-offset-[-2px]"
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             ) : (
@@ -172,7 +172,7 @@ export function RichText({
                 tabIndex={0}
                 role="region"
                 aria-label={entry.filename || "Code block"}
-                className="overflow-x-auto p-4 text-sm"
+                className="overflow-x-auto p-4 text-sm focus-visible:outline-offset-[-2px]"
               >
                 <code>{entry.code}</code>
               </pre>
