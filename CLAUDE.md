@@ -71,8 +71,9 @@ rank above the literal "contentful" match; do not treat that as a bug.
 A client-side filter dropping results whose excerpt contains no `<mark>` does
 remove the ghosts, but only by owning the result pipeline, which is the bespoke
 approach rejected above. Do not reintroduce it. An issue requesting an opt-in
-threshold has been drafted but not filed; the behaviour is accepted until
-upstream offers a supported fix. Do not re-flag as a bug.
+threshold has been filed upstream (Pagefind/pagefind#1246,
+https://github.com/Pagefind/pagefind/issues/1246); the behaviour is accepted
+until it lands a supported fix. Do not re-flag as a bug.
 
 ### The search empty state is coupled to the input's placeholder
 
