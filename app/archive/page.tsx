@@ -102,7 +102,7 @@ export default async function ArchivePage() {
                       {post.category && (
                         <Link
                           href={`/categories/${post.category.slug}`}
-                          className="text-xs uppercase tracking-wide text-brand-muted transition-colors duration-200 hover:text-brand-crimson"
+                          className="text-sm uppercase tracking-wide text-brand-muted transition-colors duration-200 hover:text-brand-crimson"
                         >
                           {/* Screen readers run adjacent inline elements
                               together, so the title ran straight into the
