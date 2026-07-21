@@ -3,6 +3,7 @@ import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import Date from "../date";
 import Container from "../container";
+import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import { getPage } from "@/lib/api";
 import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
@@ -50,8 +51,11 @@ export default async function AboutPage() {
 
   const lastUpdated = page.sys.publishedAt ?? page.sys.firstPublishedAt;
 
+  const crumbs: Crumb[] = [{ label: "Home", href: "/" }, { label: "About" }];
+
   return (
     <Container>
+      <Breadcrumb items={crumbs} />
       <article className="mx-auto max-w-2xl">
         <h1 className="mb-6 text-4xl md:text-5xl">
           {page.title}
