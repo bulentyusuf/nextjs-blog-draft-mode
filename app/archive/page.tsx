@@ -9,6 +9,7 @@ import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { getAllPosts } from "@/lib/api";
 import type { ListPost } from "@/lib/types";
 import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { widont } from "@/lib/typography";
 
 const archiveDescription = `Every post on ${SITE_TITLE}, grouped by year.`;
 
@@ -96,16 +97,27 @@ export default async function ArchivePage() {
                         href={`/posts/${post.slug}`}
                         className="hover:text-brand-crimson transition-colors duration-200"
                       >
-                        {post.title}
+                        {widont(post.title)}
                       </Link>
                       {post.category && (
-                        <span className="text-xs uppercase tracking-wide text-brand-muted">
+                        <Link
+                          href={`/categories/${post.category.slug}`}
+                          className="text-xs uppercase tracking-wide text-brand-muted transition-colors duration-200 hover:text-brand-crimson"
+                        >
+                          {/* Screen readers run adjacent inline elements
+                              together, so the title ran straight into the
+                              category name. A word gives it a boundary. */}
+                          <span className="sr-only">in </span>
                           {post.category.name}
-                        </span>
+                        </Link>
                       )}
                     </span>
                     <span className="shrink-0 text-sm tabular-nums text-brand-muted sm:text-right">
                       <DateComponent dateString={post.date} formatString="d MMM" />
+                      {/* The visible date drops the year because the section
+                          heading carries it. Someone moving link to link skips
+                          that heading, so restore it for them only. */}
+                      <span className="sr-only"> {year}</span>
                     </span>
                   </li>
                 ))}
