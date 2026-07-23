@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Heading } from "@/lib/headings";
 import { pickActiveHeading, type HeadingPosition } from "@/lib/toc-active";
 import { widont } from "@/lib/typography";
@@ -14,8 +14,26 @@ const FALLBACK_BAND_TOP_PX = 96;
 // and hand the highlight to the previous section.
 const BAND_TOLERANCE_PX = 4;
 
+// How long a ToC click keeps re-asserting the target's scroll position while
+// the page settles, before handing control back to the scroll spy. Long enough
+// to outlast a web-font swap on a warm connection; the reader scrolling ends it
+// sooner regardless.
+const PIN_SETTLE_MS = 1500;
+
 export default function TableOfContents({ headings }: { headings: Heading[] }) {
   const [activeId, setActiveId] = useState<string>("");
+
+  // When a heading is targeted (ToC click, or a deep link at load) we "pin" its
+  // slug: the scroll spy holds the highlight on it, and reflow re-scrolls to it,
+  // until the reader takes over. See armPin. A ref, not state — it is read
+  // inside the observer/listener closures and must never restart the effect.
+  const pinnedSlug = useRef<string | null>(null);
+  // Tears down the listeners/timer of the current pin. Held so a second target,
+  // or unmount, can cancel an in-flight pin.
+  const releasePin = useRef<(() => void) | null>(null);
+  // The effect owns armPin (it closes over the heading elements); the click
+  // handler reaches it through here.
+  const armPin = useRef<((slug: string) => void) | null>(null);
 
   useEffect(() => {
     if (headings.length === 0) return;
@@ -39,6 +57,13 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
         : FALLBACK_BAND_TOP_PX) + BAND_TOLERANCE_PX;
 
     const recompute = () => {
+      // While a click is settling, hold the highlight on the clicked entry.
+      // Live geometry would otherwise report the section above while post-click
+      // reflow (see onLinkClick) is still sliding the target toward the line.
+      if (pinnedSlug.current) {
+        setActiveId(pinnedSlug.current);
+        return;
+      }
       const positions: HeadingPosition[] = elements.map((el) => ({
         id: el.id,
         top: el.getBoundingClientRect().top,
@@ -46,16 +71,18 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
       setActiveId(pickActiveHeading(positions, bandTop));
     };
 
-    // Track scroll directly rather than through an IntersectionObserver. The
-    // decision turns on a heading's TOP crossing bandTop, but an observer with
-    // this rootMargin transitions on the heading's BOTTOM edge, so it fires a
-    // heading-height late (~90px on the two-line H2s in a listicle) and the
-    // highlight visibly lags the sticky header. A scroll listener recomputes at
-    // the actual boundary; recompute reads live geometry, so the value is never
-    // wrong, only ever as fresh as its last trigger.
+    // The decision reads live geometry, so it is never wrong, only ever as
+    // fresh as its last trigger. Recompute on the three things that move a
+    // heading's top relative to the activation line:
+    //   - scroll: the common case;
+    //   - resize: viewport height changes the geometry;
+    //   - reflow: content ABOVE a heading changing height shifts it down with
+    //     NO scroll or resize event — most visibly the display web font
+    //     swapping in after load. A ResizeObserver on the document body catches
+    //     that; the old IntersectionObserver got it free because the browser
+    //     re-evaluates intersections on layout change.
     let frame = 0;
     const schedule = () => {
-      // Coalesce a burst of triggers into one recompute per frame.
       if (frame) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
@@ -63,29 +90,89 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
       });
     };
 
-    // Prime the highlight on mount, then recompute on the three things that
-    // move a heading's top relative to the activation line:
-    //   - scroll: the common case;
-    //   - resize: viewport height changes the geometry;
-    //   - reflow: content ABOVE a heading changing height shifts it down with
-    //     NO scroll or resize event. This is the one a scroll listener alone
-    //     misses — most visibly after a fragment jump, when a post image or web
-    //     font above the target finishes loading and slides the target down
-    //     while its highlight stays stuck. A ResizeObserver on the document
-    //     body catches that reflow; the old IntersectionObserver got it for
-    //     free because the browser re-evaluates intersections on layout change.
+    const onReflow = () => {
+      // That same reflow is what strands a targeted heading mid-viewport: the
+      // browser jumps to the fragment, then the font swap grows everything above
+      // it and slides it down. While pinned, drag it back to the line.
+      if (pinnedSlug.current) {
+        document.getElementById(pinnedSlug.current)?.scrollIntoView();
+      }
+      schedule();
+    };
+
+    // Targeting a heading (a ToC click, or a deep link on load) must land it
+    // under the sticky header AND light its own entry. The browser's fragment
+    // jump gets that momentarily, but the display web font swaps in just after,
+    // reflows every line above the target, and slides it a third of the way down
+    // the viewport — at which point the scroll spy correctly reports the section
+    // above. So we pin the target: hold the highlight on it (recompute), re-
+    // scroll to it on each reflow (onReflow) and once fonts finish, and release
+    // the moment the reader scrolls or after a short settle window.
+    const pin = (slug: string) => {
+      releasePin.current?.();
+      pinnedSlug.current = slug;
+      setActiveId(slug);
+
+      const reassert = () => {
+        if (pinnedSlug.current === slug) {
+          document.getElementById(slug)?.scrollIntoView();
+        }
+      };
+      // Final correction once the swap that caused the drift has actually landed.
+      document.fonts?.ready.then(reassert);
+
+      const release = () => {
+        if (pinnedSlug.current !== slug) return;
+        pinnedSlug.current = null;
+        cleanup();
+        // No forced recompute: a timeout release leaves the target already at
+        // the line (so the pinned slug is what geometry would pick anyway), and
+        // an intent release is a scroll about to happen, whose event recomputes.
+      };
+      // Any real scroll intent from the reader ends the pin at once.
+      window.addEventListener("wheel", release, { passive: true });
+      window.addEventListener("pointerdown", release, { passive: true });
+      window.addEventListener("keydown", release);
+      const timer = window.setTimeout(release, PIN_SETTLE_MS);
+
+      const cleanup = () => {
+        window.clearTimeout(timer);
+        window.removeEventListener("wheel", release);
+        window.removeEventListener("pointerdown", release);
+        window.removeEventListener("keydown", release);
+        releasePin.current = null;
+      };
+
+      releasePin.current = cleanup;
+    };
+    armPin.current = pin;
+
     recompute();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule, { passive: true });
-    const reflowObserver = new ResizeObserver(schedule);
+    const reflowObserver = new ResizeObserver(onReflow);
     reflowObserver.observe(document.body);
+
+    // A deep link lands with the fragment already in the URL, so the same drift
+    // hits it with no click to trigger the pin. If the hash names one of our
+    // headings, pin it on mount and re-assert the jump the browser just made.
+    const hashSlug = decodeURIComponent(window.location.hash.slice(1));
+    if (hashSlug && elements.some((el) => el.id === hashSlug)) {
+      pin(hashSlug);
+      document.getElementById(hashSlug)?.scrollIntoView();
+    }
+
     return () => {
       if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       reflowObserver.disconnect();
+      releasePin.current?.();
+      armPin.current = null;
     };
   }, [headings]);
+
+  const onLinkClick = (slug: string) => armPin.current?.(slug);
 
   if (headings.length < 3) return null;
 
@@ -136,6 +223,7 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
                 // border alone. aria-current gives assistive tech the same
                 // position information sighted readers get.
                 aria-current={activeId === h.slug ? "location" : undefined}
+                onClick={() => onLinkClick(h.slug)}
                 className={`block border-l -ml-px pl-3 leading-snug transition-colors duration-200 ${
                   activeId === h.slug
                     ? "border-brand-crimson text-brand-crimson font-medium"
