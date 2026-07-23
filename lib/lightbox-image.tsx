@@ -154,7 +154,7 @@ export default function LightboxImage({
             {/* Stop propagation so clicking the image itself doesn't close. */}
             <figure
               onClick={(e) => e.stopPropagation()}
-              className="max-h-full max-w-5xl overflow-auto"
+              className="flex max-h-full max-w-4xl flex-col"
             >
               <ContentfulImage
                 src={src}
@@ -165,7 +165,7 @@ export default function LightboxImage({
                 // Framed like the inline figure, but the scrim is always black,
                 // so a light gray-300 edge would glare — a soft white hairline
                 // reads as the same intentional frame here.
-                className="h-auto w-full border-2 border-white/15"
+                className="max-h-[85vh] w-auto h-auto max-w-full object-contain border-2 border-white/15"
               />
               {caption && (
                 <figcaption
