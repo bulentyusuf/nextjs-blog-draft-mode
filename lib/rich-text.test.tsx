@@ -6,11 +6,6 @@ import { extractHeadings } from "./headings";
 import { RichText } from "./rich-text";
 import type { Content } from "./types";
 
-// The test environment is "node", so there is no DOM. Strip every tag to
-// approximate an element's textContent — attributes (e.g. a permalink's
-// aria-label) vanish with their tag, leaving only rendered text nodes.
-const stripTags = (html: string) => html.replace(/<[^>]*>/g, "");
-
 // Minimal rich-text node builders.
 const text = (value: string) => ({
   nodeType: "text",
@@ -145,13 +140,12 @@ describe("widont on subheadings", () => {
     );
 
     // widont binds the year to the single word before it, so the year
-    // cannot widow. Assert against the h2's rendered text content (tags
-    // stripped, which also drops attributes like the permalink aria-label),
-    // so the guard tracks what a reader actually sees rather than markup
-    // adjacency: the visible year is preceded by an NBSP, never a plain space.
-    const headingText = stripTags(html);
-    expect(headingText).toContain(`${NBSP}(1988)`);
-    expect(headingText).not.toContain(" (1988)");
+    // cannot widow. The permalink's accessible name is a static "Permalink"
+    // (asserted below), so it echoes no heading text: the year appears in the
+    // output exactly once, in the visible run. Assert it is NBSP-glued there,
+    // never plain-space — no markup-adjacency coupling, no tag stripping.
+    expect(html).toContain(`${NBSP}(1988)`);
+    expect(html).not.toContain(" (1988)");
   });
 
   it("preserves inline formatting in a heading (no widont flattening)", () => {
