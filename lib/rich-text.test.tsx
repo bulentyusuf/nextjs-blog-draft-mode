@@ -119,6 +119,60 @@ describe("body heading handling", () => {
   });
 });
 
+describe("widont on subheadings", () => {
+  const NBSP = String.fromCharCode(0x00a0);
+
+  it("glues the trailing parenthesised year on a plain-text h2", () => {
+    const yearDoc = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [heading2(text("Zak McKracken and the Alien Mindbenders (1988)"))],
+    } as unknown as Document;
+
+    const yearContent: Content = {
+      json: yearDoc,
+      links: { assets: { block: [] } },
+    };
+
+    const headings = extractHeadings(yearDoc);
+    const html = renderToStaticMarkup(
+      <RichText content={yearContent} headings={headings} />,
+    );
+
+    // The last two tokens are glued: "Mindbenders (1988)". Because the
+    // title also ends in a bracketed year, widont glues the last THREE tokens,
+    // so the visible run contains no normal space between "the Alien" and the
+    // year pair — assert the year is preceded by an NBSP, not a plain space.
+    expect(html).toContain(`${NBSP}(1988)`);
+    expect(html).not.toContain(" (1988)");
+  });
+
+  it("preserves inline formatting in a heading (no widont flattening)", () => {
+    const linkDoc = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [heading2(text("See the "), link("https://example.com", "docs"))],
+    } as unknown as Document;
+
+    const linkContent: Content = {
+      json: linkDoc,
+      links: { assets: { block: [] } },
+    };
+
+    const headings = extractHeadings(linkDoc);
+    const html = renderToStaticMarkup(
+      <RichText content={linkContent} headings={headings} />,
+    );
+
+    // The formatted heading must still render its anchor, not a flattened
+    // plain string. (The external link also appends a NewWindowHint sr-only
+    // span before </a>, so assert the anchor and its visible text, not a
+    // bare ">docs</a>".)
+    expect(html).toContain("<a");
+    expect(html).toContain(">docs");
+  });
+});
+
 describe("blockquote handling", () => {
   it("renders BLOCKS.QUOTE as a semantic blockquote pull quote", () => {
     const quoteDoc = {
