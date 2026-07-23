@@ -41,29 +41,39 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
     const recompute = () => {
       const positions: HeadingPosition[] = elements.map((el) => ({
         id: el.id,
-        // Live, not entry.boundingClientRect, which is a snapshot from when the
-        // intersection changed and can be several frames stale by the time
-        // batched callbacks run.
         top: el.getBoundingClientRect().top,
       }));
       setActiveId(pickActiveHeading(positions, bandTop));
     };
 
-    // The observer no longer contributes to the decision. It is a change
-    // trigger: it fires when a heading crosses bandTop, which is exactly when
-    // the answer can change, so no scroll listener is needed. observe()
-    // delivers an initial entry per element, so the first highlight is correct
-    // on load and after a fragment jump.
-    const observer = new IntersectionObserver(() => recompute(), {
-      // Band runs from bandTop to the viewport bottom. The previous -70%
-      // lower edge is gone: it fed the deleted in-band branch and had no
-      // bearing on this decision.
-      rootMargin: `-${bandTop}px 0px 0px 0px`,
-      threshold: 0,
-    });
+    // Track scroll directly rather than through an IntersectionObserver. The
+    // decision turns on a heading's TOP crossing bandTop, but an observer with
+    // this rootMargin transitions on the heading's BOTTOM edge, so it fires a
+    // heading-height late (~90px on the two-line H2s in a listicle) and the
+    // highlight visibly lags the sticky header. A scroll listener recomputes at
+    // the actual boundary; recompute reads live geometry, so the value was
+    // never wrong, only late.
+    let frame = 0;
+    const onScroll = () => {
+      // Coalesce a scroll burst into one recompute per frame.
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        recompute();
+      });
+    };
 
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    // Prime the highlight on mount (covers first paint and a load-time fragment
+    // jump), then follow scroll and resize — both move heading tops relative to
+    // the line. passive: the handler never preventDefault()s.
+    recompute();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [headings]);
 
   if (headings.length < 3) return null;
@@ -73,7 +83,7 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
       {/*
         summary is the mobile tap target. xl+ CSS hides it and forces the
         panel open regardless of the [open] attribute (see globals.css
-        .toc-details rule), so one observer serves both viewports.
+        .toc-details rule), so one scroll listener serves both viewports.
       */}
       <summary className="xl:hidden list-none flex items-center justify-between gap-3 cursor-pointer select-none rounded-lg border border-brand-dark/10 bg-brand-dark/5 px-4 py-3 text-sm font-bold uppercase tracking-wide text-brand-dark">
         <span className="flex items-center gap-2">
