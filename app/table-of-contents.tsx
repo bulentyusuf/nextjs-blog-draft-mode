@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import type { Heading } from "@/lib/headings";
+import { pickActiveHeading, type HeadingPosition } from "@/lib/toc-active";
 import { widont } from "@/lib/typography";
+
+// Top edge of the observer's trigger band, in px. Interpolated into rootMargin
+// below AND passed to pickActiveHeading, so the observer and the fallback
+// cannot drift apart. It was previously a magic 80 inside the rootMargin
+// string with nothing else agreeing to it.
+const BAND_TOP_PX = 80;
 
 export default function TableOfContents({ headings }: { headings: Heading[] }) {
   const [activeId, setActiveId] = useState<string>("");
@@ -16,20 +23,35 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
 
     if (elements.length === 0) return;
 
+    // Every heading's latest intersection state. Lifetime matches the
+    // observer's, so it lives in the effect closure rather than a ref.
+    // IntersectionObserver delivers an initial entry for every element on
+    // observe(), so this is fully populated after the first callback.
+    const states = new Map<string, boolean>();
+
+    const recompute = () => {
+      const positions: HeadingPosition[] = elements.map((el) => ({
+        id: el.id,
+        // Read live rather than using entry.boundingClientRect, which is a
+        // snapshot from when the intersection changed and can be several
+        // frames stale by the time batched callbacks run.
+        top: el.getBoundingClientRect().top,
+        isIntersecting: states.get(el.id) ?? false,
+      }));
+      setActiveId(pickActiveHeading(positions, BAND_TOP_PX));
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
-        // Pick the topmost heading currently intersecting the trigger zone.
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible.length > 0) {
-          setActiveId(visible[0].target.id);
+        for (const entry of entries) {
+          states.set(entry.target.id, entry.isIntersecting);
         }
+        recompute();
       },
       {
-        // Trigger band near the top of the viewport so the "active" heading
-        // is the one just under the sticky header, not whatever's centered.
-        rootMargin: "-80px 0px -70% 0px",
+        // Trigger band near the top of the viewport so the active heading is
+        // the one just under the sticky header, not whatever is centred.
+        rootMargin: `-${BAND_TOP_PX}px 0px -70% 0px`,
         threshold: 0,
       },
     );
@@ -83,6 +105,10 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
             <li key={h.slug}>
               <a
                 href={`#${h.slug}`}
+                // The active entry is otherwise signalled by colour, weight and
+                // border alone. aria-current gives assistive tech the same
+                // position information sighted readers get.
+                aria-current={activeId === h.slug ? "location" : undefined}
                 className={`block border-l -ml-px pl-3 leading-snug transition-colors duration-200 ${
                   activeId === h.slug
                     ? "border-brand-crimson text-brand-crimson font-medium"
