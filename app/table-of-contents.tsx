@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Heading } from "@/lib/headings";
+import { widont } from "@/lib/typography";
 
 export default function TableOfContents({ headings }: { headings: Heading[] }) {
   const [activeId, setActiveId] = useState<string>("");
@@ -88,7 +89,10 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
                     : "border-transparent text-brand-muted hover:text-brand-crimson"
                 }`}
               >
-                {h.text}
+                {/* h.text is always a plain string; widont de-widows the
+                    entry in the narrow TOC column. The link target is h.slug,
+                    computed separately, so the NBSP never reaches the anchor. */}
+                {widont(h.text)}
               </a>
             </li>
           ))}
