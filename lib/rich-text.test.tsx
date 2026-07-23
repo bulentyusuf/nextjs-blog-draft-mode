@@ -6,6 +6,11 @@ import { extractHeadings } from "./headings";
 import { RichText } from "./rich-text";
 import type { Content } from "./types";
 
+// The test environment is "node", so there is no DOM. Strip every tag to
+// approximate an element's textContent — attributes (e.g. a permalink's
+// aria-label) vanish with their tag, leaving only rendered text nodes.
+const stripTags = (html: string) => html.replace(/<[^>]*>/g, "");
+
 // Minimal rich-text node builders.
 const text = (value: string) => ({
   nodeType: "text",
@@ -140,13 +145,13 @@ describe("widont on subheadings", () => {
     );
 
     // widont binds the year to the single word before it, so the year
-    // cannot widow. Assert it is preceded by an NBSP, not a plain space.
-    expect(html).toContain(`${NBSP}(1988)`);
-    // The only plain-space "(1988)" left is inside the permalink's aria-label,
-    // which reads the raw heading text and is not a widont target. Scope the
-    // negative assertion to the visible run — immediately followed by the
-    // permalink anchor's opening tag — so it still guards against a widow.
-    expect(html).not.toContain(` (1988)<`);
+    // cannot widow. Assert against the h2's rendered text content (tags
+    // stripped, which also drops attributes like the permalink aria-label),
+    // so the guard tracks what a reader actually sees rather than markup
+    // adjacency: the visible year is preceded by an NBSP, never a plain space.
+    const headingText = stripTags(html);
+    expect(headingText).toContain(`${NBSP}(1988)`);
+    expect(headingText).not.toContain(" (1988)");
   });
 
   it("preserves inline formatting in a heading (no widont flattening)", () => {
@@ -172,6 +177,60 @@ describe("widont on subheadings", () => {
     // bare ">docs</a>".)
     expect(html).toContain("<a");
     expect(html).toContain(">docs");
+  });
+});
+
+describe("heading permalink anchor", () => {
+  const render = (...children: unknown[]) => {
+    const permalinkDoc = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [heading2(...children)],
+    } as unknown as Document;
+    const permalinkContent: Content = {
+      json: permalinkDoc,
+      links: { assets: { block: [] } },
+    };
+    const headings = extractHeadings(permalinkDoc);
+    return renderToStaticMarkup(
+      <RichText content={permalinkContent} headings={headings} />,
+    );
+  };
+
+  it("renders a permalink anchor pointing at the heading's own slug", () => {
+    const html = render(text("Getting set up"));
+    // The anchor targets the same fragment the id exposes, so clicking the
+    // glyph copies a link that resolves to this very heading.
+    expect(html).toContain('id="getting-set-up"');
+    expect(html).toContain('href="#getting-set-up"');
+  });
+
+  it("gives the anchor a real accessible name and hides the glyph", () => {
+    const html = render(text("Getting set up"));
+    // A concrete name, not the bare "#" (which announces as "number sign").
+    expect(html).toContain('aria-label="Permalink"');
+    expect(html).toContain('aria-hidden="true"');
+  });
+
+  it("keeps the anchor name out of the heading's accessible name", () => {
+    // The anchor sits inside the <h2>, so accessible-name-from-content folds
+    // the link's name into the heading. A descriptive per-heading label would
+    // double every title; "Permalink" must stay generic. Guard the regression.
+    const html = render(text("Zak McKracken and the Alien Mindbenders"));
+    expect(html).not.toContain("Permalink to");
+  });
+
+  it("stays keyboard-reachable: the anchor reveals on focus, not hover alone", () => {
+    // The anchor is focusable at opacity-0; without focus-visible:opacity-100
+    // a keyboard user would tab to an invisible target.
+    const html = render(text("Getting set up"));
+    expect(html).toContain("focus-visible:opacity-100");
+  });
+
+  it("emits no permalink for an empty heading (no slug, no anchor)", () => {
+    const html = render(text(""));
+    expect(html).not.toContain("<a");
+    expect(html).toContain("<h2></h2>");
   });
 });
 

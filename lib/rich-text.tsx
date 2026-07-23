@@ -133,7 +133,13 @@ export function RichText({
                 // The visible glyph is decorative, so it is hidden from the
                 // accessibility tree and the link carries a real name instead.
                 // Without this every permalink announces as "number sign".
-                aria-label={`Permalink to ${text}`}
+                // The name is deliberately just "Permalink", not "Permalink to
+                // <heading>": the anchor sits inside the <h2>, so accessible-
+                // name-from-content folds this label into the heading's own
+                // name. A descriptive label would make every heading announce
+                // its title twice. Per-section descriptive links live in the
+                // ToC, which is where AT users reach for them anyway.
+                aria-label="Permalink"
                 className="ml-2 inline-block align-middle text-brand-muted no-underline opacity-0 transition-opacity duration-200 group-hover/heading:opacity-100 focus-visible:opacity-100 hover:text-brand-crimson"
               >
                 <span aria-hidden="true">#</span>
