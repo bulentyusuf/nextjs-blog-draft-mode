@@ -15,5 +15,11 @@ const NBSP = String.fromCharCode(0x00a0);
  * last line in a narrow column.
  */
 export function widont(text: string): string {
+  // If the title ends in a parenthesised year, glue the last THREE tokens,
+  // since the year behaves as an extra trailing word and would otherwise
+  // wrap as a two-word widow. Otherwise glue the final two.
+  if (/\(\d{4}\)\s*$/u.test(text)) {
+    return text.replace(/\s+(\S+\s+\S+)\s*$/u, `${NBSP}$1`);
+  }
   return text.replace(/\s+(\S+)\s*$/u, `${NBSP}$1`);
 }
