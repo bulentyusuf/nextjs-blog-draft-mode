@@ -9,6 +9,7 @@ import type { ReactNode } from "react";
 import type { Asset, Content } from "./types";
 import type { Heading } from "./headings";
 import { SITE_HOSTNAME } from "./constants";
+import { widont } from "./typography";
 
 function isExternalUrl(url: string): boolean {
   try {
@@ -116,9 +117,16 @@ export function RichText({
         const text = headingText(node).trim();
         if (!text) return <h2>{children}</h2>;
         const slug = headings[headingIndex++]?.slug;
+        // Apply widont only when the heading is a single plain-text run, so a
+        // trailing token (e.g. a parenthesised year) can't widow. Headings that
+        // carry inline marks (links, italics) keep their original children so
+        // the formatting survives — widont() takes a plain string and would
+        // otherwise flatten them.
+        const isPlainRun =
+          node.content?.length === 1 && node.content[0]?.nodeType === "text";
         return (
           <h2 id={slug} className="scroll-mt-24">
-            {children}
+            {isPlainRun ? widont(text) : children}
           </h2>
         );
       },
