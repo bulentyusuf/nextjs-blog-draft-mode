@@ -174,6 +174,103 @@ All cropping is CSS-side (`object-cover`). The absence of Contentful's
 crop/focus/height params is a decision, not an omission — do not add them
 without a new reason.
 
+### One divider token, `--color-hairline`
+
+Every rule between list items, cards and panels uses `border-hairline` or
+`divide-hairline`. The token is defined in `@theme` as `#e5e7eb` and overridden
+in the `prefers-color-scheme: dark` block as `rgb(242 234 228 / 0.15)`, so it
+inverts on its own. Do not add a `dark:` variant to any element using it, and do
+not reintroduce bare `gray-200` borders — those rendered as bright white lines
+through every card list in dark mode, which is the defect this token replaced.
+
+The `border-2` frames around images in `lib/rich-text.tsx` and
+`lib/lightbox-image.tsx` are a separate, heavier role and deliberately keep
+their own `border-gray-300 dark:border-brand-dark/15` pairing. Leave them.
+
+### One focus indicator, set in `@layer base`
+
+`globals.css` defines a single `:focus-visible` rule: a 2px
+`var(--color-brand-crimson)` outline at 2px offset. It inverts with the scheme
+(`#A4243B` light, `#E0667A` dark) and clears 3:1 against both page grounds. Do
+not add `focus-visible:ring-*` or `focus-visible:outline-*` utilities to
+individual components. If focus looks wrong somewhere, the element is probably
+missing `focus-visible:outline-hidden` before a local override, or is inside an
+`overflow-hidden` parent (see below).
+
+Two categories of exception exist, both deliberate:
+
+**Elements on the coloured header and footer bands.** Crimson on the header navy
+`#1E3A8A` is about 1.07:1 and fails WCAG 1.4.11. The masthead, nav links, search
+icon, skip link and footer links therefore set `focus-visible:outline-hidden`
+plus a white ring. The `outline-hidden` is required, not decorative — without it
+the base crimson outline stacks underneath and the fix looks applied while still
+failing.
+
+**Code block scroll regions.** The `role="region"` elements in
+`lib/rich-text.tsx` use `focus-visible:outline-offset-[-2px]` so the outline
+draws inward. Their parent is `overflow-hidden rounded-lg` and clips anything
+drawn outside the box. A ring is not an alternative — `ring-*` compiles to
+`box-shadow`, which is clipped the same way.
+
+### Back-to-top uses a two-tone ring, and must keep it
+
+`app/back-to-top.tsx` is the only `position: fixed` control on the site, so its
+focus indicator floats over unpredictable ground: the light page, the dark page,
+the footer band, a code block. No single colour clears 3:1 against all of them.
+Crimson measures 2.32:1 against the light-mode footer `#241B1D`, which is where
+this was caught.
+
+It therefore keeps `focus:outline-hidden` plus
+`focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2
+focus-visible:ring-offset-surface-dark`. The two tones cover each other: white is
+18.7:1 on the dark page, the dark offset is 15.5:1 on the light page. Whichever
+tone loses contrast, the other carries.
+
+This was once "simplified" to the base outline and had to be reverted. Do not
+propose it again. The in-file comment says the same thing and is not redundant.
+
+### Breadcrumbs are constrained to their page's own measure
+
+`Container` is `max-w-5xl`. Pages whose content is also `max-w-5xl` (posts,
+categories, authors, archive) render `<Breadcrumb>` unwrapped. Pages in a
+`max-w-2xl` column (about, privacy, search) wrap it in
+`<div className="mx-auto max-w-2xl">`, otherwise it starts 176px left of the
+heading it labels. Any new narrow page needs the wrapper. This is the same
+column-width distinction as the two h1 treatments below.
+
+On `/search` the wrapper must sit **before** the `<section>`, not inside it. The
+emblem's visibility depends on
+`.pagefind-scope:has(input:not(:placeholder-shown)) + .search-empty`, which needs
+`.search-empty` to remain the immediate next sibling of `.pagefind-scope`.
+
+### `/page/[page]` has no breadcrumb on purpose
+
+Breadcrumbs describe section hierarchy. Position within a section is carried
+separately by `app/page-context.tsx`, which renders a muted "Page N of M" line
+and returns `null` on page 1. That is why paginated category and author chains
+stop at the section and never include a page number.
+
+Applying the same rule to `/page/2` leaves a single non-linked "Home" crumb
+carrying `aria-current="page"` on a page that is not home, which is worse than
+none. The absence is correct. Do not add one, and do not add page numbers to the
+existing paginated chains.
+
+Known and accepted: on `/categories/[slug]/page/[page]`, `aria-current="page"`
+sits on the section crumb, whose URL differs from the current one. Fixing it
+would require the page-number crumb rejected above.
+
+### Two smaller decisions, recorded
+
+- The skip link uses `focus:top-2`. That is a computed value, not a nudge: the
+  link is 36px tall and the header band is 52px, so 8px centres it. If the
+  header's `py-3` or the masthead's `text-lg` changes, recompute it. The
+  self-centring alternative (move inside `<header>`, `top-1/2 -translate-y-1/2`)
+  was considered and rejected as not worth the restructure.
+- Archive rows carry two tab stops each, title and category, because the category
+  links to its category page exactly as it does on the home page hero. Nineteen
+  posts means 38 stops on `/archive`. Accepted in exchange for a consistent
+  affordance.
+
 ### Other reviewed items, intentionally left as-is
 
 - `data:` in `img-src` stays. It is needed for next/image blur placeholders, and
@@ -231,6 +328,9 @@ Narrow document pages in a `max-w-2xl` column (about, privacy, search) cap at
 measure looks enormous despite identical classes — that mismatch is the tell.
 Any new page must pick the treatment matching its column, not copy the
 nearest existing h1.
+
+The same `max-w-5xl` versus `max-w-2xl` split governs breadcrumb placement — see
+"Breadcrumbs are constrained to their page's own measure" above.
 
 ### The site's locale is en-GB, everywhere
 
