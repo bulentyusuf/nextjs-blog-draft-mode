@@ -125,8 +125,20 @@ export function RichText({
         const isPlainRun =
           node.content?.length === 1 && node.content[0]?.nodeType === "text";
         return (
-          <h2 id={slug} className="scroll-mt-24">
+          <h2 id={slug} className="scroll-mt-24 group/heading">
             {isPlainRun ? widont(text) : children}
+            {slug ? (
+              <a
+                href={`#${slug}`}
+                // The visible glyph is decorative, so it is hidden from the
+                // accessibility tree and the link carries a real name instead.
+                // Without this every permalink announces as "number sign".
+                aria-label={`Permalink to ${text}`}
+                className="ml-2 inline-block align-middle text-brand-muted no-underline opacity-0 transition-opacity duration-200 group-hover/heading:opacity-100 focus-visible:opacity-100 hover:text-brand-crimson"
+              >
+                <span aria-hidden="true">#</span>
+              </a>
+            ) : null}
           </h2>
         );
       },

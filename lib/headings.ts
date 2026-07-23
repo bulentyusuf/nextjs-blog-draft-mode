@@ -6,13 +6,24 @@ export interface Heading {
   slug: string;
 }
 
+// Listicle H2s carry a leading ordinal ("1. Zak McKracken..."). Strip it before
+// slugifying so the fragment survives a reorder or a renumber, which is the most
+// likely future edit to a Top-N post. Trailing punctuation is REQUIRED by the
+// pattern so a heading that legitimately opens with a number, e.g. "2024 in
+// review" or "1984 and the sequel problem", is left untouched. If nothing
+// survives the strip (a heading that is only an ordinal), keep the original.
+function stripLeadingOrdinal(text: string): string {
+  const stripped = text.replace(/^\d+[.)]\s+/, "");
+  return stripped.trim() ? stripped : text;
+}
+
 // Pure, deterministic slug from heading text.
 // Lowercase, strip anything that isn't a word char or space, collapse
 // whitespace to single hyphens, trim stray hyphens. Stripping punctuation
 // is deliberate — an apostrophe left in an id (e.g. "what's-inside") makes
 // a fragile fragment identifier.
 function slugify(text: string): string {
-  return text
+  return stripLeadingOrdinal(text)
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()

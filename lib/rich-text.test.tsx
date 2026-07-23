@@ -142,7 +142,11 @@ describe("widont on subheadings", () => {
     // widont binds the year to the single word before it, so the year
     // cannot widow. Assert it is preceded by an NBSP, not a plain space.
     expect(html).toContain(`${NBSP}(1988)`);
-    expect(html).not.toContain(" (1988)");
+    // The only plain-space "(1988)" left is inside the permalink's aria-label,
+    // which reads the raw heading text and is not a widont target. Scope the
+    // negative assertion to the visible run — immediately followed by the
+    // permalink anchor's opening tag — so it still guards against a widow.
+    expect(html).not.toContain(` (1988)<`);
   });
 
   it("preserves inline formatting in a heading (no widont flattening)", () => {
