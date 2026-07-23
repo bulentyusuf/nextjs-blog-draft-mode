@@ -5,11 +5,14 @@ import type { Heading } from "@/lib/headings";
 import { pickActiveHeading, type HeadingPosition } from "@/lib/toc-active";
 import { widont } from "@/lib/typography";
 
-// Top edge of the observer's trigger band, in px. Interpolated into rootMargin
-// below AND passed to pickActiveHeading, so the observer and the fallback
-// cannot drift apart. It was previously a magic 80 inside the rootMargin
-// string with nothing else agreeing to it.
-const BAND_TOP_PX = 80;
+// Used only if the heading's own scroll-margin-top cannot be read. Keep in step
+// with the h2's scroll-mt-* utility in lib/rich-text.tsx.
+const FALLBACK_BAND_TOP_PX = 96;
+
+// Sub-pixel slack. A ToC click parks the heading at exactly its scroll-margin,
+// and fractional layout values would otherwise leave it a hair below the line
+// and hand the highlight to the previous section.
+const BAND_TOLERANCE_PX = 4;
 
 export default function TableOfContents({ headings }: { headings: Heading[] }) {
   const [activeId, setActiveId] = useState<string>("");
@@ -23,41 +26,65 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
 
     if (elements.length === 0) return;
 
-    // Every heading's latest intersection state. Lifetime matches the
-    // observer's, so it lives in the effect closure rather than a ref.
-    // IntersectionObserver delivers an initial entry for every element on
-    // observe(), so this is fully populated after the first callback.
-    const states = new Map<string, boolean>();
+    // The line a heading must cross to become active. Read from the heading's
+    // own scroll-margin-top rather than hardcoded, because a ToC click parks
+    // the target at exactly that offset. If the two disagreed, clicking entry
+    // 7 would highlight entry 6.
+    const scrollMargin = Number.parseFloat(
+      window.getComputedStyle(elements[0]).scrollMarginTop,
+    );
+    const bandTop =
+      (Number.isFinite(scrollMargin) && scrollMargin > 0
+        ? scrollMargin
+        : FALLBACK_BAND_TOP_PX) + BAND_TOLERANCE_PX;
 
     const recompute = () => {
       const positions: HeadingPosition[] = elements.map((el) => ({
         id: el.id,
-        // Read live rather than using entry.boundingClientRect, which is a
-        // snapshot from when the intersection changed and can be several
-        // frames stale by the time batched callbacks run.
         top: el.getBoundingClientRect().top,
-        isIntersecting: states.get(el.id) ?? false,
       }));
-      setActiveId(pickActiveHeading(positions, BAND_TOP_PX));
+      setActiveId(pickActiveHeading(positions, bandTop));
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          states.set(entry.target.id, entry.isIntersecting);
-        }
+    // Track scroll directly rather than through an IntersectionObserver. The
+    // decision turns on a heading's TOP crossing bandTop, but an observer with
+    // this rootMargin transitions on the heading's BOTTOM edge, so it fires a
+    // heading-height late (~90px on the two-line H2s in a listicle) and the
+    // highlight visibly lags the sticky header. A scroll listener recomputes at
+    // the actual boundary; recompute reads live geometry, so the value is never
+    // wrong, only ever as fresh as its last trigger.
+    let frame = 0;
+    const schedule = () => {
+      // Coalesce a burst of triggers into one recompute per frame.
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
         recompute();
-      },
-      {
-        // Trigger band near the top of the viewport so the active heading is
-        // the one just under the sticky header, not whatever is centred.
-        rootMargin: `-${BAND_TOP_PX}px 0px -70% 0px`,
-        threshold: 0,
-      },
-    );
+      });
+    };
 
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    // Prime the highlight on mount, then recompute on the three things that
+    // move a heading's top relative to the activation line:
+    //   - scroll: the common case;
+    //   - resize: viewport height changes the geometry;
+    //   - reflow: content ABOVE a heading changing height shifts it down with
+    //     NO scroll or resize event. This is the one a scroll listener alone
+    //     misses — most visibly after a fragment jump, when a post image or web
+    //     font above the target finishes loading and slides the target down
+    //     while its highlight stays stuck. A ResizeObserver on the document
+    //     body catches that reflow; the old IntersectionObserver got it for
+    //     free because the browser re-evaluates intersections on layout change.
+    recompute();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    const reflowObserver = new ResizeObserver(schedule);
+    reflowObserver.observe(document.body);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      reflowObserver.disconnect();
+    };
   }, [headings]);
 
   if (headings.length < 3) return null;
@@ -67,7 +94,7 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
       {/*
         summary is the mobile tap target. xl+ CSS hides it and forces the
         panel open regardless of the [open] attribute (see globals.css
-        .toc-details rule), so one observer serves both viewports.
+        .toc-details rule), so one scroll listener serves both viewports.
       */}
       <summary className="xl:hidden list-none flex items-center justify-between gap-3 cursor-pointer select-none rounded-lg border border-brand-dark/10 bg-brand-dark/5 px-4 py-3 text-sm font-bold uppercase tracking-wide text-brand-dark">
         <span className="flex items-center gap-2">

@@ -1,50 +1,44 @@
-// Which ToC entry should be highlighted, decided from the full picture rather
-// than from whatever changed most recently.
+// Which ToC entry should be highlighted.
 //
-// The observer callback only ever hands us a delta, so the component keeps its
-// own record of every heading's latest state and passes the whole set here.
-// Deciding from the delta alone was the original bug: a heading still sitting
-// in the trigger band is absent from `entries` on ticks where it did not
-// change, so it could not win even when it should have.
+// The active section is the last heading whose top has passed the line just
+// under the sticky header. That is the only question, and it is answered from
+// live geometry across every heading.
+//
+// An earlier version also had a "topmost heading currently intersecting the
+// observer band wins" branch. That branch is why the ToC used to jump to the
+// next section while the reader was still a screenful into the previous one:
+// the band's lower edge sat 30% down the viewport, so a heading that had only
+// just scrolled into view could claim the highlight. The band's lower edge
+// gets no vote. Do not reintroduce it.
 
 export interface HeadingPosition {
   /** The heading element's id, which is also its ToC slug. */
   id: string;
   /** Live getBoundingClientRect().top, read at decision time. */
   top: number;
-  /** Latest known intersection state for this heading. */
-  isIntersecting: boolean;
 }
 
 /**
  * Returns the id to highlight, or "" for no highlight.
  *
- * @param positions Every observed heading, in document order.
- * @param bandTop   Distance in px from the viewport top to the top edge of the
- *                  trigger band. Must match the observer's rootMargin.
+ * @param positions Every heading, in document order.
+ * @param bandTop   Distance in px from the viewport top to the line a heading
+ *                  must cross to become active. Must be at least the heading's
+ *                  own scroll-margin-top, or a heading parked there by a ToC
+ *                  click will not count as passed.
  */
 export function pickActiveHeading(
   positions: HeadingPosition[],
   bandTop: number,
 ): string {
-  // A heading is in the band. Topmost wins, so the active entry is the section
-  // heading nearest the sticky header rather than whatever is mid-viewport.
-  const inBand = positions.filter((p) => p.isIntersecting);
-  if (inBand.length > 0) {
-    return inBand.reduce((best, p) => (p.top < best.top ? p : best)).id;
-  }
-
-  // Nothing is in the band. This happens constantly, because a section can be
-  // far taller than the band, and the reader spends most of their time between
-  // headings rather than on one. Fall back to the last heading scrolled past,
-  // which is the section they are actually inside.
   const passed = positions.filter((p) => p.top <= bandTop);
-  if (passed.length > 0) {
-    return passed.reduce((best, p) => (p.top >= best.top ? p : best)).id;
-  }
 
-  // Every heading is still below the band, so the reader is above the first
-  // one, in the lede. Nothing should be highlighted. The original code had no
-  // path to this state, which is why the highlight got stuck.
-  return "";
+  // Every heading is still below the line, so the reader is above the first
+  // one, in the lede. Nothing should be highlighted.
+  if (passed.length === 0) return "";
+
+  // The last heading passed is the section the reader is inside. `>=` adopts
+  // the later element on a tie, which resolves to document order because
+  // `positions` arrives in document order.
+  return passed.reduce((best, p) => (p.top >= best.top ? p : best)).id;
 }

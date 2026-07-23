@@ -125,6 +125,10 @@ export function RichText({
         const isPlainRun =
           node.content?.length === 1 && node.content[0]?.nodeType === "text";
         return (
+          // scroll-mt-24 parks a fragment-linked heading below the sticky
+          // header. app/table-of-contents.tsx reads this computed value to
+          // place its activation line, so a clicked ToC entry highlights
+          // itself rather than the section above.
           <h2 id={slug} className="scroll-mt-24 group/heading">
             {isPlainRun ? widont(text) : children}
             {slug ? (
