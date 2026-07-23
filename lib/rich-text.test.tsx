@@ -139,10 +139,8 @@ describe("widont on subheadings", () => {
       <RichText content={yearContent} headings={headings} />,
     );
 
-    // The last two tokens are glued: "Mindbenders (1988)". Because the
-    // title also ends in a bracketed year, widont glues the last THREE tokens,
-    // so the visible run contains no normal space between "the Alien" and the
-    // year pair — assert the year is preceded by an NBSP, not a plain space.
+    // widont binds the year to the single word before it, so the year
+    // cannot widow. Assert it is preceded by an NBSP, not a plain space.
     expect(html).toContain(`${NBSP}(1988)`);
     expect(html).not.toContain(" (1988)");
   });

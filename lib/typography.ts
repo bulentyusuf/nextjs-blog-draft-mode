@@ -15,14 +15,11 @@ const NBSP = String.fromCharCode(0x00a0);
  * last line in a narrow column.
  */
 export function widont(text: string): string {
-  // If the title ends in a parenthesised year, glue the last THREE tokens,
-  // since the year behaves as an extra trailing word and would otherwise
-  // wrap as a two-word widow. Both internal gaps become non-breaking so the
-  // year cannot wrap onto its own line — a single NBSP would only bind the
-  // first two of the three and leave the year still breakable. Otherwise
-  // glue the final two.
-  if (/\(\d{4}\)\s*$/u.test(text)) {
-    return text.replace(/\s+(\S+)\s+(\S+)\s*$/u, `${NBSP}$1${NBSP}$2`);
-  }
+  // Glue the final two tokens with a non-breaking space. A trailing
+  // parenthesised year is just the last token, so this binds it to the word
+  // before it (e.g. "Mindbenders (1988)") and the year never wraps alone.
+  // We deliberately do NOT glue a third token: binding three words forces a
+  // long, unbalanced last line in a narrow column, which looks worse than the
+  // single widow it was meant to cure.
   return text.replace(/\s+(\S+)\s*$/u, `${NBSP}$1`);
 }
