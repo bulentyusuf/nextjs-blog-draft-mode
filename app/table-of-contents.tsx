@@ -51,11 +51,11 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
     // this rootMargin transitions on the heading's BOTTOM edge, so it fires a
     // heading-height late (~90px on the two-line H2s in a listicle) and the
     // highlight visibly lags the sticky header. A scroll listener recomputes at
-    // the actual boundary; recompute reads live geometry, so the value was
-    // never wrong, only late.
+    // the actual boundary; recompute reads live geometry, so the value is never
+    // wrong, only ever as fresh as its last trigger.
     let frame = 0;
-    const onScroll = () => {
-      // Coalesce a scroll burst into one recompute per frame.
+    const schedule = () => {
+      // Coalesce a burst of triggers into one recompute per frame.
       if (frame) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
@@ -63,16 +63,27 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
       });
     };
 
-    // Prime the highlight on mount (covers first paint and a load-time fragment
-    // jump), then follow scroll and resize — both move heading tops relative to
-    // the line. passive: the handler never preventDefault()s.
+    // Prime the highlight on mount, then recompute on the three things that
+    // move a heading's top relative to the activation line:
+    //   - scroll: the common case;
+    //   - resize: viewport height changes the geometry;
+    //   - reflow: content ABOVE a heading changing height shifts it down with
+    //     NO scroll or resize event. This is the one a scroll listener alone
+    //     misses — most visibly after a fragment jump, when a post image or web
+    //     font above the target finishes loading and slides the target down
+    //     while its highlight stays stuck. A ResizeObserver on the document
+    //     body catches that reflow; the old IntersectionObserver got it for
+    //     free because the browser re-evaluates intersections on layout change.
     recompute();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    const reflowObserver = new ResizeObserver(schedule);
+    reflowObserver.observe(document.body);
     return () => {
       if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      reflowObserver.disconnect();
     };
   }, [headings]);
 
