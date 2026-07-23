@@ -313,3 +313,29 @@
     fill: #faf5f1;
   }
 }
+
+/*
+  Fragment-arrival confirmation. A reader landing on /posts/x#some-heading gets a
+  brief highlight so it is obvious which section they arrived at. Uses box-shadow
+  spread rather than padding so the highlight bleeds past the text box without
+  shifting layout. Motion-safe only: reduced-motion users get no flash rather
+  than a persistent background, which would read as a permanent state change
+  and never clear.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .prose h2:target {
+    border-radius: 0.25rem;
+    animation: target-flash 1.8s ease-out 1;
+  }
+}
+
+@keyframes target-flash {
+  from {
+    background-color: color-mix(in srgb, var(--color-brand-crimson) 18%, transparent);
+    box-shadow: 0 0 0 0.4rem color-mix(in srgb, var(--color-brand-crimson) 18%, transparent);
+  }
+  to {
+    background-color: transparent;
+    box-shadow: 0 0 0 0.4rem transparent;
+  }
+}
