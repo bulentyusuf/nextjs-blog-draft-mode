@@ -5,11 +5,14 @@ import type { Heading } from "@/lib/headings";
 import { pickActiveHeading, type HeadingPosition } from "@/lib/toc-active";
 import { widont } from "@/lib/typography";
 
-// Top edge of the observer's trigger band, in px. Interpolated into rootMargin
-// below AND passed to pickActiveHeading, so the observer and the fallback
-// cannot drift apart. It was previously a magic 80 inside the rootMargin
-// string with nothing else agreeing to it.
-const BAND_TOP_PX = 80;
+// Used only if the heading's own scroll-margin-top cannot be read. Keep in step
+// with the h2's scroll-mt-* utility in lib/rich-text.tsx.
+const FALLBACK_BAND_TOP_PX = 96;
+
+// Sub-pixel slack. A ToC click parks the heading at exactly its scroll-margin,
+// and fractional layout values would otherwise leave it a hair below the line
+// and hand the highlight to the previous section.
+const BAND_TOLERANCE_PX = 4;
 
 export default function TableOfContents({ headings }: { headings: Heading[] }) {
   const [activeId, setActiveId] = useState<string>("");
@@ -23,38 +26,41 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
 
     if (elements.length === 0) return;
 
-    // Every heading's latest intersection state. Lifetime matches the
-    // observer's, so it lives in the effect closure rather than a ref.
-    // IntersectionObserver delivers an initial entry for every element on
-    // observe(), so this is fully populated after the first callback.
-    const states = new Map<string, boolean>();
+    // The line a heading must cross to become active. Read from the heading's
+    // own scroll-margin-top rather than hardcoded, because a ToC click parks
+    // the target at exactly that offset. If the two disagreed, clicking entry
+    // 7 would highlight entry 6.
+    const scrollMargin = Number.parseFloat(
+      window.getComputedStyle(elements[0]).scrollMarginTop,
+    );
+    const bandTop =
+      (Number.isFinite(scrollMargin) && scrollMargin > 0
+        ? scrollMargin
+        : FALLBACK_BAND_TOP_PX) + BAND_TOLERANCE_PX;
 
     const recompute = () => {
       const positions: HeadingPosition[] = elements.map((el) => ({
         id: el.id,
-        // Read live rather than using entry.boundingClientRect, which is a
-        // snapshot from when the intersection changed and can be several
-        // frames stale by the time batched callbacks run.
+        // Live, not entry.boundingClientRect, which is a snapshot from when the
+        // intersection changed and can be several frames stale by the time
+        // batched callbacks run.
         top: el.getBoundingClientRect().top,
-        isIntersecting: states.get(el.id) ?? false,
       }));
-      setActiveId(pickActiveHeading(positions, BAND_TOP_PX));
+      setActiveId(pickActiveHeading(positions, bandTop));
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          states.set(entry.target.id, entry.isIntersecting);
-        }
-        recompute();
-      },
-      {
-        // Trigger band near the top of the viewport so the active heading is
-        // the one just under the sticky header, not whatever is centred.
-        rootMargin: `-${BAND_TOP_PX}px 0px -70% 0px`,
-        threshold: 0,
-      },
-    );
+    // The observer no longer contributes to the decision. It is a change
+    // trigger: it fires when a heading crosses bandTop, which is exactly when
+    // the answer can change, so no scroll listener is needed. observe()
+    // delivers an initial entry per element, so the first highlight is correct
+    // on load and after a fragment jump.
+    const observer = new IntersectionObserver(() => recompute(), {
+      // Band runs from bandTop to the viewport bottom. The previous -70%
+      // lower edge is gone: it fed the deleted in-band branch and had no
+      // bearing on this decision.
+      rootMargin: `-${bandTop}px 0px 0px 0px`,
+      threshold: 0,
+    });
 
     elements.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
