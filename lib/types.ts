@@ -28,8 +28,18 @@ export interface PromptBlock {
   image?: { url: string; description?: string }; // linked asset; absent on text-only prompts
 }
 
+export interface Sidenote {
+  __typename: "Sidenote";
+  sys: { id: string };
+  note: Content; // rich text — reuses the Content shape (json + links)
+}
+
 export interface EntryLink {
+  // Block-level embeds (CodeBlock, PromptBlock) sit between paragraphs.
   block: (CodeBlock | PromptBlock)[];
+  // Inline embeds (Sidenote) sit inside a paragraph, referenced by an
+  // INLINES.EMBEDDED_ENTRY node. Optional: only POST_GRAPHQL_FIELDS fetches it.
+  inline?: Sidenote[];
 }
 
 export interface Content {
