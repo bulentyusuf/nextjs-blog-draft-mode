@@ -1,4 +1,5 @@
 import LightboxImage from "./lightbox-image";
+import Sidenote from "./sidenote";
 import CopyButton from "./copy-button";
 import NewWindowHint from "@/app/new-window-hint";
 import ContentfulImage from "./contentful-image";
@@ -109,6 +110,10 @@ export function RichText({
   // Pages prioritise their first embedded image (the lead image is the LCP).
   // Posts leave this false: the LCP is the cover, body images stay lazy.
   let assetIndex = 0;
+  // Document-order number for inline sidenotes, feeding each note's aria-label
+  // and its in-text marker. The floated note's own "N." prefix comes from a CSS
+  // counter (globals.css); both count once per note in order, so they agree.
+  let sidenoteIndex = 1;
 
   // The post title is the page's only h1, so a stray h1 in body content would
   // duplicate it. Coalesce body h1 to h2. H3 to H6 are intentional sub-structure
@@ -252,6 +257,16 @@ export function RichText({
         }
 
         return null;
+      },
+      [INLINES.EMBEDDED_ENTRY]: (node: Block | Inline) => {
+        const id = (node as Inline).data.target.sys.id;
+        const entry = content.links.entries?.inline?.find((e) => e.sys.id === id);
+        // Same defensive shape as the block case: an unresolved id (draft or
+        // deleted entry) or a non-Sidenote inline embed renders nothing rather
+        // than throwing.
+        if (!entry || entry.__typename !== "Sidenote") return null;
+
+        return <Sidenote content={entry.note} number={sidenoteIndex++} />;
       },
       [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => {
         const uri: unknown = (node as Inline).data.uri;

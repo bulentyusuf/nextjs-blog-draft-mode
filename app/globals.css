@@ -176,6 +176,91 @@
   }
 }
 
+/*
+  Tufte-style sidenotes (lib/sidenote.tsx). The wrapper, marker and note all
+  stay inline so the reference does not break its paragraph; the note is a
+  <details> DOM-adjacent to the marker, which is why screen-reader order is
+  correct for free at every viewport.
+
+  counter-increment lives on the always-displayed wrapper, not on the marker:
+  the in-text <sup> marker is display:none below 2xl (the summary is the marker
+  there), and a display:none element does not advance a counter — the floated
+  note's "N." would then be wrong.
+*/
+.sidenote-wrap {
+  display: inline;
+  counter-increment: sidenote;
+}
+
+.sidenote-details {
+  display: inline;
+}
+
+.sidenote-ref {
+  font-weight: 600;
+  color: var(--color-brand-crimson);
+}
+
+/* Mobile tap target: a crimson, dotted-underlined superscript that reads as
+   interactive. The default disclosure triangle is suppressed. */
+.sidenote-toggle {
+  display: inline;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  color: var(--color-brand-crimson);
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+.sidenote-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.sidenote-body {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-brand-muted);
+}
+
+/* The note is rendered outside .prose, so restore just enough: spacing between
+   its own paragraphs, and the crimson underline body links get inside prose. */
+.sidenote-body p + p {
+  margin-top: 0.5em;
+}
+.sidenote-body a {
+  color: var(--color-brand-crimson);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (min-width: 1536px) {
+  /* Room opens up outside the max-w-2xl prose column: float the note into the
+     right margin. clear:right stacks multiple notes instead of overlapping
+     (dense reference clusters can still collide — a known Tufte-CSS limit). */
+  .sidenote-body {
+    float: right;
+    clear: right;
+    width: 12rem;
+    margin-right: -15rem;
+    margin-top: 0;
+  }
+  .sidenote-body::before {
+    content: counter(sidenote) ". ";
+    font-weight: 600;
+    color: var(--color-brand-crimson);
+  }
+  /* Force the note visible regardless of the <details> [open] state; at this
+     width the summary is hidden (2xl:hidden) so there is no toggle. Mirrors the
+     TOC override above rather than reinventing it. */
+  .sidenote-details > :not(summary) {
+    display: block;
+  }
+  .sidenote-details::details-content {
+    content-visibility: visible;
+  }
+}
+
 @utility prose {
   /* Map the typography plugin's slate palette to brand tokens (F9). This block
      already outranks the plugin's own `.prose` variable defaults by source
@@ -196,6 +281,10 @@
   --tw-prose-captions: var(--color-brand-muted);
   --tw-prose-th-borders: color-mix(in srgb, var(--color-brand-dark) 15%, transparent);
   --tw-prose-td-borders: color-mix(in srgb, var(--color-brand-dark) 10%, transparent);
+
+  /* Start the sidenote count fresh in each article body, so a post's floated
+     margin notes number 1, 2, 3… on their own. See the .sidenote-* rules. */
+  counter-reset: sidenote;
 
   /* Body headings inherit the sitewide 600 weight. The typography plugin's
      `.prose :where(h2)` rule (700) outranks the base-layer `h2` rule by

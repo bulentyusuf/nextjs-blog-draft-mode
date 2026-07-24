@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { BLOCKS } from "@contentful/rich-text-types";
+import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Document } from "@contentful/rich-text-types";
 import { extractHeadings } from "./headings";
 import { RichText } from "./rich-text";
@@ -304,5 +304,85 @@ describe("hyperlink classification", () => {
     const html = render("javascript:alert(1)", "click me");
     expect(html).not.toContain("<a");
     expect(html).toContain("click me");
+  });
+});
+
+describe("inline sidenote embed", () => {
+  // An inline embedded-entry reference node, as it appears inside a paragraph.
+  const inlineRef = (id: string) => ({
+    nodeType: INLINES.EMBEDDED_ENTRY,
+    data: { target: { sys: { id, type: "Link", linkType: "Entry" } } },
+    content: [],
+  });
+
+  const noteContent = (value: string): Content => ({
+    json: {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [paragraph(value)],
+    } as unknown as Document,
+    links: { assets: { block: [] } },
+  });
+
+  const render = (id: string, inline: unknown[]) => {
+    const json = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [
+        { nodeType: BLOCKS.PARAGRAPH, data: {}, content: [text("See "), inlineRef(id)] },
+      ],
+    } as unknown as Document;
+    const content: Content = {
+      json,
+      links: { assets: { block: [] }, entries: { block: [], inline: inline as never } },
+    };
+    return renderToStaticMarkup(<RichText content={content} headings={[]} />);
+  };
+
+  it("renders the numbered reference marker and the note body", () => {
+    const html = render("sn1", [
+      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside worth reading.") },
+    ]);
+
+    // A superscript marker carrying the document-order number, and the note text.
+    expect(html).toMatch(/<sup[^>]*>1<\/sup>/);
+    expect(html).toContain("An aside worth reading.");
+    expect(html).toContain("sidenote-body");
+  });
+
+  it("numbers multiple notes in document order", () => {
+    const json = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [
+        { nodeType: BLOCKS.PARAGRAPH, data: {}, content: [text("A "), inlineRef("sn1")] },
+        { nodeType: BLOCKS.PARAGRAPH, data: {}, content: [text("B "), inlineRef("sn2")] },
+      ],
+    } as unknown as Document;
+    const content: Content = {
+      json,
+      links: {
+        assets: { block: [] },
+        entries: {
+          block: [],
+          inline: [
+            { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("first") },
+            { __typename: "Sidenote", sys: { id: "sn2" }, note: noteContent("second") },
+          ] as never,
+        },
+      },
+    };
+    const html = renderToStaticMarkup(<RichText content={content} headings={[]} />);
+
+    // The second note's aria-label carries 2, proving the index advances.
+    expect(html).toContain('aria-label="Note 1"');
+    expect(html).toContain('aria-label="Note 2"');
+  });
+
+  it("renders nothing (without throwing) for an unresolved entry id", () => {
+    // No matching inline entry: a draft or deleted reference must not crash.
+    expect(() => render("missing", [])).not.toThrow();
+    const html = render("missing", []);
+    expect(html).not.toContain("sidenote-body");
   });
 });

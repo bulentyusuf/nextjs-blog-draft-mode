@@ -77,6 +77,28 @@ const POST_GRAPHQL_FIELDS = `
             }
           }
         }
+        inline {
+          sys {
+            id
+          }
+          __typename
+          ... on Sidenote {
+            note {
+              json
+              links {
+                assets {
+                  block {
+                    sys {
+                      id
+                    }
+                    url
+                    description
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
