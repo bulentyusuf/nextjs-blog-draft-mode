@@ -55,10 +55,11 @@ export default async function OpengraphImage({
 
   const title = post ? cardTitle(post.title) : SITE_TITLE;
   const author = post?.author?.name ?? SITE_AUTHOR;
-  // A modestly sized cover derivative keeps generation fast; full assets are
-  // wasteful for a 480px-wide panel.
+  // Requested at the panel's exact pixel size. The card output is a fixed
+  // 1200x630 PNG, so the panel is 480x630 at 1:1 and there is no DPR to serve.
+  // Asking for a wider derivative only makes Satori crop a second time.
   const coverUrl = post?.coverImage
-    ? `${post.coverImage.url}?w=600&h=630&fit=fill&fm=jpg&q=80`
+    ? `${post.coverImage.url}?w=480&h=630&fit=fill&fm=jpg&q=80`
     : null;
 
   return new ImageResponse(
