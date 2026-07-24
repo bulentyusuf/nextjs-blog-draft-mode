@@ -11,6 +11,14 @@ import type { Heading } from "./headings";
 import { SITE_HOSTNAME } from "./constants";
 import { widont } from "./typography";
 
+// A root-relative URI like "/privacy" points at this site. Protocol-relative
+// forms ("//evil.example", and the backslash variant some browsers normalise
+// to it) also start with a slash but resolve to another origin, so they are
+// excluded here and fall through to URL parsing, which rejects them.
+function isRootRelative(url: string): boolean {
+  return url.startsWith("/") && url[1] !== "/" && url[1] !== "\\";
+}
+
 function isExternalUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
@@ -246,14 +254,28 @@ export function RichText({
         return null;
       },
       [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => {
-        const uri: string = (node as Inline).data.uri;
-        const ALLOWED_SCHEMES = ["http:", "https:", "mailto:"];
+        const uri: unknown = (node as Inline).data.uri;
+        if (typeof uri !== "string") return <>{children}</>;
+
+        // Root-relative paths are internal. They never reach URL parsing,
+        // which requires a base and would throw.
+        if (isRootRelative(uri)) return <a href={uri}>{children}</a>;
+
+        let parsed: URL;
         try {
-          const parsed = new URL(uri);
-          if (!ALLOWED_SCHEMES.includes(parsed.protocol)) return <>{children}</>;
+          parsed = new URL(uri);
         } catch {
           return <>{children}</>;
         }
+
+        // mailto hands off to a mail client rather than opening a window, so
+        // it gets neither target="_blank" nor the new-window hint.
+        if (parsed.protocol === "mailto:") return <a href={uri}>{children}</a>;
+
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+          return <>{children}</>;
+        }
+
         if (isExternalUrl(uri)) {
           return (
             <a href={uri} target="_blank" rel="noopener noreferrer">

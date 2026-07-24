@@ -249,3 +249,60 @@ describe("blockquote handling", () => {
     expect(html).toContain("The medium is the message.");
   });
 });
+
+describe("hyperlink classification", () => {
+  const render = (uri: string, label = "link") => {
+    const json = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [
+        { nodeType: BLOCKS.PARAGRAPH, data: {}, content: [link(uri, label)] },
+      ],
+    } as unknown as Document;
+    return renderToStaticMarkup(
+      <RichText
+        content={{ json, links: { assets: { block: [] } } }}
+        headings={[]}
+      />,
+    );
+  };
+
+  it("renders a root-relative URI as a plain internal anchor", () => {
+    const html = render("/privacy", "privacy page");
+    expect(html).toContain('href="/privacy"');
+    expect(html).not.toContain("_blank");
+  });
+
+  it("keeps the fragment on a root-relative URI", () => {
+    expect(render("/posts/x#y")).toContain('href="/posts/x#y"');
+  });
+
+  it("renders mailto without new-window treatment", () => {
+    const html = render("mailto:hello@example.com", "email me");
+    expect(html).toContain('href="mailto:hello@example.com"');
+    expect(html).not.toContain("_blank");
+    expect(html).not.toContain("opens in a new window");
+  });
+
+  it("still marks a cross-origin link as opening a new window", () => {
+    const html = render("https://example.com/x", "elsewhere");
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain("opens in a new window");
+  });
+
+  it("strips a protocol-relative URI", () => {
+    const html = render("//example.com/x", "elsewhere");
+    expect(html).not.toContain("<a");
+    expect(html).toContain("elsewhere");
+  });
+
+  it("strips the backslash protocol-relative variant", () => {
+    expect(render("/\\example.com")).not.toContain("<a");
+  });
+
+  it("strips a javascript: URI", () => {
+    const html = render("javascript:alert(1)", "click me");
+    expect(html).not.toContain("<a");
+    expect(html).toContain("click me");
+  });
+});
