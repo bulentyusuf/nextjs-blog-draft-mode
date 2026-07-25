@@ -29,51 +29,35 @@ breaks search in every Chromium browser. Do not re-flag as CSP loosening.
 
 ### Search runs on Pagefind's Component UI, not the legacy default UI
 
-`app/search/` mounts Pagefind's web components (`<pagefind-input>`,
-`<pagefind-results>`) with a house result template supplied via
-`<script type="text/pagefind-template">`. The markup and class names in that
-template are ours; keyboard navigation, WAI-ARIA behaviour and assistive-text
-translation come from upstream and are deliberately not reimplemented.
+`app/search/` mounts Pagefind's web components with a house result template
+(`<script type="text/pagefind-template">`). The markup and class names in that
+template are ours; the components' keyboard and WAI-ARIA behaviour is upstream's
+and is deliberately not reimplemented.
 
-Two earlier approaches were tried and abandoned, so do not propose either
-again. The legacy default UI (`@pagefind/default-ui`) needed a wall of
-`!important` overrides to fight its runtime-injected stylesheet and its hashed
-selectors. A fully bespoke React UI on the JS API removed that problem but made
-us the maintainer of the entire search interface, including its accessibility.
-The Component UI gives template-level control without either cost.
+The legacy default UI (`@pagefind/default-ui`) and a bespoke React UI on the JS
+API were both tried and abandoned. Do not propose either again.
 
 Because the template is ours, search CSS needs no `!important`. If a rule seems
 to require it, the template is the wrong shape — fix the template.
 
-The `pagefind` devDependency must stay at `^1.5.2` or later. The Component UI
+The `pagefind` devDependency must stay at `^1.5.2` or later; the Component UI
 does not exist in 1.3.x.
 
 ### Ghost search results for near-miss terms are an upstream limitation
 
-Searching a term that matches nothing causes Pagefind to truncate it and retry,
-so "musk" returns posts containing "music" and "Munich", with no highlighted
-term in the excerpt. This is search-core behaviour, not a UI fault, and it
-cannot be configured away: the complete browser-side option set is `baseUrl`,
-`bundlePath`/`basePath`, `excerptLength`, `highlightParam`, `exactDiacritics`,
-`metaCacheTag`, `ranking`, index weight, merge filter and `noWorker`. None of
-them is a minimum-match threshold.
+A term that matches nothing is truncated and retried by the search core, so
+"musk" returns posts containing "music" and "Munich" with no highlighted term.
+Search-core behaviour, not a UI fault, and the supported option set holds no
+minimum-match threshold. The over-broad case, where "contentful" surfaces pages
+containing only "content", is **not** fixed either and can rank above the
+literal match: `ranking.termSimilarity` exists on the raw JS API but the
+Component UI does not expose it. Do not treat either as a bug.
 
-The related over-broad case, where "contentful" surfaces pages containing only
-"content", is **not** fixed either. `ranking.termSimilarity` (documented as
-suppressing pages that rank on long extensions of a search term) exists on the
-raw JS API, but the Component UI does not expose it: the string `ranking`
-appears nowhere in its bundle, and `<pagefind-config>` forwards only
-`excerpt-length`, `base-url`, `highlight-param`, `exact-diacritics` and
-`no-worker`. It is accepted on the same terms as the ghosts above — the price
-of staying on upstream-maintained components. A "content"-only page can even
-rank above the literal "contentful" match; do not treat that as a bug.
-
-A client-side filter dropping results whose excerpt contains no `<mark>` does
-remove the ghosts, but only by owning the result pipeline, which is the bespoke
-approach rejected above. Do not reintroduce it. An issue requesting an opt-in
-threshold has been filed upstream (Pagefind/pagefind#1246,
-https://github.com/Pagefind/pagefind/issues/1246); the behaviour is accepted
-until it lands a supported fix. Do not re-flag as a bug.
+A client-side filter dropping results whose excerpt contains no `<mark>`
+removes the ghosts, but only by owning the result pipeline, the bespoke
+approach rejected above. Do not reintroduce it. Filed upstream
+(Pagefind/pagefind#1246, https://github.com/Pagefind/pagefind/issues/1246) and
+accepted until a supported fix lands. Do not re-flag as a bug.
 
 ### The search empty state is coupled to the input's placeholder
 
@@ -100,65 +84,25 @@ re-flag as a broken pattern.
 It is linked from the nav yet excluded from search engines. A search page is
 thin content; crawlers should reach posts directly. Not an SEO gap.
 
-### The search emblem lights its own silhouette in dark mode, and must use literal hex values
+### The search emblem's dark-mode ground
 
-The emblem in `app/search/` is knockout artwork: the hat, face and eye are not
-drawn, they are gaps where the ground shows through the ink. That only reads on
-a light ground, so in dark mode a cream ground sits behind the ink.
+`app/search/search-emblem.tsx` draws knockout artwork over a cream underlay
+sliced from the art itself. Two rules.
 
-The ground is **the magnifying glass's own outer silhouette**, not a plate and
-not a hand-tuned ellipse. In `search-emblem.tsx` the emblem path is held in two
-constants, `PATH1` (the glass) and `PATH2` (the face). `PATH1`'s first subpath
-is the outer contour of the glass — lens ring plus handle — so
-`LENS = PATH1.slice(0, PATH1.indexOf("z") + 1)` is exactly that silhouette. It is
-filled once as a cream underlay (`<path class="search-lens-ground">`, drawn
-before the ink), giving a pixel-perfect light ground shaped like the glass, with
-the handle included. Because `LENS` is sliced from `PATH1` at render time it can
-**never drift** from the art: replace the emblem and both constants change
-together. `p-8` on the figure, shared by both schemes, sets one emblem size
-across light and dark.
+- Anything rendered on that ground uses literal hex values in dark mode, never
+  brand tokens. The ground is a fixed cream island in both schemes and every
+  brand token flips. `.search-lens-ground` fills `#FAF5F1` because
+  `--color-brand-bg` would otherwise paint a black glass, and the figure forces
+  `dark:text-[#A4243B]` because the lifted dark-mode crimson looks washed out on
+  cream. This covers anything added later, a border, a caption, a hover state.
+- `LENS` is sliced from `PATH1` at render time so it can never drift from the
+  art. It is not a tuning knob, do not replace it with a hand-drawn shape.
+  `p-8` on the figure may be nudged by eye.
 
-Why the silhouette and not a disc: on grey (ink vs. see-through holes) the right
-third of the glass and the whole ring are solid ink, and the glass is drawn as a
-*tilted* ellipse. A geometric disc either clips the inked side of the face
-(muddy `#A4243B` on near-black, a bite out of the face) or spills cream past the
-ring. Two earlier attempts — a rounded plate behind the whole figure
-(`dark:rounded-3xl`/`dark:rounded-full` + `dark:bg`, read as a floating card),
-and a tuned tilted ellipse (`rotate(-8 …)`, always a hair of spill and a muddy
-handle) — were both replaced by the silhouette, which needs no tuning.
-
-The relevant classes:
-
-```
-figure:   search-empty mx-auto mt-10 max-w-[16rem] p-8 text-brand-crimson dark:text-[#A4243B]
-underlay: search-lens-ground   (fill: transparent; dark → fill #FAF5F1, in globals.css)
-```
-
-**The rule that matters: anything rendered on that ground must use literal hex
-values in dark mode, never brand tokens.** The ground is a fixed cream island
-that does not change between colour schemes, but every brand token does. Both
-hexes exist for that reason:
-
-- `.search-lens-ground { fill: #FAF5F1 }` in dark mode — the page-background
-  token (`--color-brand-bg`) flips to near-black and would paint a black glass.
-- `dark:text-[#A4243B]` — `--color-brand-crimson` is deliberately lifted to
-  `#E0667A` in dark mode so links stay vivid and pass AA against near-black
-  (see globals.css). On the cream ground that lifted value looks washed out.
-  Forcing the light-mode crimson back is correct: the emblem is on cream in
-  both schemes, so it should be the same colour in both.
-
-Anything added to this figure later — a border, a caption, a hover state —
-falls under the same literal-hex rule.
-
-`p-8` is tuned by eye and may be nudged. The two hex values are not tuning
-knobs, and `LENS` is not a tuning knob either — it is derived from the art, so
-do not replace it with a hand-drawn shape.
-
-Two alternatives were tried and rejected. Inverting the ink to cream so the
-knockouts become page-dark is legible but reads as a photographic negative,
-because a face made of holes is absence rather than marks. Stripping the face
-and showing only the magnifying glass loses the joke and damages the linocut
-line where the interior was cut away. Do not revisit either.
+Already tried and rejected, do not revisit. A rounded plate behind the whole
+figure (read as a floating card). A hand-tuned tilted ellipse (always a hair of
+spill and a muddy handle). Inverting the ink to cream (reads as a photographic
+negative). Stripping the face and keeping only the glass (loses the joke).
 
 ### Brand colour exists in two places on purpose
 
@@ -190,44 +134,29 @@ their own `border-gray-300 dark:border-brand-dark/15` pairing. Leave them.
 ### One focus indicator, set in `@layer base`
 
 `globals.css` defines a single `:focus-visible` rule: a 2px
-`var(--color-brand-crimson)` outline at 2px offset. It inverts with the scheme
-(`#A4243B` light, `#E0667A` dark) and clears 3:1 against both page grounds. Do
-not add `focus-visible:ring-*` or `focus-visible:outline-*` utilities to
-individual components. If focus looks wrong somewhere, the element is probably
-missing `focus-visible:outline-hidden` before a local override, or is inside an
-`overflow-hidden` parent (see below).
+`var(--color-brand-crimson)` outline at 2px offset, inverting with the scheme
+(`#A4243B` light, `#E0667A` dark). Do not add `focus-visible:ring-*` or
+`focus-visible:outline-*` utilities to individual components. Focus looking
+wrong usually means a missing `focus-visible:outline-hidden` before a local
+override.
 
-Two categories of exception exist, both deliberate:
-
-**Elements on the coloured header and footer bands.** Crimson on the header navy
-`#1E3A8A` is about 1.07:1 and fails WCAG 1.4.11. The masthead, nav links, search
-icon, skip link and footer links therefore set `focus-visible:outline-hidden`
-plus a white ring. The `outline-hidden` is required, not decorative — without it
-the base crimson outline stacks underneath and the fix looks applied while still
-failing.
-
-**Code block scroll regions.** The `role="region"` elements in
-`lib/rich-text.tsx` use `focus-visible:outline-offset-[-2px]` so the outline
-draws inward. Their parent is `overflow-hidden rounded-lg` and clips anything
-drawn outside the box. A ring is not an alternative — `ring-*` compiles to
-`box-shadow`, which is clipped the same way.
+Two deliberate exceptions. **The coloured header and footer bands**: crimson on
+the header navy `#1E3A8A` is about 1.07:1 and fails WCAG 1.4.11, so the
+masthead, nav links, search icon, skip link and footer links set
+`focus-visible:outline-hidden` plus a white ring. The `outline-hidden` is
+required, not decorative — without it the base outline stacks underneath and
+still fails. **Code block scroll regions**: the `role="region"` elements in
+`lib/rich-text.tsx` use `focus-visible:outline-offset-[-2px]` to draw inward,
+because their `overflow-hidden rounded-lg` parent clips anything outside the
+box. A ring is not an alternative — `ring-*` compiles to `box-shadow`, clipped
+the same way.
 
 ### Back-to-top uses a two-tone ring, and must keep it
 
-`app/back-to-top.tsx` is the only `position: fixed` control on the site, so its
-focus indicator floats over unpredictable ground: the light page, the dark page,
-the footer band, a code block. No single colour clears 3:1 against all of them.
-Crimson measures 2.32:1 against the light-mode footer `#241B1D`, which is where
-this was caught.
-
-It therefore keeps `focus:outline-hidden` plus
-`focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2
-focus-visible:ring-offset-surface-dark`. The two tones cover each other: white is
-18.7:1 on the dark page, the dark offset is 15.5:1 on the light page. Whichever
-tone loses contrast, the other carries.
-
-This was once "simplified" to the base outline and had to be reverted. Do not
-propose it again. The in-file comment says the same thing and is not redundant.
+`app/back-to-top.tsx` is the only `position: fixed` control on the site, so it
+keeps `focus:outline-hidden` plus a white ring on a `surface-dark` offset, not
+the base outline. See the in-file comment for the contrast reasoning. Once
+"simplified" and reverted; do not propose it again.
 
 ### Breadcrumbs are constrained to their page's own measure
 
@@ -245,31 +174,63 @@ emblem's visibility depends on
 
 ### `/page/[page]` has no breadcrumb on purpose
 
-Breadcrumbs describe section hierarchy. Position within a section is carried
-separately by `app/page-context.tsx`, which renders a muted "Page N of M" line
-and returns `null` on page 1. That is why paginated category and author chains
-stop at the section and never include a page number.
-
-Applying the same rule to `/page/2` leaves a single non-linked "Home" crumb
-carrying `aria-current="page"` on a page that is not home, which is worse than
-none. The absence is correct. Do not add one, and do not add page numbers to the
-existing paginated chains.
+Breadcrumbs describe section hierarchy. Position is carried separately by
+`app/page-context.tsx`, which renders a muted "Page N of M" line and returns
+`null` on page 1. That is why paginated category and author chains stop at the
+section and never include a page number. A crumb here would be a lone
+non-linked "Home" marked `aria-current="page"`. Do not add one, and do not add
+page numbers to the existing paginated chains.
 
 Known and accepted: on `/categories/[slug]/page/[page]`, `aria-current="page"`
-sits on the section crumb, whose URL differs from the current one. Fixing it
-would require the page-number crumb rejected above.
+sits on the section crumb, whose URL differs from the current one.
 
 ### Two smaller decisions, recorded
 
-- The skip link uses `focus:top-2`. That is a computed value, not a nudge: the
-  link is 36px tall and the header band is 52px, so 8px centres it. If the
-  header's `py-3` or the masthead's `text-lg` changes, recompute it. The
-  self-centring alternative (move inside `<header>`, `top-1/2 -translate-y-1/2`)
-  was considered and rejected as not worth the restructure.
+- The skip link's `focus:top-2` is computed, not a nudge: the link is 36px tall
+  and the header band 52px, so 8px centres it. Recompute it if the header's
+  `py-3` or the masthead's `text-lg` changes. The self-centring alternative was
+  considered and rejected.
 - Archive rows carry two tab stops each, title and category, because the category
-  links to its category page exactly as it does on the home page hero. Nineteen
-  posts means 38 stops on `/archive`. Accepted in exchange for a consistent
-  affordance.
+  links to its category page as it does on the home page hero.
+
+### Sidenotes are inline embedded entries, and the numbering has two halves
+
+A sidenote is a Contentful `Sidenote` entry embedded inline in a post's rich
+text, pulled through the `... on Sidenote` fragment in `lib/api.ts` and
+rendered by `lib/sidenote.tsx`.
+
+`lib/rich-text.tsx` deliberately returns `null` for a missing entry or for any
+inline embed that is not a `Sidenote`, so a deleted entry degrades to nothing
+rather than throwing. Do not replace that guard with an error.
+
+The visible reference number and the `N. ` prefix on the floated note are two
+separate mechanisms, a document-order index computed in `rich-text.tsx` and a
+CSS counter in `globals.css`. They agree because both advance once per note in
+document order. If either moves, move the other.
+
+Responsive behaviour is a native `<details>` that CSS forces open and floats
+into the right margin at 2xl+, the same trick the TOC uses. All of it lives in
+`.sidenote-*` rules in `globals.css`, not in the component.
+
+The `<sup>` is `aria-hidden` and the `<summary>` carries the accessible name via
+`aria-label`. Do not "fix" the `sup` by giving it a name, it would
+double-announce.
+
+### Cross-document view transitions are CSS-only, and names must stay unique
+
+`@view-transition { navigation: auto }` in `globals.css` opts into
+cross-document transitions. Navigations here are full document loads, which is
+exactly what this animates. No JS, no library. Browsers without support
+navigate instantly.
+
+The spec requires transition names to be unique on a page. `createCoverNamer()`
+in `lib/view-transition-name.ts` hands out `cover-{slug}` at most once per
+render pass, because a post appearing twice, hero plus list, would otherwise
+name the same cover twice and a duplicate invalidates the entire transition.
+Reset per request, do not memoise across requests.
+
+The 0.35s group and 0.2s root durations are tuned, not defaults. The
+`prefers-reduced-motion` block disables the animation entirely.
 
 ### Other reviewed items, intentionally left as-is
 
@@ -297,23 +258,16 @@ would require the page-number crumb rejected above.
 - CI actions are pinned to major tags (`@v4`), not commit SHAs. Accepted as low
   risk because they are first-party (`actions/checkout`, `github/codeql-action`).
   SHA-pinning is optional belt-and-braces, not adopted.
-- `npm audit` flags postcss `<8.5.10` (GHSA-qx2v-qp2m-jg93, XSS via unescaped
-  `</style>` in CSS stringify output) via Next.js's bundled copy at
-  `node_modules/next/node_modules/postcss`. The direct dependency is already
-  pinned to the patched `postcss ^8.5.10`; only Next's internal copy lags. The
-  advisory requires running untrusted CSS through PostCSS's stringifier, which
-  this static blog never does — CSS is first-party Tailwind, build-time only.
-  The only offered fix downgrades `next` to 9.3.3, a non-starter. Dormant;
-  resolves when Next bumps its bundled postcss. Do not re-flag.
-- `npm audit` flags uuid `<11.1.1` (GHSA-w5hq-g745-h8pq, missing buffer bounds
-  check in v3/v5/v6 when a caller passes its own `buf`) via the
-  `contentful-import` → `contentful-batch-libs` dependency chain.
-  `contentful-import` is a devDependency: a one-shot CLI seed/import tool that
-  never ships to the site and never runs at build or request time, and it does
-  not pass a `buf` to uuid. Zero runtime exposure. The only offered fix
-  downgrades `contentful-import` six majors (to 8.2.24), a non-starter for the
-  forkable-template import flow. Accepted on the same terms as the postcss
-  advisory above; resolves when the chain bumps uuid. Do not re-flag.
+- `npm audit` flags postcss `<8.5.10` (GHSA-qx2v-qp2m-jg93) via Next's bundled
+  copy at `node_modules/next/node_modules/postcss`; the direct dependency is
+  already on the patched `^8.5.10`. It needs untrusted CSS through PostCSS's
+  stringifier, which this blog never does. The only offered fix downgrades
+  `next` to 9.3.3, a non-starter. Do not re-flag.
+- `npm audit` flags uuid `<11.1.1` (GHSA-w5hq-g745-h8pq) via the
+  `contentful-import` → `contentful-batch-libs` chain. `contentful-import` is a
+  devDependency, a one-shot CLI tool that never ships and never runs at build or
+  request time, so runtime exposure is zero. The only offered fix downgrades it
+  six majors (to 8.2.24), a non-starter. Do not re-flag.
 
 ## House conventions
 
