@@ -324,6 +324,22 @@ describe("inline sidenote embed", () => {
     links: { assets: { block: [] } },
   });
 
+  // A note body whose paragraph contains a hyperlink, for the link-handling
+  // cases below.
+  const noteWithLink = (uri: string, label = "link"): Content => ({
+    json: {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [
+        { nodeType: BLOCKS.PARAGRAPH, data: {}, content: [text("see "), link(uri, label)] },
+      ],
+    } as unknown as Document,
+    links: { assets: { block: [] } },
+  });
+
+  const renderNote = (note: Content) =>
+    render("sn1", [{ __typename: "Sidenote", sys: { id: "sn1" }, note }]);
+
   const render = (id: string, inline: unknown[]) => {
     const json = {
       nodeType: BLOCKS.DOCUMENT,
@@ -422,6 +438,42 @@ describe("inline sidenote embed", () => {
     expect(html).toMatch(
       new RegExp(`<span[^>]*id="${controls}"[^>]*class="sidenote-body[^"]*"`),
     );
+  });
+
+  // A note body renders through the same hyperlink renderer as the post body,
+  // so these mirror the "hyperlink classification" cases above. Without it the
+  // default renderer emitted data.uri as-is and a note was a way round the
+  // allowlisting the body enforces.
+  it("strips a javascript: URI inside a note body", () => {
+    const html = renderNote(noteWithLink("javascript:alert(1)", "click me"));
+
+    expect(html).not.toContain("<a");
+    expect(html).not.toContain("javascript:");
+    expect(html).toContain("click me");
+  });
+
+  it("strips a protocol-relative URI inside a note body", () => {
+    const html = renderNote(noteWithLink("//evil.example/x", "elsewhere"));
+
+    expect(html).not.toContain("<a");
+    expect(html).toContain("elsewhere");
+  });
+
+  it("gives an external link in a note the same new-window treatment", () => {
+    const html = renderNote(noteWithLink("https://example.com/x", "elsewhere"));
+
+    expect(html).toContain('href="https://example.com/x"');
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).toContain("opens in a new window");
+  });
+
+  it("keeps an internal link in a note as a plain anchor", () => {
+    const html = renderNote(noteWithLink("/privacy", "privacy"));
+
+    expect(html).toContain('href="/privacy"');
+    expect(html).not.toContain("_blank");
+    expect(html).not.toContain("opens in a new window");
   });
 
   it("renders nothing (without throwing) for an unresolved entry id", () => {

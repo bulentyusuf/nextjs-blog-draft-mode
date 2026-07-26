@@ -2,20 +2,29 @@
 
 import { useId, useState } from "react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-import { BLOCKS } from "@contentful/rich-text-types";
+import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { ReactNode } from "react";
+import { renderHyperlink } from "./rich-text-link";
 import type { Content } from "./types";
 
-// The note's own body is rich text, whose paragraphs would render as <p> — and a
-// <p> start tag closes an open paragraph in the parser exactly as <details> did,
-// so the default renderer would reintroduce the bug from inside the note. Render
-// them as spans blocked out in CSS instead. The content type enables only bold,
-// italic and hyperlink, so paragraphs are the only block node a note can carry.
+// The note body is rich text and needs both of these overrides.
+//
+// PARAGRAPH: its paragraphs would render as <p>, and a <p> start tag closes an
+// open paragraph in the parser exactly as <details> did, so the default renderer
+// would reintroduce that bug from inside the note. Render them as spans blocked
+// out in CSS instead. The content type enables only bold, italic and hyperlink,
+// so paragraphs are the only block node a note can carry.
+//
+// HYPERLINK: the shared renderer, so a link in a note gets the same URL-scheme
+// allowlisting, external-link treatment and new-window hint as a link in the
+// post body. The default renderer emits data.uri as-is, which would let a
+// javascript: href through here while the body rejected it.
 const bodyOptions = {
   renderNode: {
     [BLOCKS.PARAGRAPH]: (_node: unknown, children: ReactNode) => (
       <span className="sidenote-para">{children}</span>
     ),
+    [INLINES.HYPERLINK]: renderHyperlink,
   },
 } as Parameters<typeof documentToReactComponents>[1];
 
