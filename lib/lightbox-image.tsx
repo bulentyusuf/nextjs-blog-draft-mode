@@ -5,9 +5,11 @@ import { createPortal } from "react-dom";
 import ContentfulImage from "@/lib/contentful-image";
 
 // A single inline body image that opens into a modal lightbox on click.
-// Server-rendered as a plain figure; the overlay is portaled to document.body
-// only while open. Full a11y: role=dialog/aria-modal, Esc + backdrop close,
-// focus trap, focus return to the trigger, body scroll-lock, reduced-motion.
+// Server-rendered as a plain image — the button appears only after mount, so
+// with scripts off readers get the image rather than a dead control. The
+// overlay is portaled to document.body only while open. Full a11y:
+// role=dialog/aria-modal, Esc + backdrop close, focus trap, focus return to the
+// trigger, body scroll-lock, reduced-motion.
 export default function LightboxImage({
   src,
   alt,
@@ -95,24 +97,39 @@ export default function LightboxImage({
     typeof window !== "undefined" &&
     window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
+  const image = (
+    <ContentfulImage
+      src={src}
+      alt={alt}
+      width={1200}
+      height={800}
+      sizes="(max-width: 768px) 100vw, 672px"
+      className="w-full h-auto border-2 border-gray-300 dark:border-brand-dark/15"
+    />
+  );
+
   return (
     <>
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label={alt ? `Enlarge image: ${alt}` : "Enlarge image"}
-        className="block w-full cursor-zoom-in focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-crimson focus-visible:ring-offset-2"
-      >
-        <ContentfulImage
-          src={src}
-          alt={alt}
-          width={1200}
-          height={800}
-          sizes="(max-width: 768px) 100vw, 672px"
-          className="w-full h-auto border-2 border-gray-300 dark:border-brand-dark/15"
-        />
-      </button>
+      {/* The trigger only exists once the script that powers it is running.
+          Rendered unconditionally it was a control that lies with JavaScript
+          off: focusable, announced as "Enlarge image", cursor-zoom-in, and
+          inert on click. The image itself never depended on JS, so degrading
+          to a plain image loses nothing — mounted gates the affordance, not
+          the content. Same flag the portal already waits on, so this costs no
+          extra state and flips immediately after hydration. */}
+      {mounted ? (
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={alt ? `Enlarge image: ${alt}` : "Enlarge image"}
+          className="block w-full cursor-zoom-in focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-crimson focus-visible:ring-offset-2"
+        >
+          {image}
+        </button>
+      ) : (
+        image
+      )}
 
       {mounted &&
         open &&
