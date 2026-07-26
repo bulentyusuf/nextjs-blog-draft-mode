@@ -1,7 +1,7 @@
 import LightboxImage from "./lightbox-image";
 import Sidenote from "./sidenote";
+import { renderHyperlink } from "./rich-text-link";
 import CopyButton from "./copy-button";
-import NewWindowHint from "@/app/new-window-hint";
 import ContentfulImage from "./contentful-image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
@@ -9,28 +9,7 @@ import type { Block, Inline } from "@contentful/rich-text-types";
 import type { ReactNode } from "react";
 import type { Asset, Content } from "./types";
 import type { Heading } from "./headings";
-import { SITE_HOSTNAME } from "./constants";
 import { widont } from "./typography";
-
-// A root-relative URI like "/privacy" points at this site. Protocol-relative
-// forms ("//evil.example", and the backslash variant some browsers normalise
-// to it) also start with a slash but resolve to another origin, so they are
-// excluded here and fall through to URL parsing, which rejects them.
-function isRootRelative(url: string): boolean {
-  return url.startsWith("/") && url[1] !== "/" && url[1] !== "\\";
-}
-
-function isExternalUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    const hostname = parsed.hostname;
-    return !(
-      hostname === SITE_HOSTNAME || hostname.endsWith(`.${SITE_HOSTNAME}`)
-    );
-  } catch {
-    return false;
-  }
-}
 
 function headingText(node: Block | Inline): string {
   if (!node?.content) return "";
@@ -272,39 +251,7 @@ export function RichText({
 
         return <Sidenote content={entry.note} number={sidenoteIndex++} />;
       },
-      [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => {
-        const uri: unknown = (node as Inline).data.uri;
-        if (typeof uri !== "string") return <>{children}</>;
-
-        // Root-relative paths are internal. They never reach URL parsing,
-        // which requires a base and would throw.
-        if (isRootRelative(uri)) return <a href={uri}>{children}</a>;
-
-        let parsed: URL;
-        try {
-          parsed = new URL(uri);
-        } catch {
-          return <>{children}</>;
-        }
-
-        // mailto hands off to a mail client rather than opening a window, so
-        // it gets neither target="_blank" nor the new-window hint.
-        if (parsed.protocol === "mailto:") return <a href={uri}>{children}</a>;
-
-        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-          return <>{children}</>;
-        }
-
-        if (isExternalUrl(uri)) {
-          return (
-            <a href={uri} target="_blank" rel="noopener noreferrer">
-              {children}
-              <NewWindowHint />
-            </a>
-          );
-        }
-        return <a href={uri}>{children}</a>;
-      },
+      [INLINES.HYPERLINK]: renderHyperlink,
     },
   });
 }
