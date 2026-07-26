@@ -379,6 +379,51 @@ describe("inline sidenote embed", () => {
     expect(html).toContain('aria-label="Note 2"');
   });
 
+  it("emits no element that would close the surrounding paragraph", () => {
+    // <details>/<summary> implicitly terminate an open <p> at parse time, which
+    // split the sentence in two and desynced React's tree from the DOM. The
+    // sidenote must stay phrasing content, so neither tag may ever reappear.
+    const html = render("sn1", [
+      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside.") },
+    ]);
+
+    expect(html).not.toContain("<details");
+    expect(html).not.toContain("<summary");
+
+    // The note's own rich-text paragraphs are the same hazard: a nested <p>
+    // closes the outer one just as <details> did, so they render as spans.
+    expect(html).toContain("sidenote-para");
+    expect(html.match(/<p[ >]/g)).toHaveLength(1);
+  });
+
+  it("emits exactly one marker element per role, one of them in a button", () => {
+    // Two <sup>s carry the number: the in-text reference and the toggle's own.
+    // Which of the pair is visible is a media query, so jsdom cannot say — the
+    // count is the assertion, and it catches a third marker creeping in.
+    const html = render("sn1", [
+      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside.") },
+    ]);
+
+    expect(html.match(/<sup[^>]*>1<\/sup>/g)).toHaveLength(2);
+    expect(html).toMatch(/<button[^>]*>\s*<sup[^>]*>1<\/sup>/);
+  });
+
+  it("wires the toggle button to the note body", () => {
+    const html = render("sn1", [
+      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside.") },
+    ]);
+
+    const button = html.match(/<button[^>]*>/)?.[0] ?? "";
+    expect(button).toContain('aria-expanded="false"');
+
+    // aria-controls must name the note body's own id, not just any id.
+    const controls = button.match(/aria-controls="([^"]+)"/)?.[1];
+    expect(controls).toBeTruthy();
+    expect(html).toMatch(
+      new RegExp(`<span[^>]*id="${controls}"[^>]*class="sidenote-body[^"]*"`),
+    );
+  });
+
   it("renders nothing (without throwing) for an unresolved entry id", () => {
     // No matching inline entry: a draft or deleted reference must not crash.
     expect(() => render("missing", [])).not.toThrow();

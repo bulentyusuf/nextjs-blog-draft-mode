@@ -208,13 +208,28 @@ separate mechanisms, a document-order index computed in `rich-text.tsx` and a
 CSS counter in `globals.css`. They agree because both advance once per note in
 document order. If either moves, move the other.
 
-Responsive behaviour is a native `<details>` that CSS forces open and floats
-into the right margin at 2xl+, the same trick the TOC uses. All of it lives in
-`.sidenote-*` rules in `globals.css`, not in the component.
+Every element in a sidenote must stay phrasing content: `<span>`, `<sup>`,
+`<button>`. `<details>`, `<summary>` and `<p>` all implicitly close an open
+paragraph in the HTML parser, so any of them inside the note splits the sentence
+it sits in and desyncs React's tree from the parsed DOM. That is why the toggle
+is a `<button>` with React state rather than a native disclosure, and why the
+note's own rich-text paragraphs are rendered as `.sidenote-para` spans blocked
+out in CSS. A test in `lib/rich-text.test.tsx` guards both. Do not reintroduce
+`<details>`; `display: inline` cannot undo a parse-time split.
 
-The `<sup>` is `aria-hidden` and the `<summary>` carries the accessible name via
-`aria-label`. Do not "fix" the `sup` by giving it a name, it would
+All responsive display lives in the unlayered `.sidenote-*` rules in
+`globals.css`, never as Tailwind utilities in the component. Unlayered author
+styles outrank everything in the `utilities` layer, so a `2xl:hidden` on a
+`.sidenote-*` element silently loses — that is what once showed both markers at
+2xl. If a new responsive rule is needed, add it to `globals.css`.
+
+The in-text `<sup>` is `aria-hidden` and the toggle button carries the accessible
+name via `aria-label`. Do not "fix" the `sup` by giving it a name, it would
 double-announce.
+
+Known gap, not yet addressed: the note body renders with the default renderer, so
+hyperlinks inside a sidenote skip the URL-scheme allowlisting that
+`lib/rich-text.tsx` applies to body links.
 
 ### Cross-document view transitions are CSS-only, and names must stay unique
 
