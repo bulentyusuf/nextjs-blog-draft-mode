@@ -390,9 +390,12 @@ describe("inline sidenote embed", () => {
     };
     const html = renderToStaticMarkup(<RichText content={content} headings={[]} />);
 
-    // The second note's aria-label carries 2, proving the index advances.
-    expect(html).toContain('aria-label="Note 1"');
-    expect(html).toContain('aria-label="Note 2"');
+    // The second note's label text carries 2, proving the index advances.
+    expect(html).toContain("Note 1");
+    expect(html).toContain("Note 2");
+    // Ids are derived from that index, so they must not collide either.
+    expect(html).toContain('id="sidenote-1"');
+    expect(html).toContain('id="sidenote-2"');
   });
 
   it("emits no element that would close the surrounding paragraph", () => {
@@ -412,7 +415,7 @@ describe("inline sidenote embed", () => {
     expect(html.match(/<p[ >]/g)).toHaveLength(1);
   });
 
-  it("emits exactly one marker element per role, one of them in a button", () => {
+  it("emits exactly one marker element per role, one of them in the label", () => {
     // Two <sup>s carry the number: the in-text reference and the toggle's own.
     // Which of the pair is visible is a media query, so jsdom cannot say — the
     // count is the assertion, and it catches a third marker creeping in.
@@ -421,23 +424,42 @@ describe("inline sidenote embed", () => {
     ]);
 
     expect(html.match(/<sup[^>]*>1<\/sup>/g)).toHaveLength(2);
-    expect(html).toMatch(/<button[^>]*>\s*<sup[^>]*>1<\/sup>/);
+    expect(html).toMatch(/<label[^>]*>.*?<sup[^>]*>1<\/sup>/);
   });
 
-  it("wires the toggle button to the note body", () => {
+  it("opens the note with no JavaScript", () => {
+    // The toggle is a checkbox driving :checked in CSS, not React state, so a
+    // note is readable with scripts off and before hydration. A <button> here
+    // means that regressed — the markup is the only thing holding it.
     const html = render("sn1", [
       { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside.") },
     ]);
 
-    const button = html.match(/<button[^>]*>/)?.[0] ?? "";
-    expect(button).toContain('aria-expanded="false"');
+    expect(html).not.toContain("<button");
+    expect(html).toContain('type="checkbox"');
+
+    // The label must point at the checkbox, or clicking the marker does nothing.
+    const toggleId = html.match(/<input[^>]*id="([^"]+)"/)?.[1];
+    expect(toggleId).toBeTruthy();
+    expect(html).toContain(`for="${toggleId}"`);
+  });
+
+  it("wires the toggle to the note body and names it", () => {
+    const html = render("sn1", [
+      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside.") },
+    ]);
 
     // aria-controls must name the note body's own id, not just any id.
-    const controls = button.match(/aria-controls="([^"]+)"/)?.[1];
+    const input = html.match(/<input[^>]*>/)?.[0] ?? "";
+    const controls = input.match(/aria-controls="([^"]+)"/)?.[1];
     expect(controls).toBeTruthy();
     expect(html).toMatch(
       new RegExp(`<span[^>]*id="${controls}"[^>]*class="sidenote-body[^"]*"`),
     );
+
+    // The <sup> is decorative, so the label's accessible name comes from the
+    // visually hidden text. Without it the control announces as bare "1".
+    expect(html).toMatch(/<label[^>]*>\s*<span class="sr-only">Note 1<\/span>/);
   });
 
   // A note body renders through the same hyperlink renderer as the post body,

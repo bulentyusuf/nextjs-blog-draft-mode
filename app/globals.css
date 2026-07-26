@@ -179,8 +179,14 @@
 /*
   Tufte-style sidenotes (lib/sidenote.tsx). Every element stays phrasing content
   so the reference never terminates its paragraph. Below 2xl the note is
-  collapsed behind a button; at 2xl+ there is room outside the max-w-2xl prose
-  column, so it floats into the right margin and the button goes away.
+  collapsed behind a checkbox toggle; at 2xl+ there is room outside the
+  max-w-2xl prose column, so it floats into the right margin and the toggle goes
+  away.
+
+  The open state is a :checked sibling selector rather than a class React sets,
+  so a note opens with scripts off and before hydration. Keep it that way — the
+  component ships no client JavaScript, and reverting to a JS toggle would make
+  note text unreadable without it.
 
   All responsive display is owned here, not by Tailwind utilities in the markup.
   These rules are unlayered and so outrank anything in the utilities layer — a
@@ -202,20 +208,32 @@
   color: var(--color-brand-crimson);
 }
 
-/* Tap target: below 2xl only. Reset the UA button styling back to running text
-   so it sits in the sentence like the superscript it replaces. */
+/* The state lives here. Visually hidden rather than display:none, because a
+   display:none control cannot be focused or reached by keyboard — it is CSS's
+   own toggle, not a decorative input. At 2xl+ it is removed outright, where
+   there is nothing to operate. */
+.sidenote-checkbox {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Tap target: below 2xl only. A <label>, so the toggle needs no JavaScript. */
 .sidenote-toggle {
   display: inline;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
   cursor: pointer;
   color: var(--color-brand-crimson);
   text-decoration: underline dotted;
   text-underline-offset: 2px;
 }
-.sidenote-toggle:focus-visible {
+/* The focus ring has to be drawn on the label, since the focused element is the
+   hidden checkbox beside it and has nothing visible to outline. */
+.sidenote-checkbox:focus-visible + .sidenote-toggle {
   outline: 2px solid var(--color-brand-crimson);
   outline-offset: 2px;
   border-radius: 2px;
@@ -227,7 +245,7 @@
   line-height: 1.4;
   color: var(--color-brand-muted);
 }
-.sidenote-body[data-open] {
+.sidenote-checkbox:checked ~ .sidenote-body {
   display: block;
   margin: 0.5em 0;
   padding-left: 0.75rem;
@@ -255,15 +273,16 @@
   .sidenote-ref {
     display: inline;
   }
+  .sidenote-checkbox,
   .sidenote-toggle {
     display: none;
   }
   /* clear:right stacks multiple notes instead of overlapping them (dense
      reference clusters can still collide — a known Tufte-CSS limit). The
-     [data-open] selector is repeated so an open-on-mobile note that is then
-     resized to 2xl drops its mobile rule instead of keeping the left border. */
+     :checked selector is repeated so a note opened on mobile and then resized
+     to 2xl drops its mobile rule instead of keeping the left border. */
   .sidenote-body,
-  .sidenote-body[data-open] {
+  .sidenote-checkbox:checked ~ .sidenote-body {
     display: block;
     float: right;
     clear: right;
