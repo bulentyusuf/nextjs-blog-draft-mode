@@ -177,55 +177,72 @@
 }
 
 /*
-  Tufte-style sidenotes (lib/sidenote.tsx). The wrapper, marker and note all
-  stay inline so the reference does not break its paragraph; the note is a
-  <details> DOM-adjacent to the marker, which is why screen-reader order is
-  correct for free at every viewport.
+  Tufte-style sidenotes (lib/sidenote.tsx). Every element stays phrasing content
+  so the reference never terminates its paragraph. Below 2xl the note is
+  collapsed behind a button; at 2xl+ there is room outside the max-w-2xl prose
+  column, so it floats into the right margin and the button goes away.
 
-  counter-increment lives on the always-displayed wrapper, not on the marker:
-  the in-text <sup> marker is display:none below 2xl (the summary is the marker
-  there), and a display:none element does not advance a counter — the floated
-  note's "N." would then be wrong.
+  All responsive display is owned here, not by Tailwind utilities in the markup.
+  These rules are unlayered and so outrank anything in the utilities layer — a
+  `2xl:hidden` in the component would silently lose to them, which is exactly the
+  bug that showed both markers at once.
+
+  counter-increment lives on the always-displayed wrapper, not on either marker,
+  since a display:none element does not advance a counter.
 */
 .sidenote-wrap {
   display: inline;
   counter-increment: sidenote;
 }
 
-.sidenote-details {
-  display: inline;
-}
-
+/* In-text marker: 2xl+ only. */
 .sidenote-ref {
+  display: none;
   font-weight: 600;
   color: var(--color-brand-crimson);
 }
 
-/* Mobile tap target: a crimson, dotted-underlined superscript that reads as
-   interactive. The default disclosure triangle is suppressed. */
+/* Tap target: below 2xl only. Reset the UA button styling back to running text
+   so it sits in the sentence like the superscript it replaces. */
 .sidenote-toggle {
   display: inline;
-  list-style: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
   cursor: pointer;
-  user-select: none;
   color: var(--color-brand-crimson);
   text-decoration: underline dotted;
   text-underline-offset: 2px;
 }
-.sidenote-toggle::-webkit-details-marker {
-  display: none;
+.sidenote-toggle:focus-visible {
+  outline: 2px solid var(--color-brand-crimson);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .sidenote-body {
-  display: block;
+  display: none;
   font-size: 0.875rem;
   line-height: 1.4;
   color: var(--color-brand-muted);
 }
+.sidenote-body[data-open] {
+  display: block;
+  margin: 0.5em 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--color-brand-crimson);
+}
 
-/* The note is rendered outside .prose, so restore just enough: spacing between
-   its own paragraphs, and the crimson underline body links get inside prose. */
-.sidenote-body p + p {
+/* The note's paragraphs are spans (see lib/sidenote.tsx — a real <p> would close
+   the paragraph the reference sits in), so they need blocking out by hand. */
+.sidenote-para {
+  display: block;
+}
+
+/* Rendered outside .prose, so restore just enough: spacing between the note's
+   own paragraphs, and the crimson underlined links it would get inside prose. */
+.sidenote-para + .sidenote-para {
   margin-top: 0.5em;
 }
 .sidenote-body a {
@@ -235,29 +252,30 @@
 }
 
 @media (min-width: 1536px) {
-  /* Room opens up outside the max-w-2xl prose column: float the note into the
-     right margin. clear:right stacks multiple notes instead of overlapping
-     (dense reference clusters can still collide — a known Tufte-CSS limit). */
-  .sidenote-body {
+  .sidenote-ref {
+    display: inline;
+  }
+  .sidenote-toggle {
+    display: none;
+  }
+  /* clear:right stacks multiple notes instead of overlapping them (dense
+     reference clusters can still collide — a known Tufte-CSS limit). The
+     [data-open] selector is repeated so an open-on-mobile note that is then
+     resized to 2xl drops its mobile rule instead of keeping the left border. */
+  .sidenote-body,
+  .sidenote-body[data-open] {
+    display: block;
     float: right;
     clear: right;
     width: 12rem;
-    margin-right: -15rem;
-    margin-top: 0;
+    margin: 0 -15rem 0 0;
+    padding-left: 0;
+    border-left: 0;
   }
   .sidenote-body::before {
     content: counter(sidenote) ". ";
     font-weight: 600;
     color: var(--color-brand-crimson);
-  }
-  /* Force the note visible regardless of the <details> [open] state; at this
-     width the summary is hidden (2xl:hidden) so there is no toggle. Mirrors the
-     TOC override above rather than reinventing it. */
-  .sidenote-details > :not(summary) {
-    display: block;
-  }
-  .sidenote-details::details-content {
-    content-visibility: visible;
   }
 }
 
