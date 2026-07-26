@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, SITE_FOOTER_BLURB, BRAND_HEADER_COLOR, BRAND_HEADER_COLOR_DARK, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
 import BackToTop from "./back-to-top";
+import SidenoteEnterKey from "./sidenote-enter-key";
 import NewWindowHint from "./new-window-hint";
 import Link from "next/link";
 import { draftMode } from "next/headers";
@@ -239,6 +240,7 @@ export default async function RootLayout({
         <Footer />
         {isEnabled && <ExitPreviewButton />}
         <BackToTop />
+        <SidenoteEnterKey />
         <Analytics />
         <SpeedInsights />
       </body>
