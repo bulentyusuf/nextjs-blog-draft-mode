@@ -277,6 +277,16 @@
     font-weight: 600;
     color: var(--color-brand-crimson);
   }
+  /* Run the note's first line in after the number rather than letting the
+     blocked-out paragraph push it down: a 12rem margin cannot spare a whole
+     line for a two-character label, and a label alone on its line reads as a
+     heading for the note instead of a reference mark. Only the first paragraph
+     goes inline; later ones stay blocks and keep their margin. Scoped to 2xl
+     because the number is only rendered here — below it the expanded note has
+     no prefix to run in after. */
+  .sidenote-body > .sidenote-para:first-child {
+    display: inline;
+  }
 }
 
 @utility prose {
