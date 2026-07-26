@@ -41,5 +41,9 @@
     "edge 111",
     "firefox 111",
     "safari 16.4"
-  ]
+  ],
+  "overrides": {
+    "postcss": "^8.5.23",
+    "sharp": "^0.35.3"
+  }
 }

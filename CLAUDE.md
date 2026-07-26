@@ -284,22 +284,19 @@ The 0.35s group and 0.2s root durations are tuned, not defaults. The
 - CI actions are pinned to major tags (`@v4`), not commit SHAs. Accepted as low
   risk because they are first-party (`actions/checkout`, `github/codeql-action`).
   SHA-pinning is optional belt-and-braces, not adopted.
-- `npm audit` flags postcss via Next's bundled copy at
-  `node_modules/next/node_modules/postcss` (8.4.31 as of next 16.2.12). Every
-  postcss advisory to date needs untrusted CSS fed through PostCSS, which this
-  blog never does, and no `next` release yet unbundles it. Accepted on that
-  basis. **Check `isDirect` before applying this to a new alert.** Newer
-  advisories widen the affected range — GHSA-6g55-p6wh-862q and
-  GHSA-r28c-9q8g-f849 (`sourceMappingURL` path traversal and arbitrary file
-  read) reach `<=8.5.17`, which caught the direct dependency at 8.5.16 and was
-  a real fix, not this accepted case. The direct pin is `^8.5.23`; keep it
-  ahead of the advisory range rather than assuming this entry still covers it.
-- `npm audit` flags sharp `<0.35.0` (GHSA-f88m-g3jw-g9cj, libvips CVEs) via
-  next's optional dependency, which still pins `^0.34.5` at 16.2.12, so no
-  `next` release fixes it yet. Unreachable here regardless: `next.config.js`
-  sets `images.loader: "custom"`, so transforms go to Contentful's Images API
-  and Next's optimiser never invokes sharp. That same config is why the image
-  optimisation advisories do not apply either.
+- `package.json` carries an `overrides` block pinning **postcss** `^8.5.23` and
+  **sharp** `^0.35.3`. Both exist to clear advisories in copies `next` pulls in
+  and does not itself update: next 16.2.12 bundles postcss 8.4.31 and pins
+  `sharp ^0.34.5`, and no `next` release fixes either. The overrides are the
+  only reason `npm audit` is clean of high-severity findings — do not remove
+  them to "let next manage its own deps", and re-check them on every `next`
+  bump, since an override silently pins a dependency the parent may have moved
+  past. postcss `8.4.31 → 8.5.23` is a minor bump inside the same major, and
+  the CSS pipeline is verified by `next build` compiling `globals.css`.
+  Forcing sharp is safe here in particular because `next.config.js` sets
+  `images.loader: "custom"`: transforms go to Contentful's Images API and Next's
+  optimiser never invokes sharp at all. That is also why the image optimisation
+  advisories never applied.
 - `npm audit` flags uuid `<11.1.1` (GHSA-w5hq-g745-h8pq) via the
   `contentful-import` → `contentful-batch-libs` chain. `contentful-import` is a
   devDependency, a one-shot CLI tool that never ships and never runs at build or
