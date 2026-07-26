@@ -227,10 +227,6 @@ The in-text `<sup>` is `aria-hidden` and the toggle button carries the accessibl
 name via `aria-label`. Do not "fix" the `sup` by giving it a name, it would
 double-announce.
 
-Known gap, not yet addressed: the note body renders with the default renderer, so
-hyperlinks inside a sidenote skip the URL-scheme allowlisting that
-`lib/rich-text.tsx` applies to body links.
-
 ### Cross-document view transitions are CSS-only, and names must stay unique
 
 `@view-transition { navigation: auto }` in `globals.css` opts into
@@ -300,6 +296,21 @@ nearest existing h1.
 
 The same `max-w-5xl` versus `max-w-2xl` split governs breadcrumb placement — see
 "Breadcrumbs are constrained to their page's own measure" above.
+
+### Every rich-text hyperlink goes through `lib/rich-text-link.tsx`
+
+`renderHyperlink` there is the only hyperlink renderer on the site. It allowlists
+URL schemes (`http`, `https`, `mailto` — anything else degrades to plain text,
+including `javascript:` and the protocol-relative forms) and gives cross-origin
+links `target="_blank"`, `rel="noopener noreferrer"` and the screen-reader
+new-window hint.
+
+Any new rich-text surface must pass it as the `INLINES.HYPERLINK` override
+rather than relying on `documentToReactComponents`' default, which emits
+`data.uri` as-is. Sidenote bodies did rely on the default, which let a
+`javascript:` href through in a note while the post body rejected the same href.
+Do not copy the renderer to a second location — that drift is what caused the
+gap.
 
 ### The site's locale is en-GB, everywhere
 
