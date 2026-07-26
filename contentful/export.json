@@ -547,6 +547,52 @@
           "linkType": "Asset"
         }
       ]
+    },
+    {
+      "sys": {
+        "id": "sidenote",
+        "type": "ContentType",
+        "publishedVersion": 1
+      },
+      "displayField": "title",
+      "name": "Sidenote",
+      "description": "A Tufte-style margin note embedded inline in a post body. Renders as a floated note in the right margin on wide viewports, and a tap-to-expand disclosure on narrower ones.",
+      "fields": [
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "note",
+          "name": "Note",
+          "type": "RichText",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "enabledMarks": [
+                "bold",
+                "italic"
+              ],
+              "message": "Only bold and italic marks are allowed"
+            },
+            {
+              "enabledNodeTypes": [
+                "hyperlink"
+              ],
+              "message": "Only hyperlinks are allowed — keep a sidenote a genuine aside, no headings or embeds"
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        }
+      ]
     }
   ],
   "tags": [],
@@ -819,6 +865,31 @@
         {
           "fieldId": "image",
           "widgetId": "assetLinkEditor",
+          "widgetNamespace": "builtin"
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "default",
+        "type": "EditorInterface",
+        "contentType": {
+          "sys": {
+            "id": "sidenote",
+            "type": "Link",
+            "linkType": "ContentType"
+          }
+        }
+      },
+      "controls": [
+        {
+          "fieldId": "title",
+          "widgetId": "singleLine",
+          "widgetNamespace": "builtin"
+        },
+        {
+          "fieldId": "note",
+          "widgetId": "richTextEditor",
           "widgetNamespace": "builtin"
         }
       ]

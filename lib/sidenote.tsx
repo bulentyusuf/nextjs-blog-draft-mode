@@ -1,6 +1,3 @@
-"use client";
-
-import { useId, useState } from "react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { ReactNode } from "react";
@@ -28,11 +25,23 @@ const bodyOptions = {
   },
 } as Parameters<typeof documentToReactComponents>[1];
 
-// A Tufte-style sidenote, rendered inline at its reference point. Every element
-// here is phrasing content, so the note never terminates its parent <p>. An
-// earlier <details>-based version did: the HTML parser implicitly closes an open
-// paragraph on a <details> start tag, which split sentences mid-line and caused
-// a hydration mismatch. Keep this markup to <span>, <sup> and <button>.
+// A Tufte-style sidenote, rendered inline at its reference point.
+//
+// Two constraints shape this markup, and both are easy to undo by accident.
+//
+// 1. Every element is phrasing content: <span>, <sup>, <input>, <label>. An
+//    earlier <details> version was not, and the HTML parser implicitly closes an
+//    open paragraph on a <details> start tag, which split sentences mid-line and
+//    desynced React's tree from the parsed DOM. Do not introduce <details>,
+//    <summary> or <p> here; `display: inline` cannot undo a parse-time split.
+//
+// 2. Below 2xl the note opens with no JavaScript. The toggle is a visually
+//    hidden checkbox driving `:checked ~ .sidenote-body` in CSS, not a button
+//    driving React state, so a note is readable with scripts off and before
+//    hydration — notes are content, and content should not need JS. That is
+//    also why this is a server component with no "use client": the feature
+//    ships zero client JavaScript. The cost, accepted deliberately, is that the
+//    control announces as a checkbox rather than carrying aria-expanded.
 //
 // The note is DOM-adjacent to its reference, so a screen reader reads it where
 // it is referenced at every viewport; CSS float never reorders the tree.
@@ -53,9 +62,11 @@ export default function Sidenote({
   content: Content;
   number: number;
 }) {
-  const [open, setOpen] = useState(false);
-  const bodyId = useId();
   const body = documentToReactComponents(content.json, bodyOptions);
+  // Document-order index, so this is unique per page without useId — which
+  // would have forced this back into a client component.
+  const toggleId = `sidenote-${number}`;
+  const bodyId = `sidenote-body-${number}`;
 
   return (
     <span className="sidenote-wrap">
@@ -65,25 +76,25 @@ export default function Sidenote({
       <sup className="sidenote-ref" aria-hidden="true">
         {number}
       </sup>
-      {/* Tap target, shown below 2xl. The <sup> inside is decorative, so the
-          control carries its accessible name via aria-label. */}
-      <button
-        type="button"
-        className="sidenote-toggle"
-        aria-expanded={open}
+      {/* The checkbox is the state. It is visually hidden rather than
+          display:none below 2xl, because a display:none control is not
+          focusable; at 2xl+ CSS does remove it, where there is nothing to
+          operate. */}
+      <input
+        type="checkbox"
+        id={toggleId}
+        className="sidenote-checkbox"
         aria-controls={bodyId}
-        aria-label={`Note ${number}`}
-        onClick={() => setOpen((wasOpen) => !wasOpen)}
-      >
+      />
+      {/* Tap target, shown below 2xl. The <sup> is decorative, so the label's
+          accessible name comes from the visually hidden text beside it. */}
+      <label htmlFor={toggleId} className="sidenote-toggle">
+        <span className="sr-only">Note {number}</span>
         <sup aria-hidden="true">{number}</sup>
-      </button>
+      </label>
       {/* not-prose: the note sits inside the post's .prose container, but its
           compact type, spacing and link colour are owned by .sidenote-body. */}
-      <span
-        id={bodyId}
-        className="sidenote-body not-prose"
-        data-open={open || undefined}
-      >
+      <span id={bodyId} className="sidenote-body not-prose">
         {body}
       </span>
     </span>

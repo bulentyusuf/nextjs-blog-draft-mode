@@ -209,13 +209,27 @@ CSS counter in `globals.css`. They agree because both advance once per note in
 document order. If either moves, move the other.
 
 Every element in a sidenote must stay phrasing content: `<span>`, `<sup>`,
-`<button>`. `<details>`, `<summary>` and `<p>` all implicitly close an open
-paragraph in the HTML parser, so any of them inside the note splits the sentence
-it sits in and desyncs React's tree from the parsed DOM. That is why the toggle
-is a `<button>` with React state rather than a native disclosure, and why the
-note's own rich-text paragraphs are rendered as `.sidenote-para` spans blocked
-out in CSS. A test in `lib/rich-text.test.tsx` guards both. Do not reintroduce
-`<details>`; `display: inline` cannot undo a parse-time split.
+`<input>`, `<label>`. `<details>`, `<summary>` and `<p>` all implicitly close an
+open paragraph in the HTML parser, so any of them inside the note splits the
+sentence it sits in and desyncs React's tree from the parsed DOM. That is why
+the toggle is not a native disclosure, and why the note's own rich-text
+paragraphs are rendered as `.sidenote-para` spans blocked out in CSS. A test in
+`lib/rich-text.test.tsx` guards both. Do not reintroduce `<details>`;
+`display: inline` cannot undo a parse-time split.
+
+Below 2xl the note opens with **no JavaScript**: a visually hidden checkbox
+drives `:checked ~ .sidenote-body` in CSS. `lib/sidenote.tsx` is therefore a
+server component and the feature ships zero client JS. Do not convert the toggle
+back to a `<button>` with React state — notes are content, and that version left
+them unreadable with scripts off and during the window before hydration. The
+checkbox must stay visually hidden rather than `display: none`, or it stops
+being focusable. A test asserts no `<button>` is emitted.
+
+The accepted cost is that the control announces as a checkbox rather than
+carrying `aria-expanded`. Weighed deliberately against a button: below 2xl the
+note is `display: none`, so a screen reader cannot read it in DOM order and must
+operate the control, which makes the control working without JS worth more than
+the better ARIA state.
 
 All responsive display lives in the unlayered `.sidenote-*` rules in
 `globals.css`, never as Tailwind utilities in the component. Unlayered author
@@ -223,9 +237,10 @@ styles outrank everything in the `utilities` layer, so a `2xl:hidden` on a
 `.sidenote-*` element silently loses — that is what once showed both markers at
 2xl. If a new responsive rule is needed, add it to `globals.css`.
 
-The in-text `<sup>` is `aria-hidden` and the toggle button carries the accessible
-name via `aria-label`. Do not "fix" the `sup` by giving it a name, it would
-double-announce.
+Both `<sup>`s are `aria-hidden`, and the label takes its accessible name from an
+`sr-only` span reading "Note N". Do not "fix" either `sup` by giving it a name,
+it would double-announce; and do not drop the `sr-only` span, the control would
+then announce as a bare "1".
 
 ### Cross-document view transitions are CSS-only, and names must stay unique
 
@@ -330,6 +345,18 @@ see; seed assets must use `file.url`, never `file.upload` (upload aborts the
 entire import); a failed or partial import must be retried into a brand-new
 empty space, never re-run over a partially-activated one. Do not "tidy" these
 files.
+
+A new content type in the space is not done until it is in `export.json` too.
+`lib/api.ts` queries embedded types through `... on X` fragments, and an inline
+fragment on a type the schema lacks is a GraphQL error that fails *every* post
+query, not just the field it names — so a fork importing an export that is one
+type behind gets a site that renders nothing. `Sidenote` shipped that way
+between 24 and 26 July. `lib/contentful-fixtures.test.ts` now guards it, along
+with editor interfaces, seed entries of unknown types, and dangling embeds.
+
+Both files are exactly `json.dumps(indent=2, ensure_ascii=False)` plus a
+trailing newline, so editing them via a JSON round-trip is byte-safe and will
+not reformat anything you did not touch.
 
 ### Workflow constants
 
