@@ -8,56 +8,47 @@ work, so house conventions are not relearned by accident.
 
 These are intentional. Do not "fix" or re-flag them without a new reason.
 
-### CSP `script-src 'unsafe-inline'` is deliberate
+### Both CSP loosenings in `script-src` are deliberate
 
-`next.config.js` keeps `'unsafe-inline'` in `script-src`. Removing it requires a
-per-request nonce, which on Next.js App Router forces dynamic rendering and
-disables static optimisation, ISR, and CDN HTML caching (per the Next.js CSP
-docs). This is a single-author blog serving content from a trusted CMS, with URL
-scheme allowlisting and escaped JSON-LD already in place, so the XSS surface is
-small and `unsafe-inline` is defence-in-depth, not the front line. Trading the
-static delivery model, which is the whole point of this codebase and of the
-forkable-template story, for that marginal gain is not worth it. Revisit only if
-the site begins rendering untrusted user-generated content.
+**`'unsafe-inline'`.** Removing it requires a per-request nonce, which on the App
+Router forces dynamic rendering and kills static optimisation, ISR and CDN HTML
+caching (per the Next.js CSP docs). This is a single-author blog serving a
+trusted CMS, with URL scheme allowlisting and escaped JSON-LD already in place,
+so `unsafe-inline` is defence-in-depth here, not the front line. Trading the
+static delivery model — the whole point of this codebase and of the forkable
+template — for that marginal gain is not worth it. Revisit only if the site
+begins rendering untrusted user-generated content.
 
-### CSP `'wasm-unsafe-eval'` in `script-src` is deliberate
+**`'wasm-unsafe-eval'`.** Added for Pagefind, whose search core runs WebAssembly
+in the browser. It permits wasm compilation only, not JS `eval`, so production
+`script-src` is otherwise as strict as before. Removing it silently breaks search
+in every Chromium browser. Do not re-flag either as CSP loosening.
 
-Added for Pagefind, whose search core runs WebAssembly in the browser. The
-directive permits wasm compilation only, not JS `eval` — production
-`script-src` remains otherwise as strict as before. Removing it silently
-breaks search in every Chromium browser. Do not re-flag as CSP loosening.
-
-### Search runs on Pagefind's Component UI, not the legacy default UI
+### Search runs on Pagefind's Component UI, and its quirks are upstream
 
 `app/search/` mounts Pagefind's web components with a house result template
 (`<script type="text/pagefind-template">`). The markup and class names in that
 template are ours; the components' keyboard and WAI-ARIA behaviour is upstream's
-and is deliberately not reimplemented.
+and is deliberately not reimplemented. Because the template is ours, search CSS
+needs no `!important` — if a rule seems to require it, the template is the wrong
+shape, so fix the template. The `pagefind` devDependency must stay at `^1.5.2` or
+later; the Component UI does not exist in 1.3.x.
 
 The legacy default UI (`@pagefind/default-ui`) and a bespoke React UI on the JS
-API were both tried and abandoned. Do not propose either again.
+API were both tried and abandoned. Do not propose either again — which also
+settles the ranking quirks below, since every fix for them means owning the
+result pipeline.
 
-Because the template is ours, search CSS needs no `!important`. If a rule seems
-to require it, the template is the wrong shape — fix the template.
-
-The `pagefind` devDependency must stay at `^1.5.2` or later; the Component UI
-does not exist in 1.3.x.
-
-### Ghost search results for near-miss terms are an upstream limitation
-
-A term that matches nothing is truncated and retried by the search core, so
-"musk" returns posts containing "music" and "Munich" with no highlighted term.
-Search-core behaviour, not a UI fault, and the supported option set holds no
-minimum-match threshold. The over-broad case, where "contentful" surfaces pages
-containing only "content", is **not** fixed either and can rank above the
-literal match: `ranking.termSimilarity` exists on the raw JS API but the
-Component UI does not expose it. Do not treat either as a bug.
-
-A client-side filter dropping results whose excerpt contains no `<mark>`
-removes the ghosts, but only by owning the result pipeline, the bespoke
-approach rejected above. Do not reintroduce it. Filed upstream
-(Pagefind/pagefind#1246, https://github.com/Pagefind/pagefind/issues/1246) and
-accepted until a supported fix lands. Do not re-flag as a bug.
+Those quirks are search-core behaviour, not UI faults. A term matching nothing is
+truncated and retried, so "musk" returns posts containing "music" and "Munich"
+with no highlighted term. The over-broad case is **not** fixed either and can
+outrank the literal match — "contentful" surfacing pages containing only
+"content" — because `ranking.termSimilarity` exists on the raw JS API but the
+Component UI does not expose it. A client-side filter dropping results whose
+excerpt contains no `<mark>` removes the ghosts, but only by owning that
+pipeline; do not reintroduce it. Filed upstream (Pagefind/pagefind#1246,
+https://github.com/Pagefind/pagefind/issues/1246) and accepted until a supported
+fix lands. Do not re-flag either as a bug.
 
 ### The search empty state is coupled to the input's placeholder
 
@@ -87,22 +78,21 @@ thin content; crawlers should reach posts directly. Not an SEO gap.
 ### The search emblem's dark-mode ground
 
 `app/search/search-emblem.tsx` draws knockout artwork over a cream underlay
-sliced from the art itself. Two rules.
+sliced from the art itself. That ground is a fixed cream island in both schemes
+while every brand token flips, so **anything rendered on it uses literal hex
+values in dark mode, never brand tokens** — including a border, caption or hover
+state added later. `.search-lens-ground` fills `#FAF5F1` because
+`--color-brand-bg` would paint a black glass, and the figure forces
+`dark:text-[#A4243B]` because the lifted dark-mode crimson washes out on cream.
 
-- Anything rendered on that ground uses literal hex values in dark mode, never
-  brand tokens. The ground is a fixed cream island in both schemes and every
-  brand token flips. `.search-lens-ground` fills `#FAF5F1` because
-  `--color-brand-bg` would otherwise paint a black glass, and the figure forces
-  `dark:text-[#A4243B]` because the lifted dark-mode crimson looks washed out on
-  cream. This covers anything added later, a border, a caption, a hover state.
-- `LENS` is sliced from `PATH1` at render time so it can never drift from the
-  art. It is not a tuning knob, do not replace it with a hand-drawn shape.
-  `p-8` on the figure may be nudged by eye.
+`LENS` is sliced from `PATH1` at render time so it can never drift from the art.
+It is not a tuning knob, do not replace it with a hand-drawn shape. `p-8` on the
+figure may be nudged by eye.
 
-Already tried and rejected, do not revisit. A rounded plate behind the whole
-figure (read as a floating card). A hand-tuned tilted ellipse (always a hair of
-spill and a muddy handle). Inverting the ink to cream (reads as a photographic
-negative). Stripping the face and keeping only the glass (loses the joke).
+Tried and rejected, do not revisit: a rounded plate behind the whole figure
+(reads as a floating card), a hand-tuned tilted ellipse (always a hair of spill
+and a muddy handle), inverting the ink to cream (reads as a photographic
+negative), stripping the face to keep only the glass (loses the joke).
 
 ### Brand colour exists in two places on purpose
 
@@ -158,14 +148,21 @@ keeps `focus:outline-hidden` plus a white ring on a `surface-dark` offset, not
 the base outline. See the in-file comment for the contrast reasoning. Once
 "simplified" and reverted; do not propose it again.
 
+### The lightbox trigger is gated on `mounted`, deliberately
+
+`lib/lightbox-image.tsx` renders the image bare until mount, and only then wraps
+it in the enlarge button. Rendered unconditionally, that button was focusable,
+announced "Enlarge image" and did nothing with scripts off — a control that lies.
+`mounted` gates the affordance, not the content, and a test asserts the server
+HTML carries no `<button>`. Do not "simplify" the conditional away.
+
 ### Breadcrumbs are constrained to their page's own measure
 
-`Container` is `max-w-5xl`. Pages whose content is also `max-w-5xl` (posts,
-categories, authors, archive) render `<Breadcrumb>` unwrapped. Pages in a
-`max-w-2xl` column (about, privacy, search) wrap it in
-`<div className="mx-auto max-w-2xl">`, otherwise it starts 176px left of the
-heading it labels. Any new narrow page needs the wrapper. This is the same
-column-width distinction as the two h1 treatments below.
+`Container` is `max-w-5xl`. Pages whose content is also `max-w-5xl` render
+`<Breadcrumb>` unwrapped; pages in a `max-w-2xl` column wrap it in
+`<div className="mx-auto max-w-2xl">`, or it starts 176px left of the heading it
+labels. Any new narrow page needs the wrapper. Same split as "Two h1
+treatments" below, which lists which pages fall on each side.
 
 On `/search` the wrapper must sit **before** the `<section>`, not inside it. The
 emblem's visibility depends on
@@ -174,12 +171,11 @@ emblem's visibility depends on
 
 ### `/page/[page]` has no breadcrumb on purpose
 
-Breadcrumbs describe section hierarchy. Position is carried separately by
-`app/page-context.tsx`, which renders a muted "Page N of M" line and returns
-`null` on page 1. That is why paginated category and author chains stop at the
-section and never include a page number. A crumb here would be a lone
-non-linked "Home" marked `aria-current="page"`. Do not add one, and do not add
-page numbers to the existing paginated chains.
+Breadcrumbs describe section hierarchy; position is carried separately by
+`app/page-context.tsx`, which renders a muted "Page N of M" and returns `null` on
+page 1. That is why paginated category and author chains stop at the section and
+never include a page number, and a crumb here would be a lone non-linked "Home"
+marked `aria-current="page"`. Do not add one, or page numbers to those chains.
 
 Known and accepted: on `/categories/[slug]/page/[page]`, `aria-current="page"`
 sits on the section crumb, whose URL differs from the current one.
@@ -193,70 +189,60 @@ sits on the section crumb, whose URL differs from the current one.
 - Archive rows carry two tab stops each, title and category, because the category
   links to its category page as it does on the home page hero.
 
-### Sidenotes are inline embedded entries, and the numbering has two halves
+### Sidenotes carry several load-bearing constraints
 
 A sidenote is a Contentful `Sidenote` entry embedded inline in a post's rich
-text, pulled through the `... on Sidenote` fragment in `lib/api.ts` and
-rendered by `lib/sidenote.tsx`.
+text, pulled through the `... on Sidenote` fragment in `lib/api.ts` and rendered
+by `lib/sidenote.tsx`. `lib/rich-text.tsx` returns `null` for a missing entry or
+any inline embed that is not a `Sidenote`, so a deleted entry degrades to
+nothing rather than throwing. Do not replace that guard with an error.
 
-`lib/rich-text.tsx` deliberately returns `null` for a missing entry or for any
-inline embed that is not a `Sidenote`, so a deleted entry degrades to nothing
-rather than throwing. Do not replace that guard with an error.
+**Every element stays phrasing content** — `<span>`, `<sup>`, `<input>`,
+`<label>`. `<details>`, `<summary>` and `<p>` each implicitly close an open
+paragraph in the HTML parser, splitting the sentence the note sits in and
+desyncing React's tree from the parsed DOM. That is why the toggle is not a
+native disclosure, and why the note's own rich-text paragraphs render as
+`.sidenote-para` spans blocked out in CSS. `display: inline` cannot undo a
+parse-time split.
 
-The visible reference number and the `N. ` prefix on the floated note are two
-separate mechanisms, a document-order index computed in `rich-text.tsx` and a
-CSS counter in `globals.css`. They agree because both advance once per note in
-document order. If either moves, move the other.
+**The toggle needs no JavaScript.** Below 2xl a visually hidden checkbox drives
+`:checked ~ .sidenote-body`, so `lib/sidenote.tsx` is a server component and the
+feature ships zero client JS. Do not restore a `<button>` with React state:
+notes are content, and that version left them unreadable with scripts off and
+before hydration. The checkbox stays visually hidden rather than `display: none`
+or it stops being focusable. `app/sidenote-enter-key.tsx` exists only because
+checkboxes ignore Enter — an enhancement, never a dependency. The accepted cost
+is that the control announces as a checkbox instead of carrying `aria-expanded`:
+below 2xl the note is `display: none`, so a screen reader cannot read it in DOM
+order and must operate the control, which makes a control that works without JS
+worth more than the better ARIA state.
 
-Every element in a sidenote must stay phrasing content: `<span>`, `<sup>`,
-`<input>`, `<label>`. `<details>`, `<summary>` and `<p>` all implicitly close an
-open paragraph in the HTML parser, so any of them inside the note splits the
-sentence it sits in and desyncs React's tree from the parsed DOM. That is why
-the toggle is not a native disclosure, and why the note's own rich-text
-paragraphs are rendered as `.sidenote-para` spans blocked out in CSS. A test in
-`lib/rich-text.test.tsx` guards both. Do not reintroduce `<details>`;
-`display: inline` cannot undo a parse-time split.
-
-Below 2xl the note opens with **no JavaScript**: a visually hidden checkbox
-drives `:checked ~ .sidenote-body` in CSS. `lib/sidenote.tsx` is therefore a
-server component and the feature ships zero client JS. Do not convert the toggle
-back to a `<button>` with React state — notes are content, and that version left
-them unreadable with scripts off and during the window before hydration. The
-checkbox must stay visually hidden rather than `display: none`, or it stops
-being focusable. A test asserts no `<button>` is emitted.
-
-The accepted cost is that the control announces as a checkbox rather than
-carrying `aria-expanded`. Weighed deliberately against a button: below 2xl the
-note is `display: none`, so a screen reader cannot read it in DOM order and must
-operate the control, which makes the control working without JS worth more than
-the better ARIA state.
-
-All responsive display lives in the unlayered `.sidenote-*` rules in
+**All responsive display lives in the unlayered `.sidenote-*` rules** in
 `globals.css`, never as Tailwind utilities in the component. Unlayered author
 styles outrank everything in the `utilities` layer, so a `2xl:hidden` on a
 `.sidenote-*` element silently loses — that is what once showed both markers at
-2xl. If a new responsive rule is needed, add it to `globals.css`.
+2xl.
 
-Both `<sup>`s are `aria-hidden`, and the label takes its accessible name from an
-`sr-only` span reading "Note N". Do not "fix" either `sup` by giving it a name,
-it would double-announce; and do not drop the `sr-only` span, the control would
-then announce as a bare "1".
+Numbering has two halves that must move together: a document-order index in
+`rich-text.tsx` and a CSS counter in `globals.css`, both advancing once per note.
+Both `<sup>`s are `aria-hidden` and the label takes its name from an `sr-only`
+"Note N" — do not name a `sup` (it would double-announce) or drop the span (the
+control would announce as a bare "1"). Tests in `lib/rich-text.test.tsx` guard
+the phrasing-content rule, the absent `<button>`, and the numbering.
 
 ### Cross-document view transitions are CSS-only, and names must stay unique
 
-`@view-transition { navigation: auto }` in `globals.css` opts into
-cross-document transitions. Navigations here are full document loads, which is
-exactly what this animates. No JS, no library. Browsers without support
-navigate instantly.
+`@view-transition { navigation: auto }` in `globals.css` opts into cross-document
+transitions. Navigations here are full document loads, which is exactly what this
+animates — no JS, no library, and browsers without support navigate instantly.
 
-The spec requires transition names to be unique on a page. `createCoverNamer()`
-in `lib/view-transition-name.ts` hands out `cover-{slug}` at most once per
-render pass, because a post appearing twice, hero plus list, would otherwise
-name the same cover twice and a duplicate invalidates the entire transition.
-Reset per request, do not memoise across requests.
-
-The 0.35s group and 0.2s root durations are tuned, not defaults. The
-`prefers-reduced-motion` block disables the animation entirely.
+The spec requires transition names to be unique on a page, so
+`createCoverNamer()` in `lib/view-transition-name.ts` hands out `cover-{slug}` at
+most once per render pass: a post appearing twice, hero plus list, would
+otherwise name the same cover twice, and a duplicate invalidates the entire
+transition. Reset per request, do not memoise across requests. The 0.35s group
+and 0.2s root durations are tuned, not defaults, and the `prefers-reduced-motion`
+block disables the animation entirely.
 
 ### Other reviewed items, intentionally left as-is
 
@@ -265,43 +251,37 @@ The 0.35s group and 0.2s root durations are tuned, not defaults. The
   MIME-scoped).
 - Currently no `X-Frame-Options` header. `frame-ancestors` in the CSP already
   covers every current browser, so this legacy header is low-value, not a gap.
-- No rate limiting on the API routes. Secrets are compared with `timingSafeEqual`
-  and, provided they are long and random, brute force is infeasible. Confirm the
+- No rate limiting on the API routes. Secrets are compared with `timingSafeEqual`,
+  so brute force is infeasible provided they are long and random — confirm the
   configured secrets are high-entropy.
 - `dangerouslySetInnerHTML` for Shiki output in `lib/rich-text.tsx`. Input is
   trusted CMS content and the renderer allowlists URL schemes. Known and accepted.
-- The sitemap only lists CMS `Page` slugs that have a real route. Just `/about`
-  and `/privacy` are routed today (both hardcoded), so the sitemap filters
-  `Page` entries through `ROUTED_PAGE_SLUGS` in `app/sitemap-xml/route.ts` — a
-  newly published Page cannot inject a URL with no route (a 404) into the
-  sitemap. If a real route is ever added for another Page slug, add it to that
-  set. The alternative, a root catch-all `[slug]` route, still needs collision
-  care with `/posts`, `/categories`, `/authors` and was not taken.
-- Dependabot ignores major version updates for all packages. Deliberate, to
-  avoid breaking-change churn for a solo maintainer. Advisory-driven Dependabot
-  security updates are a separate mechanism and still cover security-flagged
-  majors, provided security updates are enabled in repo settings. Not a gap.
+- The sitemap filters CMS `Page` entries through `ROUTED_PAGE_SLUGS` in
+  `app/sitemap-xml/route.ts`, so a newly published Page cannot inject a URL with
+  no route into it. Only `/about` and `/privacy` are routed today, both
+  hardcoded; add any new routed slug to that set. A root catch-all `[slug]`
+  route was the alternative and needs collision care with `/posts`,
+  `/categories` and `/authors`, so it was not taken.
+- Dependabot ignores major version updates, deliberately, to avoid
+  breaking-change churn for a solo maintainer. Advisory-driven security updates
+  are a separate mechanism and still cover security-flagged majors, provided
+  they are enabled in repo settings. Not a gap.
 - CI actions are pinned to major tags (`@v4`), not commit SHAs. Accepted as low
   risk because they are first-party (`actions/checkout`, `github/codeql-action`).
   SHA-pinning is optional belt-and-braces, not adopted.
-- `package.json` carries an `overrides` block pinning **postcss** `^8.5.23` and
-  **sharp** `^0.35.3`. Both exist to clear advisories in copies `next` pulls in
-  and does not itself update: next 16.2.12 bundles postcss 8.4.31 and pins
-  `sharp ^0.34.5`, and no `next` release fixes either. The overrides are the
-  only reason `npm audit` is clean of high-severity findings — do not remove
-  them to "let next manage its own deps", and re-check them on every `next`
-  bump, since an override silently pins a dependency the parent may have moved
-  past. postcss `8.4.31 → 8.5.23` is a minor bump inside the same major, and
-  the CSS pipeline is verified by `next build` compiling `globals.css`.
-  Forcing sharp is safe here in particular because `next.config.js` sets
-  `images.loader: "custom"`: transforms go to Contentful's Images API and Next's
-  optimiser never invokes sharp at all. That is also why the image optimisation
-  advisories never applied.
-- `npm audit` flags uuid `<11.1.1` (GHSA-w5hq-g745-h8pq) via the
-  `contentful-import` → `contentful-batch-libs` chain. `contentful-import` is a
-  devDependency, a one-shot CLI tool that never ships and never runs at build or
-  request time, so runtime exposure is zero. The only offered fix downgrades it
-  six majors (to 8.2.24), a non-starter. Do not re-flag.
+- `package.json` pins **postcss** `^8.5.23` and **sharp** `^0.35.3` through
+  `overrides`, clearing advisories in copies `next` bundles and does not update
+  (16.2.12 ships postcss 8.4.31 and pins `sharp ^0.34.5`; no release fixes
+  either). They are the only reason `npm audit` has no high findings — do not
+  remove them to "let next manage its own deps", and re-check them on every
+  `next` bump, since an override silently pins a dependency the parent may have
+  moved past. Forcing sharp is safe here because `next.config.js` sets
+  `images.loader: "custom"`, so Next's optimiser never invokes sharp at all,
+  which is also why the image optimisation advisories never applied.
+- `npm audit` flags uuid `<11.1.1` (GHSA-w5hq-g745-h8pq) via
+  `contentful-import` → `contentful-batch-libs`. A devDependency: a one-shot CLI
+  that never ships and never runs at build or request time, so runtime exposure
+  is zero, and the only offered fix downgrades it six majors. Do not re-flag.
 
 ## House conventions
 
