@@ -8,7 +8,7 @@ The code in this repo is an extension of the [Next.js Blog with Draft Mode](http
 
 A small, statically generated blog. Posts are written and managed in a headless CMS, rendered by Next.js, and deployed continuously. 
 
-The content model is deliberately compact, a Post type backed by Author and Category, with a Code Block type for embedded snippets, a Prompt Block type for publishing the image prompt behind a cover, and a Page type for standalone pages like the privacy notice.
+The content model is deliberately compact, a Post type backed by Author and Category, with a Code Block type for embedded snippets, a Prompt Block type for publishing the image prompt behind a cover, a Sidenote type for asides set in the margin, and a Page type for standalone pages like the privacy notice.
 
 A recurring subject of the blog is the process of building and maintaining it. Much of the codebase has been developed in collaboration with [Claude](https://claude.ai), and several posts document what that's actually like in practice. The visual identity uses editorial-style cover images generated with [Midjourney](https://www.midjourney.com).
 
@@ -29,6 +29,7 @@ A recurring subject of the blog is the process of building and maintaining it. M
 - **Category**, name, slug, description, and thumbnail, with its own landing page. Posts are filed under Main Quest or Side Quests
 - **Code Block**, embedded into post bodies for syntax-highlighted snippets. Optional filename and a fixed list of languages
 - **Prompt Block**, embedded into post bodies to publish the generative-image prompt behind a cover, with an optional label and image
+- **Sidenote**, embedded inline in post bodies for asides set in the margin. A title for finding the entry in the CMS, and a rich-text note deliberately limited to bold, italic, and links
 - **Page**, standalone rich-text pages such as About and Privacy
 
 ## ✨ Features
@@ -52,6 +53,7 @@ A recurring subject of the blog is the process of building and maintaining it. M
 
 - Light and dark colour schemes, following the operating system preference
 - Per-post table of contents, reading time, and an image lightbox
+- Sidenotes that float into the right margin on wide screens and collapse behind their reference number on narrow ones, opening without JavaScript
 - Cross-page view transitions on cover images
 - Skip link, a single visible focus indicator across the site, and reduced-motion support
 
