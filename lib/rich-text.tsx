@@ -80,7 +80,11 @@ function RichTextAsset({
         />
       )}
       {asset.description && (
-        <figcaption className="text-sm text-brand-muted mt-1.5 text-center">
+        // italic: the caption shares its size and muted colour with a sidenote
+        // body, so slant is what tells the two apart when a note sits level
+        // with a figure. Deliberately not applied to the sidenote instead — a
+        // note's own italic emphasis would then have nothing to flip to.
+        <figcaption className="text-sm italic text-brand-muted mt-1.5 text-center">
           {asset.description}
         </figcaption>
       )}
