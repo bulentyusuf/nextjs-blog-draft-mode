@@ -331,6 +331,18 @@ entire import); a failed or partial import must be retried into a brand-new
 empty space, never re-run over a partially-activated one. Do not "tidy" these
 files.
 
+A new content type in the space is not done until it is in `export.json` too.
+`lib/api.ts` queries embedded types through `... on X` fragments, and an inline
+fragment on a type the schema lacks is a GraphQL error that fails *every* post
+query, not just the field it names — so a fork importing an export that is one
+type behind gets a site that renders nothing. `Sidenote` shipped that way
+between 24 and 26 July. `lib/contentful-fixtures.test.ts` now guards it, along
+with editor interfaces, seed entries of unknown types, and dangling embeds.
+
+Both files are exactly `json.dumps(indent=2, ensure_ascii=False)` plus a
+trailing newline, so editing them via a JSON round-trip is byte-safe and will
+not reformat anything you did not touch.
+
 ### Workflow constants
 
 Protected main, squash merges only, one concern per PR, conventional commit
