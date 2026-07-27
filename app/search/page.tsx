@@ -26,6 +26,38 @@ export default function SearchPage() {
       </div>
       <section className="mx-auto max-w-2xl">
         <h1 className="mb-6 text-4xl md:text-5xl">Search</h1>
+        {/* Pagefind's UI is mounted in the browser, so with scripts off the
+            input never appears and the page reads as broken rather than
+            unavailable. Says why, and points at the two routes that browse the
+            same posts without needing JavaScript.
+
+            Placed BEFORE <SearchClient />, not between it and the emblem: the
+            empty state is hidden by a `.pagefind-scope + .search-empty`
+            adjacent-sibling rule in globals.css, and an element inserted
+            between the two would break it, leaving the emblem on screen while
+            results are showing. Plain <a> rather than <Link>, since client
+            navigation is meaningless in a noscript block. */}
+        <noscript>
+          <p className="mb-6 text-brand-muted">
+            Search needs JavaScript. The index runs entirely in your browser, so
+            no query ever leaves this page — which also means there is nothing
+            to search with when scripts are turned off. The{" "}
+            <a
+              href="/archive"
+              className="font-bold text-brand-crimson transition-opacity duration-200 hover:opacity-80"
+            >
+              archive
+            </a>{" "}
+            lists every post by year, and{" "}
+            <a
+              href="/categories"
+              className="font-bold text-brand-crimson transition-opacity duration-200 hover:opacity-80"
+            >
+              categories
+            </a>{" "}
+            group them by subject.
+          </p>
+        </noscript>
         <SearchClient />
         {/* Empty state. Hidden by CSS as soon as the input has text (see
             globals.css). Inline SVG so currentColor picks up the ink colour.
