@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getAllAuthors } from "@/lib/api";
+import { getAllAuthors, setRetryDelayForTests } from "@/lib/api";
 
 const AUTHORS = {
   data: {
@@ -35,14 +35,26 @@ const notJson = () =>
     headers: { "Content-Type": "text/html" },
   });
 
+// Every ms the retry loop would have slept, in order. Assertions can read the
+// schedule from here, which the previous real-timer version could only prove by
+// taking 1.5 seconds per retry-exhausting case and never checked directly.
+let delays: number[] = [];
+
 beforeEach(() => {
   vi.stubEnv("CONTENTFUL_SPACE_ID", "space123");
   vi.stubEnv("CONTENTFUL_ACCESS_TOKEN", "cda-token");
+  delays = [];
+  setRetryDelayForTests(async (ms) => {
+    delays.push(ms);
+  });
 });
 
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
+  // Restore the real backoff, so a future test file importing lib/api does not
+  // silently inherit a no-op delay from this one.
+  setRetryDelayForTests();
 });
 
 describe("fetchGraphQL", () => {
@@ -76,6 +88,9 @@ describe("fetchGraphQL", () => {
 
     await expect(getAllAuthors()).rejects.toThrow(/500 Internal Server Error/);
     expect(fetchMock).toHaveBeenCalledTimes(3);
+    // 500ms before attempt two, 1000ms before attempt three: the exponential
+    // step, asserted rather than merely waited out.
+    expect(delays).toEqual([500, 1000]);
   });
 
   it("retries a socket-level failure", async () => {
@@ -171,5 +186,34 @@ describe("fetchGraphQL", () => {
     expect(fetchMock.mock.calls[0][0]).toBe(
       "https://graphql.contentful.com/content/v1/spaces/space123",
     );
+  });
+});
+
+describe("retry backoff", () => {
+  it("does not delay before the first attempt", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(ok(AUTHORS));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await getAllAuthors();
+    expect(delays).toEqual([]);
+  });
+
+  it("waits once, for the base interval, before a single retry", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(async () => httpError(503, "Service Unavailable"))
+      .mockImplementationOnce(async () => ok(AUTHORS));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getAllAuthors()).resolves.toHaveLength(1);
+    expect(delays).toEqual([500]);
+  });
+
+  it("does not delay at all when a 4xx fails immediately", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(httpError(401, "Unauthorized"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getAllAuthors()).rejects.toThrow(/401 Unauthorized/);
+    expect(delays).toEqual([]);
   });
 });
