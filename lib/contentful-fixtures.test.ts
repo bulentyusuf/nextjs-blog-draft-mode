@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 const root = path.resolve(__dirname, "..");
@@ -168,5 +170,115 @@ describe("contentful seed.json", () => {
       walk(entry.fields, `entry "${entry.sys.id}"`);
     }
     expect(dangling, `dangling embeds: ${dangling.join(", ")}`).toEqual([]);
+  });
+});
+
+// Walk every node of a seeded rich-text document, so the assertions below can
+// read the parsed tree rather than matching strings in the JSON.
+type RichTextNode = {
+  nodeType?: string;
+  value?: string;
+  marks?: unknown[];
+  data?: { target?: { sys?: { id?: string } } };
+  content?: RichTextNode[];
+};
+
+function* walkNodes(node: RichTextNode | undefined): Generator<RichTextNode> {
+  if (!node) return;
+  yield node;
+  for (const child of node.content ?? []) yield* walkNodes(child);
+}
+
+const seedEntries: {
+  sys: { id: string; contentType: { sys: { id: string } } };
+  fields: Record<string, Record<string, unknown>>;
+}[] = seedData.entries;
+
+const seedPosts = seedEntries.filter((e) => e.sys.contentType.sys.id === "post");
+const postBodies = seedPosts.map(
+  (p) => p.fields.content?.[defaultLocale] as RichTextNode | undefined,
+);
+const allBodyNodes = postBodies.flatMap((body) => [...walkNodes(body)]);
+const countIn = (body: RichTextNode | undefined, nodeType: string) =>
+  [...walkNodes(body)].filter((n) => n.nodeType === nodeType).length;
+
+describe("contentful seed generator", () => {
+  it("has a seed.json that matches what build-seed.mjs produces", () => {
+    // These drifted: seed.json carried the sidenote-example entry and an
+    // inline embed in post-first that build-seed.mjs never emitted, so running
+    // the generator silently deleted both. Nothing else in the suite noticed,
+    // because the committed JSON was self-consistent. Regenerate into a temp
+    // file and deep-compare. execFileSync rather than importing the .mjs from
+    // TypeScript, which would need allowJs for no benefit.
+    const out = path.join(
+      mkdtempSync(path.join(os.tmpdir(), "seed-")),
+      "seed.json",
+    );
+    execFileSync("node", [path.join(root, "contentful/build-seed.mjs"), out], {
+      cwd: root,
+    });
+    expect(JSON.parse(readFileSync(out, "utf8"))).toEqual(seedData);
+  });
+});
+
+describe("contentful seed feature coverage", () => {
+  // Each assertion stands for a feature a fresh fork could not see working,
+  // because nothing in the seed exercised it.
+
+  it("gives at least one post enough H2s to render a table of contents", () => {
+    // app/table-of-contents.tsx returns null below three headings, so a seed
+    // with one H2 per post demonstrates the TOC by never rendering it.
+    expect(
+      Math.max(...postBodies.map((b) => countIn(b, "heading-2"))),
+    ).toBeGreaterThanOrEqual(3);
+  });
+
+  it("keeps one post below the heading threshold as the control case", () => {
+    expect(postBodies.some((b) => countIn(b, "heading-2") === 0)).toBe(true);
+  });
+
+  it("embeds a sidenote inline in a post body", () => {
+    // The inline embed and its target entry are what regeneration used to eat.
+    const targets = allBodyNodes
+      .filter((n) => n.nodeType === "embedded-entry-inline")
+      .map((n) => n.data?.target?.sys?.id);
+
+    expect(targets.length).toBeGreaterThan(0);
+    for (const id of targets) {
+      const target = seedEntries.find((e) => e.sys.id === id);
+      expect(target, `inline embed targets unseeded entry "${id}"`).toBeTruthy();
+      expect(target!.sys.contentType.sys.id).toBe("sidenote");
+    }
+  });
+
+  it("sets updatedDate on at least one post", () => {
+    // Otherwise the "Published / Updated" line never renders on a fresh fork.
+    expect(seedPosts.some((p) => p.fields.updatedDate)).toBe(true);
+  });
+
+  it("contains a hyperlink in a post body", () => {
+    // Exercises renderHyperlink: scheme allowlisting, the external-link
+    // treatment and the new-window hint.
+    expect(allBodyNodes.some((n) => n.nodeType === "hyperlink")).toBe(true);
+  });
+
+  it("carries at least one text mark", () => {
+    expect(
+      allBodyNodes.some(
+        (n) => n.nodeType === "text" && (n.marks?.length ?? 0) > 0,
+      ),
+    ).toBe(true);
+  });
+
+  it("has at least one seed entry for every content type in export.json", () => {
+    // The converse of "only seeds entries whose content type the export ships":
+    // a type in the schema that nothing seeds is a feature a forker cannot see.
+    const seeded = new Set(seedEntries.map((e) => e.sys.contentType.sys.id));
+    for (const ct of exportData.contentTypes) {
+      expect(
+        seeded.has(ct.sys.id),
+        `content type "${ct.sys.id}" has no entry in seed.json`,
+      ).toBe(true);
+    }
   });
 });

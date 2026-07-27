@@ -120,6 +120,8 @@ npm run import:seed -- --space-id YOUR_SPACE_ID --management-token YOUR_MANAGEME
 
 The seed ships a single placeholder image, reused for every cover, avatar, and thumbnail. This keeps the import light and free of bundled media. Replace it and the dummy text with your own once you are set up.
 
+`contentful/seed.json` is generated, not hand-edited: `contentful/build-seed.mjs` is the source of truth, and `npm run build:seed` regenerates the JSON from it.
+
 ### 5. Run locally
 
 ```
