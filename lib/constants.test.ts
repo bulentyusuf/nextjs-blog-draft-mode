@@ -59,6 +59,39 @@ describe("SITE_URL", () => {
     ).resolves.toBe("https://demo.vercel.app");
   });
 
+  it("adds a scheme to a bare domain", async () => {
+    // A bare domain reached metadataBase in app/layout.tsx as-is and threw
+    // ERR_INVALID_URL at build time, naming neither the variable nor the value.
+    await expect(
+      loadSiteUrl({ NEXT_PUBLIC_SITE_URL: "nextblog.net" }),
+    ).resolves.toBe("https://nextblog.net");
+  });
+
+  it("preserves an explicit http scheme", async () => {
+    // Forcing https here would break a configured http://localhost:3000.
+    await expect(
+      loadSiteUrl({ NEXT_PUBLIC_SITE_URL: "http://localhost:3000" }),
+    ).resolves.toBe("http://localhost:3000");
+  });
+
+  it("ignores an unparsable configured value and warns", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await expect(
+      loadSiteUrl({
+        NEXT_PUBLIC_SITE_URL: "https://exa mple.com",
+        VERCEL_PROJECT_PRODUCTION_URL: "demo.vercel.app",
+      }),
+    ).resolves.toBe("https://demo.vercel.app");
+    expect(warn.mock.calls[0][0]).toMatch(/NEXT_PUBLIC_SITE_URL/);
+  });
+
+  it("warns about an unparsable configured value outside production too", async () => {
+    // Unlike the localhost fallback, a bad value is never expected.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await loadSiteUrl({ NEXT_PUBLIC_SITE_URL: "https://exa mple.com" });
+    expect(warn).toHaveBeenCalled();
+  });
+
   it("falls back to localhost when neither is set", async () => {
     await expect(loadSiteUrl({})).resolves.toBe("http://localhost:3000");
   });
