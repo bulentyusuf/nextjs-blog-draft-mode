@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function CopyButton({
   code,
@@ -12,6 +12,14 @@ export default function CopyButton({
   variant?: "light" | "dark";
 }) {
   const [copied, setCopied] = useState(false);
+  // Gated on mount for the same reason lib/lightbox-image.tsx is: copying needs
+  // navigator.clipboard, so with scripts off this button was still rendered,
+  // still took focus, still announced "Copy code", and did nothing — a control
+  // that lies. The code itself is selectable text either way, so withholding
+  // the button costs a scripts-off visitor nothing. It gates the affordance,
+  // not the content.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const noun = label.charAt(0).toUpperCase() + label.slice(1);
 
@@ -44,6 +52,8 @@ export default function CopyButton({
         // overriding the light-mode hover:text-gray-900 that would otherwise
         // darken it and make the control recede.
         "border border-gray-500 bg-white text-gray-600 hover:border-gray-600 hover:text-gray-900 dark:border-white/40 dark:bg-white/10 dark:text-brand-dark dark:hover:border-white/60 dark:hover:bg-white/20 dark:hover:text-brand-dark";
+
+  if (!mounted) return null;
 
   return (
     <>
