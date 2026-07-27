@@ -1,5 +1,9 @@
 import { MetadataRoute } from "next";
-import { SITE_TITLE, SITE_DESCRIPTION, BRAND_HEADER_COLOR } from "@/lib/constants";
+import {
+  SITE_TITLE,
+  SITE_DESCRIPTION,
+  BRAND_HEADER_COLOR,
+} from "@/lib/constants";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {

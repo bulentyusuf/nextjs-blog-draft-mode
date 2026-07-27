@@ -52,7 +52,9 @@ export default async function CoverImage({
       priority={priority}
       fetchPriority={priority ? "high" : undefined}
       fill
-      sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"}
+      sizes={
+        sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+      }
       className={cn("object-cover", {
         "motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.02] motion-safe:group-focus-within:scale-[1.02] pointer-fine:motion-safe:will-change-transform":
           hover,
@@ -63,13 +65,21 @@ export default async function CoverImage({
   return (
     <div
       className="shadow-lg sm:mx-0"
-      style={transitionName ? { viewTransitionName: transitionName } : undefined}
+      style={
+        transitionName ? { viewTransitionName: transitionName } : undefined
+      }
     >
-      <div className={cn("relative overflow-hidden bg-brand-dark/5 dark:border dark:border-brand-dark/12", wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2", {
-        "cursor-pointer": linkHref,
-        group: hover,
-        "motion-safe:transform-gpu": hover,
-      })}>
+      <div
+        className={cn(
+          "relative overflow-hidden bg-brand-dark/5 dark:border dark:border-brand-dark/12",
+          wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2",
+          {
+            "cursor-pointer": linkHref,
+            group: hover,
+            "motion-safe:transform-gpu": hover,
+          },
+        )}
+      >
         {blurDataURL && (
           <div
             aria-hidden

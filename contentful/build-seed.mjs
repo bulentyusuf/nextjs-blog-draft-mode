@@ -8,20 +8,42 @@ import { pathToFileURL } from "node:url";
 // change this key.
 const L = "en-US";
 const loc = (v) => ({ [L]: v });
-const link = (id, linkType = "Entry") => ({ sys: { type: "Link", linkType, id } });
+const link = (id, linkType = "Entry") => ({
+  sys: { type: "Link", linkType, id },
+});
 
 const PLACEHOLDER_ASSET_URL =
   "https://raw.githubusercontent.com/bulentyusuf/nextjs-blog-draft-mode/main/contentful/seed-assets/placeholder.jpg";
 
 const text = (value) => ({ nodeType: "text", value, marks: [], data: {} });
-const paragraph = (...kids) => ({ nodeType: "paragraph", data: {}, content: kids });
-const heading2 = (value) => ({ nodeType: "heading-2", data: {}, content: [text(value)] });
-const embed = (id) => ({ nodeType: "embedded-entry-block", data: { target: link(id) }, content: [] });
+const paragraph = (...kids) => ({
+  nodeType: "paragraph",
+  data: {},
+  content: kids,
+});
+const heading2 = (value) => ({
+  nodeType: "heading-2",
+  data: {},
+  content: [text(value)],
+});
+const embed = (id) => ({
+  nodeType: "embedded-entry-block",
+  data: { target: link(id) },
+  content: [],
+});
 // A pull quote: BLOCKS.QUOTE must wrap a paragraph, not raw text.
-const quote = (value) => ({ nodeType: "blockquote", data: {}, content: [paragraph(text(value))] });
+const quote = (value) => ({
+  nodeType: "blockquote",
+  data: {},
+  content: [paragraph(text(value))],
+});
 // A wide inline figure. Unlike embed() (an embedded ENTRY), this links an
 // ASSET, so linkType must be "Asset".
-const embedAsset = (id) => ({ nodeType: "embedded-asset-block", data: { target: link(id, "Asset") }, content: [] });
+const embedAsset = (id) => ({
+  nodeType: "embedded-asset-block",
+  data: { target: link(id, "Asset") },
+  content: [],
+});
 const doc = (...content) => ({ nodeType: "document", data: {}, content });
 
 // A text node carrying marks. Contentful's mark shape is an array of objects,
@@ -52,9 +74,21 @@ const inlineEmbed = (id) => ({
   content: [],
 });
 
-const heading3 = (value) => ({ nodeType: "heading-3", data: {}, content: [text(value)] });
-const listItem = (...kids) => ({ nodeType: "list-item", data: {}, content: kids });
-const bulletList = (...items) => ({ nodeType: "unordered-list", data: {}, content: items });
+const heading3 = (value) => ({
+  nodeType: "heading-3",
+  data: {},
+  content: [text(value)],
+});
+const listItem = (...kids) => ({
+  nodeType: "list-item",
+  data: {},
+  content: kids,
+});
+const bulletList = (...items) => ({
+  nodeType: "unordered-list",
+  data: {},
+  content: items,
+});
 const rule = () => ({ nodeType: "hr", data: {}, content: [] });
 
 // publishedVersion makes contentful-import publish the entity. Verify after import.
@@ -138,11 +172,15 @@ const entries = [
   entry("code-example", "codeBlock", {
     filename: loc("example.tsx"),
     language: loc("tsx"),
-    code: loc("export default function Hello() {\n  return <p>Hello from the template</p>;\n}"),
+    code: loc(
+      "export default function Hello() {\n  return <p>Hello from the template</p>;\n}",
+    ),
   }),
   entry("prompt-example", "promptBlock", {
     label: loc("Midjourney"),
-    prompt: loc("a calm editorial illustration, warm directional light, gouache texture"),
+    prompt: loc(
+      "a calm editorial illustration, warm directional light, gouache texture",
+    ),
   }),
   // One sidenote entry, referenced from two posts. This entry existed in
   // seed.json but not here, so every regeneration deleted it along with the
@@ -153,9 +191,11 @@ const entries = [
     note: loc(
       doc(
         paragraph(
-          text("Notes float into the right margin on wide screens and collapse behind their number on narrow ones.")
-        )
-      )
+          text(
+            "Notes float into the right margin on wide screens and collapse behind their number on narrow ones.",
+          ),
+        ),
+      ),
     ),
   }),
   entry("post-first", "post", {
@@ -175,16 +215,25 @@ const entries = [
     content: loc(
       doc(
         paragraph(
-          text("This post exists to exercise the renderer rather than to be read. It carries "),
+          text(
+            "This post exists to exercise the renderer rather than to be read. It carries ",
+          ),
           marked("a bold run", "bold"),
           text(", a link out to the "),
-          linkTo(CONTENTFUL_RICH_TEXT_DOCS, "Contentful rich text documentation"),
+          linkTo(
+            CONTENTFUL_RICH_TEXT_DOCS,
+            "Contentful rich text documentation",
+          ),
           text(", and a sidenote"),
           inlineEmbed("sidenote-example"),
-          text(" anchored mid-sentence so the marker lands while the prose is still running. "),
-          text(LOREM)
+          text(
+            " anchored mid-sentence so the marker lands while the prose is still running. ",
+          ),
+          text(LOREM),
         ),
-        quote("A pull quote lifts a single line out of the flow and gives it room to breathe."),
+        quote(
+          "A pull quote lifts a single line out of the flow and gives it room to breathe.",
+        ),
         heading2("Background"),
         paragraph(text(LOREM2)),
         paragraph(text(LOREM3)),
@@ -193,10 +242,28 @@ const entries = [
         heading2("How the pieces fit"),
         paragraph(text(LOREM5)),
         bulletList(
-          listItem(paragraph(text("A list item, to show that lists render inside the prose column."))),
-          listItem(paragraph(text("A second item, because one is not a list."))),
-          listItem(paragraph(text("A third, carrying "), marked("an emphasised phrase", "italic"), text(", since marks survive inside list items too."))),
-          listItem(paragraph(text("A fourth, so the spacing between items is legible.")))
+          listItem(
+            paragraph(
+              text(
+                "A list item, to show that lists render inside the prose column.",
+              ),
+            ),
+          ),
+          listItem(
+            paragraph(text("A second item, because one is not a list.")),
+          ),
+          listItem(
+            paragraph(
+              text("A third, carrying "),
+              marked("an emphasised phrase", "italic"),
+              text(", since marks survive inside list items too."),
+            ),
+          ),
+          listItem(
+            paragraph(
+              text("A fourth, so the spacing between items is legible."),
+            ),
+          ),
         ),
         paragraph(text(LOREM6)),
         // H3s render but are deliberately absent from the table of contents,
@@ -214,8 +281,8 @@ const entries = [
         heading2("Where this leaves us"),
         paragraph(text(LOREM10)),
         paragraph(text(LOREM3)),
-        paragraph(text(LOREM2))
-      )
+        paragraph(text(LOREM2)),
+      ),
     ),
     author: loc(link("author-alex")),
     category: loc(link("cat-main-quest")),
@@ -235,7 +302,7 @@ const entries = [
           text(LOREM2),
           text(" A note"),
           inlineEmbed("sidenote-example"),
-          text(" appears here too, so the sidenote is not a one-post feature.")
+          text(" appears here too, so the sidenote is not a one-post feature."),
         ),
         embedAsset("placeholder-image"),
         heading2("A prompt block follows"),
@@ -244,20 +311,27 @@ const entries = [
         heading2("Reading further"),
         paragraph(
           text("The node types in this body are all documented in the "),
-          linkTo(CONTENTFUL_RICH_TEXT_DOCS, "Contentful rich text documentation"),
+          linkTo(
+            CONTENTFUL_RICH_TEXT_DOCS,
+            "Contentful rich text documentation",
+          ),
           text(". "),
-          text(LOREM7)
+          text(LOREM7),
         ),
         bulletList(
-          listItem(paragraph(text("Lists render here as well as in the first post."))),
-          listItem(paragraph(text("Two items is the minimum that reads as a list."))),
-          listItem(paragraph(text("Three leaves room to see the spacing.")))
+          listItem(
+            paragraph(text("Lists render here as well as in the first post.")),
+          ),
+          listItem(
+            paragraph(text("Two items is the minimum that reads as a list.")),
+          ),
+          listItem(paragraph(text("Three leaves room to see the spacing."))),
         ),
         paragraph(text(LOREM6)),
         heading2("Where this one ends"),
         paragraph(text(LOREM5)),
-        paragraph(text(LOREM4))
-      )
+        paragraph(text(LOREM4)),
+      ),
     ),
     author: loc(link("author-sam")),
     category: loc(link("cat-side-quests")),

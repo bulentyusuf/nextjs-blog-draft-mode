@@ -1,12 +1,12 @@
 # Be Useful.
 
-The source for [bulentyusuf.com](https://bulentyusuf.com), a personal blog about content, code, and making things with generative AI. 
+The source for [bulentyusuf.com](https://bulentyusuf.com), a personal blog about content, code, and making things with generative AI.
 
 The code in this repo is an extension of the [Next.js Blog with Draft Mode](https://vercel.com/templates/next.js/nextjs-blog-draft-mode) starter template published by Vercel and shared under a MIT license.
 
 ## 👋 About
 
-A small, statically generated blog. Posts are written and managed in a headless CMS, rendered by Next.js, and deployed continuously. 
+A small, statically generated blog. Posts are written and managed in a headless CMS, rendered by Next.js, and deployed continuously.
 
 The content model is deliberately compact, a Post type backed by Author and Category, with a Code Block type for embedded snippets, a Prompt Block type for publishing the image prompt behind a cover, a Sidenote type for asides set in the margin, and a Page type for standalone pages like the privacy notice.
 

@@ -25,9 +25,7 @@ export default function AuthorBioCard({ author }: { author: Author }) {
         <p className="text-xs font-bold uppercase tracking-widest text-brand-muted">
           Written by
         </p>
-        <p className="mt-1 text-xl font-bold text-brand-dark">
-          {author.name}
-        </p>
+        <p className="mt-1 text-xl font-bold text-brand-dark">{author.name}</p>
         <div className="mt-2 text-sm text-brand-muted">
           <RichText content={author.bio} headings={[]} />
         </div>

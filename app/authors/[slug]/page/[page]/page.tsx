@@ -8,7 +8,12 @@ import Pagination from "../../../../pagination";
 import PageContext from "../../../../page-context";
 import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
 import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
-import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import {
+  POSTS_PER_PAGE,
+  SITE_TITLE,
+  SITE_URL,
+  DEFAULT_OG_LOCALE,
+} from "@/lib/constants";
 import { widont } from "@/lib/typography";
 
 export const dynamicParams = true;
@@ -21,7 +26,10 @@ export async function generateStaticParams() {
       .map(async (author) => {
         const slug = author.slug as string;
         const posts = await getPostsByAuthor(slug, false);
-        const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+        const totalPages = Math.max(
+          1,
+          Math.ceil(posts.length / POSTS_PER_PAGE),
+        );
         const params: { slug: string; page: string }[] = [];
         for (let p = 2; p <= totalPages; p++) {
           params.push({ slug, page: String(p) });
@@ -58,7 +66,9 @@ export async function generateMetadata({
       description,
       url: canonical,
       siteName: SITE_TITLE,
-      images: images ?? [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
+      images: images ?? [
+        { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
+      ],
       type: "website",
       locale: DEFAULT_OG_LOCALE,
     },
@@ -132,8 +142,17 @@ export default async function AuthorPaginatedPage({
         <PageContext currentPage={pageNumber} totalPages={totalPages} />
       </header>
 
-      <MoreStories morePosts={pagePosts} variant="list" heading={null} priorityFirst />
-      <Pagination currentPage={pageNumber} totalPages={totalPages} basePath={`/authors/${slug}`} />
+      <MoreStories
+        morePosts={pagePosts}
+        variant="list"
+        heading={null}
+        priorityFirst
+      />
+      <Pagination
+        currentPage={pageNumber}
+        totalPages={totalPages}
+        basePath={`/authors/${slug}`}
+      />
     </Container>
   );
 }

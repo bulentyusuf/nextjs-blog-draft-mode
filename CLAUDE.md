@@ -336,7 +336,7 @@ files.
 
 A new content type in the space is not done until it is in `export.json` too.
 `lib/api.ts` queries embedded types through `... on X` fragments, and an inline
-fragment on a type the schema lacks is a GraphQL error that fails *every* post
+fragment on a type the schema lacks is a GraphQL error that fails _every_ post
 query, not just the field it names — so a fork importing an export that is one
 type behind gets a site that renders nothing. `Sidenote` shipped that way
 between 24 and 26 July. `lib/contentful-fixtures.test.ts` now guards it, along
@@ -350,5 +350,9 @@ not reformat anything you did not touch.
 
 Protected main, squash merges only, one concern per PR, conventional commit
 messages, descriptive branch names. The CI gate is `tsc --noEmit` + the vitest
-suite. There is no lint script — `next lint` was removed in Next 16 — so do
-not add or invoke one.
+suite + `npm run format:check`. There is no lint script — `next lint` was
+removed in Next 16 — so do not add or invoke one. Prettier is formatting only,
+not linting: run `npm run format` before pushing. `contentful/export.json` and
+`seed.json` are in `.prettierignore` on purpose, because the generator writes
+`seed.json` with `JSON.stringify(payload, null, 2)` and a formatter reflowing it
+would put the committed file permanently at odds with `npm run build:seed`.

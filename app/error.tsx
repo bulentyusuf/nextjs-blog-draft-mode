@@ -34,8 +34,8 @@ export default function Error({
         </h1>
 
         <p className="mt-6 text-lg leading-relaxed text-pretty">
-          An unexpected error stopped this page from loading. Try again, and if it
-          keeps happening it is the site to blame, not you.
+          An unexpected error stopped this page from loading. Try again, and if
+          it keeps happening it is the site to blame, not you.
         </p>
 
         {error.digest && (

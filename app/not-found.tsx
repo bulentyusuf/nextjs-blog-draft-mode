@@ -50,7 +50,7 @@ export default function NotFound() {
           />
         </div>
 
-                <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">
+        <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">
           Whoops
         </p>
         <h1 className="mt-4 text-4xl lg:text-6xl leading-tight text-pretty">

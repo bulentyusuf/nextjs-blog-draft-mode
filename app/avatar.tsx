@@ -45,7 +45,10 @@ export default function Avatar({
       <div className="leading-tight">
         <div className="text-xl font-bold">
           {slug ? (
-            <Link href={`/authors/${slug}`} className="hover:text-brand-crimson transition-colors duration-200">
+            <Link
+              href={`/authors/${slug}`}
+              className="hover:text-brand-crimson transition-colors duration-200"
+            >
               {name}
             </Link>
           ) : (
@@ -53,7 +56,9 @@ export default function Avatar({
           )}
         </div>
         {meta && (
-          <div className="mt-1 text-sm font-normal text-brand-muted">{meta}</div>
+          <div className="mt-1 text-sm font-normal text-brand-muted">
+            {meta}
+          </div>
         )}
       </div>
     </div>

@@ -8,7 +8,12 @@ import Pagination from "../../pagination";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
-import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import {
+  POSTS_PER_PAGE,
+  SITE_TITLE,
+  SITE_URL,
+  DEFAULT_OG_LOCALE,
+} from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
 import { widont } from "@/lib/typography";
 
@@ -47,7 +52,9 @@ export async function generateMetadata({
       description,
       url: canonical,
       siteName: SITE_TITLE,
-      images: images ?? [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
+      images: images ?? [
+        { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
+      ],
       type: "website",
       locale: DEFAULT_OG_LOCALE,
     },
@@ -126,8 +133,17 @@ export default async function AuthorPage({
 
       {posts.length > 0 ? (
         <>
-          <MoreStories morePosts={pagePosts} variant="list" heading={null} priorityFirst />
-          <Pagination currentPage={1} totalPages={totalPages} basePath={`/authors/${slug}`} />
+          <MoreStories
+            morePosts={pagePosts}
+            variant="list"
+            heading={null}
+            priorityFirst
+          />
+          <Pagination
+            currentPage={1}
+            totalPages={totalPages}
+            basePath={`/authors/${slug}`}
+          />
         </>
       ) : (
         <p className="mx-auto max-w-5xl text-lg text-brand-muted">

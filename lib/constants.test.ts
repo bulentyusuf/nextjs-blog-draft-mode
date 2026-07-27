@@ -55,7 +55,9 @@ describe("SITE_URL", () => {
 
   it("does not double up the scheme if one is already present", async () => {
     await expect(
-      loadSiteUrl({ VERCEL_PROJECT_PRODUCTION_URL: "https://demo.vercel.app/" }),
+      loadSiteUrl({
+        VERCEL_PROJECT_PRODUCTION_URL: "https://demo.vercel.app/",
+      }),
     ).resolves.toBe("https://demo.vercel.app");
   });
 

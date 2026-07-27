@@ -237,9 +237,12 @@ async function fetchGraphQL<T>(
       // The cause is attached rather than stringified, because the underlying
       // stack is the only thing that distinguishes a DNS failure from a reset
       // connection from a TLS error once this surfaces in a build log.
-      lastError = new Error(`Contentful GraphQL request failed: ${String(cause)}`, {
-        cause,
-      });
+      lastError = new Error(
+        `Contentful GraphQL request failed: ${String(cause)}`,
+        {
+          cause,
+        },
+      );
       continue;
     }
 
@@ -292,7 +295,9 @@ function extractPost(fetchResponse: PostCollectionResponse): Post | undefined {
   return fetchResponse?.data?.postCollection?.items?.[0];
 }
 
-function extractCardEntries(fetchResponse: CardPostCollectionResponse): CardPost[] {
+function extractCardEntries(
+  fetchResponse: CardPostCollectionResponse,
+): CardPost[] {
   return fetchResponse?.data?.postCollection?.items ?? [];
 }
 
@@ -394,7 +399,10 @@ export async function getPostAndMorePosts(
       ),
     );
     const seen = new Set(morePosts.map((p) => p.slug));
-    morePosts = [...morePosts, ...recent.filter((p) => !seen.has(p.slug))].slice(0, 2);
+    morePosts = [
+      ...morePosts,
+      ...recent.filter((p) => !seen.has(p.slug)),
+    ].slice(0, 2);
   }
 
   return { post, morePosts };
@@ -419,9 +427,7 @@ export async function getPage(
   return entry?.data?.pageCollection?.items?.[0];
 }
 
-export async function getAllPages(
-  isDraftMode: boolean,
-): Promise<PageMeta[]> {
+export async function getAllPages(isDraftMode: boolean): Promise<PageMeta[]> {
   const entries = await fetchGraphQL<PageMetaCollectionResponse>(
     `query GetAllPages($preview: Boolean) {
       pageCollection(where: { slug_exists: true }, preview: $preview) {
@@ -580,9 +586,7 @@ export async function getPostsByAuthor(
   return entries?.data?.postCollection?.items ?? [];
 }
 
-export async function getAllAuthors(
-  isDraftMode = false,
-): Promise<Author[]> {
+export async function getAllAuthors(isDraftMode = false): Promise<Author[]> {
   const entries = await fetchGraphQL<AuthorCollectionResponse>(
     `query GetAllAuthors($preview: Boolean) {
       authorCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview) {

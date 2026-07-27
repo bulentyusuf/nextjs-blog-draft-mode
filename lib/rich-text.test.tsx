@@ -69,7 +69,9 @@ describe("TOC slug sync", () => {
     const html = renderToStaticMarkup(
       <RichText content={content} headings={headings} />,
     );
-    const ids = [...html.matchAll(/<h2\b[^>]*\bid="([^"]+)"/g)].map((m) => m[1]);
+    const ids = [...html.matchAll(/<h2\b[^>]*\bid="([^"]+)"/g)].map(
+      (m) => m[1],
+    );
 
     // The two independent paths must agree exactly.
     expect(ids).toEqual(headings.map((h) => h.slug));
@@ -109,7 +111,9 @@ describe("body heading handling", () => {
     );
 
     // Only the real H2 carries an id, and it is the first (and only) slug.
-    const ids = [...html.matchAll(/<h2\b[^>]*\bid="([^"]+)"/g)].map((m) => m[1]);
+    const ids = [...html.matchAll(/<h2\b[^>]*\bid="([^"]+)"/g)].map(
+      (m) => m[1],
+    );
     expect(ids).toEqual(["real-heading"]);
     expect(headings.map((h) => h.slug)).toEqual(["real-heading"]);
 
@@ -126,7 +130,9 @@ describe("widont on subheadings", () => {
     const yearDoc = {
       nodeType: BLOCKS.DOCUMENT,
       data: {},
-      content: [heading2(text("Zak McKracken and the Alien Mindbenders (1988)"))],
+      content: [
+        heading2(text("Zak McKracken and the Alien Mindbenders (1988)")),
+      ],
     } as unknown as Document;
 
     const yearContent: Content = {
@@ -152,7 +158,9 @@ describe("widont on subheadings", () => {
     const linkDoc = {
       nodeType: BLOCKS.DOCUMENT,
       data: {},
-      content: [heading2(text("See the "), link("https://example.com", "docs"))],
+      content: [
+        heading2(text("See the "), link("https://example.com", "docs")),
+      ],
     } as unknown as Document;
 
     const linkContent: Content = {
@@ -331,7 +339,11 @@ describe("inline sidenote embed", () => {
       nodeType: BLOCKS.DOCUMENT,
       data: {},
       content: [
-        { nodeType: BLOCKS.PARAGRAPH, data: {}, content: [text("see "), link(uri, label)] },
+        {
+          nodeType: BLOCKS.PARAGRAPH,
+          data: {},
+          content: [text("see "), link(uri, label)],
+        },
       ],
     } as unknown as Document,
     links: { assets: { block: [] } },
@@ -345,19 +357,30 @@ describe("inline sidenote embed", () => {
       nodeType: BLOCKS.DOCUMENT,
       data: {},
       content: [
-        { nodeType: BLOCKS.PARAGRAPH, data: {}, content: [text("See "), inlineRef(id)] },
+        {
+          nodeType: BLOCKS.PARAGRAPH,
+          data: {},
+          content: [text("See "), inlineRef(id)],
+        },
       ],
     } as unknown as Document;
     const content: Content = {
       json,
-      links: { assets: { block: [] }, entries: { block: [], inline: inline as never } },
+      links: {
+        assets: { block: [] },
+        entries: { block: [], inline: inline as never },
+      },
     };
     return renderToStaticMarkup(<RichText content={content} headings={[]} />);
   };
 
   it("renders the numbered reference marker and the note body", () => {
     const html = render("sn1", [
-      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside worth reading.") },
+      {
+        __typename: "Sidenote",
+        sys: { id: "sn1" },
+        note: noteContent("An aside worth reading."),
+      },
     ]);
 
     // A superscript marker carrying the document-order number, and the note text.
@@ -371,8 +394,16 @@ describe("inline sidenote embed", () => {
       nodeType: BLOCKS.DOCUMENT,
       data: {},
       content: [
-        { nodeType: BLOCKS.PARAGRAPH, data: {}, content: [text("A "), inlineRef("sn1")] },
-        { nodeType: BLOCKS.PARAGRAPH, data: {}, content: [text("B "), inlineRef("sn2")] },
+        {
+          nodeType: BLOCKS.PARAGRAPH,
+          data: {},
+          content: [text("A "), inlineRef("sn1")],
+        },
+        {
+          nodeType: BLOCKS.PARAGRAPH,
+          data: {},
+          content: [text("B "), inlineRef("sn2")],
+        },
       ],
     } as unknown as Document;
     const content: Content = {
@@ -382,13 +413,23 @@ describe("inline sidenote embed", () => {
         entries: {
           block: [],
           inline: [
-            { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("first") },
-            { __typename: "Sidenote", sys: { id: "sn2" }, note: noteContent("second") },
+            {
+              __typename: "Sidenote",
+              sys: { id: "sn1" },
+              note: noteContent("first"),
+            },
+            {
+              __typename: "Sidenote",
+              sys: { id: "sn2" },
+              note: noteContent("second"),
+            },
           ] as never,
         },
       },
     };
-    const html = renderToStaticMarkup(<RichText content={content} headings={[]} />);
+    const html = renderToStaticMarkup(
+      <RichText content={content} headings={[]} />,
+    );
 
     // The second note's label text carries 2, proving the index advances.
     expect(html).toContain("Note 1");
@@ -403,7 +444,11 @@ describe("inline sidenote embed", () => {
     // split the sentence in two and desynced React's tree from the DOM. The
     // sidenote must stay phrasing content, so neither tag may ever reappear.
     const html = render("sn1", [
-      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside.") },
+      {
+        __typename: "Sidenote",
+        sys: { id: "sn1" },
+        note: noteContent("An aside."),
+      },
     ]);
 
     expect(html).not.toContain("<details");
@@ -420,7 +465,11 @@ describe("inline sidenote embed", () => {
     // Which of the pair is visible is a media query, so jsdom cannot say — the
     // count is the assertion, and it catches a third marker creeping in.
     const html = render("sn1", [
-      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside.") },
+      {
+        __typename: "Sidenote",
+        sys: { id: "sn1" },
+        note: noteContent("An aside."),
+      },
     ]);
 
     expect(html.match(/<sup[^>]*>1<\/sup>/g)).toHaveLength(2);
@@ -432,7 +481,11 @@ describe("inline sidenote embed", () => {
     // note is readable with scripts off and before hydration. A <button> here
     // means that regressed — the markup is the only thing holding it.
     const html = render("sn1", [
-      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside.") },
+      {
+        __typename: "Sidenote",
+        sys: { id: "sn1" },
+        note: noteContent("An aside."),
+      },
     ]);
 
     expect(html).not.toContain("<button");
@@ -446,7 +499,11 @@ describe("inline sidenote embed", () => {
 
   it("wires the toggle to the note body and names it", () => {
     const html = render("sn1", [
-      { __typename: "Sidenote", sys: { id: "sn1" }, note: noteContent("An aside.") },
+      {
+        __typename: "Sidenote",
+        sys: { id: "sn1" },
+        note: noteContent("An aside."),
+      },
     ]);
 
     // aria-controls must name the note body's own id, not just any id.

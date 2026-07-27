@@ -48,12 +48,12 @@ describe("pickActiveHeading", () => {
     expect(pickActiveHeading(positions, BAND_TOP)).toBe("setup");
   });
 
-  it("returns \"\" when every heading is still below the line (the lede)", () => {
+  it('returns "" when every heading is still below the line (the lede)', () => {
     const positions = [pos("intro", 200), pos("setup", 600)];
     expect(pickActiveHeading(positions, BAND_TOP)).toBe("");
   });
 
-  it("returns \"\" for an empty position set", () => {
+  it('returns "" for an empty position set', () => {
     expect(pickActiveHeading([], BAND_TOP)).toBe("");
   });
 

@@ -45,7 +45,9 @@ export default function ContentfulImage({
   //   'pending' = not yet shown (blur underlay visible)
   //   'instant' = already complete at hydration (cached) -> show with no fade
   //   'fade'    = arrived over the network -> crossfade in
-  const [reveal, setReveal] = useState<"pending" | "instant" | "fade">("pending");
+  const [reveal, setReveal] = useState<"pending" | "instant" | "fade">(
+    "pending",
+  );
 
   return (
     <Image

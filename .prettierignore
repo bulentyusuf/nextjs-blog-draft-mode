@@ -1,0 +1,12 @@
+node_modules
+.next
+public/pagefind
+package-lock.json
+
+# Generated and byte-shape-sensitive. contentful/build-seed.mjs writes seed.json
+# with JSON.stringify(payload, null, 2) + "\n", and export.json is round-tripped
+# by tooling with the same shape. Letting Prettier reformat either would put the
+# committed file permanently out of step with what the generator emits, so
+# `npm run build:seed` and `npm run format:check` would contradict each other.
+contentful/export.json
+contentful/seed.json

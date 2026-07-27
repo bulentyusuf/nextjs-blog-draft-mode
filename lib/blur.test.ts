@@ -18,7 +18,9 @@ describe("getBlurDataURL", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await getBlurDataURL("//images.ctfassets.net/space/asset.jpg");
+    const result = await getBlurDataURL(
+      "//images.ctfassets.net/space/asset.jpg",
+    );
 
     expect(result).toBe(
       `data:image/webp;base64,${Buffer.from(bytes).toString("base64")}`,
@@ -40,7 +42,10 @@ describe("getBlurDataURL", () => {
   });
 
   it("returns undefined when the fetch throws", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(new Error("network down")),
+    );
     expect(
       await getBlurDataURL("https://images.ctfassets.net/space/asset.jpg"),
     ).toBeUndefined();

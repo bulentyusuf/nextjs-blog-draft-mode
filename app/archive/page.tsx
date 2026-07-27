@@ -21,7 +21,9 @@ export const metadata: Metadata = {
     description: archiveDescription,
     url: `${SITE_URL}/archive`,
     siteName: SITE_TITLE,
-    images: [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
+    images: [
+      { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
+    ],
     type: "website",
     locale: DEFAULT_OG_LOCALE,
   },
@@ -113,7 +115,10 @@ export default async function ArchivePage() {
                       )}
                     </span>
                     <span className="shrink-0 text-sm tabular-nums text-brand-muted sm:text-right">
-                      <DateComponent dateString={post.date} formatString="d MMM" />
+                      <DateComponent
+                        dateString={post.date}
+                        formatString="d MMM"
+                      />
                       {/* The visible date drops the year because the section
                           heading carries it. Someone moving link to link skips
                           that heading, so restore it for them only. */}

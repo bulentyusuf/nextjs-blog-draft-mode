@@ -40,9 +40,7 @@ describe("contentful export.json", () => {
     // shipped that way and this is the guard that would have caught it.
     const query = readFileSync(path.join(root, "lib/api.ts"), "utf8");
     const referenced = [
-      ...new Set(
-        [...query.matchAll(/\.\.\. on ([A-Z]\w*)/g)].map((m) => m[1]),
-      ),
+      ...new Set([...query.matchAll(/\.\.\. on ([A-Z]\w*)/g)].map((m) => m[1])),
     ];
     expect(referenced.length).toBeGreaterThan(0);
 
@@ -156,7 +154,9 @@ describe("contentful seed.json", () => {
       const nodeType = record.nodeType;
       if (typeof nodeType === "string" && nodeType.includes("embedded-")) {
         const target = (
-          record.data as { target?: { sys?: { id?: string; linkType?: string } } }
+          record.data as {
+            target?: { sys?: { id?: string; linkType?: string } };
+          }
         )?.target?.sys;
         const pool = target?.linkType === "Asset" ? assetIds : entryIds;
         if (!target?.id || !pool.has(target.id)) {
@@ -194,7 +194,9 @@ const seedEntries: {
   fields: Record<string, Record<string, unknown>>;
 }[] = seedData.entries;
 
-const seedPosts = seedEntries.filter((e) => e.sys.contentType.sys.id === "post");
+const seedPosts = seedEntries.filter(
+  (e) => e.sys.contentType.sys.id === "post",
+);
 const postBodies = seedPosts.map(
   (p) => p.fields.content?.[defaultLocale] as RichTextNode | undefined,
 );
@@ -246,7 +248,10 @@ describe("contentful seed feature coverage", () => {
     expect(targets.length).toBeGreaterThan(0);
     for (const id of targets) {
       const target = seedEntries.find((e) => e.sys.id === id);
-      expect(target, `inline embed targets unseeded entry "${id}"`).toBeTruthy();
+      expect(
+        target,
+        `inline embed targets unseeded entry "${id}"`,
+      ).toBeTruthy();
       expect(target!.sys.contentType.sys.id).toBe("sidenote");
     }
   });
