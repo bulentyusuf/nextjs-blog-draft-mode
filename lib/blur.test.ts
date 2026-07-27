@@ -41,6 +41,33 @@ describe("getBlurDataURL", () => {
     ).toBeUndefined();
   });
 
+  it("refuses a URL that is not on the Contentful image host", async () => {
+    // `src` is whatever the CMS holds. This runs on the server and base64s the
+    // response into the page, so an off-host URL would make the build fetch an
+    // arbitrary address and publish the body. Nothing is requested at all.
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    expect(
+      await getBlurDataURL("https://evil.example/internal"),
+    ).toBeUndefined();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("is not fooled by the host appearing elsewhere in the URL", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    for (const src of [
+      "https://evil.example/images.ctfassets.net/a.jpg",
+      "https://images.ctfassets.net.evil.example/a.jpg",
+      "https://evil.example/?x=images.ctfassets.net",
+    ]) {
+      expect(await getBlurDataURL(src), src).toBeUndefined();
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("returns undefined when the fetch throws", async () => {
     vi.stubGlobal(
       "fetch",
