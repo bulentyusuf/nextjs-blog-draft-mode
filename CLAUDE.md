@@ -324,6 +324,25 @@ regression, not a style choice — a previous PR existed solely to purge these.
 German (`de-DE`) localisation is in progress; until it lands, do not add
 locale plumbing speculatively.
 
+### Post, category and author fetchers are `cache()`-wrapped on purpose
+
+`getPost`, `getPostAndMorePosts`, `getCategoryBySlug` and `getAuthorBySlug` are
+wrapped in React's `cache()` in `lib/api.ts`. Next only memoises `GET`, and
+`fetchGraphQL` issues `POST`, so without this every route that reads the same
+entity in both `generateMetadata` and its page component fetched it twice.
+
+**`generateMetadata` must call the same function the page calls, with the same
+arguments.** `cache()` dedupes identical calls, not equivalent ones. On
+`/posts/[slug]` both now call `getPostAndMorePosts`; switching the metadata pass
+back to the slimmer `getPost` looks like an optimisation and is the exact change
+that reintroduces the second request — it was made once, in #256, and the
+duplication survived it because a smaller second query is still a second query.
+`getPost` remains correct where nothing else fetches the post in the same pass,
+as in `opengraph-image.tsx`, which renders in its own request.
+
+Do not re-flag the duplicate fetch as a finding; it is fixed. Do not "simplify"
+the metadata call back to a narrower helper.
+
 ### Contentful export/seed files are load-bearing and brittle
 
 `contentful/export.json` and `seed.json` back the forkable-template story.
