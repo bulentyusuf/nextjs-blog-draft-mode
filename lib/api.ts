@@ -192,6 +192,16 @@ let retryDelay: RetryDelay = realRetryDelay;
 // production actually waits on Contentful in order to suit a test. Replace the
 // delay, never the constant. Called with no argument, restores the real one.
 export function setRetryDelayForTests(next: RetryDelay = realRetryDelay): void {
+  // This has to be exported to be reachable — fetchGraphQL is module-private and
+  // the tests drive it through the public getters — which also makes it callable
+  // from application code, where disabling the backoff would quietly turn three
+  // retries into three immediate hammers on Contentful. Refusing in production
+  // keeps the seam useful where it is needed and inert where it is not.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "setRetryDelayForTests must not be called in production. It exists only so the test suite can skip the real backoff.",
+    );
+  }
   retryDelay = next;
 }
 
