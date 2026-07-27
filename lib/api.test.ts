@@ -189,6 +189,35 @@ describe("fetchGraphQL", () => {
   });
 });
 
+describe("the retry delay seam", () => {
+  it("refuses to be called in a production build", () => {
+    // It is exported, so application code can reach it. Disabling the backoff
+    // there would turn three spaced retries into three immediate hammers.
+    vi.stubEnv("NODE_ENV", "production");
+    expect(() => setRetryDelayForTests(async () => {})).toThrow(
+      /must not be called in production/,
+    );
+  });
+
+  it("restores the real delay when called with no argument", async () => {
+    // The default argument is what afterEach relies on to stop a no-op delay
+    // leaking into any other file that imports lib/api.
+    setRetryDelayForTests();
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(async () => httpError(503, "Service Unavailable"))
+      .mockImplementationOnce(async () => ok(AUTHORS));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const started = Date.now();
+    await expect(getAllAuthors()).resolves.toHaveLength(1);
+    // Real backoff is 500ms before attempt two. Asserting a floor rather than a
+    // window keeps this off the flake list on a loaded CI box.
+    expect(Date.now() - started).toBeGreaterThanOrEqual(400);
+    expect(delays).toEqual([]);
+  });
+});
+
 describe("retry backoff", () => {
   it("does not delay before the first attempt", async () => {
     const fetchMock = vi.fn().mockResolvedValue(ok(AUTHORS));
