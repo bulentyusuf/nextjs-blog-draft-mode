@@ -10,16 +10,50 @@
 //    on every push, and it is unreachable when Standard Deployment Protection
 //    is enabled.
 // 3. localhost, for `next dev`.
+//
+// Both sources go through normaliseOrigin, because a bare domain is the
+// commonest way to set either by hand and Vercel documents its own production
+// URL as scheme-less. Everything downstream feeds `new URL()`: metadataBase in
+// app/layout.tsx throws outright on a scheme-less value, failing the build with
+// an ERR_INVALID_URL that names neither the variable nor the setting, and
+// parseHostname below swallows that same error and silently yields "localhost",
+// which then lands in AUTHOR_EMAIL.
+
+// Trailing slashes are stripped because every consumer appends its own path, so
+// `https://example.com/` would otherwise emit `https://example.com//posts/x`
+// into the sitemap and the feed. An existing scheme is preserved rather than
+// forced to https, so an explicit `http://localhost:3000` keeps working.
+function normaliseOrigin(value: string): string {
+  const trimmed = value.replace(/\/+$/, "");
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+function isParsable(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function resolveSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  // Trailing slashes are stripped because every consumer appends its own path,
-  // so `https://example.com/` would otherwise emit `https://example.com//posts/x`
-  // into the sitemap and the feed.
-  if (configured) return configured.replace(/\/+$/, "");
+  if (configured) {
+    const normalised = normaliseOrigin(configured);
+    if (isParsable(normalised)) return normalised;
+    // Not gated on NODE_ENV: an unparsable value is always a mistake, unlike
+    // the localhost fallback below, which is normal in development. Falling
+    // through rather than throwing lets the Vercel domain rescue the build.
+    console.warn(
+      `[constants] NEXT_PUBLIC_SITE_URL is set to "${configured}", which is not a valid URL. Ignoring it.`,
+    );
+  }
 
   const vercelProduction = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
   if (vercelProduction) {
-    return `https://${vercelProduction.replace(/^https?:\/\//, "").replace(/\/+$/, "")}`;
+    const normalised = normaliseOrigin(vercelProduction);
+    if (isParsable(normalised)) return normalised;
   }
 
   // A deployed site emitting localhost canonicals, sitemap entries and feed
