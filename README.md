@@ -100,7 +100,7 @@ cp .env.local.example .env.local
 - `CONTENTFUL_PREVIEW_ACCESS_TOKEN`, the Content Preview API token from the same API keys page
 - `CONTENTFUL_PREVIEW_SECRET`, any random string you choose, it guards the draft preview route
 - `CONTENTFUL_REVALIDATE_SECRET`, any random string you choose, it guards the revalidation webhook
-- `NEXT_PUBLIC_SITE_URL`, your public site URL such as `https://example.com`, used for canonical links, Open Graph tags, the sitemap, and the RSS feed
+- `NEXT_PUBLIC_SITE_URL`, your public site URL such as `https://example.com`, used for canonical links, Open Graph tags, the sitemap, and the RSS feed. On Vercel this falls back to the project's production domain when unset, and to `http://localhost:3000` everywhere else
 
 ### 3. Import the content model
 
@@ -164,7 +164,7 @@ Once it is live, publishing in Contentful refreshes the affected pages within se
 
 Forking this template carries over the original author's specifics. Change these before you deploy:
 
-- **Site URL (required).** Set `NEXT_PUBLIC_SITE_URL` to your own domain in `.env.local` and in your host. Without it the canonical links, sitemap, OG tags, and RSS fall back to a localhost URL.
+- **Site URL (required).** Set `NEXT_PUBLIC_SITE_URL` to your own domain in `.env.local` and in your host. Without it the canonical links, sitemap, OG tags, and RSS fall back to the Vercel production domain, or to a localhost URL anywhere else.
 - **Site identity.** Edit `SITE_TITLE`, `SITE_DESCRIPTION`, `SITE_AUTHOR`, and `SITE_REPO_URL` in `lib/constants.ts`.
 - **llms.txt.** `public/llms.txt` is a hand-written file describing the original site. Replace it with your own, or delete it. If you delete it, drop the `llms-link-check` workflow too.
 - **Brand assets.** Replace the Open Graph image `public/be_useful.jpg`, swap the favicon and app icon, and retune the palette tokens and `themeColor` in `app/globals.css` and `app/layout.tsx` if you want a different look. The header colour lives in both `globals.css` and `lib/constants.ts`, and both need changing, because the web manifest and viewport `themeColor` are generated in JavaScript and cannot read CSS custom properties.
