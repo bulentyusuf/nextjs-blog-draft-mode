@@ -1,5 +1,40 @@
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+// Resolution order, most specific first.
+//
+// 1. NEXT_PUBLIC_SITE_URL, the explicit setting. Needed for a custom domain and
+//    the only one of the three that survives moving off Vercel.
+// 2. VERCEL_PROJECT_PRODUCTION_URL, so a fork deployed without step 1 emits its
+//    real domain rather than localhost. Vercel sets this at both build and
+//    runtime, and always to the production domain even inside a preview
+//    deployment, which is what canonicals and feed links want. VERCEL_URL is
+//    deliberately not used: it is per-deployment, so it would change canonicals
+//    on every push, and it is unreachable when Standard Deployment Protection
+//    is enabled.
+// 3. localhost, for `next dev`.
+function resolveSiteUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  // Trailing slashes are stripped because every consumer appends its own path,
+  // so `https://example.com/` would otherwise emit `https://example.com//posts/x`
+  // into the sitemap and the feed.
+  if (configured) return configured.replace(/\/+$/, "");
+
+  const vercelProduction = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  if (vercelProduction) {
+    return `https://${vercelProduction.replace(/^https?:\/\//, "").replace(/\/+$/, "")}`;
+  }
+
+  // A deployed site emitting localhost canonicals, sitemap entries and feed
+  // links is silently broken for every crawler, so say so in the build log.
+  if (process.env.NODE_ENV === "production") {
+    console.warn(
+      "[constants] NEXT_PUBLIC_SITE_URL is not set and no Vercel production URL was found. " +
+        "Canonical links, the sitemap, robots.txt and the RSS feed will point at localhost.",
+    );
+  }
+
+  return "http://localhost:3000";
+}
+
+export const SITE_URL = resolveSiteUrl();
 
 function parseHostname(url: string): string {
   try {
