@@ -6,7 +6,7 @@ import Avatar from "../../avatar";
 import Date from "../../date";
 import CoverImage from "../../cover-image";
 import { RichText } from "@/lib/rich-text";
-import { getAllPosts, getPost, getPostAndMorePosts } from "@/lib/api";
+import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
 import { extractHeadings } from "@/lib/headings";
 import { readingTimeMinutes } from "@/lib/reading-time";
 import { highlightCodeBlocks } from "@/lib/highlight";
@@ -37,10 +37,14 @@ export async function generateMetadata({
 }) {
   const { isEnabled } = await draftMode();
   const { slug } = await params;
-  // Metadata only reads the post's own fields, so use getPost — the single-query
-  // helper — rather than getPostAndMorePosts, which also runs the related and
-  // backfill queries whose morePosts result metadata never touches.
-  const post = await getPost(slug, isEnabled);
+  // Deliberately the same call the page component makes below, not the slimmer
+  // getPost. Both are wrapped in React's cache(), so the two run once per
+  // request and the page reuses this result instead of refetching. Calling
+  // getPost here would be a smaller query but a second one, since cache() only
+  // dedupes identical calls — which is how this page ended up issuing two
+  // requests for one post. getPost is still the right helper where nothing else
+  // fetches the post in the same pass, as in opengraph-image.tsx.
+  const { post } = await getPostAndMorePosts(slug, isEnabled);
 
   if (!post) {
     return { title: "Post not found" };
