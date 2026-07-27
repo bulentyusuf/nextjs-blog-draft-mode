@@ -37,7 +37,9 @@ export default function Breadcrumb({ items }: { items: Crumb[] }) {
                   </Link>
                 ) : (
                   <span
-                    className={isLast ? "font-medium text-brand-dark" : undefined}
+                    className={
+                      isLast ? "font-medium text-brand-dark" : undefined
+                    }
                     aria-current={isLast ? "page" : undefined}
                   >
                     {item.label}

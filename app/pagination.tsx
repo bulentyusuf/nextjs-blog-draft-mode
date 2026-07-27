@@ -48,19 +48,26 @@ export default function Pagination({
   }
 
   // Step 3: build the final item list, inserting ellipses for gaps > 1.
-  type PageItem = { kind: "page"; page: number } | { kind: "ellipsis"; key: string };
+  type PageItem =
+    { kind: "page"; page: number } | { kind: "ellipsis"; key: string };
   const items: PageItem[] = [];
   let ellipsisIndex = 0;
   for (let i = 0; i < expanded.length; i++) {
     if (i > 0 && expanded[i] - expanded[i - 1] > 1) {
       ellipsisIndex += 1;
-      items.push({ kind: "ellipsis", key: ellipsisIndex === 1 ? "left-ellipsis" : "right-ellipsis" });
+      items.push({
+        kind: "ellipsis",
+        key: ellipsisIndex === 1 ? "left-ellipsis" : "right-ellipsis",
+      });
     }
     items.push({ kind: "page", page: expanded[i] });
   }
 
   return (
-    <nav aria-label="Pagination" className="mx-auto max-w-5xl border-t border-hairline pt-10 md:pt-12">
+    <nav
+      aria-label="Pagination"
+      className="mx-auto max-w-5xl border-t border-hairline pt-10 md:pt-12"
+    >
       <ul className="flex items-center justify-center gap-2">
         <li>
           {hasPrev ? (

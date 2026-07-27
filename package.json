@@ -6,6 +6,8 @@
     "postbuild": "pagefind --site .next/server/app --output-path public/pagefind",
     "start": "next start",
     "test": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "build:seed": "node contentful/build-seed.mjs",
     "check:links": "node scripts/check-llms-links.mjs",
     "import:contentful": "contentful-import --content-file contentful/export.json --environment-id master",
@@ -35,6 +37,7 @@
   "devDependencies": {
     "contentful-import": "^10.0.11",
     "pagefind": "^1.5.2",
+    "prettier": "3.9.6",
     "vitest": "^4.1.9"
   },
   "browserslist": [

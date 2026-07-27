@@ -18,7 +18,10 @@ export default function BackToTop() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
   }
 
   return (
@@ -41,7 +44,7 @@ export default function BackToTop() {
       inert={!visible}
       onClick={scrollToTop}
       className={`fixed bottom-6 right-12 z-50 flex h-11 w-11 items-center justify-center rounded-full border-2 border-gray-400 bg-surface-dark text-white shadow-lg transition-opacity duration-200 hover:bg-brand-crimson focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-surface-dark ${
-         visible ? "opacity-100" : "pointer-events-none opacity-0"
+        visible ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
     >
       <svg

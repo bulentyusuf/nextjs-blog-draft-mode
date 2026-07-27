@@ -44,7 +44,8 @@ const doc = (...content: unknown[]) =>
   }) as unknown as Document;
 
 // A run of N whitespace-separated words.
-const words = (n: number) => Array.from({ length: n }, (_, i) => `w${i}`).join(" ");
+const words = (n: number) =>
+  Array.from({ length: n }, (_, i) => `w${i}`).join(" ");
 
 describe("readingTimeMinutes", () => {
   it("returns 1 for an empty document", () => {

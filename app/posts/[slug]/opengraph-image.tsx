@@ -40,7 +40,8 @@ const BRAND_CRIMSON = "#A4243B";
 // (Satori honours U+00A0 as non-breaking). Clamp first so the glue lands on the
 // words that actually render.
 function cardTitle(title: string): string {
-  const clamped = title.length > 90 ? `${title.slice(0, 90).trimEnd()}…` : title;
+  const clamped =
+    title.length > 90 ? `${title.slice(0, 90).trimEnd()}…` : title;
   return widont(clamped);
 }
 
@@ -63,85 +64,83 @@ export default async function OpengraphImage({
     : null;
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        background: BRAND_BG,
+      }}
+    >
+      {/* Left column: title and footer, roughly 60% width. */}
       <div
         style={{
-          width: "100%",
-          height: "100%",
           display: "flex",
-          background: BRAND_BG,
+          flexDirection: "column",
+          width: "60%",
+          height: "100%",
+          padding: 64,
         }}
       >
-        {/* Left column: title and footer, roughly 60% width. */}
+        {/* The single crimson accent rule. */}
+        <div
+          style={{
+            width: 96,
+            height: 8,
+            background: BRAND_CRIMSON,
+            marginBottom: 40,
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            fontFamily: "Fraunces",
+            fontSize: 60,
+            lineHeight: 1.1,
+            color: BRAND_INK,
+          }}
+        >
+          {title}
+        </div>
+        {/* Footer pinned to the bottom. */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            width: "60%",
-            height: "100%",
-            padding: 64,
+            marginTop: "auto",
+            fontFamily: "Fraunces",
+            color: BRAND_INK,
+            opacity: 0.7,
+            fontSize: 28,
           }}
         >
-          {/* The single crimson accent rule. */}
-          <div
-            style={{
-              width: 96,
-              height: 8,
-              background: BRAND_CRIMSON,
-              marginBottom: 40,
-            }}
-          />
-          <div
-            style={{
-              display: "flex",
-              fontFamily: "Fraunces",
-              fontSize: 60,
-              lineHeight: 1.1,
-              color: BRAND_INK,
-            }}
-          >
-            {title}
-          </div>
-          {/* Footer pinned to the bottom. */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              marginTop: "auto",
-              fontFamily: "Fraunces",
-              color: BRAND_INK,
-              opacity: 0.7,
-              fontSize: 28,
-            }}
-          >
-            <div style={{ display: "flex" }}>{SITE_TITLE}</div>
-            <div style={{ display: "flex", marginTop: 4 }}>{author}</div>
-          </div>
-        </div>
-
-        {/* Right column: cover panel, roughly 40% width. Solid ink when there
-            is no cover so the layout never collapses. */}
-        <div
-          style={{
-            display: "flex",
-            width: "40%",
-            height: "100%",
-            background: BRAND_INK,
-          }}
-        >
-          {coverUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={coverUrl}
-              alt=""
-              width={480}
-              height={630}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          )}
+          <div style={{ display: "flex" }}>{SITE_TITLE}</div>
+          <div style={{ display: "flex", marginTop: 4 }}>{author}</div>
         </div>
       </div>
-    ),
+
+      {/* Right column: cover panel, roughly 40% width. Solid ink when there
+            is no cover so the layout never collapses. */}
+      <div
+        style={{
+          display: "flex",
+          width: "40%",
+          height: "100%",
+          background: BRAND_INK,
+        }}
+      >
+        {coverUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={coverUrl}
+            alt=""
+            width={480}
+            height={630}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        )}
+      </div>
+    </div>,
     {
       ...size,
       fonts: [

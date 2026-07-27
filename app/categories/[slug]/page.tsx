@@ -5,8 +5,17 @@ import Container from "../../container";
 import MoreStories from "../../more-stories";
 import Pagination from "../../pagination";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
-import { getAllCategories, getCategoryBySlug, getPostsByCategory } from "@/lib/api";
-import { POSTS_PER_PAGE, SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import {
+  getAllCategories,
+  getCategoryBySlug,
+  getPostsByCategory,
+} from "@/lib/api";
+import {
+  POSTS_PER_PAGE,
+  SITE_TITLE,
+  SITE_URL,
+  DEFAULT_OG_LOCALE,
+} from "@/lib/constants";
 import { widont } from "@/lib/typography";
 
 // Allow on-demand rendering of categories added after build time, so a new
@@ -31,7 +40,8 @@ export async function generateMetadata({
     return { title: "Category not found" };
   }
 
-  const description = category.description || `Posts in ${category.name} on ${SITE_TITLE}`;
+  const description =
+    category.description || `Posts in ${category.name} on ${SITE_TITLE}`;
   const canonical = `${SITE_URL}/categories/${slug}`;
 
   return {
@@ -42,7 +52,9 @@ export async function generateMetadata({
       description,
       url: canonical,
       siteName: SITE_TITLE,
-      images: [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
+      images: [
+        { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
+      ],
       type: "website",
       locale: DEFAULT_OG_LOCALE,
     },

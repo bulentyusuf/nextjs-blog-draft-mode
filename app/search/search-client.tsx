@@ -107,9 +107,7 @@ export default function SearchClient() {
       {/* The result template is a static, self-authored string (see
           RESULT_TEMPLATE) injected as the element's only child; there is no
           user input, so dangerouslySetInnerHTML is safe here. */}
-      <pagefind-results
-        dangerouslySetInnerHTML={{ __html: RESULT_TEMPLATE }}
-      />
+      <pagefind-results dangerouslySetInnerHTML={{ __html: RESULT_TEMPLATE }} />
     </div>
   );
 }

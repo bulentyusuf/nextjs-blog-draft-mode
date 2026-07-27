@@ -1,8 +1,18 @@
 import "./globals.css";
 import { Inter, Fraunces } from "next/font/google";
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_REPO_URL, SITE_FOOTER_BLURB, BRAND_HEADER_COLOR, BRAND_HEADER_COLOR_DARK, DEFAULT_LOCALE, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import {
+  SITE_TITLE,
+  SITE_DESCRIPTION,
+  SITE_URL,
+  SITE_REPO_URL,
+  SITE_FOOTER_BLURB,
+  BRAND_HEADER_COLOR,
+  BRAND_HEADER_COLOR_DARK,
+  DEFAULT_LOCALE,
+  DEFAULT_OG_LOCALE,
+} from "@/lib/constants";
 import BackToTop from "./back-to-top";
 import SidenoteEnterKey from "./sidenote-enter-key";
 import NewWindowHint from "./new-window-hint";
@@ -74,10 +84,15 @@ function Header() {
     <header className="sticky top-0 z-50 w-full bg-brand-header shadow-xs">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
         <div className="flex items-baseline gap-3">
-          <Link href="/" className="font-display text-lg font-[650] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white">
+          <Link
+            href="/"
+            className="font-display text-lg font-[650] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
+          >
             {SITE_TITLE}
           </Link>
-          <p className="hidden lg:block text-sm text-white/90">{SITE_DESCRIPTION}</p>
+          <p className="hidden lg:block text-sm text-white/90">
+            {SITE_DESCRIPTION}
+          </p>
         </div>
         <nav aria-label="Primary" className="flex items-center gap-4 md:gap-6">
           <Link
@@ -223,7 +238,10 @@ export default async function RootLayout({
 }) {
   const { isEnabled } = await draftMode();
   return (
-    <html lang={DEFAULT_LOCALE} className={`${inter.variable} ${fraunces.variable}`}>
+    <html
+      lang={DEFAULT_LOCALE}
+      className={`${inter.variable} ${fraunces.variable}`}
+    >
       <body className="min-h-screen flex flex-col bg-brand-bg text-brand-dark">
         {/* top-2 centres the 36px link in the 52px header band. If the header's
             py-3 or the masthead's text-lg ever changes, this needs revisiting —
@@ -236,7 +254,9 @@ export default async function RootLayout({
         </a>
         <link rel="preconnect" href="https://images.ctfassets.net" />
         <Header />
-        <main id="main" className="grow">{children}</main>
+        <main id="main" className="grow">
+          {children}
+        </main>
         <Footer />
         {isEnabled && <ExitPreviewButton />}
         <BackToTop />

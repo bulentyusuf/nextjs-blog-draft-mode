@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @plugin '@tailwindcss/typography';
 
@@ -37,11 +37,11 @@
   --font-sans: var(--font-inter);
   --font-display: var(--font-fraunces);
 
-  --color-brand-crimson: #A4243B;
-  --color-brand-header: #1E3A8A;
-  --color-brand-dark: #241B1D;
-  --color-brand-bg: #FAF5F1;
-  --color-brand-muted: #6B5A52;
+  --color-brand-crimson: #a4243b;
+  --color-brand-header: #1e3a8a;
+  --color-brand-dark: #241b1d;
+  --color-brand-bg: #faf5f1;
+  --color-brand-muted: #6b5a52;
 
   /* Divider hairline. One token for every rule between list items, cards, and
      panels, so the value inverts with the scheme instead of each component
@@ -54,13 +54,13 @@
      chrome that must STAY dark — the back-to-top button, and the dark ink used
      on the lifted-crimson prompt header — points here instead so it never flips
      to light. Deliberately excluded from the dark override. */
-  --color-surface-dark: #241B1D;
+  --color-surface-dark: #241b1d;
 
   /* Footer band. In light mode it equals surface-dark (#241B1D on the light
      page). It gets its OWN token because dark mode raises it (below) for band
      separation, whereas surface-dark must stay put to keep the on-crimson ink
      contrast — the two roles diverge in dark mode. */
-  --color-footer-bg: #241B1D;
+  --color-footer-bg: #241b1d;
 
   --spacing-section: 4rem;
 }
@@ -76,18 +76,18 @@
 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-brand-bg: #17110F;      /* warm near-black page (not pure #000) */
-    --color-brand-dark: #F2EAE4;    /* warm off-white ink */
-    --color-brand-muted: #B3A49C;   /* lifted so meta text keeps AA on dark */
-    --color-brand-crimson: #E0667A; /* lifted so links stay vivid + AA on dark */
-    --color-brand-header: #2E4A9E;  /* lifted so the bar reads distinct from page */
+    --color-brand-bg: #17110f; /* warm near-black page (not pure #000) */
+    --color-brand-dark: #f2eae4; /* warm off-white ink */
+    --color-brand-muted: #b3a49c; /* lifted so meta text keeps AA on dark */
+    --color-brand-crimson: #e0667a; /* lifted so links stay vivid + AA on dark */
+    --color-brand-header: #2e4a9e; /* lifted so the bar reads distinct from page */
 
     /* Raise the footer band so it reads as distinct above the page. Pinned to
        surface-dark (#241B1D) it sat at only 1.11:1 vs the #17110F page and
        dissolved into it; #2E2420 clears the ~1.2 separation threshold (1.24:1)
        while footer white/60 text stays at 6.3:1. In light mode the footer is
        darker than the page to stand out; in dark mode it must be lighter. */
-    --color-footer-bg: #2E2420;
+    --color-footer-bg: #2e2420;
 
     /* Warm off-white at low alpha, matching the ink. The light #e5e7eb reads
        at ~15:1 on the #17110F page and glares. */
@@ -326,8 +326,16 @@
   --tw-prose-quotes: var(--color-brand-dark);
   --tw-prose-quote-borders: var(--color-brand-crimson);
   --tw-prose-captions: var(--color-brand-muted);
-  --tw-prose-th-borders: color-mix(in srgb, var(--color-brand-dark) 15%, transparent);
-  --tw-prose-td-borders: color-mix(in srgb, var(--color-brand-dark) 10%, transparent);
+  --tw-prose-th-borders: color-mix(
+    in srgb,
+    var(--color-brand-dark) 15%,
+    transparent
+  );
+  --tw-prose-td-borders: color-mix(
+    in srgb,
+    var(--color-brand-dark) 10%,
+    transparent
+  );
 
   /* Start the sidenote count fresh in each article body, so a post's floated
      margin notes number 1, 2, 3… on their own. See the .sidenote-* rules. */
@@ -337,26 +345,31 @@
      `.prose :where(h2)` rule (700) outranks the base-layer `h2` rule by
      specificity, so the weight must be reasserted at prose specificity here —
      the same override channel the code styling below uses. */
-  & :where(h1, h2, h3):not(:where([class~='not-prose'] *)) {
+  & :where(h1, h2, h3):not(:where([class~="not-prose"] *)) {
     font-weight: 650;
   }
-  & :where(code):not(:where([class~='not-prose'] *)) {
+  & :where(code):not(:where([class~="not-prose"] *)) {
     font-family:
-      ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
-      'Liberation Mono', monospace;
+      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+      "Liberation Mono", monospace;
     font-weight: 400;
     font-style: normal;
-    background-color: color-mix(in srgb, var(--color-brand-crimson) 8%, transparent);
+    background-color: color-mix(
+      in srgb,
+      var(--color-brand-crimson) 8%,
+      transparent
+    );
     color: var(--color-brand-dark);
-    border: 1px solid color-mix(in srgb, var(--color-brand-crimson) 20%, transparent);
+    border: 1px solid
+      color-mix(in srgb, var(--color-brand-crimson) 20%, transparent);
     padding: 0.1em 0.4em;
     border-radius: 0.25rem;
     font-size: 0.875em;
   }
-  & :where(code):not(:where([class~='not-prose'] *))::before {
+  & :where(code):not(:where([class~="not-prose"] *))::before {
     content: none;
   }
-  & :where(code):not(:where([class~='not-prose'] *))::after {
+  & :where(code):not(:where([class~="not-prose"] *))::after {
     content: none;
   }
 }
@@ -467,8 +480,13 @@
 
 @keyframes target-flash {
   from {
-    background-color: color-mix(in srgb, var(--color-brand-crimson) 18%, transparent);
-    box-shadow: 0 0 0 0.4rem color-mix(in srgb, var(--color-brand-crimson) 18%, transparent);
+    background-color: color-mix(
+      in srgb,
+      var(--color-brand-crimson) 18%,
+      transparent
+    );
+    box-shadow: 0 0 0 0.4rem
+      color-mix(in srgb, var(--color-brand-crimson) 18%, transparent);
   }
   to {
     background-color: transparent;

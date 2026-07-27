@@ -488,7 +488,12 @@ m-1854 -149 c131 -44 240 -121 404 -283 89 -88 177 -181 195 -207 18 -27 37
   return (
     // Decorative only: the search input beside it is already labelled, so the
     // emblem is aria-hidden and carries no title.
-    <svg viewBox="0 0 1735 1867" className="h-auto w-full" aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 1735 1867"
+      className="h-auto w-full"
+      aria-hidden="true"
+      focusable="false"
+    >
       {/* Cream underlay = the glass silhouette. Transparent in light mode, a
           literal #FAF5F1 in dark (see .search-lens-ground in globals.css) —
           never a brand token, which would flip to near-black. */}

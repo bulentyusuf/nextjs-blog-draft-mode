@@ -15,7 +15,9 @@ function headingText(node: Block | Inline): string {
   if (!node?.content) return "";
   return node.content
     .map((child) =>
-      child.nodeType === "text" ? child.value : headingText(child as Block | Inline),
+      child.nodeType === "text"
+        ? child.value
+        : headingText(child as Block | Inline),
     )
     .join("");
 }
@@ -167,7 +169,9 @@ export function RichText({
       ),
       [BLOCKS.EMBEDDED_ENTRY]: (node: Block | Inline) => {
         const id = (node as Block).data.target.sys.id;
-        const entry = content.links.entries?.block?.find((e) => e.sys.id === id);
+        const entry = content.links.entries?.block?.find(
+          (e) => e.sys.id === id,
+        );
         if (!entry) return null;
 
         if (entry.__typename === "CodeBlock") {
@@ -186,23 +190,23 @@ export function RichText({
                 </div>
               )}
               {html ? (
-              <div
-                tabIndex={0}
-                role="region"
-                aria-label={entry.filename || "Code block"}
-                className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline-offset-[-2px]"
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-            ) : (
-              <pre
-                tabIndex={0}
-                role="region"
-                aria-label={entry.filename || "Code block"}
-                className="overflow-x-auto p-4 text-sm focus-visible:outline-offset-[-2px]"
-              >
-                <code>{entry.code}</code>
-              </pre>
-            )}
+                <div
+                  tabIndex={0}
+                  role="region"
+                  aria-label={entry.filename || "Code block"}
+                  className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline-offset-[-2px]"
+                  dangerouslySetInnerHTML={{ __html: html }}
+                />
+              ) : (
+                <pre
+                  tabIndex={0}
+                  role="region"
+                  aria-label={entry.filename || "Code block"}
+                  className="overflow-x-auto p-4 text-sm focus-visible:outline-offset-[-2px]"
+                >
+                  <code>{entry.code}</code>
+                </pre>
+              )}
             </div>
           );
         }
@@ -243,7 +247,9 @@ export function RichText({
       },
       [INLINES.EMBEDDED_ENTRY]: (node: Block | Inline) => {
         const id = (node as Inline).data.target.sys.id;
-        const entry = content.links.entries?.inline?.find((e) => e.sys.id === id);
+        const entry = content.links.entries?.inline?.find(
+          (e) => e.sys.id === id,
+        );
         // Same defensive shape as the block case: an unresolved id (draft or
         // deleted entry) or a non-Sidenote inline embed renders nothing rather
         // than throwing.

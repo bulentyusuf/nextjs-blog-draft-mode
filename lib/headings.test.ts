@@ -36,17 +36,23 @@ const slugsOf = (...headings: unknown[]) =>
 
 describe("extractHeadings slugging", () => {
   it("strips a leading ordinal so a listicle slug survives a renumber", () => {
-    expect(slugsOf(heading2(text("1. Zak McKracken and the Alien Mindbenders (1988)")))).toEqual([
-      "zak-mckracken-and-the-alien-mindbenders-1988",
-    ]);
+    expect(
+      slugsOf(
+        heading2(text("1. Zak McKracken and the Alien Mindbenders (1988)")),
+      ),
+    ).toEqual(["zak-mckracken-and-the-alien-mindbenders-1988"]);
   });
 
   it("strips a leading ordinal written with a closing paren", () => {
-    expect(slugsOf(heading2(text("10) Another Game")))).toEqual(["another-game"]);
+    expect(slugsOf(heading2(text("10) Another Game")))).toEqual([
+      "another-game",
+    ]);
   });
 
   it("leaves a legitimate leading year untouched (no trailing ordinal punctuation)", () => {
-    expect(slugsOf(heading2(text("2024 in review")))).toEqual(["2024-in-review"]);
+    expect(slugsOf(heading2(text("2024 in review")))).toEqual([
+      "2024-in-review",
+    ]);
   });
 
   it("keeps a heading that is only a number rather than collapsing to section", () => {
@@ -54,10 +60,9 @@ describe("extractHeadings slugging", () => {
   });
 
   it("collision-resolves two headings differing only by ordinal", () => {
-    expect(slugsOf(heading2(text("1. Doom")), heading2(text("2. Doom")))).toEqual([
-      "doom",
-      "doom-1",
-    ]);
+    expect(
+      slugsOf(heading2(text("1. Doom")), heading2(text("2. Doom"))),
+    ).toEqual(["doom", "doom-1"]);
   });
 
   it("folds diacritics to ASCII", () => {
@@ -65,9 +70,9 @@ describe("extractHeadings slugging", () => {
   });
 
   it("skips an empty heading node rather than emitting a section slug", () => {
-    expect(slugsOf(heading2(text("")), heading2(text("Real heading")))).toEqual([
-      "real-heading",
-    ]);
+    expect(slugsOf(heading2(text("")), heading2(text("Real heading")))).toEqual(
+      ["real-heading"],
+    );
   });
 
   it("flattens a heading with a nested inline hyperlink into its full text", () => {

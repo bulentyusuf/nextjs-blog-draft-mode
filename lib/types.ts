@@ -75,7 +75,7 @@ export interface Category {
   name: string;
   slug: string;
   description?: string;
-  thumbnail?: CoverImage;  // optional 4:3 category tile; absent on categories without one
+  thumbnail?: CoverImage; // optional 4:3 category tile; absent on categories without one
 }
 
 export interface Post {
@@ -83,11 +83,11 @@ export interface Post {
   title: string;
   coverImage?: CoverImage;
   date: string;
-  updatedDate?: string;  // optional, only set when post has been updated
+  updatedDate?: string; // optional, only set when post has been updated
   author?: Author;
   excerpt: string;
   content: Content;
-  category?: Category;  // single reference; optional so untagged posts don't break
+  category?: Category; // single reference; optional so untagged posts don't break
 }
 
 export interface CategoryCollectionResponse {

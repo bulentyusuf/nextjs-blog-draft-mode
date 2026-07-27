@@ -14,7 +14,12 @@ import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
 import AuthorBioCard from "../../author-bio-card";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
-import { SITE_URL, SITE_AUTHOR, SITE_TITLE, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import {
+  SITE_URL,
+  SITE_AUTHOR,
+  SITE_TITLE,
+  DEFAULT_OG_LOCALE,
+} from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
 import { widont } from "@/lib/typography";
 
@@ -97,7 +102,9 @@ export default async function PostPage({
     author: {
       "@type": "Person",
       name: post.author?.name || SITE_AUTHOR,
-      ...(post.author?.slug ? { url: `${SITE_URL}/authors/${post.author.slug}` } : {}),
+      ...(post.author?.slug
+        ? { url: `${SITE_URL}/authors/${post.author.slug}` }
+        : {}),
     },
     publisher: {
       "@type": "Person",
@@ -121,13 +128,14 @@ export default async function PostPage({
       <Date dateString={post.date} />
       {showUpdated && (
         <>
-          <span className="md:hidden">{" "}(updated)</span>
+          <span className="md:hidden"> (updated)</span>
           <span className="hidden md:inline">
             {" · "}Updated <Date dateString={post.updatedDate!} />
           </span>
         </>
       )}
-      {" · "}{minutes} min read
+      {" · "}
+      {minutes} min read
     </span>
   );
 
@@ -138,7 +146,10 @@ export default async function PostPage({
     ? [
         { label: "Home", href: "/" },
         { label: "Categories", href: "/categories" },
-        { label: post.category.name, href: `/categories/${post.category.slug}` },
+        {
+          label: post.category.name,
+          href: `/categories/${post.category.slug}`,
+        },
         { label: post.title },
       ]
     : [{ label: "Home", href: "/" }, { label: post.title }];
@@ -219,7 +230,11 @@ export default async function PostPage({
                 avoids a lone last word, without the aggressive re-balancing of
                 text-wrap: balance. One class covers the whole article body. */}
             <div className="prose text-pretty prose-headings:scroll-mt-20 prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
-              <RichText content={post.content} headings={headings} highlighted={highlighted} />
+              <RichText
+                content={post.content}
+                headings={headings}
+                highlighted={highlighted}
+              />
             </div>
             {post.author?.bio && (
               <div className="mt-12 border-t border-hairline pt-8">

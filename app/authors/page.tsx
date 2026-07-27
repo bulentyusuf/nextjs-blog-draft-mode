@@ -19,7 +19,9 @@ export const metadata: Metadata = {
     description: authorsDescription,
     url: `${SITE_URL}/authors`,
     siteName: SITE_TITLE,
-    images: [{ url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE }],
+    images: [
+      { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
+    ],
     type: "website",
     locale: DEFAULT_OG_LOCALE,
   },

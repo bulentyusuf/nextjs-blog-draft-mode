@@ -25,9 +25,7 @@ export default function SearchPage() {
         <Breadcrumb items={crumbs} />
       </div>
       <section className="mx-auto max-w-2xl">
-        <h1 className="mb-6 text-4xl md:text-5xl">
-          Search
-        </h1>
+        <h1 className="mb-6 text-4xl md:text-5xl">Search</h1>
         <SearchClient />
         {/* Empty state. Hidden by CSS as soon as the input has text (see
             globals.css). Inline SVG so currentColor picks up the ink colour.

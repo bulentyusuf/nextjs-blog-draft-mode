@@ -16,7 +16,11 @@ import { createCoverNamer } from "@/lib/view-transition-name";
 export const metadata: Metadata = {
   alternates: { canonical: SITE_URL },
 };
-import type { Author, Category, CoverImage as CoverImageType } from "@/lib/types";
+import type {
+  Author,
+  Category,
+  CoverImage as CoverImageType,
+} from "@/lib/types";
 import { widont } from "@/lib/typography";
 
 function HeroPost({
@@ -136,7 +140,12 @@ export default async function Page() {
           transitionName={coverName(heroPost.slug)}
         />
       )}
-      <MoreStories morePosts={morePosts} variant="list" heading="Latest Posts" coverName={coverName} />
+      <MoreStories
+        morePosts={morePosts}
+        variant="list"
+        heading="Latest Posts"
+        coverName={coverName}
+      />
       <Pagination currentPage={1} totalPages={totalPages} basePath="/" />
     </Container>
   );

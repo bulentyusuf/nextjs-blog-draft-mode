@@ -13,9 +13,8 @@
 import { readFile } from "node:fs/promises";
 
 const FILE = process.argv[2] || "public/llms.txt";
-const SITE_ORIGIN = new URL(
-  process.env.SITE_URL || "https://bulentyusuf.com",
-).origin;
+const SITE_ORIGIN = new URL(process.env.SITE_URL || "https://bulentyusuf.com")
+  .origin;
 const TIMEOUT_MS = 15000;
 
 // Strip protocol and trailing slash so http/https and /about vs /about/
@@ -41,11 +40,13 @@ async function check(url) {
       signal: controller.signal,
       headers: { "user-agent": "llms-link-check" },
     });
-    const movedPath =
-      res.redirected && normalise(res.url) !== normalise(url);
+    const movedPath = res.redirected && normalise(res.url) !== normalise(url);
     return { status: res.status, finalUrl: res.url, movedPath };
   } catch (err) {
-    return { status: 0, error: err.name === "AbortError" ? "timeout" : err.message };
+    return {
+      status: 0,
+      error: err.name === "AbortError" ? "timeout" : err.message,
+    };
   } finally {
     clearTimeout(timer);
   }
@@ -53,7 +54,9 @@ async function check(url) {
 
 const text = await readFile(FILE, "utf8");
 const urls = [
-  ...new Set([...text.matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)].map((m) => m[1])),
+  ...new Set(
+    [...text.matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)].map((m) => m[1]),
+  ),
 ];
 
 if (urls.length === 0) {
