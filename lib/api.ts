@@ -175,38 +175,98 @@ const PAGE_GRAPHQL_FIELDS = `
   }
 `;
 
+const GRAPHQL_MAX_ATTEMPTS = 3;
+const GRAPHQL_RETRY_BASE_MS = 500;
+
+// Contentful 5xx and rate-limit responses are usually transient. A 4xx other
+// than 429 is a real client error and retrying it only slows the build down.
+const GRAPHQL_RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
+
 type GraphQLVariables = Record<string, unknown>;
+
+// The shape every Contentful GraphQL response shares, regardless of query.
+// `data` and `errors` can both be present at once.
+type GraphQLEnvelope = { data?: unknown; errors?: unknown[] };
+
+// Trimmed because a trailing newline pasted into a host's environment variable
+// UI is a common and otherwise baffling failure. An absent variable used to
+// produce a request to `/spaces/undefined` and a 404 that named nothing useful.
+function requireEnv(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(
+      `Missing ${name}. Set it in .env.local locally and in your host's environment variables.`,
+    );
+  }
+  return value;
+}
 
 async function fetchGraphQL<T>(
   query: string,
   preview = false,
   variables: GraphQLVariables = {},
 ): Promise<T> {
-  const response = await fetch(
-    `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${
-          preview
-            ? process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN
-            : process.env.CONTENTFUL_ACCESS_TOKEN
-        }`,
-      },
-      body: JSON.stringify({ query, variables }),
-      next: { tags: ["posts"] },
-    },
+  const spaceId = requireEnv("CONTENTFUL_SPACE_ID");
+  const token = requireEnv(
+    preview ? "CONTENTFUL_PREVIEW_ACCESS_TOKEN" : "CONTENTFUL_ACCESS_TOKEN",
   );
+  const url = `https://graphql.contentful.com/content/v1/spaces/${spaceId}`;
 
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(
-      `Contentful GraphQL request failed: ${response.status} ${response.statusText} — ${detail}`,
-    );
+  let lastError: Error | undefined;
+
+  for (let attempt = 1; attempt <= GRAPHQL_MAX_ATTEMPTS; attempt++) {
+    if (attempt > 1) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, GRAPHQL_RETRY_BASE_MS * 2 ** (attempt - 2)),
+      );
+    }
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ query, variables }),
+        next: { tags: ["posts"] },
+      });
+    } catch (cause) {
+      // Socket-level failure rather than an HTTP response. Worth another go.
+      lastError = new Error(
+        `Contentful GraphQL request failed: ${String(cause)}`,
+      );
+      continue;
+    }
+
+    if (!response.ok) {
+      const detail = await response.text();
+      lastError = new Error(
+        `Contentful GraphQL request failed: ${response.status} ${response.statusText} ${detail}`,
+      );
+      if (GRAPHQL_RETRY_STATUSES.has(response.status)) continue;
+      throw lastError;
+    }
+
+    const body = (await response.json()) as GraphQLEnvelope;
+
+    if (Array.isArray(body.errors) && body.errors.length > 0) {
+      const detail = JSON.stringify(body.errors);
+      // No `data` at all means the query never ran, so the caller would get
+      // undefined and render an empty page with no signal. With `data` present
+      // this is almost always an unresolvable link to an unpublished entry,
+      // which should warn rather than take a build down.
+      if (!body.data) {
+        throw new Error(`Contentful GraphQL returned errors: ${detail}`);
+      }
+      console.warn(`Contentful GraphQL partial response: ${detail}`);
+    }
+
+    return body as T;
   }
 
-  return response.json() as Promise<T>;
+  throw lastError ?? new Error("Contentful GraphQL request failed");
 }
 
 function extractPost(fetchResponse: PostCollectionResponse): Post | undefined {
