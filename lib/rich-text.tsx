@@ -37,6 +37,17 @@ function RichTextAsset({
 
   if (!asset?.url) return null;
 
+  // The description does double duty: it is both the alt text and the visible
+  // caption. Empty alt is the right render when it is missing — a filename or a
+  // guessed description would be worse — but that silently turns an informative
+  // image into a decorative one, and nothing in the CMS flags it. Warn instead,
+  // so it surfaces in the build log while the asset can still be traced.
+  if (!asset.description) {
+    console.warn(
+      `[rich-text] Embedded asset ${asset.sys.id} has no description, so it renders with empty alt text and no caption.`,
+    );
+  }
+
   return (
     // not-prose so the typography plugin does not inject its own margins into
     // the image (2em) and caption — those would dominate the image-to-caption

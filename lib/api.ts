@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type {
   Post,
   PostCollectionResponse,
@@ -337,49 +338,49 @@ export async function getAllPosts(isDraftMode = false): Promise<ListPost[]> {
 // (e.g. generateMetadata), where fetching morePosts via getPostAndMorePosts
 // would fire 1–2 extra GraphQL round-trips whose result is then discarded.
 // Returns a partial post: `content` and `author.bio` are absent (see ListPost).
-export async function getPost(
-  slug: string,
-  preview = false,
-): Promise<ListPost | undefined> {
-  const entry = await fetchGraphQL<ListPostCollectionResponse>(
-    `query GetPostMeta($slug: String!, $preview: Boolean) {
+export const getPost = cache(
+  async (slug: string, preview = false): Promise<ListPost | undefined> => {
+    const entry = await fetchGraphQL<ListPostCollectionResponse>(
+      `query GetPostMeta($slug: String!, $preview: Boolean) {
       postCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
         items {
           ${LIST_GRAPHQL_FIELDS}
         }
       }
     }`,
-    preview,
-    { slug, preview },
-  );
+      preview,
+      { slug, preview },
+    );
 
-  return entry?.data?.postCollection?.items?.[0];
-}
+    return entry?.data?.postCollection?.items?.[0];
+  },
+);
 
-export async function getPostAndMorePosts(
-  slug: string,
-  preview = false,
-): Promise<{ post: Post | undefined; morePosts: CardPost[] }> {
-  const entry = await fetchGraphQL<PostCollectionResponse>(
-    `query GetPost($slug: String!, $preview: Boolean) {
+export const getPostAndMorePosts = cache(
+  async (
+    slug: string,
+    preview = false,
+  ): Promise<{ post: Post | undefined; morePosts: CardPost[] }> => {
+    const entry = await fetchGraphQL<PostCollectionResponse>(
+      `query GetPost($slug: String!, $preview: Boolean) {
       postCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
         items {
           ${POST_GRAPHQL_FIELDS}
         }
       }
     }`,
-    preview,
-    { slug, preview },
-  );
+      preview,
+      { slug, preview },
+    );
 
-  const post = extractPost(entry);
-  const categorySlug = post?.category?.slug;
+    const post = extractPost(entry);
+    const categorySlug = post?.category?.slug;
 
-  // Same-category posts, newest first, excluding the current one.
-  const related = categorySlug
-    ? extractCardEntries(
-        await fetchGraphQL<CardPostCollectionResponse>(
-          `query GetRelated($slug: String!, $category: String!, $preview: Boolean) {
+    // Same-category posts, newest first, excluding the current one.
+    const related = categorySlug
+      ? extractCardEntries(
+          await fetchGraphQL<CardPostCollectionResponse>(
+            `query GetRelated($slug: String!, $category: String!, $preview: Boolean) {
             postCollection(
               where: { slug_not_in: [$slug], category: { slug: $category } }
               order: date_DESC, preview: $preview, limit: 2
@@ -389,39 +390,40 @@ export async function getPostAndMorePosts(
               }
             }
           }`,
-          preview,
-          { slug, category: categorySlug, preview },
-        ),
-      )
-    : [];
+            preview,
+            { slug, category: categorySlug, preview },
+          ),
+        )
+      : [];
 
-  // Backfill with recent sitewide posts when the category gives us < 2.
-  // limit: 3 so that after de-duping the one related post we already hold,
-  // we can still reach 2 total.
-  let morePosts = related;
-  if (morePosts.length < 2) {
-    const recent = extractCardEntries(
-      await fetchGraphQL<CardPostCollectionResponse>(
-        `query GetMorePosts($slug: String!, $preview: Boolean) {
+    // Backfill with recent sitewide posts when the category gives us < 2.
+    // limit: 3 so that after de-duping the one related post we already hold,
+    // we can still reach 2 total.
+    let morePosts = related;
+    if (morePosts.length < 2) {
+      const recent = extractCardEntries(
+        await fetchGraphQL<CardPostCollectionResponse>(
+          `query GetMorePosts($slug: String!, $preview: Boolean) {
           postCollection(where: { slug_not_in: [$slug] }, order: date_DESC, preview: $preview, limit: 3) {
             items {
               ${CARD_GRAPHQL_FIELDS}
             }
           }
         }`,
-        preview,
-        { slug, preview },
-      ),
-    );
-    const seen = new Set(morePosts.map((p) => p.slug));
-    morePosts = [
-      ...morePosts,
-      ...recent.filter((p) => !seen.has(p.slug)),
-    ].slice(0, 2);
-  }
+          preview,
+          { slug, preview },
+        ),
+      );
+      const seen = new Set(morePosts.map((p) => p.slug));
+      morePosts = [
+        ...morePosts,
+        ...recent.filter((p) => !seen.has(p.slug)),
+      ].slice(0, 2);
+    }
 
-  return { post, morePosts };
-}
+    return { post, morePosts };
+  },
+);
 
 export async function getPage(
   slug: string,
@@ -485,12 +487,10 @@ export async function getAllCategories(
   return entries?.data?.categoryCollection?.items ?? [];
 }
 
-export async function getCategoryBySlug(
-  slug: string,
-  isDraftMode = false,
-): Promise<Category | undefined> {
-  const entries = await fetchGraphQL<CategoryCollectionResponse>(
-    `query GetCategory($slug: String!, $preview: Boolean) {
+export const getCategoryBySlug = cache(
+  async (slug: string, isDraftMode = false): Promise<Category | undefined> => {
+    const entries = await fetchGraphQL<CategoryCollectionResponse>(
+      `query GetCategory($slug: String!, $preview: Boolean) {
       categoryCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
         items {
           name
@@ -499,12 +499,13 @@ export async function getCategoryBySlug(
         }
       }
     }`,
-    isDraftMode,
-    { slug, preview: isDraftMode },
-  );
+      isDraftMode,
+      { slug, preview: isDraftMode },
+    );
 
-  return entries?.data?.categoryCollection?.items?.[0];
-}
+    return entries?.data?.categoryCollection?.items?.[0];
+  },
+);
 
 export async function getPostsByCategory(
   slug: string,
@@ -549,12 +550,10 @@ export async function getRecentPostsByCategory(
   return entries?.data?.postCollection?.items ?? [];
 }
 
-export async function getAuthorBySlug(
-  slug: string,
-  isDraftMode = false,
-): Promise<Author | undefined> {
-  const entries = await fetchGraphQL<AuthorCollectionResponse>(
-    `query GetAuthor($slug: String!, $preview: Boolean) {
+export const getAuthorBySlug = cache(
+  async (slug: string, isDraftMode = false): Promise<Author | undefined> => {
+    const entries = await fetchGraphQL<AuthorCollectionResponse>(
+      `query GetAuthor($slug: String!, $preview: Boolean) {
       authorCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
         items {
           name
@@ -575,12 +574,13 @@ export async function getAuthorBySlug(
         }
       }
     }`,
-    isDraftMode,
-    { slug, preview: isDraftMode },
-  );
+      isDraftMode,
+      { slug, preview: isDraftMode },
+    );
 
-  return entries?.data?.authorCollection?.items?.[0];
-}
+    return entries?.data?.authorCollection?.items?.[0];
+  },
+);
 
 export async function getPostsByAuthor(
   slug: string,
