@@ -234,9 +234,12 @@ async function fetchGraphQL<T>(
       });
     } catch (cause) {
       // Socket-level failure rather than an HTTP response. Worth another go.
-      lastError = new Error(
-        `Contentful GraphQL request failed: ${String(cause)}`,
-      );
+      // The cause is attached rather than stringified, because the underlying
+      // stack is the only thing that distinguishes a DNS failure from a reset
+      // connection from a TLS error once this surfaces in a build log.
+      lastError = new Error(`Contentful GraphQL request failed: ${String(cause)}`, {
+        cause,
+      });
       continue;
     }
 
@@ -249,7 +252,23 @@ async function fetchGraphQL<T>(
       throw lastError;
     }
 
-    const body = (await response.json()) as GraphQLEnvelope;
+    // Read as text and parse separately. `response.json()` consumes the body,
+    // so a parse failure would otherwise leave nothing to quote back, and the
+    // raw SyntaxError names neither Contentful nor the status it arrived with.
+    const raw = await response.text();
+    let body: GraphQLEnvelope;
+    try {
+      body = JSON.parse(raw) as GraphQLEnvelope;
+    } catch (cause) {
+      // A 200 carrying something that is not JSON is a transport fault, not a
+      // GraphQL error. It is usually an HTML error page from a proxy or edge
+      // node, so it belongs in the retry path rather than thrown outright.
+      lastError = new Error(
+        `Contentful GraphQL returned an unparseable response: ${response.status} ${response.statusText} ${raw.slice(0, 200)}`,
+        { cause },
+      );
+      continue;
+    }
 
     if (Array.isArray(body.errors) && body.errors.length > 0) {
       const detail = JSON.stringify(body.errors);

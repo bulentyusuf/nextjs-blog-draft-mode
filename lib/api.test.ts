@@ -27,6 +27,14 @@ const httpError = (status: number, statusText: string) =>
     statusText,
   });
 
+// A 200 whose body is not JSON, which is what a proxy or edge error page looks
+// like from the client side.
+const notJson = () =>
+  new Response("<html><body>502 Bad Gateway</body></html>", {
+    status: 200,
+    headers: { "Content-Type": "text/html" },
+  });
+
 beforeEach(() => {
   vi.stubEnv("CONTENTFUL_SPACE_ID", "space123");
   vi.stubEnv("CONTENTFUL_ACCESS_TOKEN", "cda-token");
@@ -110,6 +118,39 @@ describe("fetchGraphQL", () => {
 
     await expect(getAllAuthors()).resolves.toHaveLength(1);
     expect(warn).toHaveBeenCalledOnce();
+  });
+
+  it("retries an unparseable 200 and succeeds on the next attempt", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(async () => notJson())
+      .mockImplementationOnce(async () => ok(AUTHORS));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getAllAuthors()).resolves.toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("names Contentful and quotes the body when it never parses", async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => notJson());
+    vi.stubGlobal("fetch", fetchMock);
+
+    const error = await getAllAuthors().catch((thrown: unknown) => thrown);
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toMatch(/unparseable/);
+    expect((error as Error).message).toMatch(/502 Bad Gateway/);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("attaches the underlying error as the cause of a socket failure", async () => {
+    const cause = new Error("ECONNRESET");
+    const fetchMock = vi.fn().mockRejectedValue(cause);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const error = await getAllAuthors().catch((thrown: unknown) => thrown);
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).cause).toBe(cause);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
   it("names the missing environment variable and never calls fetch", async () => {
