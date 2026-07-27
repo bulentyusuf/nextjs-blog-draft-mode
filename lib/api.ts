@@ -178,6 +178,23 @@ const PAGE_GRAPHQL_FIELDS = `
 const GRAPHQL_MAX_ATTEMPTS = 3;
 const GRAPHQL_RETRY_BASE_MS = 500;
 
+type RetryDelay = (ms: number) => Promise<void>;
+
+const realRetryDelay: RetryDelay = (ms) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+let retryDelay: RetryDelay = realRetryDelay;
+
+// A test seam, and the only supported way to make the retry loop fast in a
+// test. Each retry-exhausting case otherwise spends 1.5 seconds of real time
+// waiting, which made the suite roughly two thirds sleep. The tempting
+// alternative is to shrink GRAPHQL_RETRY_BASE_MS, but that changes how long
+// production actually waits on Contentful in order to suit a test. Replace the
+// delay, never the constant. Called with no argument, restores the real one.
+export function setRetryDelayForTests(next: RetryDelay = realRetryDelay): void {
+  retryDelay = next;
+}
+
 // Contentful 5xx and rate-limit responses are usually transient. A 4xx other
 // than 429 is a real client error and retrying it only slows the build down.
 const GRAPHQL_RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
@@ -216,9 +233,7 @@ async function fetchGraphQL<T>(
 
   for (let attempt = 1; attempt <= GRAPHQL_MAX_ATTEMPTS; attempt++) {
     if (attempt > 1) {
-      await new Promise((resolve) =>
-        setTimeout(resolve, GRAPHQL_RETRY_BASE_MS * 2 ** (attempt - 2)),
-      );
+      await retryDelay(GRAPHQL_RETRY_BASE_MS * 2 ** (attempt - 2));
     }
 
     let response: Response;
