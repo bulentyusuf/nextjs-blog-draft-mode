@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Document } from "@contentful/rich-text-types";
@@ -560,5 +560,64 @@ describe("inline sidenote embed", () => {
     expect(() => render("missing", [])).not.toThrow();
     const html = render("missing", []);
     expect(html).not.toContain("sidenote-body");
+  });
+});
+
+describe("embedded asset descriptions", () => {
+  // The description is both the alt text and the visible caption, so an asset
+  // without one renders as decorative with no caption at all. Empty alt is the
+  // correct render; the warning is what stops that happening unnoticed.
+  const assetDoc = {
+    nodeType: "document",
+    data: {},
+    content: [
+      {
+        nodeType: "embedded-asset-block",
+        data: { target: { sys: { id: "asset-1" } } },
+        content: [],
+      },
+    ],
+  } as unknown as Document;
+
+  const withDescription = (description?: string): Content =>
+    ({
+      json: assetDoc,
+      links: {
+        assets: {
+          block: [
+            {
+              sys: { id: "asset-1" },
+              url: "https://images.ctfassets.net/a.jpg",
+              description,
+            },
+          ],
+        },
+      },
+    }) as unknown as Content;
+
+  it("warns and renders empty alt when the description is missing", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const html = renderToStaticMarkup(
+      <RichText content={withDescription()} headings={[]} />,
+    );
+
+    expect(html).toContain('alt=""');
+    expect(warn).toHaveBeenCalledOnce();
+    expect(warn.mock.calls[0][0]).toMatch(/asset-1/);
+    warn.mockRestore();
+  });
+
+  it("stays quiet and uses the description as alt when present", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const html = renderToStaticMarkup(
+      <RichText
+        content={withDescription("A tabby asleep on a keyboard")}
+        headings={[]}
+      />,
+    );
+
+    expect(html).toContain('alt="A tabby asleep on a keyboard"');
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 });
