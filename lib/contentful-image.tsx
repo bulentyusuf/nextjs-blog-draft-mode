@@ -2,16 +2,16 @@
 import Image, { type ImageProps } from "next/image";
 import { useState } from "react";
 import { clsx as cn } from "clsx";
+import { CONTENTFUL_IMAGE_HOST } from "./contentful-host";
 
 type ContentfulImageProps = Omit<ImageProps, "loader" | "src"> & {
   src: string;
 };
 
-// Contentful's Images API host. The transform query params below are only
-// meaningful for assets served from here, so we host-check before appending
-// them rather than trusting whatever URL the CMS hands us. Anything else is
-// returned untouched (CSP img-src is the hard backstop on what can load).
-const CONTENTFUL_IMAGE_HOST = "images.ctfassets.net";
+// The transform query params below are only meaningful for assets served from
+// Contentful's Images API, so we host-check before appending them rather than
+// trusting whatever URL the CMS hands us. Anything else is returned untouched
+// (CSP img-src is the hard backstop on what can load).
 
 const contentfulLoader = ({
   src,
