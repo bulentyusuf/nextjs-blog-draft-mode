@@ -365,6 +365,41 @@ Both files are exactly `json.dumps(indent=2, ensure_ascii=False)` plus a
 trailing newline, so editing them via a JSON round-trip is byte-safe and will
 not reformat anything you did not touch.
 
+### One Node version pin, in `engines.node`
+
+`engines.node` in `package.json` is the only place the Node major is written,
+and three consumers read it. Vercel selects the deployed runtime from it,
+**overriding** the Node.js Version in Project Settings. npm checks it on
+install. Both workflows resolve it through `actions/setup-node`'s
+`node-version-file: package.json`, which reads `volta.node`, then
+`devEngines.runtime`, then `engines.node`.
+
+Do not add a second copy. A `.nvmrc` existed and was deleted for exactly that
+reason, and hardcoding `node-version:` back into a workflow is the drift that
+once left CI on Node 20 while local development ran 23, with neither on a
+supported release. The cost of having one pin is that nvm cannot read
+`package.json`, so local switching is manual — `nvm use 24`. That is the trade
+that was chosen; do not reintroduce `.nvmrc` to undo it.
+
+Keep it an exact major (`24.x`), never a range. A range resolves to the newest
+available major and upgrades production silently, which Vercel warns about in
+the build log. `.npmrc` sets no `engine-strict`, so a mismatch warns and never
+blocks an install.
+
+Two things sit outside the pin and move by hand:
+
+- **`@types/node`** follows the **runtime** major, not latest. Its majors track
+  Node's and latest runs ahead — 26.x while the runtime is 24 — so taking latest
+  would typecheck code against APIs that do not exist at runtime. Same category
+  of coupled-version trap as the `postcss` and `sharp` overrides above.
+- **Vercel Project Settings** still holds a version, but `engines` overrides it,
+  so it is a dormant fallback rather than a live setting. Keep it current
+  regardless: deleting `engines` would silently drop the build back to it.
+
+History, so the pin is not read as arbitrary: Node 20 reached end-of-life on
+30 April 2026, and Vercel was erroring that deployments created on or after
+2026-10-01 would fail to build.
+
 ### Workflow constants
 
 Protected main, squash merges only, one concern per PR, conventional commit
