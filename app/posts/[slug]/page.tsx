@@ -264,15 +264,18 @@ export default async function PostPage({
                 aria-label="Tags"
                 className="mt-12 border-t border-hairline pt-6"
               >
-                <ul className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-                  <li className="text-sm uppercase tracking-wide text-brand-muted">
-                    Tagged
-                  </li>
+                {/* The label is sentence case and unstyled while the tags are
+                    bordered, so "Tagged" cannot be mistaken for a third tag.
+                    All three were previously uppercase muted text, which made
+                    the label look like one of them and gave the links no
+                    affordance at all. */}
+                <ul className="flex flex-wrap items-center gap-x-2 gap-y-2">
+                  <li className="mr-1 text-sm text-brand-muted">Tagged</li>
                   {tags.map((tag) => (
                     <li key={tag.slug}>
                       <Link
                         href={`/tags#${tag.slug}`}
-                        className="text-sm uppercase tracking-wide text-brand-muted transition-colors duration-200 hover:text-brand-crimson"
+                        className="inline-block rounded-full border border-hairline px-3 py-1 text-sm text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson"
                       >
                         {tag.name}
                       </Link>

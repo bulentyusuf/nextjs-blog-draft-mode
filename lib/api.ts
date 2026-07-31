@@ -12,6 +12,8 @@ import type {
   PageMetaCollectionResponse,
   Category,
   CategoryCollectionResponse,
+  Tag,
+  TagCollectionResponse,
   Author,
   AuthorCollectionResponse,
 } from "./types";
@@ -494,6 +496,31 @@ export async function getAllPages(isDraftMode: boolean): Promise<PageMeta[]> {
   );
 
   return entries?.data?.pageCollection?.items ?? [];
+}
+
+// Tags with their descriptions, for the /tags glossary.
+//
+// Deliberately a separate query rather than adding `description` to
+// LIST_GRAPHQL_FIELDS' tagsCollection. That fragment feeds the home page, the
+// feed and the sitemap, and exists to keep weight out of their ISR entries;
+// carrying a gloss on every listing so one page can print it would undo that.
+// The glossary joins these to the grouped posts by slug.
+export async function getAllTags(isDraftMode = false): Promise<Tag[]> {
+  const entries = await fetchGraphQL<TagCollectionResponse>(
+    `query GetAllTags($preview: Boolean) {
+      tagCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview) {
+        items {
+          name
+          slug
+          description
+        }
+      }
+    }`,
+    isDraftMode,
+    { preview: isDraftMode },
+  );
+
+  return entries?.data?.tagCollection?.items ?? [];
 }
 
 export async function getAllCategories(
