@@ -247,15 +247,26 @@ block disables the animation entirely.
 ### Tags are one glossary page, not a page per tag
 
 `/tags` lists every tag with its posts grouped beneath it. There are no
-`/tags/[slug]` routes and adding them is harder than it looks, because
-**Contentful's GraphQL cannot filter a collection on an `Array<Link>` field at
-all.** The documented workaround is `linkedFrom`, which has no ordering or
-sorting, so a per-tag query could not reproduce the `date_DESC` the rest of the
-site relies on. `getAllPosts` is grouped in memory instead — which is also what
-the category pages already do, paginating a full fetch with `.slice()`.
+`/tags/[slug]` routes, and that is **an editorial decision, not a technical
+limit** — do not repeat the earlier version of this note, which had it the wrong
+way round.
 
-A dozen thin tag pages would be crawl bloat besides, so the sitemap carries one
-`/tags` URL rather than one per tag.
+The editorial reason: a dozen pages carrying two to four posts each, differing
+only in which links they hold, is thin content and a disappointing click. A
+glossary puts the posts in front of the reader, which also lets the vocabulary be
+finer-grained, because a two-post tag costs a heading rather than a whole page.
+The sitemap carries one `/tags` URL accordingly.
+
+Per-tag routes remain perfectly buildable if that ever changes. `getAllPosts` is
+already grouped in memory here, so a `/tags/[slug]` route would use the same data
+with `generateStaticParams`.
+
+Separately true, and the reason the grouping is in memory rather than queried:
+**Contentful's GraphQL cannot filter a collection on an `Array<Link>` field.**
+There is no `where` for a multi-reference field, and the documented `linkedFrom`
+workaround has no ordering, so neither can reproduce `date_DESC`. The REST CDA
+does support the filter. This constrains _how_ you fetch posts for a tag; it does
+not stop you rendering a page for one.
 
 **A tag needs two posts to render anywhere.** `MIN_POSTS_PER_TAG` in
 `lib/tags.ts` is read by both the glossary and the pills on a post page through
