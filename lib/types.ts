@@ -94,6 +94,25 @@ export interface TagCollectionResponse {
   };
 }
 
+// Editable copy at the top of a browse page, one entry per route. Both text
+// fields are optional to READ even though standfirst is required in the CMS: a
+// fork with an empty space has no entry at all, and the pages degrade rather
+// than break. See getBrowseIntro in lib/api.ts.
+export interface BrowseIntro {
+  title: string;
+  slug: string;
+  standfirst?: string;
+  metaDescription?: string;
+}
+
+export interface BrowseIntroCollectionResponse {
+  data?: {
+    browseIntroCollection?: {
+      items: BrowseIntro[];
+    };
+  };
+}
+
 export interface Post {
   slug: string;
   title: string;

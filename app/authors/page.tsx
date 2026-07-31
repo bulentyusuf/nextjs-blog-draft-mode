@@ -5,35 +5,26 @@ import ContentfulImage from "@/lib/contentful-image";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
 import { RichText } from "@/lib/rich-text";
-import { getAllAuthors, getAuthorBySlug } from "@/lib/api";
-import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { getAllAuthors, getAuthorBySlug, getBrowseIntro } from "@/lib/api";
+import { browsePageMetadata } from "@/lib/page-metadata";
 import { widont } from "@/lib/typography";
 
-const authorsDescription = `Meet the authors behind ${SITE_TITLE}`;
-
-export const metadata: Metadata = {
-  title: "Authors",
-  description: authorsDescription,
-  alternates: { canonical: `${SITE_URL}/authors` },
-  openGraph: {
-    description: authorsDescription,
-    url: `${SITE_URL}/authors`,
-    siteName: SITE_TITLE,
-    images: [
-      { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
-    ],
-    type: "website",
-    locale: DEFAULT_OG_LOCALE,
-  },
-  twitter: {
-    card: "summary_large_image",
-    description: authorsDescription,
-    images: ["/be_useful.jpg"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  // Same slug the component passes to getBrowseIntro below. getBrowseIntro is
+  // cache()-wrapped, so the two calls collapse into one request per render
+  // — but only while the arguments match.
+  const { isEnabled } = await draftMode();
+  return browsePageMetadata({
+    slug: "authors",
+    title: "Authors",
+    isDraftMode: isEnabled,
+  });
+}
 
 export default async function AuthorsPage() {
   const { isEnabled } = await draftMode();
+  // Same arguments generateMetadata passes, so cache() collapses the two.
+  const intro = await getBrowseIntro("authors", isEnabled);
 
   const list = await getAllAuthors(isEnabled);
   // Each author's full record (with bio) in parallel, mirroring the categories
@@ -53,9 +44,11 @@ export default async function AuthorsPage() {
         <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
           Authors
         </h1>
-        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-          Two of these are not real. The site never pretends otherwise.
-        </p>
+        {intro?.standfirst && (
+          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+            {intro.standfirst}
+          </p>
+        )}
       </header>
 
       <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">

@@ -4,33 +4,22 @@ import { draftMode } from "next/headers";
 import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
-import { getAllPosts, getAllTags } from "@/lib/api";
+import { getAllPosts, getAllTags, getBrowseIntro } from "@/lib/api";
 import { groupPostsByTag, MIN_POSTS_PER_TAG } from "@/lib/tags";
-import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { browsePageMetadata } from "@/lib/page-metadata";
 import { widont } from "@/lib/typography";
 
-const tagsDescription = `Every topic on ${SITE_TITLE}, with the posts filed under each.`;
-
-export const metadata: Metadata = {
-  title: "Tags",
-  description: tagsDescription,
-  alternates: { canonical: `${SITE_URL}/tags` },
-  openGraph: {
-    description: tagsDescription,
-    url: `${SITE_URL}/tags`,
-    siteName: SITE_TITLE,
-    images: [
-      { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
-    ],
-    type: "website",
-    locale: DEFAULT_OG_LOCALE,
-  },
-  twitter: {
-    card: "summary_large_image",
-    description: tagsDescription,
-    images: ["/be_useful.jpg"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  // Same slug the component passes to getBrowseIntro below. getBrowseIntro is
+  // cache()-wrapped, so the two calls collapse into one request per render
+  // — but only while the arguments match.
+  const { isEnabled } = await draftMode();
+  return browsePageMetadata({
+    slug: "tags",
+    title: "Tags",
+    isDraftMode: isEnabled,
+  });
+}
 
 export default async function TagsPage() {
   const { isEnabled } = await draftMode();
@@ -42,6 +31,11 @@ export default async function TagsPage() {
   // Descriptions come from a second query rather than riding on every post's
   // tagsCollection, which would weigh down the home page, feed and sitemap for
   // one page's benefit. Joined by slug below.
+  // Same arguments generateMetadata passes, so cache() collapses the two.
+  const intro = await getBrowseIntro("tags", isEnabled);
+  // Kept to two elements: adding a third with a different return shape made
+  // TypeScript infer a union instead of a tuple, and posts silently lost every
+  // field but tagsCollection.
   const [posts, allTags] = await Promise.all([
     getAllPosts(isEnabled),
     getAllTags(isEnabled),
@@ -63,11 +57,11 @@ export default async function TagsPage() {
         {/* Not the metadata description: that one is written for search
             results and repeats the site name, which reads oddly next to the
             h1 and collides with the full stop in "Be Useful." */}
-        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-          Categories say where a post lives; tags say what it is about, so a
-          post can carry up to three. A tag appears here once{" "}
-          {MIN_POSTS_PER_TAG} posts share it.
-        </p>
+        {intro?.standfirst && (
+          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+            {intro.standfirst}
+          </p>
+        )}
       </header>
 
       {groups.length === 0 ? (
