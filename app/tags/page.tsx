@@ -107,7 +107,7 @@ export default async function TagsPage() {
                       "3 posts" together when that word lands near the edge. */}
                   <h2 className="mb-1 text-xl md:text-2xl">
                     {tag.name}{" "}
-                    <span className="font-sans text-sm font-normal whitespace-nowrap text-brand-muted tabular-nums">
+                    <span className="font-sans text-xs font-normal uppercase tracking-wide whitespace-nowrap text-brand-muted tabular-nums">
                       {tagged.length} {tagged.length === 1 ? "post" : "posts"}
                     </span>
                   </h2>
