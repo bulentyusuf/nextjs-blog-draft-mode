@@ -365,6 +365,34 @@ Both files are exactly `json.dumps(indent=2, ensure_ascii=False)` plus a
 trailing newline, so editing them via a JSON round-trip is byte-safe and will
 not reformat anything you did not touch.
 
+### The Node version is pinned in five places and they move together
+
+`.nvmrc` is the source of truth. Both workflows read it through
+`node-version-file`, deliberately — do not hardcode a version back into
+`ci.yml` or `llms-link-check.yml`. That drift is exactly what left CI on Node 20
+while local development ran 23, with neither on a supported release.
+
+`engines.node` in `package.json` is an exact major (`24.x`), not a range.
+Vercel reads this field and it **overrides** the Node.js Version in Project
+Settings, so it, not the dashboard, decides the deployed runtime. A range
+resolves to the newest available major and upgrades production silently, which
+Vercel warns about in the build log — do not loosen it back to `>=`. `.npmrc`
+sets no `engine-strict`, so a local mismatch warns and never blocks an install.
+
+`@types/node` tracks the **runtime** major, not latest. Its majors follow
+Node's and latest runs ahead — 26.x while the runtime is 24 — so taking latest
+would typecheck code against APIs that do not exist at runtime. Same category of
+coupled-version trap as the `postcss` and `sharp` overrides above.
+
+The remaining two are the README prerequisite line and the **Vercel Project
+Settings** dropdown. Project Settings lives outside the repo and has to be
+changed by hand; while `engines` exists it is only a fallback, but a stale one
+is a trap, because removing `engines` would silently drop the build back to it.
+
+History, so the pins are not read as arbitrary: Node 20 reached end-of-life on
+30 April 2026, and Vercel was erroring that deployments created on or after
+2026-10-01 would fail to build. #303, #304 and #305 moved the toolchain to 24.
+
 ### Workflow constants
 
 Protected main, squash merges only, one concern per PR, conventional commit
