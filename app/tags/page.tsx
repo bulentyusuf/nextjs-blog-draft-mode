@@ -99,9 +99,15 @@ export default async function TagsPage() {
                   {/* Smaller than the archive's year headings and in body ink
                       rather than muted. A year is wayfinding, so it recedes; a
                       tag name is the subject of its section. */}
-                  <h2 className="mb-1 flex items-baseline gap-x-3 text-xl md:text-2xl">
-                    {tag.name}
-                    <span className="font-sans text-sm font-normal text-brand-muted tabular-nums">
+                  {/* Not flex, unlike the archive's year headings. Flex makes
+                      the count a second column, so a name that wraps in this
+                      18rem measure — "Information architecture" — pushed it to
+                      the far right and split it over two lines. Inline, it
+                      simply follows the last word. whitespace-nowrap keeps
+                      "3 posts" together when that word lands near the edge. */}
+                  <h2 className="mb-1 text-xl md:text-2xl">
+                    {tag.name}{" "}
+                    <span className="font-sans text-sm font-normal whitespace-nowrap text-brand-muted tabular-nums">
                       {tagged.length} {tagged.length === 1 ? "post" : "posts"}
                     </span>
                   </h2>
