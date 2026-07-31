@@ -169,6 +169,21 @@ const entries = [
     picture: ph(),
     bio: loc(doc(paragraph(text(LOREM2)))),
   }),
+  // Two tags, each on two posts. The /tags glossary hides anything with fewer
+  // than two, so a single tag on a single post would ship a fork a page that
+  // renders nothing — the same failure mode as a table of contents that never
+  // appears. Two overlapping tags also give post-second two of them, which is
+  // what makes the glossary's repeated-post behaviour visible.
+  entry("tag-craft", "tag", {
+    name: loc("Craft"),
+    slug: loc("craft"),
+    description: loc("How the thing was built, and what the building taught."),
+  }),
+  entry("tag-detours", "tag", {
+    name: loc("Detours"),
+    slug: loc("detours"),
+    description: loc("The tangents worth writing down."),
+  }),
   entry("code-example", "codeBlock", {
     filename: loc("example.tsx"),
     language: loc("tsx"),
@@ -286,6 +301,7 @@ const entries = [
     ),
     author: loc(link("author-alex")),
     category: loc(link("cat-main-quest")),
+    tags: loc([link("tag-craft")]),
   }),
   entry("post-second", "post", {
     title: loc("A second sample entry"),
@@ -335,6 +351,7 @@ const entries = [
     ),
     author: loc(link("author-sam")),
     category: loc(link("cat-side-quests")),
+    tags: loc([link("tag-craft"), link("tag-detours")]),
   }),
   entry("post-third", "post", {
     title: loc("One more for the archive"),
@@ -348,6 +365,7 @@ const entries = [
     content: loc(doc(paragraph(text(LOREM)), paragraph(text(LOREM2)))),
     author: loc(link("author-alex")),
     category: loc(link("cat-main-quest")),
+    tags: loc([link("tag-detours")]),
   }),
   entry("page-about", "page", {
     title: loc("About"),
