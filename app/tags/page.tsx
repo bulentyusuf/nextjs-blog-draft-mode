@@ -86,39 +86,57 @@ export default async function TagsPage() {
               id={tag.slug}
               className="mb-10 scroll-mt-20 last:mb-0"
             >
-              {/* Smaller than the archive's year headings and in body ink
-                  rather than muted. A year is wayfinding, so it recedes; a tag
-                  name is the subject of its section, so it reads as a term in a
-                  glossary with the gloss directly beneath. */}
-              <h2 className="mb-1 flex items-baseline gap-x-3 text-xl md:text-2xl">
-                {tag.name}
-                <span className="font-sans text-sm font-normal text-brand-muted tabular-nums">
-                  {tagged.length} {tagged.length === 1 ? "post" : "posts"}
-                </span>
-              </h2>
-              {descriptions.get(tag.slug) && (
-                <p className="mb-4 max-w-3xl leading-relaxed text-brand-muted text-pretty">
-                  {descriptions.get(tag.slug)}
-                </p>
-              )}
-              <ul className="space-y-3 border-t border-hairline pt-4">
-                {tagged.map((post) => (
-                  <li
-                    key={post.slug}
-                    className="flex flex-col gap-y-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-6"
-                  >
-                    <Link
-                      href={`/posts/${post.slug}`}
-                      className="hover:text-brand-crimson transition-colors duration-200"
-                    >
-                      {widont(post.title)}
-                    </Link>
-                    <span className="shrink-0 text-sm tabular-nums text-brand-muted sm:text-right">
-                      <DateComponent dateString={post.date} />
+              {/* Term and gloss on the left, examples on the right — a
+                  glossary rather than twelve identical full-width blocks. At
+                  max-w-5xl a single column stranded each date against the far
+                  edge with a gulf in the middle; splitting the width gives the
+                  description a column narrow enough to read and pulls the dates
+                  back in beside their titles.
+
+                  Single column below lg, where there is no width to divide. */}
+              <div className="lg:grid lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-x-10">
+                <div className="lg:sticky lg:top-20 lg:self-start">
+                  {/* Smaller than the archive's year headings and in body ink
+                      rather than muted. A year is wayfinding, so it recedes; a
+                      tag name is the subject of its section. */}
+                  {/* Not flex, unlike the archive's year headings. Flex makes
+                      the count a second column, so a name that wraps in this
+                      18rem measure — "Information architecture" — pushed it to
+                      the far right and split it over two lines. Inline, it
+                      simply follows the last word. whitespace-nowrap keeps
+                      "3 posts" together when that word lands near the edge. */}
+                  <h2 className="mb-1 text-xl md:text-2xl">
+                    {tag.name}{" "}
+                    <span className="font-sans text-xs font-normal uppercase tracking-wide whitespace-nowrap text-brand-muted tabular-nums">
+                      {tagged.length} {tagged.length === 1 ? "post" : "posts"}
                     </span>
-                  </li>
-                ))}
-              </ul>
+                  </h2>
+                  {descriptions.get(tag.slug) && (
+                    <p className="mb-4 leading-relaxed text-brand-muted text-pretty lg:mb-0">
+                      {descriptions.get(tag.slug)}
+                    </p>
+                  )}
+                </div>
+
+                <ul className="space-y-3 border-t border-hairline pt-4 lg:border-t-0 lg:pt-1">
+                  {tagged.map((post) => (
+                    <li
+                      key={post.slug}
+                      className="flex flex-col gap-y-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-6"
+                    >
+                      <Link
+                        href={`/posts/${post.slug}`}
+                        className="hover:text-brand-crimson transition-colors duration-200"
+                      >
+                        {widont(post.title)}
+                      </Link>
+                      <span className="shrink-0 text-sm tabular-nums text-brand-muted sm:text-right">
+                        <DateComponent dateString={post.date} />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </section>
           ))}
         </div>
