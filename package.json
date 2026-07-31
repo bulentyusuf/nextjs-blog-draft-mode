@@ -34,7 +34,7 @@
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
-    "@types/node": "^20.19.43",
+    "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "contentful-import": "^10.0.11",
