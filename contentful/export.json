@@ -285,6 +285,35 @@
           "disabled": false,
           "omitted": false,
           "linkType": "Entry"
+        },
+        {
+          "id": "tags",
+          "name": "Tags",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 3
+              },
+              "message": "No more than 3 tags, please."
+            }
+          ],
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "tag"
+                ],
+                "message": "Only Tags can be added here!"
+              }
+            ],
+            "linkType": "Entry"
+          }
         }
       ]
     },
@@ -445,6 +474,72 @@
           "disabled": false,
           "omitted": false,
           "linkType": "Asset"
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "tag",
+        "type": "ContentType",
+        "publishedVersion": 1
+      },
+      "displayField": "name",
+      "name": "Tag",
+      "description": "A cross-cutting topic. Many per post, up to three. While Category says where a post lives, a Tag indicates what it's about. Tags with fewer than two posts are hidden from the /tags glossary.",
+      "fields": [
+        {
+          "id": "name",
+          "name": "Name",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "size": {
+                "max": 64
+              }
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "slug",
+          "name": "Slug",
+          "type": "Symbol",
+          "localized": false,
+          "required": true,
+          "validations": [
+            {
+              "unique": true
+            },
+            {
+              "regexp": {
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                "flags": null
+              },
+              "message": "Lowercase letters, numbers, and hyphens only."
+            }
+          ],
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "description",
+          "name": "Description",
+          "type": "Text",
+          "localized": false,
+          "required": false,
+          "validations": [
+            {
+              "size": {
+                "max": 300
+              },
+              "message": "One line. Shown as the gloss under the tag heading on /tags."
+            }
+          ],
+          "disabled": false,
+          "omitted": false
         }
       ]
     },
@@ -737,6 +832,16 @@
           },
           "widgetId": "entryCardEditor",
           "widgetNamespace": "builtin"
+        },
+        {
+          "fieldId": "tags",
+          "settings": {
+            "bulkEditing": false,
+            "showLinkEntityAction": true,
+            "showCreateEntityAction": true
+          },
+          "widgetId": "entryLinksEditor",
+          "widgetNamespace": "builtin"
         }
       ]
     },
@@ -805,6 +910,36 @@
             "showCreateEntityAction": true
           },
           "widgetId": "assetLinkEditor",
+          "widgetNamespace": "builtin"
+        }
+      ]
+    },
+    {
+      "sys": {
+        "id": "default",
+        "type": "EditorInterface",
+        "contentType": {
+          "sys": {
+            "id": "tag",
+            "type": "Link",
+            "linkType": "ContentType"
+          }
+        }
+      },
+      "controls": [
+        {
+          "fieldId": "name",
+          "widgetId": "singleLine",
+          "widgetNamespace": "builtin"
+        },
+        {
+          "fieldId": "slug",
+          "widgetId": "slugEditor",
+          "widgetNamespace": "builtin"
+        },
+        {
+          "fieldId": "description",
+          "widgetId": "multipleLine",
           "widgetNamespace": "builtin"
         }
       ]

@@ -196,6 +196,56 @@
     },
     {
       "sys": {
+        "id": "tag-craft",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "tag"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "name": {
+          "en-US": "Craft"
+        },
+        "slug": {
+          "en-US": "craft"
+        },
+        "description": {
+          "en-US": "How the thing was built, and what the building taught."
+        }
+      }
+    },
+    {
+      "sys": {
+        "id": "tag-detours",
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "tag"
+          }
+        },
+        "publishedVersion": 1
+      },
+      "fields": {
+        "name": {
+          "en-US": "Detours"
+        },
+        "slug": {
+          "en-US": "detours"
+        },
+        "description": {
+          "en-US": "The tangents worth writing down."
+        }
+      }
+    },
+    {
+      "sys": {
         "id": "code-example",
         "type": "Entry",
         "contentType": {
@@ -776,6 +826,17 @@
               "id": "cat-main-quest"
             }
           }
+        },
+        "tags": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "tag-craft"
+              }
+            }
+          ]
         }
       }
     },
@@ -1084,6 +1145,24 @@
               "id": "cat-side-quests"
             }
           }
+        },
+        "tags": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "tag-craft"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "tag-detours"
+              }
+            }
+          ]
         }
       }
     },
@@ -1171,6 +1250,17 @@
               "id": "cat-main-quest"
             }
           }
+        },
+        "tags": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "tag-detours"
+              }
+            }
+          ]
         }
       }
     },
