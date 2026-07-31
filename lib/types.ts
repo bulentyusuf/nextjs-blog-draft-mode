@@ -78,6 +78,22 @@ export interface Category {
   thumbnail?: CoverImage; // optional 4:3 category tile; absent on categories without one
 }
 
+// A cross-cutting topic, up to three per post. No thumbnail: the /tags glossary
+// is a text index, not a card grid, so `description` is the only decoration.
+export interface Tag {
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export interface TagCollectionResponse {
+  data?: {
+    tagCollection?: {
+      items: Tag[];
+    };
+  };
+}
+
 export interface Post {
   slug: string;
   title: string;
@@ -88,6 +104,12 @@ export interface Post {
   excerpt: string;
   content: Content;
   category?: Category; // single reference; optional so untagged posts don't break
+  // Nested rather than a flat array because that is what Contentful's GraphQL
+  // returns for a multi-reference field, and this file types responses as they
+  // arrive rather than reshaping them. `category` is flat only because it is a
+  // single link. Read it through postTags() in lib/tags.ts rather than reaching
+  // in, so the empty and absent cases stay in one place.
+  tagsCollection?: { items: Tag[] };
 }
 
 export interface CategoryCollectionResponse {
