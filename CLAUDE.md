@@ -279,10 +279,9 @@ therefore use `generateMetadata()` rather than a static `metadata` object, and
 metadata blocks.
 
 **`getBrowseIntro` must be called with the same slug in `generateMetadata` and
-in the component.** It is `cache()`-wrapped, and `cache()` dedupes identical
-calls rather than equivalent ones — the same trap recorded above for
-`getPostAndMorePosts`. Different arguments mean two requests per page, on four
-pages.
+in the component**, for the reason set out under "Post, category and author
+fetchers are `cache()`-wrapped on purpose" below. Four pages, so getting it
+wrong costs four extra requests rather than one.
 
 A missing entry degrades: the standfirst is omitted, the meta description falls
 back to `SITE_DESCRIPTION`. A fork with an empty space renders a heading, not a 500.
@@ -336,20 +335,14 @@ next step.
   moved past. Forcing sharp is safe here because `next.config.js` sets
   `images.loader: "custom"`, so Next's optimiser never invokes sharp at all,
   which is also why the image optimisation advisories never applied.
-- **uuid (GHSA-w5hq-g745-h8pq) is fixed by an override, not accepted.** This
-  entry used to say the advisory was unfixable and should not be re-flagged;
-  that was true of the fix npm offered, which downgrades `contentful-import`
-  several majors. The actual cause is that `contentful-import` pins
-  `contentful-batch-libs: ^9.7.0` and never picks up the 11.x line, which has
-  declared a safe `uuid: ^11.0.1` for some time. Switching to `contentful-cli`
-  does not help: it depends on `contentful-import` and drags the same 9.x chain
-  in nested. An `overrides` entry lifts uuid to 11.1.1 across the tree and
-  `npm audit` reports zero.
-  Safe because `contentful-batch-libs` touches uuid in exactly one place —
-  `const { v4 } = require("uuid")` in `add-sequence-header.js` — and the named
-  `v4` export is unchanged from v9 to v11. Verified by calling
-  `addSequenceHeader({})` under the override and by running
-  `contentful-import --help`. Re-check both if the override is ever bumped.
+- **uuid is held at `^11.1.1` by an override** (GHSA-w5hq-g745-h8pq), because
+  `contentful-import` pins `contentful-batch-libs ^9.7.0` and never picks up the
+  11.x line that already declares a safe uuid. Do not remove it, and do not
+  reach for `contentful-cli` instead: it depends on `contentful-import` and
+  drags the same 9.x chain in nested. Safe across the majors because
+  `contentful-batch-libs` touches uuid in one place — `const { v4 } =
+require("uuid")` in `add-sequence-header.js` — so re-check that call site if
+  the override is ever bumped.
 
 ## House conventions
 
