@@ -31,4 +31,4 @@ jobs:
       - name: Check llms.txt links
         run: node scripts/check-llms-links.mjs
         env:
-          SITE_URL: https://bulentyusuf.com
+          SITE_URL: https://beuseful.net
