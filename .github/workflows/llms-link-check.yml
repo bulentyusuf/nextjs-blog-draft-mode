@@ -25,7 +25,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          # Reads engines.node — the single Node version pin. See CLAUDE.md.
+          node-version-file: package.json
 
       - name: Check llms.txt links
         run: node scripts/check-llms-links.mjs
