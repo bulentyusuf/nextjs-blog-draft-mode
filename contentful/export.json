@@ -581,7 +581,8 @@
                 "css",
                 "html",
                 "markdown",
-                "text"
+                "text",
+                "yml"
               ]
             }
           ],
