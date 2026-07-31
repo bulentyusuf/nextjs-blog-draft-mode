@@ -244,6 +244,63 @@ transition. Reset per request, do not memoise across requests. The 0.35s group
 and 0.2s root durations are tuned, not defaults, and the `prefers-reduced-motion`
 block disables the animation entirely.
 
+### Tags are one glossary page, not a page per tag
+
+`/tags` lists every tag with its posts grouped beneath it. There are no
+`/tags/[slug]` routes and adding them is harder than it looks, because
+**Contentful's GraphQL cannot filter a collection on an `Array<Link>` field at
+all.** The documented workaround is `linkedFrom`, which has no ordering or
+sorting, so a per-tag query could not reproduce the `date_DESC` the rest of the
+site relies on. `getAllPosts` is grouped in memory instead — which is also what
+the category pages already do, paginating a full fetch with `.slice()`.
+
+A dozen thin tag pages would be crawl bloat besides, so the sitemap carries one
+`/tags` URL rather than one per tag.
+
+**A tag needs two posts to render anywhere.** `MIN_POSTS_PER_TAG` in
+`lib/tags.ts` is read by both the glossary and the pills on a post page through
+the same `visibleTagSlugs` helper, and they must stay on one helper: a pill for
+a tag the glossary has hidden links to `/tags#slug`, an anchor that is not on
+the page. A test asserts the two agree.
+
+The glossary is `data-pagefind-ignore`. It repeats every post title once per
+tag it carries, and Pagefind would weight those repeats above the posts
+themselves — the same reasoning as the table of contents.
+
+Pills sit below the article body rather than in the sidebar, which is `xl` and
+up only; tags placed there would vanish on the viewports most people read on.
+
+### Browse-page copy is editable, site identity is not
+
+The standfirst and meta description on `/tags`, `/categories`, `/authors` and
+`/archive` come from a `browseIntro` entry keyed by route slug. All four pages
+therefore use `generateMetadata()` rather than a static `metadata` object, and
+`lib/page-metadata.ts` holds the one copy of what were four byte-identical
+metadata blocks.
+
+**`getBrowseIntro` must be called with the same slug in `generateMetadata` and
+in the component.** It is `cache()`-wrapped, and `cache()` dedupes identical
+calls rather than equivalent ones — the same trap recorded above for
+`getPostAndMorePosts`. Different arguments mean two requests per page, on four
+pages.
+
+A missing entry degrades: the standfirst is omitted, the meta description falls
+back to `SITE_DESCRIPTION`. A fork with an empty space renders a heading, not a 500.
+
+**`/archive` is deliberately different.** Its standfirst is generated from the
+data — the post count and earliest month — and stays current on its own. The
+`browseIntro` field there is an _override_, not a replacement: leave it empty
+and the counter renders. That is why `standfirst` is optional on the content
+type and the seeded Archive entry has none. Note the override is all-or-nothing
+and the field is not trimmed, so whitespace in it would suppress the counter and
+render an empty paragraph.
+
+Site-level constants stay in code. `SITE_TITLE` alone is read by sixteen files
+including `robots.txt`, the web manifest, JSON-LD and the feed — static routes
+that never touch Contentful. Moving those behind a network fetch is a different
+and much larger change than editing a standfirst; do not treat it as the obvious
+next step.
+
 ### Other reviewed items, intentionally left as-is
 
 - `data:` in `img-src` stays. It is needed for next/image blur placeholders, and
@@ -399,6 +456,48 @@ Two things sit outside the pin and move by hand:
 History, so the pin is not read as arbitrary: Node 20 reached end-of-life on
 30 April 2026, and Vercel was erroring that deployments created on or after
 2026-10-01 would fail to build.
+
+### The content model lives in two spaces, and a schema change must reach both
+
+`rczsnwq9z69e` is the live space. `18c3oqmr28q0` is **Demo Site**, which the
+`demo-site` Vercel project builds from this same repo. A field or type added to
+the live space and queried in `lib/api.ts` but absent from Demo Site fails that
+build with `Cannot query field "x"`, and because a GraphQL error rejects the
+whole query rather than the one selection, every page dies. Adding
+`tagsCollection` took the demo down exactly this way.
+
+So the order for any schema change is: **both spaces first, then merge.** The
+repo's fixtures are a third copy — see the export/seed section above — which
+makes three places to keep in step.
+
+**Content type IDs are immutable.** The display name can be changed by an
+editor at any time; the ID cannot, ever. Renaming means deleting and recreating
+the type, which is trivial while nothing is published and a content migration
+afterwards. Get the ID right before the first publish. `pageIntro` became
+`browseIntro` on exactly this deadline.
+
+The Contentful MCP connector can read, create and update, but **cannot publish,
+unpublish or delete** in either space. Activating a type, publishing entries and
+deleting anything are manual steps in the web UI. Entries also cannot be created
+against a type that has not been activated, so a new type is always two trips:
+activate, then populate.
+
+### What the fixtures guards do and do not catch
+
+`lib/contentful-fixtures.test.ts` checks that the export ships every content
+type the queries reference through `... on X`, that every field a fragment
+selects exists on that type, that each type carries `publishedVersion` and an
+editor interface, that seed entries only use types the export ships, that no
+embed dangles, and that `seed.json` still deep-equals what the generator emits.
+
+It **cannot** compare a field's _validations_ against the live space, because CI
+has no Contentful credentials. `yml` was added to the live Code Block's language
+list on 2026-07-14 and the export did not follow for a fortnight, so a fork
+importing it got a Code Block that rejected YAML — and every test passed
+throughout.
+
+Keeping the export in step after a schema edit is therefore manual. The guards
+will not remind you.
 
 ### Workflow constants
 
