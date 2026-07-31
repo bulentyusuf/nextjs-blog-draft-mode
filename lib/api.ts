@@ -605,15 +605,28 @@ export const getCategoryBySlug = cache(
   },
 );
 
+// Every post in a category, newest first and uncapped — the category index
+// paginates this in memory with .slice(), so it needs the whole set to know how
+// many pages there are.
+//
+// Uses the card fragment, not POST_GRAPHQL_FIELDS. Both consumers pass the
+// result straight to <MoreStories morePosts={...}>, which takes CardPost[] —
+// five fields. Fetching the full fragment pulled every post's rich-text body,
+// every embedded CodeBlock's source, every linked asset and the author bio, and
+// then rendered an excerpt from it. That whole payload also sat in the ISR cache
+// entry for each category page.
+//
+// If a caller ever needs `category`, `author` or `updatedDate` here, add
+// LIST_GRAPHQL_FIELDS rather than reaching back for the full one.
 export async function getPostsByCategory(
   slug: string,
   isDraftMode = false,
-): Promise<Post[]> {
-  const entries = await fetchGraphQL<PostCollectionResponse>(
+): Promise<CardPost[]> {
+  const entries = await fetchGraphQL<CardPostCollectionResponse>(
     `query GetPostsByCategory($slug: String!, $preview: Boolean) {
       postCollection(where: { category: { slug: $slug } }, order: date_DESC, preview: $preview) {
         items {
-          ${POST_GRAPHQL_FIELDS}
+          ${CARD_GRAPHQL_FIELDS}
         }
       }
     }`,
@@ -624,10 +637,10 @@ export async function getPostsByCategory(
   return entries?.data?.postCollection?.items ?? [];
 }
 
-// Recent posts in a category, capped server-side and fetched with the slim card
-// fragment. For listing previews only (categories landing page). Returns partial
-// Post objects: see CARD_GRAPHQL_FIELDS note. For the full category index use
-// getPostsByCategory, which also needs the full count for pagination.
+// Recent posts in a category, capped server-side. Same card fragment as
+// getPostsByCategory above; the difference is the limit. This one teases a few
+// posts on the categories landing page, that one returns the whole category so
+// the index can paginate it.
 export async function getRecentPostsByCategory(
   slug: string,
   limit: number,
