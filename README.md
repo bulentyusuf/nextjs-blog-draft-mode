@@ -8,7 +8,7 @@ The code in this repo is an extension of the [Next.js Blog with Draft Mode](http
 
 A small, statically generated blog. Posts are written and managed in a headless CMS, rendered by Next.js, and deployed continuously.
 
-The content model is deliberately compact, a Post type backed by Author and Category, with a Code Block type for embedded snippets, a Prompt Block type for publishing the image prompt behind a cover, a Sidenote type for asides set in the margin, and a Page type for standalone pages like the privacy notice.
+The content model is deliberately compact, a Post type backed by Author, Category and Tag, with a Code Block type for embedded snippets, a Prompt Block type for publishing the image prompt behind a cover, a Sidenote type for asides set in the margin, a Page type for standalone pages like the privacy notice, and a Browse Intro type holding the editable copy at the top of each browse page.
 
 A recurring subject of the blog is the process of building and maintaining it. Much of the codebase has been developed in collaboration with [Claude](https://claude.ai), and several posts document what that's actually like in practice. The visual identity uses editorial-style cover images generated with [Midjourney](https://www.midjourney.com).
 
@@ -27,10 +27,12 @@ A recurring subject of the blog is the process of building and maintaining it. M
 - **Post**, the main entry type. Title, slug, publish and updated dates, cover image, excerpt, rich-text body, and links to one author and one category
 - **Author**, name, picture, slug, and a short bio, with its own landing page
 - **Category**, name, slug, description, and thumbnail, with its own landing page. Posts are filed under Main Quest or Side Quests
+- **Tag**, name, slug, and a one-line description. Cross-cutting topics, up to three per post: where Category says where a post lives, a Tag says what it is about
 - **Code Block**, embedded into post bodies for syntax-highlighted snippets. Optional filename and a fixed list of languages
 - **Prompt Block**, embedded into post bodies to publish the generative-image prompt behind a cover, with an optional label and image
 - **Sidenote**, embedded inline in post bodies for asides set in the margin. A title for finding the entry in the CMS, and a rich-text note deliberately limited to bold, italic, and links
 - **Page**, standalone rich-text pages such as About and Privacy
+- **Browse Intro**, the editable standfirst and meta description for a browse page, keyed by route. Lets the copy on Tags, Categories, Authors and Archive be reworded in the CMS rather than deployed
 
 ## ✨ Features
 
@@ -44,6 +46,7 @@ A recurring subject of the blog is the process of building and maintaining it. M
 **Finding things**
 
 - Site search that runs entirely in the visitor's browser, with no third-party service and no query leaving the page
+- Tag glossary listing every topic with its posts grouped beneath it, and tag links on each post
 - Archive page listing every post grouped by year
 - Paginated home, category, and author listings
 - Category and author landing pages, each with a directory index
@@ -62,6 +65,7 @@ A recurring subject of the blog is the process of building and maintaining it. M
 - Auto-generated sitemap, `robots.txt`, and RSS feed
 - Open Graph and Twitter card metadata for shareable links
 - Hand-written `llms.txt`, with a CI job that checks its links still resolve
+- Standfirsts and meta descriptions editable in the CMS, falling back gracefully when an entry is absent
 
 **Engineering**
 
@@ -112,7 +116,7 @@ npm run import:contentful -- --space-id YOUR_SPACE_ID --management-token YOUR_MA
 
 ### 4. Add example content (optional)
 
-Seeds a few placeholder posts, authors, categories, and pages, all published, so the site renders straight away.
+Seeds a few placeholder posts, authors, categories, tags, browse intros, and pages, all published, so the site renders straight away.
 
 ```
 npm run import:seed -- --space-id YOUR_SPACE_ID --management-token YOUR_MANAGEMENT_TOKEN
