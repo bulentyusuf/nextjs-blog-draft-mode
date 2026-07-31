@@ -6,36 +6,27 @@ import { enGB } from "date-fns/locale";
 import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
-import { getAllPosts } from "@/lib/api";
+import { getAllPosts, getBrowseIntro } from "@/lib/api";
 import type { ListPost } from "@/lib/types";
-import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import { browsePageMetadata } from "@/lib/page-metadata";
 import { widont } from "@/lib/typography";
 
-const archiveDescription = `Every post on ${SITE_TITLE}, grouped by year.`;
-
-export const metadata: Metadata = {
-  title: "Archive",
-  description: archiveDescription,
-  alternates: { canonical: `${SITE_URL}/archive` },
-  openGraph: {
-    description: archiveDescription,
-    url: `${SITE_URL}/archive`,
-    siteName: SITE_TITLE,
-    images: [
-      { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
-    ],
-    type: "website",
-    locale: DEFAULT_OG_LOCALE,
-  },
-  twitter: {
-    card: "summary_large_image",
-    description: archiveDescription,
-    images: ["/be_useful.jpg"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  // Same slug the component passes to getBrowseIntro below. getBrowseIntro is
+  // cache()-wrapped, so the two calls collapse into one request per render
+  // — but only while the arguments match.
+  const { isEnabled } = await draftMode();
+  return browsePageMetadata({
+    slug: "archive",
+    title: "Archive",
+    isDraftMode: isEnabled,
+  });
+}
 
 export default async function ArchivePage() {
   const { isEnabled } = await draftMode();
+  // Same arguments generateMetadata passes, so cache() collapses the two.
+  const intro = await getBrowseIntro("archive", isEnabled);
 
   // getAllPosts returns ListPost[] already ordered date_DESC.
   const posts = await getAllPosts(isEnabled);
@@ -63,12 +54,23 @@ export default async function ArchivePage() {
         <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
           Archive
         </h1>
-        {oldest && (
+        {/* Unlike the other browse pages, this standfirst is generated rather
+            than written: the count and the earliest month come from the posts
+            themselves and stay current without anyone editing them. A Page
+            Intro entry can override it, but leaving that field empty is the
+            better default — typed prose here would be stale by the next post. */}
+        {intro?.standfirst ? (
           <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            {posts.length} {posts.length === 1 ? "post" : "posts"} since{" "}
-            {format(new Date(oldest.date), "LLLL yyyy", { locale: enGB })},
-            newest first.
+            {intro.standfirst}
           </p>
+        ) : (
+          oldest && (
+            <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+              {posts.length} {posts.length === 1 ? "post" : "posts"} since{" "}
+              {format(new Date(oldest.date), "LLLL yyyy", { locale: enGB })},
+              newest first.
+            </p>
+          )
         )}
       </header>
 

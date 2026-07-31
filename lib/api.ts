@@ -14,6 +14,8 @@ import type {
   CategoryCollectionResponse,
   Tag,
   TagCollectionResponse,
+  BrowseIntro,
+  BrowseIntroCollectionResponse,
   Author,
   AuthorCollectionResponse,
 } from "./types";
@@ -497,6 +499,43 @@ export async function getAllPages(isDraftMode: boolean): Promise<PageMeta[]> {
 
   return entries?.data?.pageCollection?.items ?? [];
 }
+
+// The editable standfirst and meta description for a browse page.
+//
+// cache()-wrapped because every page that uses it calls it TWICE: once in
+// generateMetadata and once in the component. Next only memoises GET and
+// fetchGraphQL issues POST, so without this each of those pages would issue two
+// identical requests per render. The two calls must pass the same arguments —
+// cache() dedupes identical calls, not equivalent ones — which is why both
+// resolve draftMode() first and pass the same slug. Same trap as
+// getPostAndMorePosts on the post route.
+//
+// Returns undefined when no entry exists. Callers fall back rather than throw,
+// so a fork with an empty space renders a page with just its heading instead of
+// a 500.
+export const getBrowseIntro = cache(
+  async (
+    slug: string,
+    isDraftMode = false,
+  ): Promise<BrowseIntro | undefined> => {
+    const entries = await fetchGraphQL<BrowseIntroCollectionResponse>(
+      `query GetBrowseIntro($slug: String!, $preview: Boolean) {
+      browseIntroCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
+        items {
+          title
+          slug
+          standfirst
+          metaDescription
+        }
+      }
+    }`,
+      isDraftMode,
+      { slug, preview: isDraftMode },
+    );
+
+    return entries?.data?.browseIntroCollection?.items?.[0];
+  },
+);
 
 // Tags with their descriptions, for the /tags glossary.
 //

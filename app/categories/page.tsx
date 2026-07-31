@@ -5,39 +5,34 @@ import CoverImage from "../cover-image";
 import DateComponent from "../date";
 import Container from "../container";
 import Breadcrumb, { type Crumb } from "../breadcrumb";
-import { getAllCategories, getRecentPostsByCategory } from "@/lib/api";
-import { SITE_TITLE, SITE_URL, DEFAULT_OG_LOCALE } from "@/lib/constants";
+import {
+  getAllCategories,
+  getRecentPostsByCategory,
+  getBrowseIntro,
+} from "@/lib/api";
+import { browsePageMetadata } from "@/lib/page-metadata";
 import { widont } from "@/lib/typography";
 
 // How many recent posts to tease under each category. The full list lives on
 // the individual category page (/categories/[slug]).
 const PREVIEW_COUNT = 3;
 
-const categoriesDescription = `Browse posts by category on ${SITE_TITLE}`;
-
-export const metadata: Metadata = {
-  title: "Categories",
-  description: categoriesDescription,
-  alternates: { canonical: `${SITE_URL}/categories` },
-  openGraph: {
-    description: categoriesDescription,
-    url: `${SITE_URL}/categories`,
-    siteName: SITE_TITLE,
-    images: [
-      { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
-    ],
-    type: "website",
-    locale: DEFAULT_OG_LOCALE,
-  },
-  twitter: {
-    card: "summary_large_image",
-    description: categoriesDescription,
-    images: ["/be_useful.jpg"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  // Same slug the component passes to getBrowseIntro below. getBrowseIntro is
+  // cache()-wrapped, so the two calls collapse into one request per render
+  // — but only while the arguments match.
+  const { isEnabled } = await draftMode();
+  return browsePageMetadata({
+    slug: "categories",
+    title: "Categories",
+    isDraftMode: isEnabled,
+  });
+}
 
 export default async function CategoriesPage() {
   const { isEnabled } = await draftMode();
+  // Same arguments generateMetadata passes, so cache() collapses the two.
+  const intro = await getBrowseIntro("categories", isEnabled);
 
   // Categories come back ordered name_ASC, so "Main Quest" precedes "Side
   // Quests" (M before S). If a future category needs a different order, add an
@@ -68,9 +63,11 @@ export default async function CategoriesPage() {
         <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
           Categories
         </h1>
-        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-          One main quest, the rest are side quests. Pick a path.
-        </p>
+        {intro?.standfirst && (
+          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+            {intro.standfirst}
+          </p>
+        )}
       </header>
 
       {/* One card per category, two across on desktop, stacked on mobile. */}

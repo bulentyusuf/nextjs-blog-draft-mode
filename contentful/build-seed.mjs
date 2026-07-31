@@ -184,6 +184,37 @@ const entries = [
     slug: loc("detours"),
     description: loc("The tangents worth writing down."),
   }),
+  // One per browse page, so a fork can edit its own standfirsts rather than
+  // finding them hard-coded. Archive deliberately carries no standfirst: its
+  // heading line is generated from the post count and stays current on its own,
+  // and typed prose there would be stale by the next post.
+  entry("intro-tags", "browseIntro", {
+    title: loc("Tags"),
+    slug: loc("tags"),
+    standfirst: loc(
+      "Categories say where a post lives; tags say what it is about, so a post can carry up to three.",
+    ),
+    metaDescription: loc(
+      "Every topic on this site, with the posts filed under each.",
+    ),
+  }),
+  entry("intro-categories", "browseIntro", {
+    title: loc("Categories"),
+    slug: loc("categories"),
+    standfirst: loc("Every post has a home. Pick a path."),
+    metaDescription: loc("Browse posts by category."),
+  }),
+  entry("intro-authors", "browseIntro", {
+    title: loc("Authors"),
+    slug: loc("authors"),
+    standfirst: loc("Who writes what around here."),
+    metaDescription: loc("Meet the authors."),
+  }),
+  entry("intro-archive", "browseIntro", {
+    title: loc("Archive"),
+    slug: loc("archive"),
+    metaDescription: loc("Every post, grouped by year."),
+  }),
   entry("code-example", "codeBlock", {
     filename: loc("example.tsx"),
     language: loc("tsx"),
