@@ -270,12 +270,16 @@ export default async function PostPage({
                     the label look like one of them and gave the links no
                     affordance at all. */}
                 <ul className="flex flex-wrap items-center gap-x-2 gap-y-2">
-                  <li className="mr-1 text-sm text-brand-muted">Tagged</li>
+                  <li className="mr-2 text-sm text-brand-muted">Tagged</li>
                   {tags.map((tag) => (
                     <li key={tag.slug}>
+                      {/* px-4 rather than px-3: on a rounded-full pill the
+                          corner radius is half the height, so 12px of
+                          horizontal padding put the text inside the curve and
+                          made the label look wedged in. 16px clears it. */}
                       <Link
                         href={`/tags#${tag.slug}`}
-                        className="inline-block rounded-full border border-hairline px-3 py-1 text-sm text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson"
+                        className="inline-block rounded-full border border-hairline px-4 py-1 text-sm text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson"
                       >
                         {tag.name}
                       </Link>
