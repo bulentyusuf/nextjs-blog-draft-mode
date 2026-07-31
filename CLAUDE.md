@@ -326,7 +326,8 @@ next step.
 - CI actions are pinned to major tags (`@v4`), not commit SHAs. Accepted as low
   risk because they are first-party (`actions/checkout`, `github/codeql-action`).
   SHA-pinning is optional belt-and-braces, not adopted.
-- `package.json` pins **postcss** `^8.5.23` and **sharp** `^0.35.3` through
+- `package.json` pins **postcss** `^8.5.23`, **sharp** `^0.35.3` and **uuid**
+  `^11.1.1` through
   `overrides`, clearing advisories in copies `next` bundles and does not update
   (16.2.12 ships postcss 8.4.31 and pins `sharp ^0.34.5`; no release fixes
   either). They are the only reason `npm audit` has no high findings — do not
@@ -335,10 +336,20 @@ next step.
   moved past. Forcing sharp is safe here because `next.config.js` sets
   `images.loader: "custom"`, so Next's optimiser never invokes sharp at all,
   which is also why the image optimisation advisories never applied.
-- `npm audit` flags uuid `<11.1.1` (GHSA-w5hq-g745-h8pq) via
-  `contentful-import` → `contentful-batch-libs`. A devDependency: a one-shot CLI
-  that never ships and never runs at build or request time, so runtime exposure
-  is zero, and the only offered fix downgrades it six majors. Do not re-flag.
+- **uuid (GHSA-w5hq-g745-h8pq) is fixed by an override, not accepted.** This
+  entry used to say the advisory was unfixable and should not be re-flagged;
+  that was true of the fix npm offered, which downgrades `contentful-import`
+  several majors. The actual cause is that `contentful-import` pins
+  `contentful-batch-libs: ^9.7.0` and never picks up the 11.x line, which has
+  declared a safe `uuid: ^11.0.1` for some time. Switching to `contentful-cli`
+  does not help: it depends on `contentful-import` and drags the same 9.x chain
+  in nested. An `overrides` entry lifts uuid to 11.1.1 across the tree and
+  `npm audit` reports zero.
+  Safe because `contentful-batch-libs` touches uuid in exactly one place —
+  `const { v4 } = require("uuid")` in `add-sequence-header.js` — and the named
+  `v4` export is unchanged from v9 to v11. Verified by calling
+  `addSequenceHeader({})` under the override and by running
+  `contentful-import --help`. Re-check both if the override is ever bumped.
 
 ## House conventions
 
