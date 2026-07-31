@@ -75,7 +75,7 @@ This repository works as a template. Fork it, point it at your own Contentful sp
 
 ### Prerequisites
 
-- Node 20 or newer
+- Node 22 or newer (24 recommended — see `.nvmrc`)
 - A Contentful account with an empty space
 - Optionally, a Vercel account for hosting
 
