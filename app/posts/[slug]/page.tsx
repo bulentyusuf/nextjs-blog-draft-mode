@@ -258,7 +258,12 @@ export default async function PostPage({
                 viewports most people read on. Every pill links into the /tags
                 glossary, and only tags that clear the threshold are rendered —
                 a hidden tag would otherwise link to an anchor that is not on
-                that page. */}
+                that page.
+
+                The gap below the pills is not set here — it comes from the
+                author block's top margin, which drops to mt-6 when tags are
+                present so both sides of the band are 24px. Changing pt-6 here
+                without changing that leaves the row lopsided. */}
             {tags.length > 0 && (
               <nav
                 aria-label="Tags"
@@ -289,7 +294,13 @@ export default async function PostPage({
               </nav>
             )}
             {post.author?.bio && (
-              <div className="mt-12 border-t border-hairline pt-8">
+              // mt-6 after a tag row, mt-12 otherwise. This margin is the only
+              // thing setting the space beneath the pills, so it has to match
+              // the nav's pt-6 or the row sits off-centre in its band. Without
+              // tags there is no band and the usual mt-12 applies.
+              <div
+                className={`${tags.length > 0 ? "mt-6" : "mt-12"} border-t border-hairline pt-8`}
+              >
                 <AuthorBioCard author={post.author} />
               </div>
             )}
