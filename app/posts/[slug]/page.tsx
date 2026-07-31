@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import Container from "../../container";
@@ -7,6 +8,7 @@ import Date from "../../date";
 import CoverImage from "../../cover-image";
 import { RichText } from "@/lib/rich-text";
 import { getAllPosts, getPostAndMorePosts } from "@/lib/api";
+import { postTags, visibleTagSlugs } from "@/lib/tags";
 import { extractHeadings } from "@/lib/headings";
 import { readingTimeMinutes } from "@/lib/reading-time";
 import { highlightCodeBlocks } from "@/lib/highlight";
@@ -87,11 +89,22 @@ export default async function PostPage({
 }) {
   const { isEnabled } = await draftMode();
   const { slug } = await params;
-  const { post, morePosts } = await getPostAndMorePosts(slug, isEnabled);
+  // getAllPosts alongside the post itself, because a pill may only render if
+  // its tag clears the threshold across the whole site, and that count cannot
+  // be derived from one post. The list fragment omits every post body, and the
+  // response is ISR-cached under the same "posts" tag as everything else, so
+  // this costs one slim cached query rather than a second body fetch.
+  const [{ post, morePosts }, allPosts] = await Promise.all([
+    getPostAndMorePosts(slug, isEnabled),
+    getAllPosts(isEnabled),
+  ]);
 
   if (!post) {
     notFound();
   }
+
+  const visible = visibleTagSlugs(allPosts);
+  const tags = postTags(post).filter((t) => visible.has(t.slug));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -240,8 +253,54 @@ export default async function PostPage({
                 highlighted={highlighted}
               />
             </div>
+            {/* Below the body rather than in the sidebar: the sidebar is
+                xl-and-up only, so tags placed there would vanish on the
+                viewports most people read on. Every pill links into the /tags
+                glossary, and only tags that clear the threshold are rendered —
+                a hidden tag would otherwise link to an anchor that is not on
+                that page.
+
+                The gap below the pills is not set here — it comes from the
+                author block's top margin, which drops to mt-6 when tags are
+                present so both sides of the band are 24px. Changing pt-6 here
+                without changing that leaves the row lopsided. */}
+            {tags.length > 0 && (
+              <nav
+                aria-label="Tags"
+                className="mt-12 border-t border-hairline pt-6"
+              >
+                {/* The label is sentence case and unstyled while the tags are
+                    bordered, so "Tagged" cannot be mistaken for a third tag.
+                    All three were previously uppercase muted text, which made
+                    the label look like one of them and gave the links no
+                    affordance at all. */}
+                <ul className="flex flex-wrap items-center gap-x-2 gap-y-2">
+                  <li className="mr-2 text-sm text-brand-muted">Tagged</li>
+                  {tags.map((tag) => (
+                    <li key={tag.slug}>
+                      {/* px-4 rather than px-3: on a rounded-full pill the
+                          corner radius is half the height, so 12px of
+                          horizontal padding put the text inside the curve and
+                          made the label look wedged in. 16px clears it. */}
+                      <Link
+                        href={`/tags#${tag.slug}`}
+                        className="inline-block rounded-full border border-hairline px-4 py-1 text-sm text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson"
+                      >
+                        {tag.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
             {post.author?.bio && (
-              <div className="mt-12 border-t border-hairline pt-8">
+              // mt-6 after a tag row, mt-12 otherwise. This margin is the only
+              // thing setting the space beneath the pills, so it has to match
+              // the nav's pt-6 or the row sits off-centre in its band. Without
+              // tags there is no band and the usual mt-12 applies.
+              <div
+                className={`${tags.length > 0 ? "mt-6" : "mt-12"} border-t border-hairline pt-8`}
+              >
                 <AuthorBioCard author={post.author} />
               </div>
             )}

@@ -57,6 +57,58 @@ describe("contentful export.json", () => {
     }
   });
 
+  it("ships every field the query fragments select", () => {
+    // Sibling of the inline-fragment guard above, for the other half of the
+    // same defect. That one only sees "... on X", so it catches a missing
+    // TYPE and is blind to a missing FIELD — and Contentful rejects both the
+    // same way, with a 400 that fails the whole query rather than the one
+    // selection. Adding tagsCollection to LIST_GRAPHQL_FIELDS while a space
+    // still lacked the field took the demo deployment down exactly this way,
+    // and every test here passed.
+    const source = readFileSync(path.join(root, "lib/api.ts"), "utf8");
+
+    // Which content type each fragment is selected against.
+    const fragments: Record<string, string> = {
+      POST_GRAPHQL_FIELDS: "post",
+      CARD_GRAPHQL_FIELDS: "post",
+      LIST_GRAPHQL_FIELDS: "post",
+      PAGE_GRAPHQL_FIELDS: "page",
+    };
+
+    for (const [constant, typeId] of Object.entries(fragments)) {
+      const body = source.match(
+        new RegExp(`const ${constant} = \`([\\s\\S]*?)\``),
+      )?.[1];
+      expect(body, `lib/api.ts has no ${constant}`).toBeTruthy();
+
+      // Top-level selections only: anything indented further belongs to a
+      // nested type, which this guard deliberately does not follow.
+      const selected = [...body!.matchAll(/^ {2}([a-zA-Z_]\w*)/gm)].map(
+        (m) => m[1],
+      );
+
+      const contentType = exportData.contentTypes.find(
+        (ct: { sys: { id: string } }) => ct.sys.id === typeId,
+      );
+      expect(contentType, `export.json has no "${typeId}" type`).toBeTruthy();
+      const fieldIds = new Set(
+        contentType.fields.map((f: { id: string }) => f.id),
+      );
+
+      for (const selection of selected) {
+        // `sys` is a GraphQL built-in, not a content-type field. Contentful
+        // names an Array field's collection `<field>Collection`, so strip the
+        // suffix before looking the field up.
+        if (selection === "sys") continue;
+        const fieldId = selection.replace(/Collection$/, "");
+        expect(
+          fieldIds.has(fieldId),
+          `${constant} selects "${selection}" but export.json's "${typeId}" has no "${fieldId}" field`,
+        ).toBe(true);
+      }
+    }
+  });
+
   it("gives every content type an editor interface", () => {
     const ids = exportData.contentTypes.map(
       (ct: { sys: { id: string } }) => ct.sys.id,

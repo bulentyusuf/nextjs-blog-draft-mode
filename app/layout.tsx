@@ -167,6 +167,11 @@ function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/tags" className={footerLink}>
+                  Tags
+                </Link>
+              </li>
+              <li>
                 <Link href="/authors" className={footerLink}>
                   Authors
                 </Link>

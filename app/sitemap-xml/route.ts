@@ -121,6 +121,15 @@ export async function GET() {
       priority: 0.7,
     },
     {
+      // One URL, not one per tag. The glossary lists every tag and its posts on
+      // a single page, so there are no /tags/[slug] routes to enumerate — and a
+      // dozen near-empty tag pages would be thin content besides.
+      url: `${SITE_URL}/tags`,
+      lastModified: newestSitewide,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
       url: `${SITE_URL}/authors`,
       lastModified: newestSitewide,
       changeFrequency: "weekly",

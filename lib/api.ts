@@ -12,6 +12,8 @@ import type {
   PageMetaCollectionResponse,
   Category,
   CategoryCollectionResponse,
+  Tag,
+  TagCollectionResponse,
   Author,
   AuthorCollectionResponse,
 } from "./types";
@@ -107,6 +109,12 @@ const POST_GRAPHQL_FIELDS = `
     name
     slug
   }
+  tagsCollection(limit: 3) {
+    items {
+      name
+      slug
+    }
+  }
 `;
 
 // Slim fragment for listing previews (e.g. the categories landing page). Pulls
@@ -131,6 +139,16 @@ const CARD_GRAPHQL_FIELDS = `
 // them keeps the entire body text of every post out of the home/feed/sitemap ISR
 // cache entries. Posts returned with this fragment are partial: `content` and
 // `author.bio` are absent. The per-post detail page uses POST_GRAPHQL_FIELDS.
+//
+// tagsCollection rides along because /tags groups this result in memory rather
+// than querying per tag: Contentful's GraphQL cannot filter on an Array<Link>
+// field at all, and its linkedFrom workaround has no ordering, so a per-tag
+// query could not reproduce date_DESC.
+//
+// These template literals are GraphQL, not JavaScript. A `//` comment inside
+// one is a syntax error the API rejects with 400, which fails every post query
+// rather than the field it sits next to. Keep prose out here; use `#` if a note
+// truly must sit inline.
 const LIST_GRAPHQL_FIELDS = `
   slug
   title
@@ -150,6 +168,12 @@ const LIST_GRAPHQL_FIELDS = `
   category {
     name
     slug
+  }
+  tagsCollection(limit: 3) {
+    items {
+      name
+      slug
+    }
   }
 `;
 
@@ -472,6 +496,31 @@ export async function getAllPages(isDraftMode: boolean): Promise<PageMeta[]> {
   );
 
   return entries?.data?.pageCollection?.items ?? [];
+}
+
+// Tags with their descriptions, for the /tags glossary.
+//
+// Deliberately a separate query rather than adding `description` to
+// LIST_GRAPHQL_FIELDS' tagsCollection. That fragment feeds the home page, the
+// feed and the sitemap, and exists to keep weight out of their ISR entries;
+// carrying a gloss on every listing so one page can print it would undo that.
+// The glossary joins these to the grouped posts by slug.
+export async function getAllTags(isDraftMode = false): Promise<Tag[]> {
+  const entries = await fetchGraphQL<TagCollectionResponse>(
+    `query GetAllTags($preview: Boolean) {
+      tagCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview) {
+        items {
+          name
+          slug
+          description
+        }
+      }
+    }`,
+    isDraftMode,
+    { preview: isDraftMode },
+  );
+
+  return entries?.data?.tagCollection?.items ?? [];
 }
 
 export async function getAllCategories(
