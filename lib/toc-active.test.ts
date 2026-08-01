@@ -1,5 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { pickActiveHeading, type HeadingPosition } from "./toc-active";
+import fs from "node:fs";
+import path from "node:path";
+import {
+  activationBandTop,
+  pickActiveHeading,
+  BAND_TOLERANCE_PX,
+  FALLBACK_BAND_TOP_PX,
+  type HeadingPosition,
+} from "./toc-active";
 
 // Headings arrive in document order; `top` is the live viewport offset. A
 // positive top sits below the viewport top, a negative one has scrolled above
@@ -62,5 +70,88 @@ describe("pickActiveHeading", () => {
     // in the array) must win. p.top >= best.top adopts the later one.
     const positions = [pos("first", -20), pos("second", -20)];
     expect(pickActiveHeading(positions, BAND_TOP)).toBe("second");
+  });
+});
+
+describe("activationBandTop", () => {
+  // The ToC highlights from the scroll container's scroll-padding-top, which is
+  // what parks a heading a fragment link or ToC click targets. Reading anything
+  // else puts the activation line somewhere the heading never lands, and the
+  // clicked entry lights its predecessor instead.
+  it("derives the line from the computed scroll offset", () => {
+    expect(activationBandTop("80px")).toBe(80 + BAND_TOLERANCE_PX);
+  });
+
+  it("tracks a changed offset rather than assuming 5rem", () => {
+    // The whole point of reading it: change globals.css and this follows.
+    expect(activationBandTop("120px")).toBe(120 + BAND_TOLERANCE_PX);
+  });
+
+  it("falls back when the offset is auto", () => {
+    // `auto` is the initial value, so this is what a browser that never applied
+    // the rule reports — and what jsdom reports in the suite.
+    expect(activationBandTop("auto")).toBe(
+      FALLBACK_BAND_TOP_PX + BAND_TOLERANCE_PX,
+    );
+  });
+
+  it("falls back on an unparseable or zero offset", () => {
+    for (const value of ["", "0px", "inherit"]) {
+      expect(activationBandTop(value)).toBe(
+        FALLBACK_BAND_TOP_PX + BAND_TOLERANCE_PX,
+      );
+    }
+  });
+
+  it("keeps the fallback in step with globals.css", () => {
+    // If someone retunes scroll-padding-top and forgets this constant, the
+    // fallback silently disagrees with the real landing point. 5rem = 80px.
+    expect(FALLBACK_BAND_TOP_PX).toBe(80);
+  });
+});
+
+describe("scroll offset lives in exactly one place", () => {
+  const root = path.join(__dirname, "..");
+  const css = fs.readFileSync(path.join(root, "app/globals.css"), "utf8");
+
+  it("globals.css sets scroll-padding-top on the scroll container", () => {
+    // The container, not the target: scroll-padding is what covers keyboard
+    // focus as well as fragment links, which is the whole reason it replaced
+    // the per-heading scroll-mt-* utilities.
+    expect(css).toMatch(/html\s*\{[^}]*scroll-padding-top:\s*5rem/);
+  });
+
+  it("the fallback constant agrees with the stylesheet", () => {
+    const rem = Number(
+      /scroll-padding-top:\s*([\d.]+)rem/.exec(css)?.[1] ?? NaN,
+    );
+    expect(rem * 16).toBe(FALLBACK_BAND_TOP_PX);
+  });
+
+  it("no scroll-mt-* utility survives to stack on top of it", () => {
+    // scroll-padding on the container and scroll-margin on the target ADD, so
+    // one of these reintroduced would push the landing point past the line the
+    // ToC activates on — a clicked entry highlighting the section above it.
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (entry.name === "node_modules" || entry.name.startsWith("."))
+          continue;
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (
+          /\.(tsx?|css)$/.test(entry.name) &&
+          !entry.name.includes(".test.")
+        ) {
+          const text = fs.readFileSync(full, "utf8");
+          // Match the utility, not the words in the comments explaining it.
+          if (/className=[^>]*\bscroll-mt-\d/.test(text)) {
+            offenders.push(path.relative(root, full));
+          }
+        }
+      }
+    };
+    for (const dir of ["app", "lib"]) walk(path.join(root, dir));
+    expect(offenders).toEqual([]);
   });
 });

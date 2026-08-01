@@ -128,6 +128,34 @@
 }
 
 /*
+  One scroll offset for the whole site, on the scroll container.
+
+  The header is `sticky top-0` and 52px tall, so anything the browser scrolls to
+  the top of the viewport lands underneath it. Headings used to solve this for
+  themselves with `scroll-mt-*` utilities, which covered fragment links and
+  nothing else — Tab to a link just below the fold and the band still covered
+  it, which is WCAG 2.2's 2.4.11 Focus Not Obscured. scroll-padding-top is on
+  the scroll container, so it applies to every scroll-into-view the browser
+  performs: fragment navigation, `scrollIntoView()`, and sequential focus.
+
+  It REPLACES those utilities and cannot simply be added alongside them.
+  scroll-padding on the container and scroll-margin on the target are additive,
+  so keeping both would have parked a post heading 160px down instead of 80px —
+  and app/table-of-contents.tsx, which reads this value to place its activation
+  line, would have read the 96px scroll-margin while the real landing point was
+  something else, mis-highlighting the entry clicked. There must be one value
+  and one place to read it. That place is here.
+
+  5rem, matching the `prose-headings:scroll-mt-20` this supersedes, so fragment
+  navigation lands exactly where it did before. It leaves 28px of clearance
+  under the 52px band. Recompute it if the header's `py-3` or the masthead's
+  `text-lg` changes — the same dependency the skip link's `focus:top-2` has.
+*/
+html {
+  scroll-padding-top: 5rem;
+}
+
+/*
   One focus indicator for the whole site. Crimson picks up the accent token, so
   it inverts with the scheme automatically (#A4243B light, #E0667A dark) and
   clears 3:1 against both page backgrounds. Elements sitting on the coloured

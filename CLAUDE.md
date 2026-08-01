@@ -141,11 +141,55 @@ because their `overflow-hidden rounded-lg` parent clips anything outside the
 box. A ring is not an alternative — `ring-*` compiles to `box-shadow`, clipped
 the same way.
 
+### One scroll offset, `scroll-padding-top` on `html`
+
+`globals.css` sets `scroll-padding-top: 5rem` on the scroll container, and that
+is the only scroll offset on the site. It replaced the per-heading `scroll-mt-*`
+utilities; it is not additional to them.
+
+**Why the container and not the target.** `scroll-margin` on a heading is
+consulted only when something scrolls to that heading — fragment links and
+`scrollIntoView()`. `scroll-padding` is on the scroller, so it also applies when
+the browser scrolls a _focused_ element into view. Tabbing to a link just below
+the fold used to land it under the 52px sticky header, which is WCAG 2.2's
+2.4.11 Focus Not Obscured (Minimum). Nothing on the page can opt out of it,
+which is the point.
+
+**The two are additive, so they cannot coexist.** Keeping a `scroll-mt-24`
+alongside would park a heading at 176px rather than 80px. Worse,
+`app/table-of-contents.tsx` reads this offset to place its activation line: it
+would have read one half while the real landing point was the sum, and a clicked
+entry would highlight the section above it — the exact failure the old comment
+in that file warned about. `lib/toc-active.test.ts` walks `app/` and `lib/` and
+fails on any `className` carrying a `scroll-mt-*`, so this cannot creep back.
+
+The value is read, never hardcoded: `activationBandTop()` in `lib/toc-active.ts`
+parses the computed `scrollPaddingTop` off `document.documentElement`, so
+retuning the CSS retunes the ToC. `FALLBACK_BAND_TOP_PX` covers a computed
+`auto` and is asserted equal to the stylesheet's own `5rem`, so the two cannot
+drift.
+
+5rem leaves 28px under the 52px band. Recompute it if the header's `py-3` or the
+masthead's `text-lg` changes — the same dependency the skip link's `focus:top-2`
+carries.
+
+### The skip link's target is focusable
+
+`<main id="main" tabIndex={-1}>` in `app/layout.tsx`. Following a fragment moves
+the sequential-focus starting point in current Chrome and Firefox, so Tab
+continues from `main` — but it never moves focus itself, and Safari has
+historically not moved the starting point either, which left a reader who had
+just used the skip link tabbing from the top of the document again. `-1` is
+reachable programmatically and never sequentially, so it adds no tab stop. Do
+not remove it as redundant; it is the half the browsers do not agree on.
+
 ### Back-to-top uses a two-tone ring, and must keep it
 
-`app/back-to-top.tsx` is the only `position: fixed` control on the site, so it
-keeps `focus:outline-hidden` plus a white ring on a `surface-dark` offset, not
-the base outline. See the in-file comment for the contrast reasoning. Once
+`app/back-to-top.tsx` keeps `focus:outline-hidden` plus a white ring on a
+`surface-dark` offset, not the base outline, because a `position: fixed` control
+floats over unknown ground. `app/exit-preview-button.tsx` is the other fixed
+control — draft mode only — and now carries the same ring for the same reason,
+having previously drawn the base crimson outline around a crimson fill. See the in-file comment for the contrast reasoning. Once
 "simplified" and reverted; do not propose it again.
 
 ### The lightbox trigger is gated on `mounted`, deliberately

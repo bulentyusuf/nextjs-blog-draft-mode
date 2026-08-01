@@ -81,11 +81,15 @@ export default async function TagsPage() {
           {groups.map(({ tag, posts: tagged }) => (
             <section
               key={tag.slug}
-              // The id stays, and so does scroll-mt, so any /tags#slug link
-              // shared before per-tag pages existed still lands somewhere
-              // sensible. Nothing on the site generates those links any more.
+              // The id stays, so any /tags#slug link shared before per-tag
+              // pages existed still lands somewhere sensible. Nothing on the
+              // site generates those links any more. The offset that keeps the
+              // landing point clear of the sticky header is now
+              // `scroll-padding-top` on <html> (globals.css) rather than a
+              // scroll-mt here — the two are additive, so keeping both would
+              // overshoot.
               id={tag.slug}
-              className="mb-10 scroll-mt-20 last:mb-0"
+              className="mb-10 last:mb-0"
             >
               {/* Term and gloss on the left, examples on the right — a
                   glossary rather than twelve identical full-width blocks. At

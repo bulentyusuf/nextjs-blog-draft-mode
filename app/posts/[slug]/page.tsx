@@ -245,7 +245,7 @@ export default async function PostPage({
                 paragraphs and in-body headings alike — so line breaking just
                 avoids a lone last word, without the aggressive re-balancing of
                 text-wrap: balance. One class covers the whole article body. */}
-            <div className="prose text-pretty prose-headings:scroll-mt-20 prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
+            <div className="prose text-pretty prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
               <RichText
                 content={post.content}
                 headings={headings}
