@@ -281,6 +281,28 @@ themselves — the same reasoning as the table of contents.
 Pills sit below the article body rather than in the sidebar, which is `xl` and
 up only; tags placed there would vanish on the viewports most people read on.
 
+Pills also appear on listing cards, on the six index surfaces a reader scans:
+the home index and its pages, category pages, and author pages. Not on the
+"Latest Posts" block at the foot of a post, which sits directly under that
+post's own tags and would say the same thing twice in one viewport. `/search`
+never had the option — it renders Pagefind's client-side templates and holds no
+tag data at all.
+
+`MoreStories` takes `visibleTags?: Set<string>`, **not a boolean**, and that is
+load-bearing. A pill links to `/tags#slug`, and the glossary drops tags below
+`MIN_POSTS_PER_TAG`, so an unfiltered pill can point at an anchor that is not on
+the page. Taking the set means pills cannot be switched on without answering
+that. Compute it from **all** posts: category and author pages fetch only their
+own slice, and counting tags across a slice hides tags the glossary shows.
+`getVisibleTagSlugs` in `lib/api.ts` does the full fetch for those pages; the
+home pages already hold `getAllPosts` and pass `visibleTagSlugs(allPosts)`
+directly, because `getAllPosts` is not `cache()`-wrapped and calling it twice is
+two requests.
+
+**Tag a post as part of publishing it.** Every published post currently carries
+at least one tag, so no card renders a gap. The first untagged publish is the
+first ragged card.
+
 ### Browse-page copy is editable, site identity is not
 
 The standfirst and meta description on `/tags`, `/categories`, `/authors` and

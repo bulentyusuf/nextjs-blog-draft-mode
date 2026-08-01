@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { visibleTagSlugs } from "./tags";
 import type {
   Post,
   PostCollectionResponse,
@@ -123,6 +124,12 @@ const POST_GRAPHQL_FIELDS = `
 // only what a card renders, so we don't fetch full rich-text content + links
 // for posts we're only teasing. Posts returned with this fragment are partial:
 // `content`, `author`, `updatedDate`, `category` are absent. Don't read them.
+//
+// `tagsCollection` is here because cards render pills on the index pages, and
+// it stays cheap: two short strings per tag, capped at 3. It is not the weight
+// this fragment exists to avoid — that is the rich-text body, its embedded
+// code blocks and assets, and the author bio. `description` is deliberately
+// not selected; see getAllTags on why the gloss stays out of listing queries.
 const CARD_GRAPHQL_FIELDS = `
   slug
   title
@@ -131,6 +138,12 @@ const CARD_GRAPHQL_FIELDS = `
   }
   date
   excerpt
+  tagsCollection(limit: 3) {
+    items {
+      name
+      slug
+    }
+  }
 `;
 
 // Listing fragment for getAllPosts. It is the union of fields the sitewide
@@ -351,6 +364,24 @@ function extractCardEntries(
   fetchResponse: CardPostCollectionResponse,
 ): CardPost[] {
   return fetchResponse?.data?.postCollection?.items ?? [];
+}
+
+// Tag slugs that clear MIN_POSTS_PER_TAG across the whole site, for pages that
+// render tag pills but only fetch a slice of posts.
+//
+// Category and author pages fetch their own posts only. Counting tags across
+// that slice would hide tags the /tags glossary shows, and a pill for a hidden
+// tag links to `/tags#slug` — an anchor that is not on the page. So this pulls
+// the full list: one extra listing query on those pages, accepted because the
+// alternative is a pill that dead-ends.
+//
+// The home pages already hold getAllPosts. They should pass
+// visibleTagSlugs(allPosts) straight through rather than calling this, because
+// getAllPosts is not cache()-wrapped and calling it twice is two requests.
+export async function getVisibleTagSlugs(
+  isDraftMode = false,
+): Promise<Set<string>> {
+  return visibleTagSlugs(await getAllPosts(isDraftMode));
 }
 
 export async function getAllPosts(isDraftMode = false): Promise<ListPost[]> {

@@ -7,7 +7,12 @@ import MoreStories from "../../more-stories";
 import Pagination from "../../pagination";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import { RichText } from "@/lib/rich-text";
-import { getAllAuthors, getAuthorBySlug, getPostsByAuthor } from "@/lib/api";
+import {
+  getAllAuthors,
+  getAuthorBySlug,
+  getPostsByAuthor,
+  getVisibleTagSlugs,
+} from "@/lib/api";
 import {
   POSTS_PER_PAGE,
   SITE_TITLE,
@@ -88,6 +93,7 @@ export default async function AuthorPage({
   ];
 
   const posts = await getPostsByAuthor(slug, isEnabled);
+  const visibleTags = await getVisibleTagSlugs(isEnabled);
   const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
   const pagePosts = posts.slice(0, POSTS_PER_PAGE);
 
@@ -138,6 +144,7 @@ export default async function AuthorPage({
             variant="list"
             heading={null}
             priorityFirst
+            visibleTags={visibleTags}
           />
           <Pagination
             currentPage={1}

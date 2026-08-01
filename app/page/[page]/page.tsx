@@ -8,6 +8,7 @@ import Pagination from "../../pagination";
 import PageContext from "../../page-context";
 
 import { getAllPosts } from "@/lib/api";
+import { visibleTagSlugs } from "@/lib/tags";
 import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
 
 // Render pages added after build on demand; out-of-range pages 404 below.
@@ -76,6 +77,7 @@ export default async function IndexPage({
         variant="list"
         heading={null}
         priorityFirst
+        visibleTags={visibleTagSlugs(allPosts)}
       />
       <Pagination
         currentPage={pageNumber}
