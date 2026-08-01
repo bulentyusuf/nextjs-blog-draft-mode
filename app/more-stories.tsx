@@ -149,10 +149,13 @@ export default function MoreStories({
   // default, which is enough to dedupe within this list.
   coverName?: (slug: string) => string | undefined;
   // Pass to show tag pills; omit for no pills. It is the visibility set rather
-  // than a boolean on purpose: a pill links to `/tags#slug`, and the glossary
-  // drops tags below MIN_POSTS_PER_TAG, so an unfiltered pill can point at an
-  // anchor that is not on the page. Requiring the set makes it impossible to
-  // switch pills on without deciding that question.
+  // than a boolean on purpose: a pill links to `/tags/[slug]`, and that route
+  // 404s for a tag below MIN_POSTS_PER_TAG, so an unfiltered pill can point at
+  // a dead URL. Requiring the set makes it impossible to switch pills on
+  // without deciding that question.
+  //
+  // A tag page passes this set minus its own slug: every post there carries
+  // that tag, so repeating it on each card says nothing.
   //
   // The set must be computed from ALL posts, via visibleTagSlugs(getAllPosts()).
   // Deriving it from the posts on one category or author page counts a subset

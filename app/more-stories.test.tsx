@@ -54,9 +54,9 @@ describe("MoreStories tag pills", () => {
   });
 
   it("drops tags that are not in the visible set", () => {
-    // The invariant this prop exists for. A pill links to /tags#slug, and the
-    // glossary omits tags below MIN_POSTS_PER_TAG, so rendering an unfiltered
-    // tag would produce a link to an anchor that is not on that page.
+    // The invariant this prop exists for. A pill links to /tags/<slug>, and
+    // that route 404s for a tag below MIN_POSTS_PER_TAG, so rendering an
+    // unfiltered tag would produce a link to a dead URL.
     render(
       <MoreStories
         morePosts={[post("a", ["Design", "Orphan"])]}
@@ -69,7 +69,7 @@ describe("MoreStories tag pills", () => {
     expect(screen.queryByRole("link", { name: "Orphan" })).toBeNull();
   });
 
-  it("names the tag row for screen readers and links each pill to the glossary", () => {
+  it("names the tag row for screen readers and links each pill to its tag page", () => {
     render(
       <MoreStories
         morePosts={[post("a", ["Design"])]}
@@ -81,7 +81,7 @@ describe("MoreStories tag pills", () => {
     expect(screen.getByRole("list", { name: "Tags" })).toBeDefined();
     expect(
       screen.getByRole("link", { name: "Design" }).getAttribute("href"),
-    ).toBe("/tags#design");
+    ).toBe("/tags/design");
   });
 
   it("renders a row per post, not one for the whole list", () => {

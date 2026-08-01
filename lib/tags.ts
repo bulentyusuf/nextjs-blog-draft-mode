@@ -18,9 +18,9 @@ export function postTags(post: Pick<Post | ListPost, "tagsCollection">): Tag[] {
 /**
  * Tag slugs that clear MIN_POSTS_PER_TAG across the given posts.
  *
- * Both surfaces must agree. The glossary hides a tag below the threshold; if a
- * post page still rendered its pill, that pill would link to `/tags#slug` —
- * an anchor that is not on the page. One helper, both callers.
+ * Every surface must agree. The glossary hides a tag below the threshold, and
+ * `/tags/[slug]` 404s for it, and the sitemap omits it — so a pill rendered
+ * without this filter would link to a dead URL. One helper, all callers.
  */
 export function visibleTagSlugs(
   posts: Array<Pick<Post | ListPost, "tagsCollection">>,

@@ -27,7 +27,7 @@ A recurring subject of the blog is the process of building and maintaining it. M
 - **Post**, the main entry type. Title, slug, publish and updated dates, cover image, excerpt, rich-text body, and links to one author and one category
 - **Author**, name, picture, slug, and a short bio, with its own landing page
 - **Category**, name, slug, description, and thumbnail, with its own landing page. Posts are filed under Main Quest or Side Quests
-- **Tag**, name, slug, and a one-line description. Cross-cutting topics, up to three per post: where Category says where a post lives, a Tag says what it is about
+- **Tag**, name, slug, and a one-line description, with its own landing page. Cross-cutting topics, up to three per post: where Category says where a post lives, a Tag says what it is about
 - **Code Block**, embedded into post bodies for syntax-highlighted snippets. Optional filename and a fixed list of languages
 - **Prompt Block**, embedded into post bodies to publish the generative-image prompt behind a cover, with an optional label and image
 - **Sidenote**, embedded inline in post bodies for asides set in the margin. A title for finding the entry in the CMS, and a rich-text note deliberately limited to bold, italic, and links
@@ -46,7 +46,7 @@ A recurring subject of the blog is the process of building and maintaining it. M
 **Finding things**
 
 - Site search that runs entirely in the visitor's browser, with no third-party service and no query leaving the page
-- Tag glossary listing every topic with its posts grouped beneath it, and tag links on each post
+- Tag landing pages, and a glossary indexing every topic with its posts grouped beneath it. Tag pills on each post and on every listing card
 - Archive page listing every post grouped by year
 - Paginated home, category, and author listings
 - Category and author landing pages, each with a directory index

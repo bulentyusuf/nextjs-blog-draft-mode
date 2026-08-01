@@ -244,35 +244,56 @@ transition. Reset per request, do not memoise across requests. The 0.35s group
 and 0.2s root durations are tuned, not defaults, and the `prefers-reduced-motion`
 block disables the animation entirely.
 
-### Tags are one glossary page, not a page per tag
+### Tags have their own pages, and `/tags` is the index
 
-`/tags` lists every tag with its posts grouped beneath it. There are no
-`/tags/[slug]` routes, and that is **an editorial decision, not a technical
-limit** — do not repeat the earlier version of this note, which had it the wrong
-way round.
+`/tags` lists every tag with its posts grouped beneath it, and each tag name
+links to `/tags/[slug]` — a landing page with a breadcrumb, an `h1`, the tag
+description as its standfirst, and the paginated post list. The same
+relationship `/categories` already has with a category page, which teases a few
+posts per category and leaves the full list to the landing page.
 
-The editorial reason: a dozen pages carrying two to four posts each, differing
-only in which links they hold, is thin content and a disappointing click. A
-glossary puts the posts in front of the reader, which also lets the vocabulary be
-finer-grained, because a two-post tag costs a heading rather than a whole page.
-The sitemap carries one `/tags` URL accordingly.
+**This reverses an earlier decision, and the reversal is the interesting part.**
+The glossary was originally the only tag surface, argued on editorial grounds: a
+dozen pages carrying two to four posts each is thin content and a disappointing
+click. Those arguments were not wrong, they were outweighed.
 
-Per-tag routes remain perfectly buildable if that ever changes. `getAllPosts` is
-already grouped in memory here, so a `/tags/[slug]` route would use the same data
-with `generateStaticParams`.
+What changed:
 
-Separately true, and the reason the grouping is in memory rather than queried:
+- **Pills went onto every listing card.** That turned `/tags#slug` from a link
+  you met occasionally at the foot of a post into the ordinary way to reach a
+  tag — and an anchor drops the reader past the breadcrumb, the `h1` and the
+  standfirst, with nothing on screen saying what page they are on. It was the
+  only link on the site that did that.
+- **The thin-content argument proved weaker than it looked**, because a tag page
+  is structurally identical to a category page, which the site already ships
+  without embarrassment.
+- **Google consolidates duplicate listings rather than penalising them.** Twelve
+  pages with distinct link sets, unique titles and hand-written descriptions are
+  not a penalty risk. There is no manual action for having archive pages.
+
+Do not "simplify" this back to anchors. If it is ever revisited, the argument to
+beat is orientation, not SEO.
+
+A short-lived `:target` orientation link on the glossary (PR #326) was the
+cheaper fix for the same problem. It was merged and then removed here without
+ever being deployed. Do not reintroduce it: nothing generates `/tags#slug` links
+any more, so it can never fire.
+
+Still true, and the reason the grouping is in memory rather than queried:
 **Contentful's GraphQL cannot filter a collection on an `Array<Link>` field.**
 There is no `where` for a multi-reference field, and the documented `linkedFrom`
 workaround has no ordering, so neither can reproduce `date_DESC`. The REST CDA
 does support the filter. This constrains _how_ you fetch posts for a tag; it does
-not stop you rendering a page for one.
+not stop you rendering a page for one — which is exactly what `/tags/[slug]`
+does. `getPostsByTag` filters the `getAllPosts` result in memory rather than
+querying per tag, and `generateStaticParams` enumerates the visible slugs from
+that same list.
 
 **A tag needs two posts to render anywhere.** `MIN_POSTS_PER_TAG` in
-`lib/tags.ts` is read by both the glossary and the pills on a post page through
-the same `visibleTagSlugs` helper, and they must stay on one helper: a pill for
-a tag the glossary has hidden links to `/tags#slug`, an anchor that is not on
-the page. A test asserts the two agree.
+`lib/tags.ts` is read through the same `visibleTagSlugs` helper by every surface,
+and they must stay on one helper. The threshold now gates a third thing:
+`/tags/[slug]` **404s** for a tag below it and the sitemap omits it, so a hidden
+tag has no page and no advertised URL. A test asserts the surfaces agree.
 
 The glossary is `data-pagefind-ignore`. It repeats every post title once per
 tag it carries, and Pagefind would weight those repeats above the posts
@@ -289,10 +310,11 @@ never had the option — it renders Pagefind's client-side templates and holds n
 tag data at all.
 
 `MoreStories` takes `visibleTags?: Set<string>`, **not a boolean**, and that is
-load-bearing. A pill links to `/tags#slug`, and the glossary drops tags below
-`MIN_POSTS_PER_TAG`, so an unfiltered pill can point at an anchor that is not on
-the page. Taking the set means pills cannot be switched on without answering
-that. Compute it from **all** posts: category and author pages fetch only their
+load-bearing. A pill links to `/tags/[slug]`, and that route 404s for a tag below
+`MIN_POSTS_PER_TAG`, so an unfiltered pill can point at a dead URL. Taking the
+set means pills cannot be switched on without answering that. A tag page passes
+the set **minus its own slug**, because a pill repeating the tag that every post
+on the page already carries says nothing. Compute it from **all** posts: category and author pages fetch only their
 own slice, and counting tags across a slice hides tags the glossary shows.
 `getVisibleTagSlugs` in `lib/api.ts` does the full fetch for those pages; the
 home pages already hold `getAllPosts` and pass `visibleTagSlugs(allPosts)`

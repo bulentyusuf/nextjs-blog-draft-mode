@@ -90,10 +90,10 @@ describe("groupPostsByTag", () => {
     );
   });
 
-  it("agrees with visibleTagSlugs, so pills never outlive their anchors", () => {
-    // The pills on a post page filter by visibleTagSlugs and link to
-    // /tags#slug. If the glossary dropped a tag the pills still rendered, that
-    // link would point at an anchor which is not on the page.
+  it("agrees with visibleTagSlugs, so pills never outlive their pages", () => {
+    // Pills filter by visibleTagSlugs and link to /tags/<slug>. If the glossary
+    // dropped a tag the pills still rendered, that link would point at a route
+    // which 404s, because the tag page gates on the same helper.
     const posts = [
       post("a", tag("shared"), tag("lonely")),
       post("b", tag("shared")),
