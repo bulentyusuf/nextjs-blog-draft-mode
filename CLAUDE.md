@@ -760,7 +760,27 @@ Leave the Ignored Build Step in place regardless. With no preview deployments
 being created it has nothing to catch, but it still guards the production path
 and costs nothing.
 
-None of the three is expressible in this repo, and all are easy to lose: a
+`demo` is protected by its own GitHub ruleset, `demo branch protection`
+(id 20204826), carrying exactly two rules: `deletion` and `non_fast_forward`.
+
+**Deliberately not `pull_request`.** Both routes onto this branch push directly
+— the manual `git push origin main:demo` below, and `.github/workflows/sync-demo.yml`
+with `GITHUB_TOKEN` — so requiring a pull request would protect the branch by
+making it unmaintainable. Copying `main`'s ruleset across is the obvious wrong
+move.
+
+The two rules that are there cost nothing and close the two ways this branch can
+actually be damaged. Deleting it would break demo-site's Production branch
+tracking, which is a dashboard setting with no trace in the repo. And
+`non_fast_forward` moves an invariant the sync workflow already asserts —
+
+> this job will not force-push over it
+
+— from a shell script anyone can sidestep by typing `git push --force`
+themselves, to the server, where it holds regardless. A genuine fast-forward is
+not a non-fast-forward update, so neither push route is affected.
+
+None of the three Vercel settings is expressible in this repo, and all are easy to lose: a
 dashboard setting leaves no trace in the codebase and survives no project
 rebuild. A missing `Preview – demo-site` check is the expected state, not a
 regression to fix by switching it back on.
