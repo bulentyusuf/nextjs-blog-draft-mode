@@ -497,6 +497,39 @@ deleting anything are manual steps in the web UI. Entries also cannot be created
 against a type that has not been activated, so a new type is always two trips:
 activate, then populate.
 
+### `demo-site` builds from this repo, off the `demo` branch
+
+One repo, two Vercel projects. `demo-site` and the live site run **identical
+code**, differing only in environment variables — a different Contentful space,
+different tokens, a different `NEXT_PUBLIC_SITE_URL`. There is no source
+divergence to manage, so do not fork the repo to separate them. Vercel allows 25
+projects per repository, and one repo feeding several is the designed path, not
+a workaround.
+
+Two settings keep `demo-site` off `main`'s critical path:
+
+- **Production Branch is `demo`**, not `main`, so merging a PR no longer
+  triggers a demo production build
+- **Ignored Build Step is "Only build production"**, so PR pushes skip it and
+  the check reports as cancelled rather than building
+
+Refresh the demo deliberately, when the template has changed in a way worth
+showing:
+
+```
+git push origin main:demo
+```
+
+A fast-forward inside one repo, so it cannot conflict. **Do not automate this on
+push to `main`** — that reinstates the per-merge build the two settings above
+exist to remove. A scheduled workflow is the middle ground if the demo starts
+looking stale.
+
+Both settings date from 2026-08-01, after the account hit Vercel's deployment
+cap. The caps are scoped to the **account**, not the project, so every project
+draws on one allowance; and the hourly cap on Hobby (100) equals the daily one,
+so a burst of merges can exhaust a day's worth inside an hour.
+
 ### What the fixtures guards do and do not catch
 
 `lib/contentful-fixtures.test.ts` checks that the export ships every content
