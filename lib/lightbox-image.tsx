@@ -97,10 +97,20 @@ export default function LightboxImage({
     typeof window !== "undefined" &&
     window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
+  // A visible caption describes the image already, and it sits immediately
+  // after it in the DOM. Repeating the same string as alt — and again in the
+  // trigger's label — made one figure announce its description three times:
+  // "Enlarge image: <desc>, button", then the img, then the figcaption. So
+  // when a caption is present the image goes decorative and the trigger keeps
+  // a bare name. With no caption there is nothing else naming the image, and
+  // alt carries it as before.
+  const describedByCaption = Boolean(caption);
+  const imageAlt = describedByCaption ? "" : alt;
+
   const image = (
     <ContentfulImage
       src={src}
-      alt={alt}
+      alt={imageAlt}
       width={1200}
       height={800}
       sizes="(max-width: 768px) 100vw, 672px"
@@ -122,7 +132,11 @@ export default function LightboxImage({
           ref={triggerRef}
           type="button"
           onClick={() => setOpen(true)}
-          aria-label={alt ? `Enlarge image: ${alt}` : "Enlarge image"}
+          aria-label={
+            describedByCaption || !alt
+              ? "Enlarge image"
+              : `Enlarge image: ${alt}`
+          }
           className="block w-full cursor-zoom-in focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-crimson focus-visible:ring-offset-2"
         >
           {image}
@@ -175,7 +189,7 @@ export default function LightboxImage({
             >
               <ContentfulImage
                 src={src}
-                alt={alt}
+                alt={imageAlt}
                 width={2000}
                 height={1333}
                 sizes="100vw"
