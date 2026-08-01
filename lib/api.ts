@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { visibleTagSlugs } from "./tags";
+import { postTags, visibleTagSlugs } from "./tags";
 import type {
   Post,
   PostCollectionResponse,
@@ -370,10 +370,10 @@ function extractCardEntries(
 // render tag pills but only fetch a slice of posts.
 //
 // Category and author pages fetch their own posts only. Counting tags across
-// that slice would hide tags the /tags glossary shows, and a pill for a hidden
-// tag links to `/tags#slug` — an anchor that is not on the page. So this pulls
-// the full list: one extra listing query on those pages, accepted because the
-// alternative is a pill that dead-ends.
+// that slice would hide tags the /tags glossary shows, and would render pills
+// for tags whose /tags/[slug] page 404s. So this pulls the full list: one extra
+// listing query on those pages, accepted because the alternative is a pill that
+// dead-ends.
 //
 // The home pages already hold getAllPosts. They should pass
 // visibleTagSlugs(allPosts) straight through rather than calling this, because
@@ -575,6 +575,48 @@ export const getBrowseIntro = cache(
 // feed and the sitemap, and exists to keep weight out of their ISR entries;
 // carrying a gloss on every listing so one page can print it would undo that.
 // The glossary joins these to the grouped posts by slug.
+// One tag, for its landing page. cache()-wrapped because generateMetadata and
+// the page component both need it, and cache() only dedupes identical calls —
+// see the note on getPostAndMorePosts.
+export const getTagBySlug = cache(
+  async (slug: string, isDraftMode = false): Promise<Tag | undefined> => {
+    const entries = await fetchGraphQL<TagCollectionResponse>(
+      `query GetTagBySlug($slug: String!, $preview: Boolean) {
+      tagCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
+        items {
+          name
+          slug
+          description
+        }
+      }
+    }`,
+      isDraftMode,
+      { slug, preview: isDraftMode },
+    );
+
+    return entries?.data?.tagCollection?.items?.[0];
+  },
+);
+
+// Posts carrying a tag, newest first.
+//
+// Filtered in memory rather than by the API, and that is not laziness:
+// Contentful's GraphQL cannot filter a collection on an Array<Link> field at
+// all, so `where: { tags: { slug } }` does not exist. The documented
+// alternative, linkedFrom, returns no ordering, so it could not reproduce
+// date_DESC either.
+//
+// getAllPosts already sorts date_DESC and the /tags glossary has always grouped
+// that same result in memory, so this adds a filter to a fetch the site was
+// making anyway rather than introducing a new access pattern.
+export async function getPostsByTag(
+  slug: string,
+  isDraftMode = false,
+): Promise<ListPost[]> {
+  const posts = await getAllPosts(isDraftMode);
+  return posts.filter((post) => postTags(post).some((t) => t.slug === slug));
+}
+
 export async function getAllTags(isDraftMode = false): Promise<Tag[]> {
   const entries = await fetchGraphQL<TagCollectionResponse>(
     `query GetAllTags($preview: Boolean) {
