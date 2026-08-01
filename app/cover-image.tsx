@@ -31,9 +31,11 @@ export default async function CoverImage({
   // Set on the above-the-fold hero image only (index + post page) so the
   // LCP element is fetched eagerly. Leave false for cards and grids.
   priority?: boolean;
-  // Opt-in gentle zoom on hover/keyboard-focus, for interactive listing-card
-  // previews only. Off for the homepage hero and post cover (not previews).
-  // Reduced-motion users get no movement (motion-safe: prefix), no JS.
+  // Opt-in gentle zoom on hover, for interactive listing-card previews only.
+  // Off for the homepage hero and post cover (not previews). Hover only, not
+  // keyboard focus: the link below is out of the tab order, so focus cannot
+  // land inside this group — see the note on the Link. Reduced-motion users
+  // get no movement (motion-safe: prefix), no JS.
   hover?: boolean;
   // Cross-document view-transition name for the cover morph. Set by callers
   // that want this cover to morph into its counterpart on the next page (a

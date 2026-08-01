@@ -59,9 +59,10 @@ export interface HeadingPosition {
  *
  * @param positions Every heading, in document order.
  * @param bandTop   Distance in px from the viewport top to the line a heading
- *                  must cross to become active. Must be at least the heading's
- *                  own scroll-margin-top, or a heading parked there by a ToC
- *                  click will not count as passed.
+ *                  must cross to become active. Must be at least the page's
+ *                  scroll-padding-top, or a heading parked there by a ToC click
+ *                  will not count as passed — see activationBandTop, which
+ *                  derives it and adds the tolerance.
  */
 export function pickActiveHeading(
   positions: HeadingPosition[],

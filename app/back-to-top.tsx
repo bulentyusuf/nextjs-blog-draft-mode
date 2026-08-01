@@ -25,10 +25,11 @@ export default function BackToTop() {
   }
 
   return (
-    /* The one deliberate exception to the sitewide crimson focus outline.
-       This is the only position:fixed control on the site, so its indicator
-       floats over unknown ground — light page, dark page, the footer band, a
-       code block. No single colour clears 3:1 against all of those: crimson is
+    /* A deliberate exception to the sitewide crimson focus outline, and the
+       first of two: app/exit-preview-button.tsx is the other position:fixed
+       control (draft mode only) and carries the same ring for the same reason.
+       A fixed control's indicator floats over unknown ground — light page,
+       dark page, the footer band, a code block. No single colour clears 3:1 against all of those: crimson is
        2.32:1 on the light-mode footer (#A4243B on #241B1D), which is where it
        was caught. The white ring plus dark offset is a two-tone indicator —
        whichever tone loses contrast against the background, the other carries
