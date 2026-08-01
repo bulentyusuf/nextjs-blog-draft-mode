@@ -469,6 +469,15 @@ as in `opengraph-image.tsx`, which renders in its own request.
 Do not re-flag the duplicate fetch as a finding; it is fixed. Do not "simplify"
 the metadata call back to a narrower helper.
 
+`opengraph-image.tsx` keeps `getPost` and now also carries its own
+`generateStaticParams`. Colocated metadata routes do not inherit the page's,
+so without one the card route was the only dynamic non-API route on the site
+and every scrape paid for a query, a Satori render and a cover fetch. The
+duplicate `getAllPosts` between the two files is the accepted cost of that, one
+listing query per build. `dynamicParams` is left at its default `true`, so a
+post published through the webhook still gets a card rendered on demand until
+the next deploy — do not set it `false`.
+
 ### Every unbounded collection query pages, and must keep selecting `total`
 
 Contentful returns at most 100 items from a collection and puts the real count
