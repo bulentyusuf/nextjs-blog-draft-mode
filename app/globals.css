@@ -116,7 +116,11 @@
 /*
   All top-level headings inherit the display face (Fraunces) sitewide. This is
   the single mechanism — do not add per-component font-display classes. h4 and
-  below stay in Inter deliberately (footer column labels, small UI headings).
+  below stay in Inter deliberately, for small UI headings.
+
+  This rule is why the footer's column labels are <p> rather than headings: as
+  h4 they skipped a level after the page's h2s, and promoting them to h2 to fix
+  that would have pulled them into Fraunces. See CLAUDE.md.
 */
 @layer base {
   h1,

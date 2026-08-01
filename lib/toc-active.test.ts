@@ -11,8 +11,9 @@ import {
 
 // Headings arrive in document order; `top` is the live viewport offset. A
 // positive top sits below the viewport top, a negative one has scrolled above
-// it. bandTop is the line a heading must cross to become active (matches
-// rootMargin, and is at least the heading's own scroll-margin-top).
+// it. bandTop is the line a heading must cross to become active, and is at
+// least the page's scroll-padding-top (globals.css) plus the tolerance —
+// see activationBandTop below.
 const BAND_TOP = 80;
 
 const pos = (id: string, top: number): HeadingPosition => ({ id, top });
@@ -27,13 +28,13 @@ describe("pickActiveHeading", () => {
     expect(pickActiveHeading(positions, 100)).toBe("pirates");
   });
 
-  it("counts a heading parked at exactly the scroll-margin as passed (ToC click)", () => {
-    // A ToC click parks the target at its scroll-margin-top (96px). bandTop
-    // deliberately exceeds that (100 here) so the parked heading counts as
-    // passed and highlights itself. Drop bandTop below the scroll-margin and
-    // every ToC click silently regresses by one section.
-    const positions = [pos("pirates", -400), pos("larry", 96)];
-    expect(pickActiveHeading(positions, 100)).toBe("larry");
+  it("counts a heading parked at exactly the scroll offset as passed (ToC click)", () => {
+    // A ToC click parks the target at the page's scroll-padding-top (80px).
+    // bandTop deliberately exceeds that (84 here, the tolerance) so the parked
+    // heading counts as passed and highlights itself. Drop bandTop below the
+    // offset and every ToC click silently regresses by one section.
+    const positions = [pos("pirates", -400), pos("larry", 80)];
+    expect(pickActiveHeading(positions, 84)).toBe("larry");
   });
 
   it("falls back to the last heading passed", () => {
