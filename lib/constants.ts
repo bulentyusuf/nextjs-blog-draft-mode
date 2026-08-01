@@ -92,8 +92,7 @@ export const SITE_FOOTER_BLURB =
   "A blog about content, code, and collaborating with generative AI. Written in Munich and published from a headless CMS.";
 
 // Shown as the footer "GitHub" link. Point this at your own repository.
-export const SITE_REPO_URL =
-  "https://github.com/bulentyusuf/nextjs-blog-draft-mode";
+export const SITE_REPO_URL = "https://github.com/bulentyusuf/building-blocks";
 
 // Posts shown per listing page (index and category). On page 1 of the index
 // the hero counts as one of these, so every page holds the same number of posts.
