@@ -3,6 +3,7 @@ import {
   MIN_POSTS_PER_TAG,
   groupPostsByTag,
   postTags,
+  postsWithTag,
   visibleTagSlugs,
 } from "./tags";
 import type { Tag } from "./types";
@@ -48,6 +49,38 @@ describe("visibleTagSlugs", () => {
     ]);
     expect(visible.has("shared")).toBe(true);
     expect(visible.has("lonely")).toBe(false);
+  });
+});
+
+describe("postsWithTag", () => {
+  it("keeps only posts carrying the tag", () => {
+    const a = post("a", tag("ai"), tag("css"));
+    const b = post("b", tag("css"));
+    const c = post("c", tag("ai"));
+
+    expect(postsWithTag([a, b, c], "ai")).toEqual([a, c]);
+  });
+
+  it("preserves the caller's order rather than re-sorting", () => {
+    // getAllPosts already returns date_DESC, so the filter must not disturb it.
+    const first = post("first", tag("ai"));
+    const second = post("second", tag("ai"));
+    const third = post("third", tag("ai"));
+
+    expect(
+      postsWithTag([third, first, second], "ai").map((p) => p.slug),
+    ).toEqual(["third", "first", "second"]);
+  });
+
+  it("returns nothing for a tag no post carries", () => {
+    expect(postsWithTag([post("a", tag("ai"))], "nope")).toEqual([]);
+  });
+
+  it("tolerates a post with no tags", () => {
+    const untagged = { slug: "u", tagsCollection: undefined };
+    expect(postsWithTag([untagged, post("a", tag("ai"))], "ai")).toHaveLength(
+      1,
+    );
   });
 });
 

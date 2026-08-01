@@ -282,9 +282,16 @@ There is no `where` for a multi-reference field, and the documented `linkedFrom`
 workaround has no ordering, so neither can reproduce `date_DESC`. The REST CDA
 does support the filter. This constrains _how_ you fetch posts for a tag; it does
 not stop you rendering a page for one — which is exactly what `/tags/[slug]`
-does. `getPostsByTag` filters the `getAllPosts` result in memory rather than
-querying per tag, and `generateStaticParams` enumerates the visible slugs from
-that same list.
+does. `postsWithTag` in `lib/tags.ts` filters the `getAllPosts` result in memory
+rather than querying per tag, and `generateStaticParams` enumerates the visible
+slugs from that same list.
+
+**It takes the posts, it does not fetch them**, and that is the point. The tag
+routes need the sitewide list anyway to test the slug against
+`MIN_POSTS_PER_TAG`, so a fetcher that wrapped `getAllPosts` — which the removed
+`getPostsByTag` did — issued a second identical request on every tag page
+render. `getAllPosts` is not `cache()`-wrapped, so nothing collapsed them. Fetch
+once, read it twice; do not reintroduce a per-tag fetcher.
 
 **A tag needs two posts to render anywhere.** `MIN_POSTS_PER_TAG` in
 `lib/tags.ts` is read through the same `visibleTagSlugs` helper by every surface,

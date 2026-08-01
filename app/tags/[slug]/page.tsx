@@ -5,8 +5,8 @@ import Container from "../../container";
 import MoreStories from "../../more-stories";
 import Pagination from "../../pagination";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
-import { getAllPosts, getPostsByTag, getTagBySlug } from "@/lib/api";
-import { visibleTagSlugs } from "@/lib/tags";
+import { getAllPosts, getTagBySlug } from "@/lib/api";
+import { postsWithTag, visibleTagSlugs } from "@/lib/tags";
 import {
   POSTS_PER_PAGE,
   SITE_TITLE,
@@ -80,6 +80,9 @@ export default async function TagPage({
     notFound();
   }
 
+  // One fetch, read twice. The threshold check needs the sitewide list and the
+  // post list is a filter over that same result, so fetching for each was two
+  // identical requests — getAllPosts is not cache()-wrapped.
   const allPosts = await getAllPosts(isEnabled);
   const visible = visibleTagSlugs(allPosts);
 
@@ -90,7 +93,7 @@ export default async function TagPage({
     notFound();
   }
 
-  const posts = await getPostsByTag(slug, isEnabled);
+  const posts = postsWithTag(allPosts, slug);
 
   // Every post on this page carries this tag, so a pill repeating it on each
   // card says nothing. The other tags a post carries are still worth showing —

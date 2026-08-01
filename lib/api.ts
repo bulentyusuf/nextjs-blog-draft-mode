@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { postTags, visibleTagSlugs } from "./tags";
+import { visibleTagSlugs } from "./tags";
 import type {
   Post,
   PostCollectionResponse,
@@ -598,24 +598,11 @@ export const getTagBySlug = cache(
   },
 );
 
-// Posts carrying a tag, newest first.
-//
-// Filtered in memory rather than by the API, and that is not laziness:
-// Contentful's GraphQL cannot filter a collection on an Array<Link> field at
-// all, so `where: { tags: { slug } }` does not exist. The documented
-// alternative, linkedFrom, returns no ordering, so it could not reproduce
-// date_DESC either.
-//
-// getAllPosts already sorts date_DESC and the /tags glossary has always grouped
-// that same result in memory, so this adds a filter to a fetch the site was
-// making anyway rather than introducing a new access pattern.
-export async function getPostsByTag(
-  slug: string,
-  isDraftMode = false,
-): Promise<ListPost[]> {
-  const posts = await getAllPosts(isDraftMode);
-  return posts.filter((post) => postTags(post).some((t) => t.slug === slug));
-}
+// Posts carrying a tag are filtered in memory by postsWithTag in lib/tags.ts,
+// not fetched here. There is no per-tag query to write — Contentful's GraphQL
+// cannot filter a collection on an Array<Link> field — and a fetcher wrapping
+// getAllPosts only hid a second identical request from callers that already
+// held the list. See the note on postsWithTag.
 
 export async function getAllTags(isDraftMode = false): Promise<Tag[]> {
   const entries = await fetchGraphQL<TagCollectionResponse>(
