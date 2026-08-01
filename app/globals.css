@@ -46,8 +46,30 @@
   /* Divider hairline. One token for every rule between list items, cards, and
      panels, so the value inverts with the scheme instead of each component
      carrying its own dark: variant. Frame borders (the border-2 around images)
-     are a heavier, separate role and deliberately do not use this. */
+     are a heavier, separate role and deliberately do not use this. Neither
+     does a control boundary — see --color-control-edge below. */
   --color-hairline: #e5e7eb;
+
+  /* The closed boundary around an interactive control, currently only the tag
+     pills. A third role alongside dividers and image frames, and not a divider
+     despite looking like one: a rule BETWEEN things is decorative and exempt
+     from contrast rules, whereas this edge is the only thing identifying the
+     control. Pill text is brand-muted, the same colour as the dates and meta
+     beside it, so with the edge invisible a pill is indistinguishable from
+     static text. On --color-hairline it sat at 1.14:1 (light) and 1.47:1
+     (dark); at 70% of the muted ink it clears WCAG 1.4.11's 3:1 in both
+     (3.15:1 and 4.37:1), which lib/tag-pill.test.ts asserts against these very
+     tokens.
+
+     Two literal values with a dark override, exactly as hairline does, rather
+     than color-mix() over var(--color-brand-muted). That derivation reads
+     better and compiles worse: Tailwind flattens a var() inside color-mix()
+     into an @supports (color: color-mix(in lab, red, red)) block with a
+     LITERAL light-mode fallback outside it, so any engine without color-mix
+     would paint the light edge on the dark page and lose the contrast this
+     token exists for. These are brand-muted at 70% in each scheme; the test
+     recomputes them, so retuning brand-muted without following here fails. */
+  --color-control-edge: rgb(107 90 82 / 0.7);
 
   /* Always-dark surface, in BOTH schemes. brand-dark doubles as body ink and,
      historically, as dark chrome; because ink must invert in dark mode (below),
@@ -92,6 +114,10 @@
     /* Warm off-white at low alpha, matching the ink. The light #e5e7eb reads
        at ~15:1 on the #17110F page and glares. */
     --color-hairline: rgb(242 234 228 / 0.15);
+
+    /* brand-muted's dark value (#B3A49C) at the same 70%. Carried by hand for
+       the reason set out on the light value above. */
+    --color-control-edge: rgb(179 164 156 / 0.7);
   }
 }
 

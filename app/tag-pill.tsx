@@ -34,7 +34,12 @@ export default function TagPill({
   return (
     <Link
       href={`/tags/${tag.slug}`}
-      className={`inline-block rounded-full border border-hairline ${SIZES[size]} text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson`}
+      // border-control-edge, not border-hairline. The pill's edge is the only
+      // thing marking it as interactive — its text is brand-muted, the same as
+      // the dates and meta beside it — so it is a control boundary rather than
+      // a divider, and the divider token's 1.14:1 left it invisible. See the
+      // token's own note in globals.css.
+      className={`inline-block rounded-full border border-control-edge ${SIZES[size]} text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson`}
     >
       {tag.name}
     </Link>
