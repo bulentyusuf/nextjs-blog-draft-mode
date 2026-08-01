@@ -15,7 +15,7 @@ import { ImageResponse } from "next/og";
 describe("OG card font", () => {
   it("renders through next/og without a parser error", async () => {
     const data = readFileSync(
-      join(process.cwd(), "app/posts/[slug]/Newsreader-SemiBold.woff"),
+      join(process.cwd(), "app/posts/[slug]/Bricolage-Bold.woff"),
     );
     const res = new ImageResponse(
       <div style={{ display: "flex", fontFamily: "T", fontSize: 60 }}>
@@ -24,7 +24,7 @@ describe("OG card font", () => {
       {
         width: 1200,
         height: 630,
-        fonts: [{ name: "T", data, weight: 600, style: "normal" }],
+        fonts: [{ name: "T", data, weight: 700, style: "normal" }],
       },
     );
     expect(Buffer.from(await res.arrayBuffer()).byteLength).toBeGreaterThan(

@@ -253,7 +253,7 @@ unaffected. Because keyboard focus can no longer land inside the cover,
 after the page's `h2`s and skipped a level on every page whose deepest heading
 is an `h2` — post pages, `/about`, `/privacy`, `/search` and all four browse
 indexes — which axe reports as `heading-order`. Promoting them to `h2` instead
-would flip them to Newsreader, since `globals.css` gives the display face to
+would flip them to Bricolage, since `globals.css` gives the display face to
 `h1`–`h3`. They lose nothing as paragraphs: both navs already carry
 `aria-label="Browse"` / `"Colophon"`, so the landmarks stay named.
 
@@ -531,13 +531,19 @@ require("uuid")` in `add-sequence-header.js` — so re-check that call site if
 
 ## House conventions
 
-### Three faces, three roles, and no family named directly
+### Two faces, three roles, and no family named directly
 
-`globals.css` defines `--font-display` (Newsreader), `--font-body` (Literata)
-and `--font-ui` (Inter), and points `--default-font-family` at the body face so
-Preflight puts it on `<body>`. Tailwind generates `font-display`, `font-body`
+`globals.css` defines `--font-display` (Bricolage Grotesque), `--font-body`
+(Literata) and `--font-ui`, and points `--default-font-family` at the body face
+so Preflight puts it on `<body>`. Tailwind generates `font-display`, `font-body`
 and `font-ui` from those tokens. **Nothing in a component names a family** —
-that is what kept the last two swaps to a handful of lines.
+that is what kept the last three swaps to a handful of lines.
+
+**`--font-ui` resolves to the same family as `--font-display`, by choice.** It
+is the display face at smaller sizes, and it keeps its own token because the
+roles are still separate: handing UI back to a face of its own is then one line
+in the token block rather than a hunt through components. Do not "deduplicate"
+the two into one.
 
 - **Display** is headings and the two mastheads, applied by the base-layer rule
   above. Do not add `font-display` to an h1, h2 or h3.
@@ -556,15 +562,26 @@ a `font-sans` class now silently does nothing. If a new surface seems to want
 UI, leave it on the body face and raise it rather than extending the list
 quietly.
 
-Literata ships both roman and italic; Newsreader is roman only. So `<em>` in
+Literata ships both roman and italic; Bricolage is roman only. So `<em>` in
 prose and the figure captions in `lib/rich-text.tsx` and `lib/lightbox-image.tsx`
 render a true italic rather than the browser's synthesised slant — which is why
 those `italic` classes stay.
 
-**Check the optical-size range before proposing any replacement face.** Headings
-reach roughly 45pt at `lg:text-6xl`; a face whose `opsz` axis stops below that
-clamps and the browser scales a text master, which reads flat. Newsreader runs
-6–72 and Literata 7–72.
+**The pairing is a grotesque against a serif, and that contrast is the point.**
+The face before this one was a transitional serif like Literata, with similar
+proportions and serif treatment, so at heading sizes the difference was swamped
+and an h2 dissolved into the paragraph under it. Any replacement display face
+has to hold that separation.
+
+**Check the optical-size range before proposing one.** Headings reach roughly
+45pt at `lg:text-6xl`; a face whose `opsz` axis stops below that clamps and the
+browser scales a text master, which reads flat. Bricolage runs 12–96 and
+Literata 7–72.
+
+Bricolage also carries a `wdth` axis (75–100) that is deliberately **not**
+requested — it costs bytes and nothing reaches for it yet. It is the reason this
+face suits the de-DE work, where a long compound can narrow instead of dropping
+a size step; request the axis then, not before.
 
 ### Two h1 treatments, chosen by column width
 

@@ -57,15 +57,20 @@
 }
 
 @theme {
-  /* Three faces, three jobs. Display is headings and mastheads. Body is
-     everything you read, prose and the meta around it. UI is chrome that should
-     not compete with prose: nav, labels, pills, counts — an enumerated list,
-     see CLAUDE.md. --default-font-family is what Preflight puts on <body>, so
-     body copy flips with one token, and font-display / font-body / font-ui are
-     generated from these by Tailwind. Nothing names a family directly. */
-  --font-display: var(--font-newsreader);
+  /* Two faces, three jobs. Display is headings and mastheads. Body is
+     everything you read, prose and the meta around it. UI is the display face
+     at smaller sizes — chrome that should not compete with prose: nav, labels,
+     pills, counts, an enumerated list, see CLAUDE.md. --default-font-family is
+     what Preflight puts on <body>, so body copy flips with one token, and
+     font-display / font-body / font-ui are generated from these by Tailwind.
+     Nothing names a family directly.
+
+     --font-ui resolving to the same family as --font-display is a choice, not a
+     redundancy to tidy away: the roles stay separate, so handing UI back to its
+     own face is one line here rather than a hunt through components. */
+  --font-display: var(--font-bricolage);
   --font-body: var(--font-literata);
-  --font-ui: var(--font-inter);
+  --font-ui: var(--font-bricolage);
   --default-font-family: var(--font-body);
 
   --color-brand-crimson: #a4243b;
@@ -171,25 +176,26 @@
 }
 
 /*
-  All top-level headings inherit the display face (Newsreader) sitewide. This is
+  All top-level headings inherit the display face (Bricolage Grotesque) sitewide. This is
   the single mechanism — do not add per-component font-display classes. h4 and
   below stay in the body face deliberately, for small UI headings.
 
   This rule is why the footer's column labels are <p> rather than headings: as
   h4 they skipped a level after the page's h2s, and promoting them to h2 to fix
-  that would have pulled them into Newsreader. See CLAUDE.md.
+  that would have pulled them into Bricolage. See CLAUDE.md.
 
-  Newsreader is fitted for newspaper column widths, so it takes slight negative
-  tracking at display sizes. Both values are starting points to settle on the
-  preview at the largest heading step, not fixed numbers.
+  A grotesque needs more weight than a serif to hold the same presence, and less
+  manual tracking: Bricolage's opsz axis does the optical fitting that the
+  previous face needed compensating for by hand. Both values are starting points
+  to settle on the preview at the largest heading step, not fixed numbers.
 */
 @layer base {
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.011em;
+    font-weight: 700;
+    letter-spacing: -0.005em;
   }
 }
 
@@ -474,7 +480,7 @@ html {
    mode is free. Result markup comes from our own template in search-client.tsx
    and is styled there with ordinary Tailwind classes. */
 .pagefind-scope {
-  --pf-font: var(--font-inter), system-ui, sans-serif;
+  --pf-font: var(--font-ui), system-ui, sans-serif;
   --pf-text: var(--color-brand-dark);
   --pf-text-secondary: var(--color-brand-muted);
   --pf-text-muted: var(--color-brand-muted);

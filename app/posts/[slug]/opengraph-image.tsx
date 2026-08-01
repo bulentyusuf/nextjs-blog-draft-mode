@@ -38,24 +38,24 @@ export const alt = `${SITE_TITLE} — post`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Newsreader at weight 600, committed as a static WOFF colocated with the route
-// so it is never publicly served (unlike public/). next/font gives no raw bytes
-// to ImageResponse, so the file is loaded directly. Read once at module scope,
-// not per request. Satori accepts TTF, OTF and WOFF but not WOFF2. Newsreader is
-// SIL Open Font License 1.1, which permits embedding; the static instance was
-// extracted from the @fontsource/newsreader package
-// (github.com/productiontype/Newsreader).
+// Bricolage Grotesque at weight 700, committed as a static WOFF colocated with
+// the route so it is never publicly served (unlike public/). next/font gives no
+// raw bytes to ImageResponse, so the file is loaded directly. Read once at
+// module scope, not per request. Satori accepts TTF, OTF and WOFF but not WOFF2.
+// Bricolage Grotesque is SIL Open Font License 1.1, which permits embedding; the
+// static instance was extracted from the @fontsource/bricolage-grotesque package
+// (github.com/ateliertriay/bricolage).
 //
 // It parses clean as shipped, and opengraph-image.font.test.tsx renders through
 // next/og to keep it that way — a font can satisfy every manual check and still
 // fail here, which is what that test exists to catch.
 //
 // Known gap: this registers the latin subset only, so the capital eszett ẞ
-// (U+1E9E, latin-ext) in a title falls back off Newsreader. Ordinary German
+// (U+1E9E, latin-ext) in a title falls back off Bricolage. Ordinary German
 // characters (ä ö ü ß) are inside latin. That belongs with the de-DE work,
 // where it can be verified against a real German title.
-const newsreader = fs.readFileSync(
-  path.join(process.cwd(), "app/posts/[slug]/Newsreader-SemiBold.woff"),
+const bricolage = fs.readFileSync(
+  path.join(process.cwd(), "app/posts/[slug]/Bricolage-Bold.woff"),
 );
 
 // Brand ground and ink. Literal hex, not the CSS tokens — Satori cannot read
@@ -124,7 +124,7 @@ export default async function OpengraphImage({
         <div
           style={{
             display: "flex",
-            fontFamily: "Newsreader",
+            fontFamily: "Bricolage Grotesque",
             fontSize: 60,
             lineHeight: 1.1,
             color: BRAND_INK,
@@ -138,7 +138,7 @@ export default async function OpengraphImage({
             display: "flex",
             flexDirection: "column",
             marginTop: "auto",
-            fontFamily: "Newsreader",
+            fontFamily: "Bricolage Grotesque",
             color: BRAND_INK,
             opacity: 0.7,
             fontSize: 28,
@@ -175,9 +175,9 @@ export default async function OpengraphImage({
       ...size,
       fonts: [
         {
-          name: "Newsreader",
-          data: newsreader,
-          weight: 600,
+          name: "Bricolage Grotesque",
+          data: bricolage,
+          weight: 700,
           style: "normal",
         },
       ],
