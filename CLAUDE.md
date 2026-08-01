@@ -252,32 +252,17 @@ description as its standfirst, and the paginated post list. The same
 relationship `/categories` already has with a category page, which teases a few
 posts per category and leaves the full list to the landing page.
 
-**This reverses an earlier decision, and the reversal is the interesting part.**
-The glossary was originally the only tag surface, argued on editorial grounds: a
-dozen pages carrying two to four posts each is thin content and a disappointing
-click. Those arguments were not wrong, they were outweighed.
+This replaced an earlier arrangement where `/tags` was the only tag surface and
+pills linked to `#slug` anchors on it. **Do not propose going back.** Two
+objections were raised at the time and both were settled: thin content, which a
+tag page is no more guilty of than a category page, and an SEO risk that does
+not exist — Google consolidates duplicate listings rather than penalising them.
+The argument that decided it was orientation: an anchor drops the reader past
+the breadcrumb, the `h1` and the standfirst with nothing saying what page they
+are on, which no other link on the site does.
 
-What changed:
-
-- **Pills went onto every listing card.** That turned `/tags#slug` from a link
-  you met occasionally at the foot of a post into the ordinary way to reach a
-  tag — and an anchor drops the reader past the breadcrumb, the `h1` and the
-  standfirst, with nothing on screen saying what page they are on. It was the
-  only link on the site that did that.
-- **The thin-content argument proved weaker than it looked**, because a tag page
-  is structurally identical to a category page, which the site already ships
-  without embarrassment.
-- **Google consolidates duplicate listings rather than penalising them.** Twelve
-  pages with distinct link sets, unique titles and hand-written descriptions are
-  not a penalty risk. There is no manual action for having archive pages.
-
-Do not "simplify" this back to anchors. If it is ever revisited, the argument to
-beat is orientation, not SEO.
-
-A short-lived `:target` orientation link on the glossary (PR #326) was the
-cheaper fix for the same problem. It was merged and then removed here without
-ever being deployed. Do not reintroduce it: nothing generates `/tags#slug` links
-any more, so it can never fire.
+Section `id`s survive on the glossary so old anchors still land somewhere, but
+nothing generates them.
 
 Still true, and the reason the grouping is in memory rather than queried:
 **Contentful's GraphQL cannot filter a collection on an `Array<Link>` field.**
