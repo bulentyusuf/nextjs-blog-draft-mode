@@ -839,28 +839,50 @@ faking it.
 
 ### Documentation is excluded from Tailwind's source scanning
 
-`globals.css` carries `@source not "../CLAUDE.md"` and the same for
-`README.md`. Tailwind v4 detects sources automatically — every file
-`.gitignore` does not exclude is scanned for class-name candidates, markdown
-included — so a utility merely **named** in prose is generated as though a
-component used it.
+`globals.css` carries `@source not "../CLAUDE.md"` and the same for `README.md`.
+Tailwind v4 detects sources automatically — every file `.gitignore` does not
+exclude is scanned for class-name candidates, markdown included — so a utility
+merely **named** in prose is generated as though a component used it.
 
-This was not hypothetical. The sentence above explaining why `scroll-mt-24`
-must not coexist with `scroll-padding-top` was, by itself, emitting
-`.scroll-mt-24` into the production bundle after every component using it had
-been removed. Three more went the same way, from ordinary English that happens
-to be a class name: `.rounded` (from "a rounded plate"), `.transition` and
-`.outline-hidden`. Together, 831 bytes of CSS that nothing could ever apply.
+This was not hypothetical. The sentence in this file explaining why a
+`scroll-mt-*` utility must not coexist with `scroll-padding-top` was, by itself,
+emitting that rule into production after every component using it had been
+removed.
 
-Only the **bare** forms were affected. `focus-visible:outline-hidden`,
-`rounded-md`, `motion-safe:transition-transform` and the rest compile to
-different selectors and are emitted from the components that genuinely use
-them, which is why removing the prose sources changes nothing visible — a
-before/after compile differs by exactly those four rules, with no additions.
+**The exclusions work, and they do not solve the whole problem.** Measured
+against the deployed stylesheet, they removed `.rounded`, `.transition` and
+`.outline-hidden` — 656 bytes. What survived is the instructive part.
 
-Do not remove the exclusions to "let Tailwind see everything". Documentation
-should not be able to change the artefact it documents. `app/` and `lib/` are
-scanned normally; if a class is needed, a component uses it.
+Two categories remain, and only one is worth acting on.
+
+**A literal class name in a source comment.** `app/` and `lib/` are scanned and
+cannot be excluded, so a comment naming a real utility regenerates it. That is
+why the notes in `globals.css` and `lib/toc-active.test.ts` say "the utility"
+instead of spelling it, and why a test in `lib/toc-active.test.ts` asserts the
+literal appears nowhere under `app/` or `lib/`, assembling its needle at runtime
+so the assertion is not itself the offence. Worth fixing: a class name is not
+prose, and writing `scroll-mt-*` reads identically.
+
+**Ordinary English that happens to be a utility name.** `.collapse`,
+`.invisible`, `.static` and `.text-wrap` all ship because comments contain the
+words "collapse", "invisible", "static" and "text-wrap". `.resize` ships because
+`app/table-of-contents.tsx` calls `addEventListener("resize", …)`, which is real
+code. **Do not chase these.** Contorting comments or code to avoid English is a
+far worse trade than a few dozen bytes, and the scanner cannot be taught the
+difference. Accept them.
+
+So the rule is: exclude pure-prose files, because it is free; never name a
+literal utility in a source comment; and leave the incidental matches alone.
+
+**A caution on verifying this.** Compiling `globals.css` locally through
+`@tailwindcss/postcss` reports every one of these as absent, including the two
+that demonstrably ship — its scan root is narrower than `next build`'s. That
+false negative is how the incomplete fix was reported as complete. The only
+trustworthy check is the deployed bundle:
+
+```
+curl -s https://beuseful.net | grep -oE '/_next/static/chunks/[a-z0-9]+\.css'
+```
 
 ### What the docs guards catch
 
