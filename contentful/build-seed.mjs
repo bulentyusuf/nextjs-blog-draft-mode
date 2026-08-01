@@ -13,7 +13,7 @@ const link = (id, linkType = "Entry") => ({
 });
 
 const PLACEHOLDER_ASSET_URL =
-  "https://raw.githubusercontent.com/bulentyusuf/nextjs-blog-draft-mode/main/contentful/seed-assets/placeholder.jpg";
+  "https://raw.githubusercontent.com/bulentyusuf/building-blocks/main/contentful/seed-assets/placeholder.jpg";
 
 const text = (value) => ({ nodeType: "text", value, marks: [], data: {} });
 const paragraph = (...kids) => ({

@@ -86,8 +86,8 @@ This repository works as a template. Fork it, point it at your own Contentful sp
 ### 1. Install
 
 ```
-git clone https://github.com/bulentyusuf/nextjs-blog-draft-mode.git
-cd nextjs-blog-draft-mode
+git clone https://github.com/bulentyusuf/building-blocks.git
+cd building-blocks
 npm install
 ```
 

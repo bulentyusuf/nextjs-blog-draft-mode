@@ -53,4 +53,4 @@ This file does not enumerate every post on purpose, so it cannot fall out of dat
 - The site is explicitly about using generative AI as a collaborator, while remaining transparent about where AI is used and where it is not.
 
 ## Optional
-- [GitHub repository](https://github.com/bulentyusuf/nextjs-blog-draft-mode): Source code and commit history for the site.
+- [GitHub repository](https://github.com/bulentyusuf/building-blocks): Source code and commit history for the site.
