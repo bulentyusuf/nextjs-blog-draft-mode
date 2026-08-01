@@ -2,17 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Heading } from "@/lib/headings";
-import { pickActiveHeading, type HeadingPosition } from "@/lib/toc-active";
+import {
+  activationBandTop,
+  pickActiveHeading,
+  type HeadingPosition,
+} from "@/lib/toc-active";
 import { widont } from "@/lib/typography";
-
-// Used only if the heading's own scroll-margin-top cannot be read. Keep in step
-// with the h2's scroll-mt-* utility in lib/rich-text.tsx.
-const FALLBACK_BAND_TOP_PX = 96;
-
-// Sub-pixel slack. A ToC click parks the heading at exactly its scroll-margin,
-// and fractional layout values would otherwise leave it a hair below the line
-// and hand the highlight to the previous section.
-const BAND_TOLERANCE_PX = 4;
 
 // How long a ToC click keeps re-asserting the target's scroll position while
 // the page settles, before handing control back to the scroll spy. Long enough
@@ -44,17 +39,14 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
 
     if (elements.length === 0) return;
 
-    // The line a heading must cross to become active. Read from the heading's
-    // own scroll-margin-top rather than hardcoded, because a ToC click parks
-    // the target at exactly that offset. If the two disagreed, clicking entry
-    // 7 would highlight entry 6.
-    const scrollMargin = Number.parseFloat(
-      window.getComputedStyle(elements[0]).scrollMarginTop,
+    // The line a heading must cross to become active. Read from the scroll
+    // container's scroll-padding-top, which is what actually parks a targeted
+    // heading (globals.css). Previously this read the heading's own
+    // scroll-margin-top; that utility is gone, because scroll-padding covers
+    // keyboard focus as well as fragment links and the two would have summed.
+    const bandTop = activationBandTop(
+      window.getComputedStyle(document.documentElement).scrollPaddingTop,
     );
-    const bandTop =
-      (Number.isFinite(scrollMargin) && scrollMargin > 0
-        ? scrollMargin
-        : FALLBACK_BAND_TOP_PX) + BAND_TOLERANCE_PX;
 
     const recompute = () => {
       // While a click is settling, hold the highlight on the clicked entry.

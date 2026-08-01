@@ -11,6 +11,42 @@
 // just scrolled into view could claim the highlight. The band's lower edge
 // gets no vote. Do not reintroduce it.
 
+/**
+ * Where the activation line sits when the page's scroll offset cannot be read.
+ *
+ * Matches the `scroll-padding-top: 5rem` in globals.css. It is a fallback for a
+ * computed value of `auto` (the initial value, so this is what a test harness
+ * or a browser that dropped the rule reports), not a second opinion about the
+ * offset — if the two disagree, globals.css is right and this is stale.
+ */
+export const FALLBACK_BAND_TOP_PX = 80;
+
+/**
+ * Sub-pixel slack. A ToC click parks the heading at exactly the scroll offset,
+ * and fractional layout values would otherwise leave it a hair below the line
+ * and hand the highlight to the previous section.
+ */
+export const BAND_TOLERANCE_PX = 4;
+
+/**
+ * The line a heading must cross to count as active, in px from the viewport top.
+ *
+ * Derived from the scroll container's own `scroll-padding-top` rather than
+ * hardcoded, because that is the property parking a targeted heading. If the
+ * two disagreed, clicking entry 7 would highlight entry 6 — which is why the
+ * per-heading `scroll-mt-*` utilities had to go when scroll-padding arrived
+ * rather than sit alongside it: they are additive, so the real landing point
+ * would have been the sum while this read only one half.
+ *
+ * @param scrollPaddingTop The computed `scrollPaddingTop`, e.g. "80px" or "auto".
+ */
+export function activationBandTop(scrollPaddingTop: string): number {
+  const offset = Number.parseFloat(scrollPaddingTop);
+  const base =
+    Number.isFinite(offset) && offset > 0 ? offset : FALLBACK_BAND_TOP_PX;
+  return base + BAND_TOLERANCE_PX;
+}
+
 export interface HeadingPosition {
   /** The heading element's id, which is also its ToC slug. */
   id: string;

@@ -259,7 +259,15 @@ export default async function RootLayout({
         </a>
         <link rel="preconnect" href="https://images.ctfassets.net" />
         <Header />
-        <main id="main" className="grow">
+        {/* tabIndex={-1} makes the skip link's target focusable. Following a
+            fragment moves the sequential-focus starting point in current
+            Chrome and Firefox, so Tab continues from here — but it does not
+            move focus itself, and Safari has historically not moved the
+            starting point either, leaving the reader who just used the skip
+            link tabbing from the top of the document again. One attribute,
+            and the link keeps its promise everywhere. It adds no tab stop:
+            -1 is reachable programmatically, never sequentially. */}
+        <main id="main" tabIndex={-1} className="grow">
           {children}
         </main>
         <Footer />

@@ -134,11 +134,12 @@ export function RichText({
         const isPlainRun =
           node.content?.length === 1 && node.content[0]?.nodeType === "text";
         return (
-          // scroll-mt-24 parks a fragment-linked heading below the sticky
-          // header. app/table-of-contents.tsx reads this computed value to
-          // place its activation line, so a clicked ToC entry highlights
-          // itself rather than the section above.
-          <h2 id={slug} className="scroll-mt-24 group/heading">
+          // No scroll-mt here. The offset that parks a fragment-linked
+          // heading below the sticky header is `scroll-padding-top` on <html>
+          // (globals.css), which covers keyboard focus too. The two are
+          // additive, so a scroll-margin here would push the landing point
+          // past the line app/table-of-contents.tsx activates on.
+          <h2 id={slug} className="group/heading">
             {isPlainRun ? widont(text) : children}
             {slug ? (
               <a
