@@ -701,11 +701,19 @@ the type, which is trivial while nothing is published and a content migration
 afterwards. Get the ID right before the first publish. `pageIntro` became
 `browseIntro` on exactly this deadline.
 
-The Contentful MCP connector can read, create and update, but **cannot publish,
-unpublish or delete** in either space. Activating a type, publishing entries and
-deleting anything are manual steps in the web UI. Entries also cannot be created
-against a type that has not been activated, so a new type is always two trips:
-activate, then populate.
+**Treat the Contentful MCP connector as read-only until proved otherwise.** Its
+write permissions come from the MCP app installation in each space, not from
+this repo, so what it can do is a property of that space's configuration and can
+be narrower than the tool list suggests. `update_asset` on `rczsnwq9z69e:master`
+is refused outright — _"You do not have permission to execute the update_asset
+tool in the rczsnwq9z69e:master space and environment"_ — so adding a
+description to an existing asset is a web-UI job, not something to plan a task
+around.
+
+Publishing, unpublishing and deleting are unavailable regardless. Activating a
+type, publishing entries and deleting anything are manual steps in the web UI.
+Entries also cannot be created against a type that has not been activated, so a
+new type is always two trips: activate, then populate.
 
 ### `demo-site` builds from this repo, off the `demo` branch
 
@@ -854,11 +862,42 @@ Do not remove the exclusions to "let Tailwind see everything". Documentation
 should not be able to change the artefact it documents. `app/` and `lib/` are
 scanned normally; if a class is needed, a component uses it.
 
+### What the docs guards catch
+
+`lib/docs-consistency.test.ts` is the prose analogue of the fixtures guard.
+Documentation is otherwise the only artefact here with no verification path —
+code has `tsc`, formatting has Prettier, behaviour has vitest, the two
+Contentful spaces have `lib/contentful-fixtures.test.ts`.
+
+It checks the **names** of things: that every `npm run <script>` named in
+CLAUDE.md or README.md exists in `package.json`, that every repo-relative file
+path either doc names in backticks exists on disk, that the CI-gate sentence
+above names every command `.github/workflows/ci.yml` actually runs, and that
+`SITE_REPO_URL`, README.md and `public/llms.txt` agree on the repository URL
+with no pre-rename `nextjs-blog-draft-mode` left anywhere on `github.com`.
+
+That last one exists because GitHub **redirects** the old URL. A missed
+reference after the rename keeps working and stays wrong indefinitely, so
+nothing would ever surface it. `README.md` line 5 is the deliberate exception
+and links Vercel's upstream _template_,
+`vercel.com/templates/next.js/nextjs-blog-draft-mode`, which is their URL and
+not ours — the check is scoped to `github.com` for exactly that reason.
+
+**It cannot verify a claim.** A sentence can name a real file and still describe
+it wrongly, and only a reader catches that; six comments had to be fixed by hand
+in #343 for precisely that reason. What this stops is the cheaper failure — a
+rename quietly turning an instruction into a dead end.
+
 ### Workflow constants
 
 Protected main, squash merges only, one concern per PR, conventional commit
-messages, descriptive branch names. The CI gate is `tsc --noEmit` + the vitest
-suite + `npm run format:check`. There is no lint script — `next lint` was
+messages, descriptive branch names. The CI gate is exactly three steps, in this
+order: `npm run format:check`, `npm test`, `npm run build` — see
+`.github/workflows/ci.yml`, which `lib/docs-consistency.test.ts` holds this
+sentence against. Note what that means locally: **there is no separate
+`tsc --noEmit` step in CI**, so typechecking happens inside `npm run build`, and
+a change that satisfies `tsc` and the vitest suite has still not met the gate.
+Running `tsc --noEmit` is a fast local proxy, not the thing itself. There is no lint script — `next lint` was
 removed in Next 16 — so do not add or invoke one. Prettier is formatting only,
 not linting: run `npm run format` before pushing. `contentful/export.json` and
 `seed.json` are in `.prettierignore` on purpose, because the generator writes
