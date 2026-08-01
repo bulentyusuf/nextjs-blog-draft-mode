@@ -1,11 +1,40 @@
 import Link from "next/link";
 import DateComponent from "./date";
 import CoverImage from "./cover-image";
-import type { CardPost, CoverImage as CoverImageType } from "@/lib/types";
+import TagPill from "./tag-pill";
+import type { CardPost, CoverImage as CoverImageType, Tag } from "@/lib/types";
 import { createCoverNamer } from "@/lib/view-transition-name";
+import { postTags } from "@/lib/tags";
 import { widont } from "@/lib/typography";
 
 type Variant = "grid" | "list";
+
+// Pills sit below the excerpt, not above the title. Above it they would be the
+// first interactive thing in the card and would route the reader away from the
+// listing before they reached the headline; worse, the count varies from one to
+// three and wraps at three, so they would push each title down by a different
+// amount and titles would stop aligning with the top of their cover images.
+// Below the excerpt that variability lands at the foot of the card, where
+// nothing depends on it.
+//
+// aria-label rather than a visible "Tagged" label. The post page carries one
+// because it appears once there; repeated down a listing it is five identical
+// labels of pure noise, and the pill shape already reads as a tag. Screen
+// readers still need the row named, hence the label — without it this is an
+// unexplained list of links on every card.
+function TagRow({ tags, className }: { tags: Tag[]; className: string }) {
+  if (tags.length === 0) return null;
+
+  return (
+    <ul aria-label="Tags" className={`flex flex-wrap gap-2 ${className}`}>
+      {tags.map((tag) => (
+        <li key={tag.slug}>
+          <TagPill tag={tag} size="compact" />
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function PostPreview({
   title,
@@ -17,6 +46,7 @@ function PostPreview({
   priority = false,
   as = "h3",
   transitionName,
+  tags = [],
 }: {
   title: string;
   coverImage?: CoverImageType;
@@ -27,6 +57,7 @@ function PostPreview({
   priority?: boolean;
   as?: "h2" | "h3";
   transitionName?: string;
+  tags?: Tag[];
 }) {
   const Heading = as;
 
@@ -59,6 +90,7 @@ function PostPreview({
             <DateComponent dateString={date} />
           </div>
           <p className="text-lg leading-relaxed text-pretty">{excerpt}</p>
+          <TagRow tags={tags} className="mt-3" />
         </div>
       </article>
     );
@@ -91,6 +123,7 @@ function PostPreview({
         <DateComponent dateString={date} />
       </div>
       <p className="text-lg leading-relaxed text-pretty">{excerpt}</p>
+      <TagRow tags={tags} className="mt-4" />
     </div>
   );
 }
@@ -101,6 +134,7 @@ export default function MoreStories({
   heading,
   priorityFirst = false,
   coverName = createCoverNamer(),
+  visibleTags,
 }: {
   morePosts: CardPost[];
   variant?: Variant;
@@ -114,6 +148,16 @@ export default function MoreStories({
   // lib/view-transition-name.ts). Standalone listings get a fresh namer by
   // default, which is enough to dedupe within this list.
   coverName?: (slug: string) => string | undefined;
+  // Pass to show tag pills; omit for no pills. It is the visibility set rather
+  // than a boolean on purpose: a pill links to `/tags#slug`, and the glossary
+  // drops tags below MIN_POSTS_PER_TAG, so an unfiltered pill can point at an
+  // anchor that is not on the page. Requiring the set makes it impossible to
+  // switch pills on without deciding that question.
+  //
+  // The set must be computed from ALL posts, via visibleTagSlugs(getAllPosts()).
+  // Deriving it from the posts on one category or author page counts a subset
+  // and would hide tags the glossary shows.
+  visibleTags?: Set<string>;
 }) {
   const container =
     variant === "list"
@@ -145,6 +189,11 @@ export default function MoreStories({
             priority={priorityFirst && i === 0}
             as={titleAs}
             transitionName={coverName(post.slug)}
+            tags={
+              visibleTags
+                ? postTags(post).filter((t) => visibleTags.has(t.slug))
+                : []
+            }
           />
         ))}
       </div>

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import Container from "../../container";
@@ -15,6 +14,7 @@ import { highlightCodeBlocks } from "@/lib/highlight";
 import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
 import AuthorBioCard from "../../author-bio-card";
+import TagPill from "../../tag-pill";
 import Breadcrumb, { type Crumb } from "../../breadcrumb";
 import {
   SITE_URL,
@@ -278,16 +278,7 @@ export default async function PostPage({
                   <li className="mr-2 text-sm text-brand-muted">Tagged</li>
                   {tags.map((tag) => (
                     <li key={tag.slug}>
-                      {/* px-4 rather than px-3: on a rounded-full pill the
-                          corner radius is half the height, so 12px of
-                          horizontal padding put the text inside the curve and
-                          made the label look wedged in. 16px clears it. */}
-                      <Link
-                        href={`/tags#${tag.slug}`}
-                        className="inline-block rounded-full border border-hairline px-4 py-1 text-sm text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson"
-                      >
-                        {tag.name}
-                      </Link>
+                      <TagPill tag={tag} />
                     </li>
                   ))}
                 </ul>
