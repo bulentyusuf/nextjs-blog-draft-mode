@@ -114,8 +114,11 @@ export default async function AuthorPaginatedPage({
     { label: author.name },
   ];
 
-  const posts = await getPostsByAuthor(slug, isEnabled);
-  const visibleTags = await getVisibleTagSlugs(isEnabled);
+  // Independent queries, so they go out together — see the unpaginated page.
+  const [posts, visibleTags] = await Promise.all([
+    getPostsByAuthor(slug, isEnabled),
+    getVisibleTagSlugs(isEnabled),
+  ]);
   const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
 
   if (pageNumber > totalPages) {
