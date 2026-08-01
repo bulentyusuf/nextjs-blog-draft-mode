@@ -10,7 +10,6 @@ import type {
   Page,
   PageCollectionResponse,
   PageMeta,
-  PageMetaCollectionResponse,
   Category,
   CategoryCollectionResponse,
   Tag,
@@ -356,6 +355,56 @@ async function fetchGraphQL<T>(
   throw lastError ?? new Error("Contentful GraphQL request failed");
 }
 
+// Contentful returns at most 100 items from a collection and reports the real
+// count only in `total`. A query that asks for neither therefore takes the
+// first 100 and says nothing, which is the worst shape a limit can have: the
+// 101st post would vanish from the sitemap, the feed, the archive, the tag
+// glossary, the home pagination and generateStaticParams at once, with no
+// error anywhere and no page missing from the build log.
+//
+// So every unbounded collection pages through instead. Under 100 items this is
+// exactly one request, identical to what it replaced — the loop exits on the
+// first pass because `total` is already satisfied.
+//
+// The page size stays at Contentful's own 100 rather than being raised toward
+// the documented 1000 maximum. A larger page is fewer round-trips but a higher
+// per-query complexity score, and the complexity budget is not something this
+// repo can check in CI (no credentials), so the safe number is the one the API
+// already returns by default. Raise it only against a real measurement.
+const COLLECTION_PAGE_SIZE = 100;
+
+// The query must accept `$limit: Int!` and `$skip: Int!`, pass both to the
+// collection, and select `total` alongside `items` — without `total` there is
+// nothing to page against and the first response is all you get.
+async function fetchAllCollectionItems<T>(
+  collection: string,
+  query: string,
+  preview: boolean,
+  variables: GraphQLVariables = {},
+): Promise<T[]> {
+  const items: T[] = [];
+
+  for (let skip = 0; ; skip += COLLECTION_PAGE_SIZE) {
+    const response = await fetchGraphQL<{
+      data?: Record<string, { total?: number; items?: T[] } | undefined>;
+    }>(query, preview, {
+      ...variables,
+      limit: COLLECTION_PAGE_SIZE,
+      skip,
+    });
+
+    const page = response?.data?.[collection];
+    const batch = page?.items ?? [];
+    items.push(...batch);
+
+    // An empty page always terminates, so a missing or understated `total`
+    // costs one wasted request rather than spinning forever.
+    if (batch.length === 0 || items.length >= (page?.total ?? items.length)) {
+      return items;
+    }
+  }
+}
+
 function extractPost(fetchResponse: PostCollectionResponse): Post | undefined {
   return fetchResponse?.data?.postCollection?.items?.[0];
 }
@@ -385,9 +434,11 @@ export async function getVisibleTagSlugs(
 }
 
 export async function getAllPosts(isDraftMode = false): Promise<ListPost[]> {
-  const entries = await fetchGraphQL<ListPostCollectionResponse>(
-    `query GetAllPosts($preview: Boolean) {
-      postCollection(where: { slug_exists: true }, order: date_DESC, preview: $preview) {
+  return fetchAllCollectionItems<ListPost>(
+    "postCollection",
+    `query GetAllPosts($preview: Boolean, $limit: Int!, $skip: Int!) {
+      postCollection(where: { slug_exists: true }, order: date_DESC, preview: $preview, limit: $limit, skip: $skip) {
+        total
         items {
           ${LIST_GRAPHQL_FIELDS}
         }
@@ -396,8 +447,6 @@ export async function getAllPosts(isDraftMode = false): Promise<ListPost[]> {
     isDraftMode,
     { preview: isDraftMode },
   );
-
-  return entries?.data?.postCollection?.items ?? [];
 }
 
 // A single post, listing fragment only — no related/backfill queries and no
@@ -512,9 +561,11 @@ export async function getPage(
 }
 
 export async function getAllPages(isDraftMode: boolean): Promise<PageMeta[]> {
-  const entries = await fetchGraphQL<PageMetaCollectionResponse>(
-    `query GetAllPages($preview: Boolean) {
-      pageCollection(where: { slug_exists: true }, preview: $preview) {
+  return fetchAllCollectionItems<PageMeta>(
+    "pageCollection",
+    `query GetAllPages($preview: Boolean, $limit: Int!, $skip: Int!) {
+      pageCollection(where: { slug_exists: true }, preview: $preview, limit: $limit, skip: $skip) {
+        total
         items {
           slug
           sys {
@@ -527,8 +578,6 @@ export async function getAllPages(isDraftMode: boolean): Promise<PageMeta[]> {
     isDraftMode,
     { preview: isDraftMode },
   );
-
-  return entries?.data?.pageCollection?.items ?? [];
 }
 
 // The editable standfirst and meta description for a browse page.
@@ -605,9 +654,11 @@ export const getTagBySlug = cache(
 // held the list. See the note on postsWithTag.
 
 export async function getAllTags(isDraftMode = false): Promise<Tag[]> {
-  const entries = await fetchGraphQL<TagCollectionResponse>(
-    `query GetAllTags($preview: Boolean) {
-      tagCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview) {
+  return fetchAllCollectionItems<Tag>(
+    "tagCollection",
+    `query GetAllTags($preview: Boolean, $limit: Int!, $skip: Int!) {
+      tagCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview, limit: $limit, skip: $skip) {
+        total
         items {
           name
           slug
@@ -618,16 +669,16 @@ export async function getAllTags(isDraftMode = false): Promise<Tag[]> {
     isDraftMode,
     { preview: isDraftMode },
   );
-
-  return entries?.data?.tagCollection?.items ?? [];
 }
 
 export async function getAllCategories(
   isDraftMode = false,
 ): Promise<Category[]> {
-  const entries = await fetchGraphQL<CategoryCollectionResponse>(
-    `query GetAllCategories($preview: Boolean) {
-      categoryCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview) {
+  return fetchAllCollectionItems<Category>(
+    "categoryCollection",
+    `query GetAllCategories($preview: Boolean, $limit: Int!, $skip: Int!) {
+      categoryCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview, limit: $limit, skip: $skip) {
+        total
         items {
           name
           slug
@@ -641,8 +692,6 @@ export async function getAllCategories(
     isDraftMode,
     { preview: isDraftMode },
   );
-
-  return entries?.data?.categoryCollection?.items ?? [];
 }
 
 export const getCategoryBySlug = cache(
@@ -682,9 +731,11 @@ export async function getPostsByCategory(
   slug: string,
   isDraftMode = false,
 ): Promise<CardPost[]> {
-  const entries = await fetchGraphQL<CardPostCollectionResponse>(
-    `query GetPostsByCategory($slug: String!, $preview: Boolean) {
-      postCollection(where: { category: { slug: $slug } }, order: date_DESC, preview: $preview) {
+  return fetchAllCollectionItems<CardPost>(
+    "postCollection",
+    `query GetPostsByCategory($slug: String!, $preview: Boolean, $limit: Int!, $skip: Int!) {
+      postCollection(where: { category: { slug: $slug } }, order: date_DESC, preview: $preview, limit: $limit, skip: $skip) {
+        total
         items {
           ${CARD_GRAPHQL_FIELDS}
         }
@@ -693,8 +744,6 @@ export async function getPostsByCategory(
     isDraftMode,
     { slug, preview: isDraftMode },
   );
-
-  return entries?.data?.postCollection?.items ?? [];
 }
 
 // Recent posts in a category, capped server-side. Same card fragment as
@@ -757,9 +806,11 @@ export async function getPostsByAuthor(
   slug: string,
   isDraftMode = false,
 ): Promise<CardPost[]> {
-  const entries = await fetchGraphQL<CardPostCollectionResponse>(
-    `query GetPostsByAuthor($slug: String!, $preview: Boolean) {
-      postCollection(where: { author: { slug: $slug } }, order: date_DESC, preview: $preview) {
+  return fetchAllCollectionItems<CardPost>(
+    "postCollection",
+    `query GetPostsByAuthor($slug: String!, $preview: Boolean, $limit: Int!, $skip: Int!) {
+      postCollection(where: { author: { slug: $slug } }, order: date_DESC, preview: $preview, limit: $limit, skip: $skip) {
+        total
         items {
           ${CARD_GRAPHQL_FIELDS}
         }
@@ -768,14 +819,14 @@ export async function getPostsByAuthor(
     isDraftMode,
     { slug, preview: isDraftMode },
   );
-
-  return entries?.data?.postCollection?.items ?? [];
 }
 
 export async function getAllAuthors(isDraftMode = false): Promise<Author[]> {
-  const entries = await fetchGraphQL<AuthorCollectionResponse>(
-    `query GetAllAuthors($preview: Boolean) {
-      authorCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview) {
+  return fetchAllCollectionItems<Author>(
+    "authorCollection",
+    `query GetAllAuthors($preview: Boolean, $limit: Int!, $skip: Int!) {
+      authorCollection(where: { slug_exists: true }, order: name_ASC, preview: $preview, limit: $limit, skip: $skip) {
+        total
         items {
           name
           slug
@@ -786,6 +837,4 @@ export async function getAllAuthors(isDraftMode = false): Promise<Author[]> {
     isDraftMode,
     { preview: isDraftMode },
   );
-
-  return entries?.data?.authorCollection?.items ?? [];
 }

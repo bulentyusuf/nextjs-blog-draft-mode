@@ -469,6 +469,35 @@ as in `opengraph-image.tsx`, which renders in its own request.
 Do not re-flag the duplicate fetch as a finding; it is fixed. Do not "simplify"
 the metadata call back to a narrower helper.
 
+### Every unbounded collection query pages, and must keep selecting `total`
+
+Contentful returns at most 100 items from a collection and puts the real count
+only in `total`. A query asking for neither took the first 100 and said
+nothing — the worst shape a limit can have, because the 101st post would have
+dropped out of the sitemap, the feed, the archive, the tag glossary, the home
+pagination and `generateStaticParams` simultaneously, with no error and no
+missing page in the build log.
+
+So `fetchAllCollectionItems` in `lib/api.ts` pages through instead, and the
+seven unbounded fetchers go through it: `getAllPosts`, `getAllPages`,
+`getAllTags`, `getAllCategories`, `getAllAuthors`, `getPostsByCategory`,
+`getPostsByAuthor`. Below 100 items it is exactly one request, the same as
+before — the loop exits on the first pass.
+
+**A query handed to it must accept `$limit: Int!` and `$skip: Int!`, pass both
+to the collection, and select `total` beside `items`.** Drop `total` and there
+is nothing to page against: the first response silently becomes the whole
+result, which is the bug this replaced. A new list query belongs here too.
+
+The page size stays at Contentful's own 100 rather than the documented 1000
+maximum. A bigger page means fewer round-trips but a higher per-query
+complexity score, and CI has no credentials to check the complexity budget
+against — the same reason the fixtures guard cannot compare field validations.
+Raise it only against a real measurement, not by reasoning about it.
+
+Deliberately **not** paged: `getRecentPostsByCategory`, which is capped on
+purpose to tease a few posts, and every single-entry fetcher on `limit: 1`.
+
 ### Contentful export/seed files are load-bearing and brittle
 
 `contentful/export.json` and `seed.json` back the forkable-template story.

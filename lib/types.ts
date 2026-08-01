@@ -194,14 +194,6 @@ export interface PageMeta {
   };
 }
 
-export interface PageMetaCollectionResponse {
-  data?: {
-    pageCollection?: {
-      items: PageMeta[];
-    };
-  };
-}
-
 export interface PageCollectionResponse {
   data?: {
     pageCollection?: {
