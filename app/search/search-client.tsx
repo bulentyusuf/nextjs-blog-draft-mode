@@ -25,7 +25,7 @@ declare module "react" {
 // Custom result template in Pagefind's template syntax ({{ }} escaped,
 // {{+ +}} raw, {{#if}}/{{#each … as …}} blocks, `|` filters). It is a static
 // string we author — no user input — so injecting it as HTML is safe. House
-// list idiom (matching more-stories and archive): Fraunces title, ink link that
+// list idiom (matching more-stories and archive): display-face title, ink link that
 // goes crimson on hover, body excerpt, heading-scoped sub-results. The main
 // link must be an <a> for the components' keyboard navigation. `meta.url` is
 // read first so the clean route from data-pagefind-meta wins over Pagefind's

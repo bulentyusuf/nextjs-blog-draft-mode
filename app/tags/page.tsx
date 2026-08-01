@@ -122,7 +122,7 @@ export default async function TagsPage() {
                     >
                       {tag.name}
                     </Link>{" "}
-                    <span className="font-sans text-xs font-normal uppercase tracking-wide whitespace-nowrap text-brand-muted tabular-nums">
+                    <span className="font-ui text-xs font-normal uppercase tracking-wide whitespace-nowrap text-brand-muted tabular-nums">
                       {tagged.length} {tagged.length === 1 ? "post" : "posts"}
                     </span>
                   </h2>

@@ -81,7 +81,7 @@ export default async function ArchivePage() {
           const yearPosts = byYear.get(year)!;
           return (
             <section key={year} className="mb-10 last:mb-0">
-              {/* Section marker, deliberately subordinate to the h1. Fraunces
+              {/* Section marker, deliberately subordinate to the h1. Newsreader
                   comes from the base layer; brand-muted keeps it legible in
                   both colour schemes without any scheme-specific code. */}
               <h2 className="mb-4 flex items-baseline gap-x-3 text-2xl text-brand-muted md:text-3xl tabular-nums">
@@ -92,7 +92,7 @@ export default async function ArchivePage() {
                     of one; as a tally it stays out of the way. Matches the tag
                     counts on /tags — the same phrase should not look like two
                     different things. */}
-                <span className="font-sans text-xs font-normal uppercase tracking-wide text-brand-muted">
+                <span className="font-ui text-xs font-normal uppercase tracking-wide text-brand-muted">
                   {yearPosts.length} {yearPosts.length === 1 ? "post" : "posts"}
                 </span>
               </h2>

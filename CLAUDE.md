@@ -253,7 +253,7 @@ unaffected. Because keyboard focus can no longer land inside the cover,
 after the page's `h2`s and skipped a level on every page whose deepest heading
 is an `h2` — post pages, `/about`, `/privacy`, `/search` and all four browse
 indexes — which axe reports as `heading-order`. Promoting them to `h2` instead
-would flip them to Fraunces, since `globals.css` gives the display face to
+would flip them to Newsreader, since `globals.css` gives the display face to
 `h1`–`h3`. They lose nothing as paragraphs: both navs already carry
 `aria-label="Browse"` / `"Colophon"`, so the landmarks stay named.
 
@@ -469,6 +469,22 @@ that never touch Contentful. Moving those behind a network fetch is a different
 and much larger change than editing a standfirst; do not treat it as the obvious
 next step.
 
+### The OG card's font is guarded by a real render, not a hash
+
+`app/posts/[slug]/opengraph-image.font.test.tsx` renders the committed WOFF
+through `next/og` and asserts a PNG comes out. It exists because `next/og`
+vendors an **older Satori than the standalone `satori` package**, and that copy
+rejects OpenType layout tables the standalone one parses fine. A font can be
+checked by hand against `satori`, pass, and still throw
+`lookupType: 6 - substFormat: 2 is not yet supported` on every card in
+production — which is what sank an earlier display face whose `liga` feature
+carried a contextual lookup. **Any font check must import from `next/og`, never
+from `satori`.**
+
+A hash pin was the alternative and is weaker: it catches a swapped file without
+saying whether the new one renders. The sample string's `fi` and `ffl` pairs are
+deliberate, since `liga` is where that lookup lived.
+
 ### Other reviewed items, intentionally left as-is
 
 - `data:` in `img-src` stays. It is needed for next/image blur placeholders, and
@@ -514,6 +530,41 @@ require("uuid")` in `add-sequence-header.js` — so re-check that call site if
   the override is ever bumped.
 
 ## House conventions
+
+### Three faces, three roles, and no family named directly
+
+`globals.css` defines `--font-display` (Newsreader), `--font-body` (Literata)
+and `--font-ui` (Inter), and points `--default-font-family` at the body face so
+Preflight puts it on `<body>`. Tailwind generates `font-display`, `font-body`
+and `font-ui` from those tokens. **Nothing in a component names a family** —
+that is what kept the last two swaps to a handful of lines.
+
+- **Display** is headings and the two mastheads, applied by the base-layer rule
+  above. Do not add `font-display` to an h1, h2 or h3.
+- **Body** is the default and covers everything read at length, prose and the
+  meta around it — dates, bylines, breadcrumbs, excerpts, captions, figure text.
+  Setting meta in the reading face is ordinary editorial practice and it is what
+  makes a page cohere; a stray `font-ui` on a date is a regression, not a tidy.
+- **UI** is an enumerated list of chrome that must not compete with prose, and
+  it is the whole list: the two header nav links and the header tagline, the
+  footer column labels, footer links and the bottom legal line, the two
+  table-of-contents labels, the tag pill, and the two count spans in
+  `app/archive/page.tsx` and `app/tags/page.tsx` (both former `font-sans`).
+
+There is no `font-sans` utility — the token was removed when the roles split, so
+a `font-sans` class now silently does nothing. If a new surface seems to want
+UI, leave it on the body face and raise it rather than extending the list
+quietly.
+
+Literata ships both roman and italic; Newsreader is roman only. So `<em>` in
+prose and the figure captions in `lib/rich-text.tsx` and `lib/lightbox-image.tsx`
+render a true italic rather than the browser's synthesised slant — which is why
+those `italic` classes stay.
+
+**Check the optical-size range before proposing any replacement face.** Headings
+reach roughly 45pt at `lg:text-6xl`; a face whose `opsz` axis stops below that
+clamps and the browser scales a text master, which reads flat. Newsreader runs
+6–72 and Literata 7–72.
 
 ### Two h1 treatments, chosen by column width
 

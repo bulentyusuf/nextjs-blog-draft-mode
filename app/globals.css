@@ -57,8 +57,16 @@
 }
 
 @theme {
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-fraunces);
+  /* Three faces, three jobs. Display is headings and mastheads. Body is
+     everything you read, prose and the meta around it. UI is chrome that should
+     not compete with prose: nav, labels, pills, counts — an enumerated list,
+     see CLAUDE.md. --default-font-family is what Preflight puts on <body>, so
+     body copy flips with one token, and font-display / font-body / font-ui are
+     generated from these by Tailwind. Nothing names a family directly. */
+  --font-display: var(--font-newsreader);
+  --font-body: var(--font-literata);
+  --font-ui: var(--font-inter);
+  --default-font-family: var(--font-body);
 
   --color-brand-crimson: #a4243b;
   --color-brand-header: #1e3a8a;
@@ -163,20 +171,25 @@
 }
 
 /*
-  All top-level headings inherit the display face (Fraunces) sitewide. This is
+  All top-level headings inherit the display face (Newsreader) sitewide. This is
   the single mechanism — do not add per-component font-display classes. h4 and
-  below stay in Inter deliberately, for small UI headings.
+  below stay in the body face deliberately, for small UI headings.
 
   This rule is why the footer's column labels are <p> rather than headings: as
   h4 they skipped a level after the page's h2s, and promoting them to h2 to fix
-  that would have pulled them into Fraunces. See CLAUDE.md.
+  that would have pulled them into Newsreader. See CLAUDE.md.
+
+  Newsreader is fitted for newspaper column widths, so it takes slight negative
+  tracking at display sizes. Both values are starting points to settle on the
+  preview at the largest heading step, not fixed numbers.
 */
 @layer base {
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 650;
+    font-weight: 600;
+    letter-spacing: -0.011em;
   }
 }
 
