@@ -607,7 +607,11 @@ describe("embedded asset descriptions", () => {
     warn.mockRestore();
   });
 
-  it("stays quiet and uses the description as alt when present", () => {
+  it("stays quiet and puts the description in the caption, not the alt", () => {
+    // The description is one field doing two jobs, so emitting it as both alt
+    // and caption made every figure announce the same sentence twice in a row.
+    // The caption is visible, adjacent in the DOM and describes the image, so
+    // the image is the one that goes decorative.
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const html = renderToStaticMarkup(
       <RichText
@@ -616,8 +620,30 @@ describe("embedded asset descriptions", () => {
       />,
     );
 
-    expect(html).toContain('alt="A tabby asleep on a keyboard"');
+    expect(html).toContain(
+      '<figcaption class="text-sm italic text-brand-muted mt-1.5 text-center">A tabby asleep on a keyboard</figcaption>',
+    );
+    expect(html).toContain('alt=""');
+    expect(html).not.toContain('alt="A tabby asleep on a keyboard"');
     expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("keeps the description out of the alt on the non-lightbox path too", () => {
+    // Pages render with lightbox={false}, which takes the plain ContentfulImage
+    // branch. Both branches sit above the same figcaption.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const html = renderToStaticMarkup(
+      <RichText
+        content={withDescription("A tabby asleep on a keyboard")}
+        headings={[]}
+        lightbox={false}
+      />,
+    );
+
+    expect(html).toContain("A tabby asleep on a keyboard</figcaption>");
+    expect(html).toContain('alt=""');
+    expect(html).not.toContain('alt="A tabby asleep on a keyboard"');
     warn.mockRestore();
   });
 });

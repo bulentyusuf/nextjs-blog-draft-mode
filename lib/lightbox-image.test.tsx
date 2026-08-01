@@ -31,6 +31,36 @@ describe("lightbox server output", () => {
     const html = serverHtml();
 
     expect(html).toContain("<img");
+  });
+});
+
+describe("lightbox accessible naming", () => {
+  // A caption is rendered immediately after the image by the caller, so
+  // repeating it as alt made the same sentence announce twice (three times
+  // once the trigger's "Enlarge image: <desc>" label is counted).
+  it("leaves the image decorative when a caption describes it", () => {
+    const html = renderToStaticMarkup(
+      <LightboxImage
+        src="https://images.ctfassets.net/x/y.jpg"
+        alt="A placeholder"
+        caption="A placeholder"
+      />,
+    );
+
+    expect(html).toContain('alt=""');
+    expect(html).not.toContain('alt="A placeholder"');
+  });
+
+  it("keeps alt when there is no caption to carry the description", () => {
+    // Nothing else names the image in this shape, so dropping alt here would
+    // lose the description rather than de-duplicate it.
+    const html = renderToStaticMarkup(
+      <LightboxImage
+        src="https://images.ctfassets.net/x/y.jpg"
+        alt="A placeholder"
+      />,
+    );
+
     expect(html).toContain('alt="A placeholder"');
   });
 });

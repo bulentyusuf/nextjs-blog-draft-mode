@@ -156,10 +156,18 @@ function Footer() {
           </div>
 
           {/* Column 2 — browse: top-level section links. */}
+          {/* The column label is a <p>, not a heading. As an <h4> it sat
+              directly after the page's h2s and skipped a level on every page
+              whose deepest heading is an h2 — post pages, /about, /privacy,
+              /search and all four browse indexes — which axe reports as
+              heading-order. Promoting it to h2 instead would flip it to
+              Fraunces, since globals.css gives the display face to h1-h3. It
+              loses nothing as a <p>: the nav already carries aria-label="Browse",
+              so the landmark is named either way. Same for Colophon below. */}
           <nav aria-label="Browse">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-white/60">
+            <p className="text-xs font-bold uppercase tracking-widest text-white/60">
               Browse
-            </h4>
+            </p>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
                 <Link href="/categories" className={footerLink}>
@@ -191,9 +199,9 @@ function Footer() {
 
           {/* Column 3 — colophon */}
           <nav aria-label="Colophon">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-white/60">
+            <p className="text-xs font-bold uppercase tracking-widest text-white/60">
               Colophon
-            </h4>
+            </p>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
                 <Link href="/about" className={footerLink}>

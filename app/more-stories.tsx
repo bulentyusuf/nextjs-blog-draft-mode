@@ -67,7 +67,6 @@ function PostPreview({
         {coverImage && (
           <div>
             <CoverImage
-              title={title}
               slug={slug}
               url={coverImage.url}
               priority={priority}
@@ -101,7 +100,6 @@ function PostPreview({
       {coverImage && (
         <div className="mb-4">
           <CoverImage
-            title={title}
             slug={slug}
             url={coverImage.url}
             priority={priority}
