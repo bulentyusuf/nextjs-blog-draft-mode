@@ -509,9 +509,15 @@ a workaround.
 Two settings keep `demo-site` off `main`'s critical path:
 
 - **Production Branch is `demo`**, not `main`, so merging a PR no longer
-  triggers a demo production build
+  triggers a demo production build. It lives under Settings → **Environments** →
+  **Production** → **Branch Tracking**, not under Settings → Git where the name
+  suggests
 - **Ignored Build Step is "Only build production"**, so PR pushes skip it and
-  the check reports as cancelled rather than building
+  the check reports as cancelled rather than building. That one is under
+  Settings → **Build and Deployment**
+
+Neither is expressible in this repo, and both are easy to lose: a dashboard
+setting leaves no trace in the codebase and survives no project rebuild.
 
 Refresh the demo deliberately, when the template has changed in a way worth
 showing:
