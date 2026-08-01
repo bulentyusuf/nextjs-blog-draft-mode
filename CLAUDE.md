@@ -606,7 +606,7 @@ divergence to manage, so do not fork the repo to separate them. Vercel allows 25
 projects per repository, and one repo feeding several is the designed path, not
 a workaround.
 
-Two settings keep `demo-site` off `main`'s critical path:
+Three settings keep `demo-site` off `main`'s critical path:
 
 - **Production Branch is `demo`**, not `main`, so merging a PR no longer
   triggers a demo production build. It lives under Settings → **Environments** →
@@ -615,9 +615,37 @@ Two settings keep `demo-site` off `main`'s critical path:
 - **Ignored Build Step is "Only build production"**, so PR pushes skip it and
   the check reports as cancelled rather than building. That one is under
   Settings → **Build and Deployment**
+- **Preview → Branch Tracking is disabled**, under Settings → **Environments** →
+  **Preview**
 
-Neither is expressible in this repo, and both are easy to lose: a dashboard
-setting leaves no trace in the codebase and survives no project rebuild.
+That third one is the least obvious, so it is worth saying why it is off rather
+than narrowed. **The Preview environment is a catch-all and cannot be scoped to
+a branch.** It claims "any branch that doesn't match another environment", so
+with `demo` taken by Production, Preview's branch selector is greyed out at "All
+unassigned branches" — there is nothing to filter, and the greyed field is a
+statement of the rule rather than a control. The only lever is the toggle.
+
+Left enabled, it meant every push to `main` and every PR branch created a
+`demo-site` deployment which the Ignored Build Step then cancelled. Those
+cancelled deployments burn no build minutes, but they are real deployment
+objects — 13 of them in a two-hour window on 2026-08-01, against one useful
+build — and the cap is on deployments. The Ignored Build Step runs at build
+time, so it can only cancel a deployment that already exists; disabling Preview
+stops it being created at all.
+
+Nothing was lost by turning it off. Every `demo-site` preview deployment had
+been cancelled without ever producing a usable preview, and the Preview
+environment has no domains attached. A one-off preview is still reachable with
+`vercel deploy`, which the toggle's own help text spells out.
+
+Leave the Ignored Build Step in place regardless. With no preview deployments
+being created it has nothing to catch, but it still guards the production path
+and costs nothing.
+
+None of the three is expressible in this repo, and all are easy to lose: a
+dashboard setting leaves no trace in the codebase and survives no project
+rebuild. A missing `Preview – demo-site` check is the expected state, not a
+regression to fix by switching it back on.
 
 Refresh the demo deliberately, when the template has changed in a way worth
 showing:
