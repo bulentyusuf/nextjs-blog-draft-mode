@@ -67,8 +67,12 @@ export default async function IndexPage({
   return (
     <Container>
       <header className="mb-6 md:mb-8">
+        {/* Title case, matching the "Latest Posts" heading this page continues
+            on the index — and matching this page's own metadata title, which
+            has always read "Latest Posts, Page N". The h1 was the only one of
+            the three in sentence case. */}
         <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-          Latest posts
+          Latest Posts
         </h1>
         <PageContext currentPage={pageNumber} totalPages={totalPages} />
       </header>
