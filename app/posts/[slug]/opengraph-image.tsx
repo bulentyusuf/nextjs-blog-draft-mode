@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import fs from "node:fs";
 import path from "node:path";
-import { getPost } from "@/lib/api";
+import { getAllPosts, getPost } from "@/lib/api";
 import { SITE_TITLE, SITE_AUTHOR } from "@/lib/constants";
 import { widont } from "@/lib/typography";
 
@@ -13,6 +13,26 @@ import { widont } from "@/lib/typography";
 // and the route fetches the post via the same Contentful GraphQL helper the
 // page uses.
 export const runtime = "nodejs";
+
+// Prerender a card per post, alongside the pages themselves.
+//
+// Without this the route was the only dynamic non-API route on the site — the
+// build printed `ƒ /posts/-/opengraph-image` while every page around it was ○
+// or ●. Each scrape then paid for a Contentful query, a Satori render and a
+// cover fetch, on a route whose output only changes when the post does.
+//
+// Colocated metadata routes do not inherit the page's generateStaticParams, so
+// the slugs have to be enumerated again here. That is a second getAllPosts at
+// build time — it is not cache()-wrapped — which is one listing query per
+// build, paid once, against 20-odd renders moved off the request path.
+//
+// dynamicParams stays at its default of true, which is what makes this safe
+// for a post published through the webhook: a slug that was not in the build
+// still renders on demand, exactly as the whole route did before. The card is
+// then prerendered from the next deploy on.
+export async function generateStaticParams() {
+  return (await getAllPosts(false)).map((post) => ({ slug: post.slug }));
+}
 
 export const alt = `${SITE_TITLE} — post`;
 export const size = { width: 1200, height: 630 };
