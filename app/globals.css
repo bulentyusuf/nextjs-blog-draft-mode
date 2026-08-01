@@ -6,10 +6,15 @@
   Tailwind v4 detects sources automatically: every file not excluded by
   .gitignore is scanned for class-name candidates, markdown included. So a
   utility merely NAMED in documentation is generated as if it were used —
-  CLAUDE.md's line explaining why `scroll-mt-24` must not coexist with
-  scroll-padding was, by itself, emitting `.scroll-mt-24` into production CSS
-  after every component using it had been removed. Documentation should not be
-  able to change the artefact it documents.
+  CLAUDE.md's line explaining why a `scroll-mt-*` utility must not coexist with
+  scroll-padding was, by itself, emitting that utility into production CSS after
+  every component using it had been removed. Documentation should not be able to
+  change the artefact it documents.
+
+  Note this comment carefully does not spell the class out. Prose files can be
+  excluded wholesale, as below; source files cannot, so a literal class name in
+  a comment here would regenerate the very rule this removes. Ordinary English
+  that happens to match a utility is a different matter — see CLAUDE.md.
 
   These two carry class names in prose and ship no markup of their own.
   llms.txt and the READMEs describe the site to other tools; app/ and lib/ are

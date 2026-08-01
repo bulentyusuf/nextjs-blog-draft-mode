@@ -130,14 +130,43 @@ describe("scroll offset lives in exactly one place", () => {
   });
 
   it("excludes prose files from Tailwind's source scanning", () => {
-    // The blind spot that let the check below pass while .scroll-mt-24 was
+    // The blind spot that let the check below pass while the utility was
     // still shipping. Tailwind v4 scans every file .gitignore does not
-    // exclude, markdown included, so CLAUDE.md's sentence explaining why
-    // scroll-mt-24 must not exist was generating scroll-mt-24. The walk below
-    // only covers app/ and lib/, and always will — the fix belongs in the
-    // stylesheet, not in a wider grep.
+    // exclude, markdown included, so CLAUDE.md's sentence explaining why that
+    // utility must not exist was generating it. The walk below only covers
+    // app/ and lib/, and always will — the fix belongs in the stylesheet.
+    //
+    // This comment says "the utility" rather than naming it for the same
+    // reason: app/ and lib/ ARE scanned, so a literal class name here would
+    // regenerate the rule. The test below enforces that.
     expect(css).toContain('@source not "../CLAUDE.md"');
     expect(css).toContain('@source not "../README.md"');
+  });
+
+  it("does not name the removed utility anywhere app/ or lib/ is scanned", () => {
+    // Tailwind scans app/ and lib/ for class-name candidates and cannot tell a
+    // comment from markup, so writing the literal class here regenerates the
+    // rule in production — which is exactly what happened after the prose
+    // files were excluded: CLAUDE.md stopped emitting it and this file and
+    // globals.css carried on. The needle is assembled at runtime so that this
+    // assertion is not itself the thing it forbids.
+    const needle = "scroll-mt" + "-24";
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (entry.name === "node_modules" || entry.name.startsWith("."))
+          continue;
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (/\.(tsx?|css)$/.test(entry.name)) {
+          if (fs.readFileSync(full, "utf8").includes(needle))
+            offenders.push(path.relative(root, full));
+        }
+      }
+    };
+    for (const dir of ["app", "lib"]) walk(path.join(root, dir));
+
+    expect(offenders).toEqual([]);
   });
 
   it("no scroll-mt-* utility survives to stack on top of it", () => {
