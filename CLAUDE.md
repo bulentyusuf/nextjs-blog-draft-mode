@@ -253,7 +253,7 @@ unaffected. Because keyboard focus can no longer land inside the cover,
 after the page's `h2`s and skipped a level on every page whose deepest heading
 is an `h2` — post pages, `/about`, `/privacy`, `/search` and all four browse
 indexes — which axe reports as `heading-order`. Promoting them to `h2` instead
-would flip them to Fraunces, since `globals.css` gives the display face to
+would flip them to Piazzolla, since `globals.css` gives the display face to
 `h1`–`h3`. They lose nothing as paragraphs: both navs already carry
 `aria-label="Browse"` / `"Colophon"`, so the landmarks stay named.
 
@@ -468,6 +468,25 @@ including `robots.txt`, the web manifest, JSON-LD and the feed — static routes
 that never touch Contentful. Moving those behind a network fetch is a different
 and much larger change than editing a standfirst; do not treat it as the obvious
 next step.
+
+### The OG card's font file is stripped of layout features, and must stay so
+
+`app/posts/[slug]/Piazzolla-Medium.woff` is not a stock font file. Satori — the
+renderer behind `next/og` — parses only some GSUB lookup formats, and every
+stock Piazzolla build carries a contextual lookup (type 6, substFormat 2) under
+`liga`. Feeding it one throws `lookupType: 6 - substFormat: 2 is not yet
+supported` and fails the entire card render, so the OG route would 500 on every
+post. This is the font, not the packaging: the `@fontsource/piazzolla` woff and
+the Google Fonts static TTF carry the same lookup.
+
+So the committed copy is subset with `--layout-features='kern'`, which drops
+every GSUB feature and keeps kerning. The exact command is in the comment above
+the loader in `app/posts/[slug]/opengraph-image.tsx`. The cost is ligatures on
+the card, which nothing else notices.
+
+**Replacing it with a stock download reintroduces the crash**, and nothing in
+CI catches it — the card is rendered by Satori at build or request time, not by
+any test. Re-strip after any font update, and render one card to check.
 
 ### Other reviewed items, intentionally left as-is
 

@@ -176,7 +176,7 @@ export function RichText({
         // Pull quote: crimson rule, display face. not-prose so the typography
         // plugin's blockquote styling doesn't fight ours; inner paragraphs are
         // de-margined ([&_p]:m-0) with a gap only between multiple paragraphs.
-        <blockquote className="not-prose my-9 border-l-4 border-brand-crimson pl-5 font-display text-2xl font-medium leading-snug text-brand-dark md:text-[1.75rem] [&_p]:m-0 [&_p+p]:mt-4">
+        <blockquote className="not-prose my-9 border-l-4 border-brand-crimson pl-5 font-display text-2xl font-normal leading-snug text-brand-dark md:text-[1.75rem] [&_p]:m-0 [&_p+p]:mt-4">
           {children}
         </blockquote>
       ),

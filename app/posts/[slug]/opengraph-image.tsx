@@ -38,14 +38,34 @@ export const alt = `${SITE_TITLE} — post`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Fraunces at weight 600, committed as a static TTF colocated with the route so
-// it is never publicly served (unlike public/). next/font gives no raw bytes to
-// ImageResponse, so the file is loaded directly. Read once at module scope, not
-// per request. Fraunces is SIL Open Font License 1.1, which permits embedding;
-// the static instance was extracted from the @fontsource/fraunces package
-// (github.com/undercasetype/Fraunces).
-const fraunces = fs.readFileSync(
-  path.join(process.cwd(), "app/posts/[slug]/Fraunces-SemiBold.ttf"),
+// Piazzolla at weight 500, committed as a static WOFF colocated with the route
+// so it is never publicly served (unlike public/). next/font gives no raw bytes
+// to ImageResponse, so the file is loaded directly. Read once at module scope,
+// not per request. Satori accepts TTF, OTF and WOFF but not WOFF2. Piazzolla is
+// SIL Open Font License 1.1, which permits embedding; the static instance was
+// extracted from @fontsource/piazzolla 5.3.0
+// (files/piazzolla-latin-500-normal.woff, github.com/huertatipografica/piazzolla).
+//
+// The committed file has its OpenType layout features stripped, and must keep
+// them stripped. Satori's font parser handles only some GSUB lookup formats,
+// and every stock Piazzolla build — fontsource and the Google Fonts static TTF
+// alike — carries a contextual lookup (type 6, substFormat 2) under `liga`
+// that it rejects outright with "lookupType: 6 - substFormat: 2 is not yet
+// supported", failing the whole render. Dropping the features costs ligatures
+// on the card and nothing else. Reproduce with:
+//
+//   pyftsubset piazzolla-latin-500-normal.woff --glyphs='*' \
+//     --layout-features='kern' --flavor=woff --output-file=Piazzolla-Medium.woff
+//
+// This registers the latin subset only, so the capital eszett ẞ (U+1E9E,
+// latin-ext) is absent from the cmap and a title containing it falls back off
+// Piazzolla. Ordinary German characters (ä ö ü ß) are inside latin and render
+// fine. Whether Satori falls back correctly across two entries registered under
+// one family name is untested, so the latin-ext file is deliberately not added
+// here — that belongs with the de-DE work, where it can be verified against a
+// real German title.
+const piazzolla = fs.readFileSync(
+  path.join(process.cwd(), "app/posts/[slug]/Piazzolla-Medium.woff"),
 );
 
 // Brand ground and ink. Literal hex, not the CSS tokens — Satori cannot read
@@ -114,7 +134,7 @@ export default async function OpengraphImage({
         <div
           style={{
             display: "flex",
-            fontFamily: "Fraunces",
+            fontFamily: "Piazzolla",
             fontSize: 60,
             lineHeight: 1.1,
             color: BRAND_INK,
@@ -128,7 +148,7 @@ export default async function OpengraphImage({
             display: "flex",
             flexDirection: "column",
             marginTop: "auto",
-            fontFamily: "Fraunces",
+            fontFamily: "Piazzolla",
             color: BRAND_INK,
             opacity: 0.7,
             fontSize: 28,
@@ -165,9 +185,9 @@ export default async function OpengraphImage({
       ...size,
       fonts: [
         {
-          name: "Fraunces",
-          data: fraunces,
-          weight: 600,
+          name: "Piazzolla",
+          data: piazzolla,
+          weight: 500,
           style: "normal",
         },
       ],

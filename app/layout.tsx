@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Inter, Fraunces } from "next/font/google";
+import { Inter, Piazzolla } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import {
@@ -68,14 +68,17 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
 };
+// latin-ext is carried by both faces for the same reason: the capital eszett ẞ
+// (U+1E9E) sits in that range, and de-DE headings will need it. German low-9
+// quotes „ (U+201E) are already inside latin, so those were never at risk.
 const inter = Inter({
   variable: "--font-inter",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   display: "swap",
 });
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
+const piazzolla = Piazzolla({
+  variable: "--font-piazzolla",
+  subsets: ["latin", "latin-ext"],
   display: "swap",
   axes: ["opsz"],
 });
@@ -86,7 +89,7 @@ function Header() {
         <div className="flex items-baseline gap-3">
           <Link
             href="/"
-            className="font-display text-lg font-[650] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
+            className="font-display text-lg font-[600] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             {SITE_TITLE}
           </Link>
@@ -147,7 +150,7 @@ function Footer() {
         <div className="grid gap-8 md:grid-cols-[2fr_1fr_1fr] md:gap-12">
           {/* Column 1 — masthead + blurb */}
           <div>
-            <p className="font-display text-2xl font-[650] text-white">
+            <p className="font-display text-2xl font-[600] text-white">
               {SITE_TITLE}
             </p>
             <p className="mt-3 max-w-sm text-sm text-white/80">
@@ -161,7 +164,7 @@ function Footer() {
               whose deepest heading is an h2 — post pages, /about, /privacy,
               /search and all four browse indexes — which axe reports as
               heading-order. Promoting it to h2 instead would flip it to
-              Fraunces, since globals.css gives the display face to h1-h3. It
+              Piazzolla, since globals.css gives the display face to h1-h3. It
               loses nothing as a <p>: the nav already carries aria-label="Browse",
               so the landmark is named either way. Same for Colophon below. */}
           <nav aria-label="Browse">
@@ -237,7 +240,7 @@ function Footer() {
         <div className="mt-12 border-t border-white/10 pt-8">
           <p className="text-xs text-white/60">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js &
-            Contentful · Type set in Fraunces and Inter
+            Contentful · Type set in Piazzolla and Inter
           </p>
         </div>
       </div>
@@ -253,7 +256,7 @@ export default async function RootLayout({
   return (
     <html
       lang={DEFAULT_LOCALE}
-      className={`${inter.variable} ${fraunces.variable}`}
+      className={`${inter.variable} ${piazzolla.variable}`}
     >
       <body className="min-h-screen flex flex-col bg-brand-bg text-brand-dark">
         {/* top-2 centres the 36px link in the 52px header band. If the header's
