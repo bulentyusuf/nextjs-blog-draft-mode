@@ -121,6 +121,35 @@ The `border-2` frames around images in `lib/rich-text.tsx` and
 `lib/lightbox-image.tsx` are a separate, heavier role and deliberately keep
 their own `border-gray-300 dark:border-brand-dark/15` pairing. Leave them.
 
+### A control boundary is a third role, `--color-control-edge`
+
+`app/tag-pill.tsx` is the only closed boundary drawn around an interactive
+control, and it is **not** a divider despite having borrowed the divider token
+for a long time. The distinction is not pedantry, it decides a contrast floor: a
+rule _between_ list items is decorative and exempt, whereas this edge is the
+only thing identifying the control. Pill text is `text-brand-muted`, the same
+colour as the dates and meta beside it, so with the edge invisible a pill is
+indistinguishable from static text — which is what `--color-hairline` gave it,
+at 1.14:1 light and 1.47:1 dark.
+
+At 70% of the muted ink it reads 3.15:1 and 4.37:1, clearing WCAG 1.4.11's 3:1.
+`lib/tag-pill.test.ts` parses both tokens straight out of `globals.css`,
+recomputes the ratios, and also asserts the two tokens are still distinct — so
+"deduplicating" them back into one fails rather than silently returning the pill
+to an invisible edge.
+
+**Two literal values with a dark override, deliberately, not `color-mix()` over
+`var(--color-brand-muted)`.** The derived form reads better and compiles worse:
+Tailwind flattens a `var()` inside `color-mix()` into an `@supports (color:
+color-mix(in lab, red, red))` block and leaves a **literal light-mode fallback
+outside it**, so an engine without `color-mix` would paint the light edge on the
+dark page — losing exactly the contrast the token exists for. The cost is that
+retuning `--color-brand-muted` does not carry here automatically, which is the
+other thing the test catches.
+
+This does not loosen "one divider token" above. It says the pill was never a
+divider, the same way the image frames are not.
+
 ### One focus indicator, set in `@layer base`
 
 `globals.css` defines a single `:focus-visible` rule: a 2px

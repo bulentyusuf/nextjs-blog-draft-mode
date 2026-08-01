@@ -37,11 +37,13 @@ function RichTextAsset({
 
   if (!asset?.url) return null;
 
-  // The description does double duty: it is both the alt text and the visible
-  // caption. Empty alt is the right render when it is missing — a filename or a
-  // guessed description would be worse — but that silently turns an informative
-  // image into a decorative one, and nothing in the CMS flags it. Warn instead,
-  // so it surfaces in the build log while the asset can still be traced.
+  // The description is the caption, and only the caption — see the alt note
+  // below. So a missing one does not degrade the image's description, it
+  // removes it: no caption renders, and with alt empty by design the figure
+  // reaches the reader entirely unlabelled. A filename or a guessed
+  // description would be worse, and nothing in the CMS flags the gap, so warn
+  // instead — it surfaces in the build log while the asset can still be
+  // traced.
   if (!asset.description) {
     console.warn(
       `[rich-text] Embedded asset ${asset.sys.id} has no description, so it renders with empty alt text and no caption.`,
