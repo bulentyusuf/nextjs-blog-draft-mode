@@ -33,7 +33,7 @@ export default function TagPill({
 }) {
   return (
     <Link
-      href={`/tags#${tag.slug}`}
+      href={`/tags/${tag.slug}`}
       className={`inline-block rounded-full border border-hairline ${SIZES[size]} text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson`}
     >
       {tag.name}

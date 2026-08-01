@@ -7,6 +7,7 @@ import {
 import { SITE_URL } from "@/lib/constants";
 import { escapeXml } from "@/lib/xml";
 import type { ListPost } from "@/lib/types";
+import { postTags, visibleTagSlugs } from "@/lib/tags";
 
 // Served at /sitemap.xml via a rewrite in next.config.js. This handler lives on
 // an ordinary path (/sitemap-xml) on purpose. Next treats the reserved
@@ -63,6 +64,17 @@ export async function GET() {
     if (!current || date > current) newestByCategory.set(slug, date);
   }
 
+  // Same idea per tag slug, except a post carries up to three, so it can be the
+  // freshest entry for several tags at once.
+  const newestByTag = new Map<string, Date>();
+  for (const post of posts) {
+    const date = postDate(post);
+    for (const tag of postTags(post)) {
+      const current = newestByTag.get(tag.slug);
+      if (!current || date > current) newestByTag.set(tag.slug, date);
+    }
+  }
+
   // Same idea per author slug. Posts carry author.slug via POST_GRAPHQL_FIELDS.
   const newestByAuthor = new Map<string, Date>();
   for (const post of posts) {
@@ -98,6 +110,17 @@ export async function GET() {
     priority: 0.6,
   }));
 
+  // Only tags the glossary shows. Below MIN_POSTS_PER_TAG a tag has no page —
+  // the route 404s — so listing it here would advertise a dead URL.
+  const tagEntries: SitemapEntry[] = [...visibleTagSlugs(posts)].map(
+    (slug) => ({
+      url: `${SITE_URL}/tags/${slug}`,
+      lastModified: newestByTag.get(slug) ?? newestSitewide,
+      changeFrequency: "weekly",
+      priority: 0.6,
+    }),
+  );
+
   const authorEntries: SitemapEntry[] = authors
     .filter((author) => author.slug)
     .map((author) => ({
@@ -121,9 +144,8 @@ export async function GET() {
       priority: 0.7,
     },
     {
-      // One URL, not one per tag. The glossary lists every tag and its posts on
-      // a single page, so there are no /tags/[slug] routes to enumerate — and a
-      // dozen near-empty tag pages would be thin content besides.
+      // The glossary index. Per-tag pages are enumerated separately below —
+      // this was one URL until tags gained their own landing pages.
       url: `${SITE_URL}/tags`,
       lastModified: newestSitewide,
       changeFrequency: "weekly",
@@ -145,6 +167,7 @@ export async function GET() {
     },
     ...pageEntries,
     ...categoryEntries,
+    ...tagEntries,
     ...authorEntries,
     ...postEntries,
   ];
