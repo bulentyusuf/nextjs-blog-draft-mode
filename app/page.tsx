@@ -97,7 +97,6 @@ function HeroPost({
       {coverImage && (
         <div className="mt-8 md:mt-10">
           <CoverImage
-            title={title}
             slug={slug}
             url={coverImage.url}
             wide

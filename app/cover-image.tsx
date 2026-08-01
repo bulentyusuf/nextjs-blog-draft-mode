@@ -3,8 +3,12 @@ import Link from "next/link";
 import { clsx as cn } from "clsx";
 import { getBlurDataURL } from "@/lib/blur";
 
+// No `title` prop. It existed solely to name the cover link via aria-label,
+// which is exactly the duplicate announcement removed below — the image is
+// decorative (alt="") and the link is hidden from assistive tech, so there is
+// nothing left for a title to name. Callers pass their heading text to their
+// own heading link instead.
 export default async function CoverImage({
-  title,
   url,
   slug,
   href,
@@ -14,7 +18,6 @@ export default async function CoverImage({
   hover = false,
   transitionName,
 }: {
-  title: string;
   url: string;
   slug?: string;
   // Link destination override. When omitted, a `slug` links to /posts/${slug}
@@ -56,7 +59,11 @@ export default async function CoverImage({
         sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
       }
       className={cn("object-cover", {
-        "motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.02] motion-safe:group-focus-within:scale-[1.02] pointer-fine:motion-safe:will-change-transform":
+        // Hover only, no group-focus-within: the link below is removed from
+        // the tab order (see there), so keyboard focus never lands inside this
+        // group and the focus variant would be a dead rule claiming otherwise.
+        // The card title carries the keyboard affordance instead.
+        "motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out motion-safe:group-hover:scale-[1.02] pointer-fine:motion-safe:will-change-transform":
           hover,
       })}
       src={url}
@@ -88,7 +95,27 @@ export default async function CoverImage({
           />
         )}
         {linkHref ? (
-          <Link href={linkHref} aria-label={title} className="block h-full">
+          // Mouse affordance only, hidden from assistive tech and the tab
+          // order. Every call site that passes a slug or href also renders a
+          // heading link to the SAME destination immediately beside this one —
+          // the card title in more-stories, the h1 on the home hero, the h2 on
+          // the categories index. Named (it used aria-label={title}) that was
+          // two adjacent links per card with identical accessible names: twice
+          // the tab stops on every listing, and every title appearing twice in
+          // a screen reader's link list with nothing to tell the pair apart.
+          //
+          // aria-hidden and tabIndex must move together. aria-hidden alone on a
+          // focusable element is its own violation — a control reachable by
+          // keyboard but absent from the accessibility tree.
+          //
+          // The post-page cover passes neither slug nor href, so it renders no
+          // link at all and none of this applies.
+          <Link
+            href={linkHref}
+            aria-hidden="true"
+            tabIndex={-1}
+            className="block h-full"
+          >
             {image}
           </Link>
         ) : (

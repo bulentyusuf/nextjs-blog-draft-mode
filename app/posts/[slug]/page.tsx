@@ -198,7 +198,6 @@ export default async function PostPage({
         {post.coverImage && (
           <div className="mb-10">
             <CoverImage
-              title={post.title}
               url={post.coverImage.url}
               wide
               priority

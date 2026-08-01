@@ -156,6 +156,43 @@ announced "Enlarge image" and did nothing with scripts off — a control that li
 `mounted` gates the affordance, not the content, and a test asserts the server
 HTML carries no `<button>`. Do not "simplify" the conditional away.
 
+### One announced link per card, and one description per figure
+
+Three things that each looked like a missing label and were actually a doubled
+one. All three came out of the accessibility audit; do not "restore" any of
+them.
+
+**A linked cover is hidden from assistive tech.** `app/cover-image.tsx` gives
+its `<Link>` `aria-hidden="true"` and `tabIndex={-1}`. Every call site that
+passes `slug` or `href` also renders a heading link to the same destination
+right beside it — the card title in `more-stories`, the `h1` on the home hero,
+the `h2` on the categories index. Named (it carried `aria-label={title}`) that
+was two adjacent links per card with identical accessible names: double the tab
+stops on every listing, and every title appearing twice in a screen reader's
+link list with nothing to tell the pair apart. The two attributes move
+together — `aria-hidden` on a focusable element is its own violation. The
+component therefore has **no `title` prop**; naming the link was its only job.
+The post-page cover passes neither `slug` nor `href`, renders no link, and is
+unaffected. Because keyboard focus can no longer land inside the cover,
+`motion-safe:group-focus-within:scale` went with it; the hover zoom stays.
+
+**Footer column labels are `<p>`, not `<h4>`.** As headings they sat straight
+after the page's `h2`s and skipped a level on every page whose deepest heading
+is an `h2` — post pages, `/about`, `/privacy`, `/search` and all four browse
+indexes — which axe reports as `heading-order`. Promoting them to `h2` instead
+would flip them to Fraunces, since `globals.css` gives the display face to
+`h1`–`h3`. They lose nothing as paragraphs: both navs already carry
+`aria-label="Browse"` / `"Colophon"`, so the landmarks stay named.
+
+**An embedded figure's `alt` is empty whenever a caption renders.** Contentful's
+`description` is one field doing two jobs, so emitting it as both `alt` and
+`<figcaption>` made every figure announce the same sentence twice — three times
+through the lightbox, whose trigger also read "Enlarge image: <desc>". The
+caption is visible, adjacent in the DOM and describes the image, so the image is
+what goes decorative; `lib/lightbox-image.tsx` derives this from `caption` being
+present and falls back to `alt` when there is none. The build-time warning for a
+missing description is unaffected and still fires.
+
 ### Breadcrumbs are constrained to their page's own measure
 
 `Container` is `max-w-5xl`. Pages whose content is also `max-w-5xl` render

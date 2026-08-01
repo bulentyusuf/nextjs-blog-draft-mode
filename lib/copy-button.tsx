@@ -60,7 +60,13 @@ export default function CopyButton({
       <button
         type="button"
         onClick={copy}
-        aria-label={`Copy ${label}`}
+        // Tracks the visible text. Pinned at "Copy ${label}" the name went out
+        // of step with the face of the button the moment it read "Copied":
+        // WCAG 2.5.3 asks that the visible label be contained in the accessible
+        // name, so a speech-input user saying "click Copied" addressed a
+        // control no longer called that. The live region below announces the
+        // result; this keeps the name itself addressable.
+        aria-label={copied ? `Copied ${label}` : `Copy ${label}`}
         className={`rounded-md px-2 py-1 font-mono text-xs transition-colors ${variantStyles}`}
       >
         {copied ? "Copied" : "Copy"}

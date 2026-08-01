@@ -63,7 +63,14 @@ function RichTextAsset({
       ) : (
         <ContentfulImage
           src={asset.url}
-          alt={asset.description || ""}
+          // Always empty, and not a bug. The description is the caption
+          // rendered directly below, so repeating it here made every figure
+          // announce the same sentence twice in a row. With a visible caption
+          // adjacent in the DOM the image is already described, which is the
+          // case W3C's own guidance makes for an empty alt. When there is no
+          // description there is no caption either, and empty was already the
+          // documented render (the build warning above still fires).
+          alt=""
           width={1200}
           height={800}
           priority={priority}
