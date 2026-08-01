@@ -396,6 +396,12 @@ regression, not a style choice — a previous PR existed solely to purge these.
 German (`de-DE`) localisation is in progress; until it lands, do not add
 locale plumbing speculatively.
 
+`contentful/export.json` is the deliberate exception, and ships `en-US` as its
+default locale. It is the **template's** content model, imported by people
+forking this repo into their own space, not a mirror of the live space. The
+`en-GB` rule above governs this project's code and content; it does not govern
+what a fork starts with. Do not "correct" the export to `en-GB`.
+
 ### Post, category and author fetchers are `cache()`-wrapped on purpose
 
 `getPost`, `getPostAndMorePosts`, `getCategoryBySlug` and `getAuthorBySlug` are
@@ -481,9 +487,17 @@ build with `Cannot query field "x"`, and because a GraphQL error rejects the
 whole query rather than the one selection, every page dies. Adding
 `tagsCollection` took the demo down exactly this way.
 
-So the order for any schema change is: **both spaces first, then merge.** The
-repo's fixtures are a third copy — see the export/seed section above — which
-makes three places to keep in step.
+So the order for any schema change is: **both spaces first, then merge, then
+sync `demo`.** The repo's fixtures are a third copy — see the export/seed
+section above — which makes three places to keep in step.
+
+That last step matters more than it looks. `demo-site` no longer builds on
+merges to `main` (see the demo branch section below), so nothing checks the
+demo space against the queries until `demo` moves. Push it by hand as the final
+step of a schema change and the demo build verifies your work while the change
+is still fresh. `.github/workflows/sync-demo.yml` runs the same push weekly, so
+a forgotten step surfaces within seven days rather than on some unrelated
+future sync.
 
 **Content type IDs are immutable.** The display name can be changed by an
 editor at any time; the ID cannot, ever. Renaming means deleting and recreating
