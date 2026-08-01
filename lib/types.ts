@@ -149,7 +149,7 @@ export interface PostCollectionResponse {
 
 export type CardPost = Pick<
   Post,
-  "slug" | "title" | "date" | "excerpt" | "coverImage"
+  "slug" | "title" | "date" | "excerpt" | "coverImage" | "tagsCollection"
 >;
 
 export interface CardPostCollectionResponse {

@@ -10,6 +10,7 @@ import {
   getAllCategories,
   getCategoryBySlug,
   getPostsByCategory,
+  getVisibleTagSlugs,
 } from "@/lib/api";
 import {
   POSTS_PER_PAGE,
@@ -107,6 +108,7 @@ export default async function CategoryPaginatedPage({
   ];
 
   const posts = await getPostsByCategory(slug, isEnabled);
+  const visibleTags = await getVisibleTagSlugs(isEnabled);
   const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
 
   if (pageNumber > totalPages) {
@@ -138,6 +140,7 @@ export default async function CategoryPaginatedPage({
         variant="list"
         heading={null}
         priorityFirst
+        visibleTags={visibleTags}
       />
       <Pagination
         currentPage={pageNumber}

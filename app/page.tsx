@@ -10,6 +10,7 @@ import MoreStories from "./more-stories";
 import Pagination from "./pagination";
 
 import { getAllPosts } from "@/lib/api";
+import { visibleTagSlugs } from "@/lib/tags";
 import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
 import { createCoverNamer } from "@/lib/view-transition-name";
 
@@ -145,6 +146,7 @@ export default async function Page() {
         variant="list"
         heading="Latest Posts"
         coverName={coverName}
+        visibleTags={visibleTagSlugs(allPosts)}
       />
       <Pagination currentPage={1} totalPages={totalPages} basePath="/" />
     </Container>
