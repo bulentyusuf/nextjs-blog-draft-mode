@@ -92,8 +92,12 @@ export default async function AuthorPage({
     { label: author.name },
   ];
 
-  const posts = await getPostsByAuthor(slug, isEnabled);
-  const visibleTags = await getVisibleTagSlugs(isEnabled);
+  // Independent queries, so they go out together. Awaited in sequence they
+  // serialised the two slowest calls on this page for no reason.
+  const [posts, visibleTags] = await Promise.all([
+    getPostsByAuthor(slug, isEnabled),
+    getVisibleTagSlugs(isEnabled),
+  ]);
   const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
   const pagePosts = posts.slice(0, POSTS_PER_PAGE);
 
