@@ -171,11 +171,23 @@ emblem's visibility depends on
 
 ### `/page/[page]` has no breadcrumb on purpose
 
-Breadcrumbs describe section hierarchy; position is carried separately by
-`app/page-context.tsx`, which renders a muted "Page N of M" and returns `null` on
-page 1. That is why paginated category and author chains stop at the section and
-never include a page number, and a crumb here would be a lone non-linked "Home"
-marked `aria-current="page"`. Do not add one, or page numbers to those chains.
+**There is nothing to link to.** A breadcrumb needs a parent, and "Latest Posts"
+has no URL of its own — the pagination sets `basePath="/"`, so page 1 of this
+listing _is_ the home page. It is a component of Home, not a level beneath it,
+which is why it renders as a section `h2` on `/` and only becomes the `h1` from
+page 2 onward, once the hero is gone. A `Home / Latest Posts` trail would either
+point both crumbs at `/`, or claim page 2 is the section while page 1 sits at a
+different URL. Neither describes a hierarchy.
+
+Contrast the pages that do have one. `/about`, `/privacy`, `/search` and
+`/archive` carry two crumbs — a parent and the current page — which is the
+minimum a breadcrumb needs, not a shallow special case. Every page with a parent
+gets a trail; exactly one page has no parent.
+
+Position is carried separately by `app/page-context.tsx`, which renders a muted
+"Page N of M" and returns `null` on page 1. That is why paginated category and
+author chains stop at the section and never include a page number. Do not add a
+crumb here, or page numbers to those chains.
 
 Known and accepted: on `/categories/[slug]/page/[page]`, `aria-current="page"`
 sits on the section crumb, whose URL differs from the current one.
