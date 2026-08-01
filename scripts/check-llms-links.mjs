@@ -8,12 +8,12 @@
 //
 // Usage:  node scripts/check-llms-links.mjs [path-to-llms.txt]
 // Env:    SITE_URL  the canonical origin to treat as same-origin
-//                   (default https://bulentyusuf.com)
+//                   (default https://beuseful.net)
 
 import { readFile } from "node:fs/promises";
 
 const FILE = process.argv[2] || "public/llms.txt";
-const SITE_ORIGIN = new URL(process.env.SITE_URL || "https://bulentyusuf.com")
+const SITE_ORIGIN = new URL(process.env.SITE_URL || "https://beuseful.net")
   .origin;
 const TIMEOUT_MS = 15000;
 
