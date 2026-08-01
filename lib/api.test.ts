@@ -246,3 +246,80 @@ describe("retry backoff", () => {
     expect(delays).toEqual([]);
   });
 });
+
+// Contentful caps a collection at 100 items per response and reports the real
+// count in `total`. These cover the paging loop that reads the rest, which is
+// otherwise only exercised against a space holding more than 100 of something.
+describe("collection paging", () => {
+  const author = (n: number) => ({
+    name: `Author ${n}`,
+    slug: `author-${n}`,
+    picture: { url: "https://images.ctfassets.net/placeholder.jpg" },
+  });
+
+  const page = (items: unknown[], total: number) => ({
+    data: { authorCollection: { total, items } },
+  });
+
+  // The variables Contentful was actually asked for, per request, in order.
+  const variablesOf = (fetchMock: ReturnType<typeof vi.fn>) =>
+    fetchMock.mock.calls.map(
+      (call) => JSON.parse(call[1].body as string).variables,
+    );
+
+  it("makes a single request when the first page holds everything", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(page([author(1)], 1));
+    vi.stubGlobal("fetch", async (...args: unknown[]) =>
+      ok(await fetchMock(...args)),
+    );
+
+    await expect(getAllAuthors()).resolves.toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("pages until it has every item, preserving order", async () => {
+    const first = Array.from({ length: 100 }, (_, i) => author(i));
+    const second = [author(100), author(101)];
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(page(first, 102))
+      .mockResolvedValueOnce(page(second, 102));
+    vi.stubGlobal("fetch", async (...args: unknown[]) =>
+      ok(await fetchMock(...args)),
+    );
+
+    const authors = await getAllAuthors();
+
+    expect(authors).toHaveLength(102);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    // Order matters: the sitemap and the glossary both rely on the API's sort
+    // surviving the concatenation.
+    expect(authors[0].slug).toBe("author-0");
+    expect(authors[101].slug).toBe("author-101");
+    // Second request must skip exactly the first page, or items repeat or drop.
+    expect(variablesOf(fetchMock).map((v) => v.skip)).toEqual([0, 100]);
+    expect(variablesOf(fetchMock).map((v) => v.limit)).toEqual([100, 100]);
+  });
+
+  it("stops on an empty page rather than trusting an overstated total", async () => {
+    // A total that never arrives would otherwise spin forever, which is a hang
+    // rather than a failed build — much harder to diagnose.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(page([author(1)], 9999))
+      .mockResolvedValueOnce(page([], 9999));
+    vi.stubGlobal("fetch", async (...args: unknown[]) =>
+      ok(await fetchMock(...args)),
+    );
+
+    await expect(getAllAuthors()).resolves.toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("returns an empty array when the collection is absent", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(ok({ data: {} })));
+
+    await expect(getAllAuthors()).resolves.toEqual([]);
+  });
+});
