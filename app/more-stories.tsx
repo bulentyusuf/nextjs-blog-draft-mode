@@ -9,15 +9,24 @@ import { widont } from "@/lib/typography";
 
 type Variant = "grid" | "list";
 
-// Pills sit below the excerpt rather than beside the date. The date line is
-// already small muted text, and putting pills there makes a busy metadata row
-// that competes with the title. Below the excerpt reads as a footer and leaves
-// the top half of the card alone.
+// Pills sit below the excerpt, not above the title. Above it they would be the
+// first interactive thing in the card and would route the reader away from the
+// listing before they reached the headline; worse, the count varies from one to
+// three and wraps at three, so they would push each title down by a different
+// amount and titles would stop aligning with the top of their cover images.
+// Below the excerpt that variability lands at the foot of the card, where
+// nothing depends on it.
+//
+// aria-label rather than a visible "Tagged" label. The post page carries one
+// because it appears once there; repeated down a listing it is five identical
+// labels of pure noise, and the pill shape already reads as a tag. Screen
+// readers still need the row named, hence the label — without it this is an
+// unexplained list of links on every card.
 function TagRow({ tags, className }: { tags: Tag[]; className: string }) {
   if (tags.length === 0) return null;
 
   return (
-    <ul className={`flex flex-wrap gap-2 ${className}`}>
+    <ul aria-label="Tags" className={`flex flex-wrap gap-2 ${className}`}>
       {tags.map((tag) => (
         <li key={tag.slug}>
           <TagPill tag={tag} size="compact" />
