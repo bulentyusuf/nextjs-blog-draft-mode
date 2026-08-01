@@ -791,6 +791,44 @@ throughout.
 Keeping the export in step after a schema edit is therefore manual. The guards
 will not remind you.
 
+### What the accessibility suite does and does not catch
+
+`app/a11y.test.tsx` composes the real components inside the real `RootLayout` —
+so the header, footer, skip link and landmark structure are the shipped ones,
+not a fixture approximating them — and runs axe-core over the result. It uses
+`renderToReadableStream` rather than `renderToStaticMarkup` because `RootLayout`
+is an async server component with another (`CoverImage`) nested inside it, and
+`renderToStaticMarkup` resolves neither.
+
+Every check in it has already caught a real defect. Do not weaken one to make a
+change pass; the check is the record of why the markup is shaped as it is.
+
+- **axe's own rules**, chiefly `heading-order`, which caught the footer's `<h4>`
+  column labels skipping a level after the page's `h2`s.
+- **Duplicate announcements**, which axe does _not_ implement: two links inside
+  `<main>` sharing both a destination and an accessible name. Both links are
+  perfectly labelled, and that is the defect — it was every listing card
+  exposing its cover and its title as one post announced twice. Scoped to
+  `<main>` on purpose, because the header and footer both link to `/categories`
+  as "Categories" and that is ordinary chrome.
+- **Contiguous heading levels**, belt-and-braces alongside `heading-order`.
+- **A captioned figure describing itself once**, not once as `alt` and again as
+  the caption.
+
+**Two rules are disabled, and cannot be otherwise here.** `color-contrast` and
+`target-size` need a layout engine; jsdom computes no boxes and applies no
+Tailwind stylesheet, so axe would report a false pass. Contrast is covered
+better elsewhere anyway — `lib/tag-pill.test.ts` reads the tokens straight out
+of `globals.css` and recomputes the ratios, which beats sampling pixels. If a
+finding needs real layout, it needs a browser, and this suite is not where it
+goes.
+
+The mocks (`next/font/google`, `next/headers`, the Vercel analytics pair,
+`lib/blur`) exist because each reaches the network or the request scope at
+module load. `getBlurDataURL` returning undefined is the component's genuine
+"no LQIP underlay" branch, so that one exercises shipped behaviour rather than
+faking it.
+
 ### Workflow constants
 
 Protected main, squash merges only, one concern per PR, conventional commit
