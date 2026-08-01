@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/*
+  Keep the prose out of the bundle.
+
+  Tailwind v4 detects sources automatically: every file not excluded by
+  .gitignore is scanned for class-name candidates, markdown included. So a
+  utility merely NAMED in documentation is generated as if it were used —
+  CLAUDE.md's line explaining why `scroll-mt-24` must not coexist with
+  scroll-padding was, by itself, emitting `.scroll-mt-24` into production CSS
+  after every component using it had been removed. Documentation should not be
+  able to change the artefact it documents.
+
+  These two carry class names in prose and ship no markup of their own.
+  llms.txt and the READMEs describe the site to other tools; app/ and lib/ are
+  still scanned normally, so nothing a component uses is affected.
+*/
+@source not "../CLAUDE.md";
+@source not "../README.md";
+
 @plugin '@tailwindcss/typography';
 
 /*
