@@ -83,8 +83,11 @@ export default async function TagsPage() {
               key={tag.slug}
               // scroll-mt clears the sticky header when a pill lands here, the
               // same offset prose headings use on a post page.
+              //
+              // `group` is for the orientation link below, which is shown only
+              // on the section the URL points at.
               id={tag.slug}
-              className="mb-10 scroll-mt-20 last:mb-0"
+              className="group mb-10 scroll-mt-20 last:mb-0"
             >
               {/* Term and gloss on the left, examples on the right — a
                   glossary rather than twelve identical full-width blocks. At
@@ -105,6 +108,29 @@ export default async function TagsPage() {
                       the far right and split it over two lines. Inline, it
                       simply follows the last word. whitespace-nowrap keeps
                       "3 posts" together when that word lands near the edge. */}
+                  {/* Shown only on the section the URL points at, via :target.
+                      A tag pill drops the reader into the middle of this page,
+                      past the breadcrumb, the h1 and the standfirst, with
+                      nothing on screen to say which page they are on — the one
+                      place on the site where a link does that, and it got much
+                      more common once pills went onto every listing card.
+
+                      :target means it appears exactly when it is needed. Twelve
+                      of these rendered unconditionally would be clutter on a
+                      page someone scrolled to normally, and would repeat what
+                      the h1 already said a screen earlier.
+
+                      The arrow points up rather than back: it goes to the top
+                      of the page the reader is already on, which is not
+                      anywhere they have been. */}
+                  <p className="mb-2 hidden font-sans text-xs uppercase tracking-wide text-brand-muted group-target:block">
+                    <Link
+                      href="/tags"
+                      className="transition-colors duration-200 hover:text-brand-crimson"
+                    >
+                      <span aria-hidden="true">↑ </span>All tags
+                    </Link>
+                  </p>
                   <h2 className="mb-1 text-xl md:text-2xl">
                     {tag.name}{" "}
                     <span className="font-sans text-xs font-normal uppercase tracking-wide whitespace-nowrap text-brand-muted tabular-nums">
