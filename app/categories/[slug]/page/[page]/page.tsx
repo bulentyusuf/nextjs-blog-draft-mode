@@ -107,8 +107,11 @@ export default async function CategoryPaginatedPage({
     { label: category.name },
   ];
 
-  const posts = await getPostsByCategory(slug, isEnabled);
-  const visibleTags = await getVisibleTagSlugs(isEnabled);
+  // Independent queries, so they go out together — see the unpaginated page.
+  const [posts, visibleTags] = await Promise.all([
+    getPostsByCategory(slug, isEnabled),
+    getVisibleTagSlugs(isEnabled),
+  ]);
   const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
 
   if (pageNumber > totalPages) {

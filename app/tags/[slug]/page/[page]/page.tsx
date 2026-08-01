@@ -6,8 +6,8 @@ import MoreStories from "../../../../more-stories";
 import Pagination from "../../../../pagination";
 import PageContext from "../../../../page-context";
 import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
-import { getAllPosts, getPostsByTag, getTagBySlug } from "@/lib/api";
-import { visibleTagSlugs } from "@/lib/tags";
+import { getAllPosts, getTagBySlug } from "@/lib/api";
+import { postsWithTag, visibleTagSlugs } from "@/lib/tags";
 import {
   POSTS_PER_PAGE,
   SITE_TITLE,
@@ -22,12 +22,10 @@ export async function generateStaticParams() {
   const posts = await getAllPosts(false);
   const visible = [...visibleTagSlugs(posts)];
 
-  // No extra fetch per tag, unlike the category equivalent: getPostsByTag
+  // No extra fetch per tag, unlike the category equivalent: postsWithTag
   // filters the same getAllPosts result, so the counts are already here.
   return visible.flatMap((slug) => {
-    const count = posts.filter((post) =>
-      (post.tagsCollection?.items ?? []).some((t) => t.slug === slug),
-    ).length;
+    const count = postsWithTag(posts, slug).length;
     const totalPages = Math.max(1, Math.ceil(count / POSTS_PER_PAGE));
     const params: { slug: string; page: string }[] = [];
     for (let p = 2; p <= totalPages; p++) {
@@ -100,13 +98,14 @@ export default async function TagPaginatedPage({
     notFound();
   }
 
+  // One fetch, read twice — see the note on the unpaginated tag page.
   const allPosts = await getAllPosts(isEnabled);
   const visible = visibleTagSlugs(allPosts);
   if (!visible.has(slug)) {
     notFound();
   }
 
-  const posts = await getPostsByTag(slug, isEnabled);
+  const posts = postsWithTag(allPosts, slug);
   const otherTags = new Set([...visible].filter((s) => s !== slug));
 
   const crumbs: Crumb[] = [

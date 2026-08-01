@@ -39,6 +39,27 @@ export function visibleTagSlugs(
 }
 
 /**
+ * Posts carrying a tag, in the order given.
+ *
+ * A filter rather than a query, and that is not laziness: Contentful's GraphQL
+ * cannot filter a collection on an `Array<Link>` field at all, so
+ * `where: { tags: { slug } }` does not exist, and the documented `linkedFrom`
+ * workaround returns no ordering so it could not reproduce `date_DESC`.
+ *
+ * It takes the posts rather than fetching them because every caller already
+ * holds the `getAllPosts` result — it needs the sitewide list anyway, to decide
+ * whether the tag clears `MIN_POSTS_PER_TAG`. `getAllPosts` is not
+ * `cache()`-wrapped, so fetching again in here was a second identical request
+ * per render. Order is the caller's: getAllPosts already sorts `date_DESC`.
+ */
+export function postsWithTag<T extends Pick<Post | ListPost, "tagsCollection">>(
+  posts: T[],
+  slug: string,
+): T[] {
+  return posts.filter((post) => postTags(post).some((t) => t.slug === slug));
+}
+
+/**
  * Posts grouped under each visible tag, tags A–Z, posts newest first.
  *
  * Order comes from the caller: getAllPosts already sorts date_DESC, so the
