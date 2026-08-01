@@ -129,6 +129,17 @@ describe("scroll offset lives in exactly one place", () => {
     expect(rem * 16).toBe(FALLBACK_BAND_TOP_PX);
   });
 
+  it("excludes prose files from Tailwind's source scanning", () => {
+    // The blind spot that let the check below pass while .scroll-mt-24 was
+    // still shipping. Tailwind v4 scans every file .gitignore does not
+    // exclude, markdown included, so CLAUDE.md's sentence explaining why
+    // scroll-mt-24 must not exist was generating scroll-mt-24. The walk below
+    // only covers app/ and lib/, and always will — the fix belongs in the
+    // stylesheet, not in a wider grep.
+    expect(css).toContain('@source not "../CLAUDE.md"');
+    expect(css).toContain('@source not "../README.md"');
+  });
+
   it("no scroll-mt-* utility survives to stack on top of it", () => {
     // scroll-padding on the container and scroll-margin on the target ADD, so
     // one of these reintroduced would push the landing point past the line the

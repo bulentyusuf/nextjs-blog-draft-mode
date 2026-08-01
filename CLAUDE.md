@@ -829,6 +829,31 @@ module load. `getBlurDataURL` returning undefined is the component's genuine
 "no LQIP underlay" branch, so that one exercises shipped behaviour rather than
 faking it.
 
+### Documentation is excluded from Tailwind's source scanning
+
+`globals.css` carries `@source not "../CLAUDE.md"` and the same for
+`README.md`. Tailwind v4 detects sources automatically — every file
+`.gitignore` does not exclude is scanned for class-name candidates, markdown
+included — so a utility merely **named** in prose is generated as though a
+component used it.
+
+This was not hypothetical. The sentence above explaining why `scroll-mt-24`
+must not coexist with `scroll-padding-top` was, by itself, emitting
+`.scroll-mt-24` into the production bundle after every component using it had
+been removed. Three more went the same way, from ordinary English that happens
+to be a class name: `.rounded` (from "a rounded plate"), `.transition` and
+`.outline-hidden`. Together, 831 bytes of CSS that nothing could ever apply.
+
+Only the **bare** forms were affected. `focus-visible:outline-hidden`,
+`rounded-md`, `motion-safe:transition-transform` and the rest compile to
+different selectors and are emitted from the components that genuinely use
+them, which is why removing the prose sources changes nothing visible — a
+before/after compile differs by exactly those four rules, with no additions.
+
+Do not remove the exclusions to "let Tailwind see everything". Documentation
+should not be able to change the artefact it documents. `app/` and `lib/` are
+scanned normally; if a class is needed, a component uses it.
+
 ### Workflow constants
 
 Protected main, squash merges only, one concern per PR, conventional commit
