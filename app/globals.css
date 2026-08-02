@@ -409,6 +409,16 @@ html {
 }
 
 @utility prose {
+  /* The plugin defaults to max-width: 65ch, and `ch` is the advance width of
+     the current font's zero glyph — so the measure drifts with the body face.
+     Inter's zero is 0.6309em and Literata's is 0.5790em, so swapping the body
+     face narrowed this column by 8% (656px to 602px at a 16px root) with no
+     width anywhere in the diff to point at. Every prose container is already
+     wrapped in a max-w-2xl parent, which declares the intended measure once, in
+     rem; neutralising the default hands it back. Do not add a rem value here as
+     well — one number, one place. app/globals.measure.test.ts guards this. */
+  max-width: none;
+
   /* Map the typography plugin's slate palette to brand tokens (F9). This block
      already outranks the plugin's own `.prose` variable defaults by source
      order, so setting the variables here re-tints every prose-inherited style
@@ -480,7 +490,13 @@ html {
    mode is free. Result markup comes from our own template in search-client.tsx
    and is styled there with ordinary Tailwind classes. */
 .pagefind-scope {
-  --pf-font: var(--font-ui), system-ui, sans-serif;
+  /* The body face, not the UI one. --pf-font styles the component's excerpt and
+     summary text, which is body copy — and the result titles in
+     search-client.tsx already set font-display themselves, so putting the
+     display family here too would render the whole panel in one face and lose
+     the pairing every other card on the site has. The fallback is a serif for
+     the same reason. */
+  --pf-font: var(--font-body), Georgia, serif;
   --pf-text: var(--color-brand-dark);
   --pf-text-secondary: var(--color-brand-muted);
   --pf-text-muted: var(--color-brand-muted);
