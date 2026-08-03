@@ -203,7 +203,7 @@ export function RichText({
           return (
             <div className="not-prose relative my-8 overflow-hidden rounded-lg border border-hairline">
               {entry.filename ? (
-                <div className="flex items-center justify-between border-b border-hairline bg-gray-50 px-4 py-2 font-mono text-[0.75em] text-brand-muted dark:bg-white/5">
+                <div className="flex items-center justify-between border-b border-hairline bg-gray-50 px-4 py-2 font-mono text-[0.67em] text-brand-muted dark:bg-white/5">
                   <span>{entry.filename}</span>
                   <CopyButton code={entry.code} />
                 </div>
@@ -217,7 +217,7 @@ export function RichText({
                   tabIndex={0}
                   role="region"
                   aria-label={entry.filename || "Code block"}
-                  className="overflow-x-auto text-[0.875em] [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline-offset-[-2px]"
+                  className="overflow-x-auto text-[0.78em] [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline-offset-[-2px]"
                   dangerouslySetInnerHTML={{ __html: html }}
                 />
               ) : (
@@ -225,7 +225,7 @@ export function RichText({
                   tabIndex={0}
                   role="region"
                   aria-label={entry.filename || "Code block"}
-                  className="overflow-x-auto p-4 text-[0.875em] focus-visible:outline-offset-[-2px]"
+                  className="overflow-x-auto p-4 text-[0.78em] focus-visible:outline-offset-[-2px]"
                 >
                   <code>{entry.code}</code>
                 </pre>
@@ -239,13 +239,13 @@ export function RichText({
             <div className="not-prose my-8 overflow-hidden rounded-lg border border-hairline">
               {/* In dark mode brand-crimson lifts (for link legibility); white
                   text on the lifted hue fails AA, so the header ink goes dark. */}
-              <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 font-mono text-[0.75em] text-white dark:text-surface-dark">
+              <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 font-mono text-[0.67em] text-white dark:text-surface-dark">
                 <span className="min-w-0 flex-1 truncate">
                   {entry.label || "Prompt"}
                 </span>
                 <CopyButton code={entry.prompt} label="prompt" variant="dark" />
               </div>
-              <div className="flow-root whitespace-pre-wrap break-words bg-gray-50 p-4 font-mono text-[0.875em] text-gray-800 dark:bg-white/5 dark:text-brand-dark">
+              <div className="flow-root whitespace-pre-wrap break-words bg-gray-50 p-4 font-mono text-[0.78em] text-gray-800 dark:bg-white/5 dark:text-brand-dark">
                 {entry.image?.url && (
                   <span
                     aria-hidden="true"
