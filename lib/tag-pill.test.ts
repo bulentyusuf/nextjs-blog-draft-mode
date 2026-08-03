@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
+import { contrast, schemeTokens } from "./contrast";
 
 // The tag pill's edge is the only thing marking it as interactive: its text is
 // brand-muted, the same colour as the dates and meta beside it, so with the
@@ -19,72 +20,7 @@ const css = fs.readFileSync(
   "utf8",
 );
 
-type Rgba = { r: number; g: number; b: number; a: number };
-
-/** `rgb(107 90 82 / 0.7)` or `#faf5f1` -> channels. */
-function parseColour(value: string): Rgba {
-  const fn =
-    /rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:\s*\/\s*([\d.]+))?\s*\)/.exec(
-      value,
-    );
-  if (fn) {
-    return {
-      r: Number(fn[1]),
-      g: Number(fn[2]),
-      b: Number(fn[3]),
-      a: fn[4] === undefined ? 1 : Number(fn[4]),
-    };
-  }
-  const hex = /#([0-9a-f]{6})/i.exec(value);
-  if (!hex) throw new Error(`unparseable colour: ${value}`);
-  const n = parseInt(hex[1], 16);
-  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a: 1 };
-}
-
-/** Last declaration of a custom property before `endIndex` in the stylesheet. */
-function tokenBefore(name: string, endIndex: number): Rgba {
-  const re = new RegExp(`${name}:\\s*([^;]+);`, "g");
-  let last: string | undefined;
-  for (const m of css.matchAll(re)) {
-    if (m.index !== undefined && m.index < endIndex) last = m[1];
-  }
-  if (!last) throw new Error(`token not found: ${name}`);
-  return parseColour(last.trim());
-}
-
-const darkBlockStart = css.indexOf("@media (prefers-color-scheme: dark)");
-
-const lightToken = (name: string) => tokenBefore(name, darkBlockStart);
-const darkToken = (name: string) => tokenBefore(name, css.length);
-
-function srgbToLinear(channel: number): number {
-  const c = channel / 255;
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-}
-
-function luminance({ r, g, b }: Omit<Rgba, "a">): number {
-  return (
-    0.2126 * srgbToLinear(r) +
-    0.7152 * srgbToLinear(g) +
-    0.0722 * srgbToLinear(b)
-  );
-}
-
-/** Composite a translucent foreground over an opaque background. */
-function flatten(fg: Rgba, bg: Rgba): Omit<Rgba, "a"> {
-  return {
-    r: fg.r * fg.a + bg.r * (1 - fg.a),
-    g: fg.g * fg.a + bg.g * (1 - fg.a),
-    b: fg.b * fg.a + bg.b * (1 - fg.a),
-  };
-}
-
-function contrast(fg: Rgba, bg: Rgba): number {
-  const [hi, lo] = [luminance(flatten(fg, bg)), luminance(bg)].sort(
-    (a, b) => b - a,
-  );
-  return (hi + 0.05) / (lo + 0.05);
-}
+const { light: lightToken, dark: darkToken } = schemeTokens(css);
 
 describe("tag pill edge contrast", () => {
   it("clears 3:1 against the page in light mode", () => {
