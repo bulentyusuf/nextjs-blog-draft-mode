@@ -6,6 +6,11 @@ export interface Asset {
   };
   url: string;
   description: string;
+  // Optional and nullable on purpose. Contentful returns null for both on a
+  // non-image asset, and a payload cached before these were queried carries
+  // neither, so every consumer falls back rather than assuming a shape.
+  width?: number | null;
+  height?: number | null;
 }
 
 export interface AssetLink {

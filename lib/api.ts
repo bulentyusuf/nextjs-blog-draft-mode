@@ -20,6 +20,21 @@ import type {
   AuthorCollectionResponse,
 } from "./types";
 
+// Every rich-text asset selection, in one place. Five queries embed this and
+// they were byte-identical, so a field added to one and not the others was a
+// silent inconsistency waiting to happen — which is how width and height came
+// to be missing everywhere at once. width and height feed the figure's aspect
+// ratio; without them every image was laid out 3:2.
+const ASSET_BLOCK_FIELDS = `
+  sys {
+    id
+  }
+  url
+  description
+  width
+  height
+`;
+
 const POST_GRAPHQL_FIELDS = `
   slug
   title
@@ -39,11 +54,7 @@ const POST_GRAPHQL_FIELDS = `
       links {
         assets {
           block {
-            sys {
-              id
-            }
-            url
-            description
+            ${ASSET_BLOCK_FIELDS}
           }
         }
       }
@@ -55,11 +66,7 @@ const POST_GRAPHQL_FIELDS = `
     links {
       assets {
         block {
-          sys {
-            id
-          }
-          url
-          description
+          ${ASSET_BLOCK_FIELDS}
         }
       }
       entries {
@@ -93,11 +100,7 @@ const POST_GRAPHQL_FIELDS = `
               links {
                 assets {
                   block {
-                    sys {
-                      id
-                    }
-                    url
-                    description
+                    ${ASSET_BLOCK_FIELDS}
                   }
                 }
               }
@@ -203,11 +206,7 @@ const PAGE_GRAPHQL_FIELDS = `
     links {
       assets {
         block {
-          sys {
-            id
-          }
-          url
-          description
+          ${ASSET_BLOCK_FIELDS}
         }
       }
     }
@@ -783,9 +782,7 @@ export const getAuthorBySlug = cache(
             links {
               assets {
                 block {
-                  sys { id }
-                  url
-                  description
+                  ${ASSET_BLOCK_FIELDS}
                 }
               }
             }

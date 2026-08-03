@@ -14,10 +14,14 @@ export default function LightboxImage({
   src,
   alt,
   caption,
+  width,
+  height,
 }: {
   src: string;
   alt: string;
   caption?: string;
+  width?: number | null;
+  height?: number | null;
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -107,12 +111,20 @@ export default function LightboxImage({
   const describedByCaption = Boolean(caption);
   const imageAlt = describedByCaption ? "" : alt;
 
+  // The asset's real shape, which is what both renders below are laid out
+  // against. Contentful returns null for these on a non-image asset and a
+  // payload cached before they were queried has neither, so 3:2 remains as a
+  // fallback — it is the shape this component assumed for every image until
+  // now, and object-contain on the enlarged view is its safety net.
+  const w = width ?? 1200;
+  const h = height ?? 800;
+
   const image = (
     <ContentfulImage
       src={src}
       alt={imageAlt}
-      width={1200}
-      height={800}
+      width={w}
+      height={h}
       sizes="(max-width: 768px) 100vw, 672px"
       className="w-full h-auto border-2 border-gray-300 dark:border-brand-dark/15"
     />
@@ -190,12 +202,19 @@ export default function LightboxImage({
               <ContentfulImage
                 src={src}
                 alt={imageAlt}
-                width={2000}
-                height={1333}
+                // The asset's own dimensions, not an upscaled 3:2 box. sizes
+                // already tells Next what resolution to request, so these are
+                // here to establish the aspect ratio and nothing else.
+                width={w}
+                height={h}
                 sizes="100vw"
                 // Framed like the inline figure, but the scrim is always black,
                 // so a light gray-300 edge would glare — a soft white hairline
-                // reads as the same intentional frame here.
+                // reads as the same intentional frame here. The frame traces
+                // the photograph now: laid out 3:2 regardless of the asset, it
+                // hugged a reserved box that object-contain then letterboxed a
+                // portrait inside, leaving the caption stranded below the empty
+                // space rather than under the image.
                 className="max-h-[85vh] w-auto h-auto max-w-full object-contain border-2 border-white/15"
               />
               {caption && (

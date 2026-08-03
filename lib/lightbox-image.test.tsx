@@ -34,6 +34,56 @@ describe("lightbox server output", () => {
   });
 });
 
+describe("lightbox aspect ratio", () => {
+  // Every image was laid out 1200x800 regardless of the asset, and the
+  // enlarged view went further and claimed 2000x1333. On a portrait photo
+  // object-contain then letterboxed the image inside a landscape box, so the
+  // white frame hugged empty space and the caption sat below the box rather
+  // than below the picture. Nothing asserted on the shape, which is why it
+  // survived as long as it did.
+  const portrait = () =>
+    renderToStaticMarkup(
+      <LightboxImage
+        src="https://images.ctfassets.net/x/y.jpg"
+        alt="A box shot"
+        width={800}
+        height={1200}
+      />,
+    );
+
+  it("renders a portrait asset at its own dimensions", () => {
+    const html = portrait();
+
+    expect(html).toContain('width="800"');
+    expect(html).toContain('height="1200"');
+  });
+
+  it("does not fall back to the landscape box for a sized asset", () => {
+    const html = portrait();
+
+    expect(html).not.toContain('width="1200"');
+    expect(html).not.toContain('height="800"');
+    // The old enlarged-view upscale, which was never a served resolution —
+    // sizes decides that — only an aspect ratio wearing a large number.
+    expect(html).not.toContain('width="2000"');
+  });
+
+  it("falls back to 3:2 when the asset carries no dimensions", () => {
+    // The path a payload cached before width and height were queried takes,
+    // and the one a non-image asset takes, since Contentful returns null for
+    // both there. It must render rather than crash or emit width="null".
+    const html = renderToStaticMarkup(
+      <LightboxImage
+        src="https://images.ctfassets.net/x/y.jpg"
+        alt="A placeholder"
+      />,
+    );
+
+    expect(html).toContain('width="1200"');
+    expect(html).toContain('height="800"');
+  });
+});
+
 describe("lightbox accessible naming", () => {
   // A caption is rendered immediately after the image by the caller, so
   // repeating it as alt made the same sentence announce twice (three times
