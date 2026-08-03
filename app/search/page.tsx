@@ -66,12 +66,12 @@ export default function SearchPage() {
             mode the cream ground is the glass's own silhouette, drawn inside the
             SVG (see search-emblem.tsx), so the whole magnifying glass is lit and
             there is no floating plate. The ink is forced to the light crimson
-            #A4243B in dark mode (never the token, which is lifted to #E0667A for
+            #9E2238 in dark mode (never the token, which is lifted to #EC8494 for
             link legibility and looks washed out on cream): the emblem is on
             cream in both schemes, so it should be the same colour in both. p-8,
             shared by both schemes, sets a single emblem size across light and
             dark. */}
-        <figure className="search-empty mx-auto mt-10 max-w-[16rem] p-8 text-brand-crimson dark:text-[#A4243B]">
+        <figure className="search-empty mx-auto mt-10 max-w-[16rem] p-8 text-brand-crimson dark:text-[#9E2238]">
           <SearchEmblem />
         </figure>
       </section>

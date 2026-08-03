@@ -178,7 +178,7 @@ function Footer() {
               loses nothing as a <p>: the nav already carries aria-label="Browse",
               so the landmark is named either way. Same for Colophon below. */}
           <nav aria-label="Browse">
-            <p className="font-ui text-xs font-bold uppercase tracking-widest text-white/60">
+            <p className="font-ui text-xs font-bold uppercase tracking-widest text-white/65">
               Browse
             </p>
             <ul className="mt-4 space-y-2 text-sm">
@@ -212,7 +212,7 @@ function Footer() {
 
           {/* Column 3 — colophon */}
           <nav aria-label="Colophon">
-            <p className="font-ui text-xs font-bold uppercase tracking-widest text-white/60">
+            <p className="font-ui text-xs font-bold uppercase tracking-widest text-white/65">
               Colophon
             </p>
             <ul className="mt-4 space-y-2 text-sm">
@@ -248,7 +248,7 @@ function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 border-t border-white/10 pt-8">
-          <p className="font-ui text-xs text-white/60">
+          <p className="font-ui text-xs text-white/65">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js &
             Contentful · Type set in Bricolage Grotesque and Literata
           </p>

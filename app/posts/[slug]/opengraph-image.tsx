@@ -62,7 +62,7 @@ const bricolage = fs.readFileSync(
 // custom properties, and these cards render the same in every context.
 const BRAND_BG = "#FAF5F1";
 const BRAND_INK = "#241B1D";
-const BRAND_CRIMSON = "#A4243B";
+const BRAND_CRIMSON = "#9E2238";
 
 // Satori has no text-overflow: ellipsis, so long titles are truncated in JS.
 // widont then glues the final two words with a non-breaking space so the
