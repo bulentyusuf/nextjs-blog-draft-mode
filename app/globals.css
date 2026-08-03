@@ -384,13 +384,21 @@ html {
      reference clusters can still collide — a known Tufte-CSS limit). The
      :checked selector is repeated so a note opened on mobile and then resized
      to 2xl drops its mobile rule instead of keeping the left border. */
+  /* 13.5rem, up from 12rem, because the note's type went from 14px to 15.75px
+     when the prose base moved to 1.125rem — the same +12.5% — so a fixed width
+     would have cost about three characters a line. The right margin carries the
+     increase so the 3rem gap to the column is unchanged (margin = width + 3rem,
+     negative). The note then extends 16.5rem past the column's right edge; at
+     the 1536px breakpoint where it floats, that edge sits at 1214px, leaving
+     roughly 58px of viewport to spare. Widen either value further only against
+     a real measurement. */
   .sidenote-body,
   .sidenote-checkbox:checked ~ .sidenote-body {
     display: block;
     float: right;
     clear: right;
-    width: 12rem;
-    margin: 0 -15rem 0 0;
+    width: 13.5rem;
+    margin: 0 -16.5rem 0 0;
     padding-left: 0;
     border-left: 0;
   }
@@ -400,7 +408,7 @@ html {
     color: var(--color-brand-crimson);
   }
   /* Run the note's first line in after the number rather than letting the
-     blocked-out paragraph push it down: a 12rem margin cannot spare a whole
+     blocked-out paragraph push it down: a note this narrow cannot spare a whole
      line for a two-character label, and a label alone on its line reads as a
      heading for the note instead of a reference mark. Only the first paragraph
      goes inline; later ones stay blocks and keep their margin. Scoped to 2xl
@@ -463,12 +471,17 @@ html {
      margin notes number 1, 2, 3… on their own. See the .sidenote-* rules. */
   counter-reset: sidenote;
 
-  /* Body headings inherit the sitewide 600 weight. The typography plugin's
-     `.prose :where(h2)` rule (700) outranks the base-layer `h2` rule by
-     specificity, so the weight must be reasserted at prose specificity here —
-     the same override channel the code styling below uses. */
+  /* Body headings inherit the sitewide weight. The typography plugin's
+     `.prose :where(h2)` rule outranks the base-layer `h2` rule by specificity,
+     so the weight must be reasserted at prose specificity here — the same
+     override channel the code styling below uses.
+
+     This value must track the base-layer rule above. It is not an independent
+     setting: an in-body h2 and a card h2 are the same thing seen in two places,
+     and Bricolage is variable across 200-800, so even 50 units apart reads as a
+     mistake on a page carrying both. */
   & :where(h1, h2, h3):not(:where([class~="not-prose"] *)) {
-    font-weight: 650;
+    font-weight: 700;
   }
   & :where(code):not(:where([class~="not-prose"] *)) {
     font-family:

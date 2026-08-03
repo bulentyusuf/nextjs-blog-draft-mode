@@ -554,9 +554,24 @@ the two into one.
 - **UI** is an enumerated list of chrome that must not compete with prose, and
   it is the whole list: the two header nav links and the header tagline, the
   footer column labels, footer links and the bottom legal line, the two
-  table-of-contents labels, the "Explore with AI" label, the tag pill, and the
-  two count spans in `app/archive/page.tsx` and `app/tags/page.tsx` (both former
-  `font-sans`).
+  table-of-contents labels, the "Explore with AI" label, the tag pill, the two
+  count spans in `app/archive/page.tsx` and `app/tags/page.tsx` (both former
+  `font-sans`), and every small uppercase letterspaced label: the error eyebrows
+  in `app/error.tsx` and `app/not-found.tsx`, the one in
+  `app/author-bio-card.tsx`, the "read more" links on the category and author
+  indexes, and the category links on archive rows.
+
+  **Uppercase plus letterspacing is the tell.** That treatment belongs to the
+  grotesque; set in the reading face it looks like a mistake rather than a
+  label. Every one of those surfaces was missed when the roles first split,
+  because the list was written from the header, footer and sidebar and they live
+  elsewhere.
+
+  `app/global-error.tsx` is deliberately excluded. It replaces the root layout
+  and renders its own `<html>` without the font variables, so `font-ui` there
+  would resolve to an undefined custom property and style nothing. Its eyebrow
+  matches the others in every respect but the face, and that is the documented
+  cost of the page standing alone.
 
   The two sidebar labels — table of contents and "Explore with AI" — must stay
   identical in face, size and tracking. They sit one above the other in the same

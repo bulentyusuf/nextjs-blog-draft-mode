@@ -133,7 +133,7 @@ export default async function CategoriesPage() {
                   </ul>
                   <Link
                     href={`/categories/${category.slug}`}
-                    className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+                    className="mt-5 inline-block font-ui text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
                   >
                     See all in {category.name} &rarr;
                   </Link>
