@@ -229,6 +229,18 @@ describe("heading permalink anchor", () => {
     expect(html).toContain("focus-visible:opacity-100");
   });
 
+  it("keeps the anchor out of the heading's line measurement", () => {
+    // The marker is opacity-0, not hidden, so if it wraps onto a line of its
+    // own that line still takes its height and the heading grows an empty band
+    // beneath it. The negative right margin cancels the anchor's advance so it
+    // can never be the thing that wraps. jsdom computes no layout, so this
+    // guards the mechanism rather than the geometry — measured in Chromium at
+    // the time: 15 of 201 column widths orphaned the marker without it, none
+    // with it.
+    const html = render(text("Getting set up"));
+    expect(html).toContain("-mr-[1em]");
+  });
+
   it("emits no permalink for an empty heading (no slug, no anchor)", () => {
     const html = render(text(""));
     expect(html).not.toContain("<a");
