@@ -621,7 +621,7 @@ describe("embedded asset descriptions", () => {
     );
 
     expect(html).toContain(
-      '<figcaption class="text-sm italic text-brand-muted mt-1.5 text-center">A tabby asleep on a keyboard</figcaption>',
+      '<figcaption class="text-[0.875em] italic text-brand-muted mt-1.5 text-center">A tabby asleep on a keyboard</figcaption>',
     );
     expect(html).toContain('alt=""');
     expect(html).not.toContain('alt="A tabby asleep on a keyboard"');
