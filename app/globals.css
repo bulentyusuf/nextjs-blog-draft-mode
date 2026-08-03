@@ -73,7 +73,7 @@
   --font-ui: var(--font-bricolage);
   --default-font-family: var(--font-body);
 
-  --color-brand-crimson: #a4243b;
+  --color-brand-crimson: #9e2238;
   --color-brand-header: #1e3a8a;
   --color-brand-dark: #241b1d;
   --color-brand-bg: #faf5f1;
@@ -128,7 +128,7 @@
   persisted preference, so the browser applies it before first paint and there
   is no flash. We keep every --color-brand-* NAME and only swap its VALUE here,
   so no utility class in any component changes. Values are tuned to WCAG AA on
-  their real usage (body ink 15.7:1, meta 7.8:1, links 5.6:1 on the dark bg);
+  their real usage (body ink 15.7:1, meta 7.8:1, links 7.4:1 on the dark bg);
   accents are lifted because the light hexes fail on a dark background. The
   light values above are byte-identical to production and untouched.
 */
@@ -137,7 +137,7 @@
     --color-brand-bg: #17110f; /* warm near-black page (not pure #000) */
     --color-brand-dark: #f2eae4; /* warm off-white ink */
     --color-brand-muted: #b3a49c; /* lifted so meta text keeps AA on dark */
-    --color-brand-crimson: #e0667a; /* lifted so links stay vivid + AA on dark */
+    --color-brand-crimson: #ec8494; /* lifted so links stay vivid + AAA on dark */
     --color-brand-header: #2e4a9e; /* lifted so the bar reads distinct from page */
 
     /* Raise the footer band so it reads as distinct above the page. Pinned to
@@ -229,7 +229,7 @@ html {
 
 /*
   One focus indicator for the whole site. Crimson picks up the accent token, so
-  it inverts with the scheme automatically (#A4243B light, #E0667A dark) and
+  it inverts with the scheme automatically (#9E2238 light, #EC8494 dark) and
   clears 3:1 against both page backgrounds. Elements sitting on the coloured
   header or footer bands override this locally with a white ring, because
   crimson on navy does not clear contrast — see app/layout.tsx.
@@ -551,7 +551,7 @@ html {
 }
 
 /* The 18% wash is tuned on the cream light page. In dark mode the ground is
-   near-black (#17110F) and the crimson token is lifted to a pinker #E0667A, so
+   near-black (#17110F) and the crimson token is lifted to a pinker #EC8494, so
    the same 18% composites to roughly #3B2022 — all but invisible, and the
    highlight stops reading. Raise the mix for dark mode only; the light value
    stays. */
