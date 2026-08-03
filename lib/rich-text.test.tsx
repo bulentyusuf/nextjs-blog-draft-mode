@@ -646,4 +646,56 @@ describe("embedded asset descriptions", () => {
     expect(html).not.toContain('alt="A tabby asleep on a keyboard"');
     warn.mockRestore();
   });
+
+  // The asset's shape has to survive the trip from the query to both render
+  // branches. Every image was laid out 3:2 before, so a portrait figure
+  // reserved a landscape box and jumped to its real height on load.
+  const portrait = (): Content =>
+    ({
+      json: assetDoc,
+      links: {
+        assets: {
+          block: [
+            {
+              sys: { id: "asset-1" },
+              url: "https://images.ctfassets.net/a.jpg",
+              description: "A box shot",
+              width: 800,
+              height: 1200,
+            },
+          ],
+        },
+      },
+    }) as unknown as Content;
+
+  it.each([true, false])(
+    "carries the asset's own dimensions through (lightbox=%s)",
+    (lightbox) => {
+      const html = renderToStaticMarkup(
+        <RichText content={portrait()} headings={[]} lightbox={lightbox} />,
+      );
+
+      expect(html).toContain('width="800"');
+      expect(html).toContain('height="1200"');
+    },
+  );
+
+  it.each([true, false])(
+    "falls back to 3:2 for an asset with no dimensions (lightbox=%s)",
+    (lightbox) => {
+      // Contentful returns null for both on a non-image asset, and a payload
+      // cached before they were queried carries neither. The fixture above
+      // omits them, which is that path.
+      const html = renderToStaticMarkup(
+        <RichText
+          content={withDescription("A tabby asleep on a keyboard")}
+          headings={[]}
+          lightbox={lightbox}
+        />,
+      );
+
+      expect(html).toContain('width="1200"');
+      expect(html).toContain('height="800"');
+    },
+  );
 });

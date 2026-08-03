@@ -61,6 +61,8 @@ function RichTextAsset({
           src={asset.url}
           alt={asset.description || ""}
           caption={asset.description}
+          width={asset.width}
+          height={asset.height}
         />
       ) : (
         <ContentfulImage
@@ -73,8 +75,12 @@ function RichTextAsset({
           // description there is no caption either, and empty was already the
           // documented render (the build warning above still fires).
           alt=""
-          width={1200}
-          height={800}
+          // The asset's real shape, with 3:2 as the fallback for an asset that
+          // carries no dimensions — see the same pair in lightbox-image.tsx.
+          // w-full h-auto means the bitmap wins once loaded either way, so a
+          // wrong ratio here is a layout shift rather than a wrong render.
+          width={asset.width ?? 1200}
+          height={asset.height ?? 800}
           priority={priority}
           sizes="(max-width: 768px) 100vw, 672px"
           className="w-full h-auto border-2 border-gray-300 dark:border-brand-dark/15"
