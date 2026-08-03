@@ -25,7 +25,7 @@ declare module "react" {
 // Custom result template in Pagefind's template syntax ({{ }} escaped,
 // {{+ +}} raw, {{#if}}/{{#each … as …}} blocks, `|` filters). It is a static
 // string we author — no user input — so injecting it as HTML is safe. House
-// list idiom (matching more-stories and archive): Fraunces title, ink link that
+// list idiom (matching more-stories and archive): display-face title, ink link that
 // goes crimson on hover, body excerpt, heading-scoped sub-results. The main
 // link must be an <a> for the components' keyboard navigation. `meta.url` is
 // read first so the clean route from data-pagefind-meta wins over Pagefind's
@@ -33,7 +33,7 @@ declare module "react" {
 const RESULT_TEMPLATE = `
 <script type="text/pagefind-template">
   <li class="result-item py-6">
-    <p class="font-display text-2xl font-semibold leading-tight">
+    <p class="font-display text-2xl font-bold leading-tight">
       <a class="result-link text-brand-dark transition-colors duration-200 hover:text-brand-crimson" href="{{ meta.url | default(url) | safeUrl }}">{{ meta.title | default("Untitled") }}</a>
     </p>
     {{#if excerpt}}
@@ -43,7 +43,7 @@ const RESULT_TEMPLATE = `
     <ul class="mt-3 space-y-3 pl-4">
       {{#each sub_results as sub}}
       <li>
-        <p class="font-display text-lg font-semibold leading-tight">
+        <p class="font-display text-lg font-bold leading-tight">
           <span aria-hidden="true" class="mr-2 font-normal text-brand-muted">↳</span><a class="text-brand-dark transition-colors duration-200 hover:text-brand-crimson" href="{{ sub.url | safeUrl }}">{{ sub.title }}</a>
         </p>
         <p class="mt-1 leading-relaxed text-brand-dark">{{+ sub.excerpt +}}</p>

@@ -87,7 +87,7 @@ export default async function AuthorsPage() {
 
             <Link
               href={`/authors/${author.slug}`}
-              className="mt-auto inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+              className="mt-auto inline-block font-ui text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
             >
               View posts by {author.name} &rarr;
             </Link>

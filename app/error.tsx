@@ -26,7 +26,7 @@ export default function Error({
   return (
     <Container>
       <section className="mx-auto max-w-2xl text-center">
-        <p className="text-lg font-bold uppercase tracking-wide text-brand-crimson">
+        <p className="font-ui text-lg font-bold uppercase tracking-wide text-brand-crimson">
           Whoops
         </p>
         <h1 className="mt-4 text-4xl lg:text-6xl leading-tight text-pretty">

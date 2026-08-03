@@ -29,8 +29,8 @@ vi.mock("server-only", () => ({}));
 // next/font/google reaches the network at module scope. The layout only uses
 // the returned `variable`, so a stub is faithful enough for structure.
 vi.mock("next/font/google", () => ({
-  Inter: () => ({ variable: "--font-inter" }),
-  Fraunces: () => ({ variable: "--font-fraunces" }),
+  Bricolage_Grotesque: () => ({ variable: "--font-bricolage" }),
+  Literata: () => ({ variable: "--font-literata" }),
 }));
 vi.mock("next/headers", () => ({
   draftMode: async () => ({ isEnabled: false }),

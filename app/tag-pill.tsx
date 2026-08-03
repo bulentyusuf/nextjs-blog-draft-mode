@@ -39,7 +39,7 @@ export default function TagPill({
       // the dates and meta beside it — so it is a control boundary rather than
       // a divider, and the divider token's 1.14:1 left it invisible. See the
       // token's own note in globals.css.
-      className={`inline-block rounded-full border border-control-edge ${SIZES[size]} text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson`}
+      className={`inline-block rounded-full border border-control-edge font-ui ${SIZES[size]} text-brand-muted transition-colors duration-200 hover:border-brand-crimson hover:text-brand-crimson`}
     >
       {tag.name}
     </Link>

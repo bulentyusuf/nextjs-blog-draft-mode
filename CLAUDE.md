@@ -253,7 +253,7 @@ unaffected. Because keyboard focus can no longer land inside the cover,
 after the page's `h2`s and skipped a level on every page whose deepest heading
 is an `h2` — post pages, `/about`, `/privacy`, `/search` and all four browse
 indexes — which axe reports as `heading-order`. Promoting them to `h2` instead
-would flip them to Fraunces, since `globals.css` gives the display face to
+would flip them to Bricolage, since `globals.css` gives the display face to
 `h1`–`h3`. They lose nothing as paragraphs: both navs already carry
 `aria-label="Browse"` / `"Colophon"`, so the landmarks stay named.
 
@@ -469,6 +469,22 @@ that never touch Contentful. Moving those behind a network fetch is a different
 and much larger change than editing a standfirst; do not treat it as the obvious
 next step.
 
+### The OG card's font is guarded by a real render, not a hash
+
+`app/posts/[slug]/opengraph-image.font.test.tsx` renders the committed WOFF
+through `next/og` and asserts a PNG comes out. It exists because `next/og`
+vendors an **older Satori than the standalone `satori` package**, and that copy
+rejects OpenType layout tables the standalone one parses fine. A font can be
+checked by hand against `satori`, pass, and still throw
+`lookupType: 6 - substFormat: 2 is not yet supported` on every card in
+production — which is what sank an earlier display face whose `liga` feature
+carried a contextual lookup. **Any font check must import from `next/og`, never
+from `satori`.**
+
+A hash pin was the alternative and is weaker: it catches a swapped file without
+saying whether the new one renders. The sample string's `fi` and `ffl` pairs are
+deliberate, since `liga` is where that lookup lived.
+
 ### Other reviewed items, intentionally left as-is
 
 - `data:` in `img-src` stays. It is needed for next/image blur placeholders, and
@@ -514,6 +530,80 @@ require("uuid")` in `add-sequence-header.js` — so re-check that call site if
   the override is ever bumped.
 
 ## House conventions
+
+### Two faces, three roles, and no family named directly
+
+`globals.css` defines `--font-display` (Bricolage Grotesque), `--font-body`
+(Literata) and `--font-ui`, and points `--default-font-family` at the body face
+so Preflight puts it on `<body>`. Tailwind generates `font-display`, `font-body`
+and `font-ui` from those tokens. **Nothing in a component names a family** —
+that is what kept the last three swaps to a handful of lines.
+
+**`--font-ui` resolves to the same family as `--font-display`, by choice.** It
+is the display face at smaller sizes, and it keeps its own token because the
+roles are still separate: handing UI back to a face of its own is then one line
+in the token block rather than a hunt through components. Do not "deduplicate"
+the two into one.
+
+- **Display** is headings and the two mastheads, applied by the base-layer rule
+  above. Do not add `font-display` to an h1, h2 or h3.
+- **Body** is the default and covers everything read at length, prose and the
+  meta around it — dates, bylines, breadcrumbs, excerpts, captions, figure text.
+  Setting meta in the reading face is ordinary editorial practice and it is what
+  makes a page cohere; a stray `font-ui` on a date is a regression, not a tidy.
+- **UI** is an enumerated list of chrome that must not compete with prose, and
+  it is the whole list: the two header nav links and the header tagline, the
+  footer column labels, footer links and the bottom legal line, the two
+  table-of-contents labels, the "Explore with AI" label, the tag pill, the two
+  count spans in `app/archive/page.tsx` and `app/tags/page.tsx` (both former
+  `font-sans`), and every small uppercase letterspaced label: the error eyebrows
+  in `app/error.tsx` and `app/not-found.tsx`, the one in
+  `app/author-bio-card.tsx`, the "read more" links on the category and author
+  indexes, and the category links on archive rows.
+
+  **Uppercase plus letterspacing is the tell.** That treatment belongs to the
+  grotesque; set in the reading face it looks like a mistake rather than a
+  label. Every one of those surfaces was missed when the roles first split,
+  because the list was written from the header, footer and sidebar and they live
+  elsewhere.
+
+  `app/global-error.tsx` is deliberately excluded. It replaces the root layout
+  and renders its own `<html>` without the font variables, so `font-ui` there
+  would resolve to an undefined custom property and style nothing. Its eyebrow
+  matches the others in every respect but the face, and that is the documented
+  cost of the page standing alone.
+
+  The two sidebar labels — table of contents and "Explore with AI" — must stay
+  identical in face, size and tracking. They sit one above the other in the same
+  column, so any difference between them reads as an accident. The second was
+  missed when the roles first split, which left one in the UI face at 12px and
+  the other in the body face at 14px.
+
+There is no `font-sans` utility — the token was removed when the roles split, so
+a `font-sans` class now silently does nothing. If a new surface seems to want
+UI, leave it on the body face and raise it rather than extending the list
+quietly.
+
+Literata ships both roman and italic; Bricolage is roman only. So `<em>` in
+prose and the figure captions in `lib/rich-text.tsx` and `lib/lightbox-image.tsx`
+render a true italic rather than the browser's synthesised slant — which is why
+those `italic` classes stay.
+
+**The pairing is a grotesque against a serif, and that contrast is the point.**
+The face before this one was a transitional serif like Literata, with similar
+proportions and serif treatment, so at heading sizes the difference was swamped
+and an h2 dissolved into the paragraph under it. Any replacement display face
+has to hold that separation.
+
+**Check the optical-size range before proposing one.** Headings reach roughly
+45pt at `lg:text-6xl`; a face whose `opsz` axis stops below that clamps and the
+browser scales a text master, which reads flat. Bricolage runs 12–96 and
+Literata 7–72.
+
+Bricolage also carries a `wdth` axis (75–100) that is deliberately **not**
+requested — it costs bytes and nothing reaches for it yet. It is the reason this
+face suits the de-DE work, where a long compound can narrow instead of dropping
+a size step; request the axis then, not before.
 
 ### Two h1 treatments, chosen by column width
 

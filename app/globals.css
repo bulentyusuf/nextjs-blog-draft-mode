@@ -57,8 +57,21 @@
 }
 
 @theme {
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-fraunces);
+  /* Two faces, three jobs. Display is headings and mastheads. Body is
+     everything you read, prose and the meta around it. UI is the display face
+     at smaller sizes — chrome that should not compete with prose: nav, labels,
+     pills, counts, an enumerated list, see CLAUDE.md. --default-font-family is
+     what Preflight puts on <body>, so body copy flips with one token, and
+     font-display / font-body / font-ui are generated from these by Tailwind.
+     Nothing names a family directly.
+
+     --font-ui resolving to the same family as --font-display is a choice, not a
+     redundancy to tidy away: the roles stay separate, so handing UI back to its
+     own face is one line here rather than a hunt through components. */
+  --font-display: var(--font-bricolage);
+  --font-body: var(--font-literata);
+  --font-ui: var(--font-bricolage);
+  --default-font-family: var(--font-body);
 
   --color-brand-crimson: #a4243b;
   --color-brand-header: #1e3a8a;
@@ -163,20 +176,26 @@
 }
 
 /*
-  All top-level headings inherit the display face (Fraunces) sitewide. This is
+  All top-level headings inherit the display face (Bricolage Grotesque) sitewide. This is
   the single mechanism — do not add per-component font-display classes. h4 and
-  below stay in Inter deliberately, for small UI headings.
+  below stay in the body face deliberately, for small UI headings.
 
   This rule is why the footer's column labels are <p> rather than headings: as
   h4 they skipped a level after the page's h2s, and promoting them to h2 to fix
-  that would have pulled them into Fraunces. See CLAUDE.md.
+  that would have pulled them into Bricolage. See CLAUDE.md.
+
+  A grotesque needs more weight than a serif to hold the same presence, and less
+  manual tracking: Bricolage's opsz axis does the optical fitting that the
+  previous face needed compensating for by hand. Both values are starting points
+  to settle on the preview at the largest heading step, not fixed numbers.
 */
 @layer base {
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 650;
+    font-weight: 700;
+    letter-spacing: -0.005em;
   }
 }
 
@@ -322,7 +341,10 @@ html {
 
 .sidenote-body {
   display: none;
-  font-size: 0.875rem;
+  /* em, not rem: a note sits inside the prose column and must keep its ratio to
+     the body when that size moves. The figure caption in lib/rich-text.tsx uses
+     the same 0.875em so the two still measure alike side by side. */
+  font-size: 0.875em;
   line-height: 1.4;
   color: var(--color-brand-muted);
 }
@@ -362,13 +384,21 @@ html {
      reference clusters can still collide — a known Tufte-CSS limit). The
      :checked selector is repeated so a note opened on mobile and then resized
      to 2xl drops its mobile rule instead of keeping the left border. */
+  /* 13.5rem, up from 12rem, because the note's type went from 14px to 15.75px
+     when the prose base moved to 1.125rem — the same +12.5% — so a fixed width
+     would have cost about three characters a line. The right margin carries the
+     increase so the 3rem gap to the column is unchanged (margin = width + 3rem,
+     negative). The note then extends 16.5rem past the column's right edge; at
+     the 1536px breakpoint where it floats, that edge sits at 1214px, leaving
+     roughly 58px of viewport to spare. Widen either value further only against
+     a real measurement. */
   .sidenote-body,
   .sidenote-checkbox:checked ~ .sidenote-body {
     display: block;
     float: right;
     clear: right;
-    width: 12rem;
-    margin: 0 -15rem 0 0;
+    width: 13.5rem;
+    margin: 0 -16.5rem 0 0;
     padding-left: 0;
     border-left: 0;
   }
@@ -378,7 +408,7 @@ html {
     color: var(--color-brand-crimson);
   }
   /* Run the note's first line in after the number rather than letting the
-     blocked-out paragraph push it down: a 12rem margin cannot spare a whole
+     blocked-out paragraph push it down: a note this narrow cannot spare a whole
      line for a two-character label, and a label alone on its line reads as a
      heading for the note instead of a reference mark. Only the first paragraph
      goes inline; later ones stay blocks and keep their margin. Scoped to 2xl
@@ -390,6 +420,25 @@ html {
 }
 
 @utility prose {
+  /* The plugin defaults to max-width: 65ch, and `ch` is the advance width of
+     the current font's zero glyph — so the measure drifts with the body face.
+     Inter's zero is 0.6309em and Literata's is 0.5790em, so swapping the body
+     face narrowed this column by 8% (656px to 602px at a 16px root) with no
+     width anywhere in the diff to point at. Every prose container is already
+     wrapped in a max-w-2xl parent, which declares the intended measure once, in
+     rem; neutralising the default hands it back. Do not add a rem value here as
+     well — one number, one place. app/globals.measure.test.ts guards this. */
+  max-width: none;
+
+  /* Bumped from the plugin's 1rem. Literata's x-height is 0.507em against
+     Inter's 0.546em, so it reads about 7% smaller at the same nominal size, and
+     the measure now comes from max-w-2xl in rem, which does not scale with this
+     value — at 1rem the 672px column ran to about 88 characters a line. At
+     1.125rem it lands near 78. The plugin's line-height is unitless and scales
+     with this, so it needs nothing here. Every size inside this column is em-
+     based for the same reason; do not pin one in rem. */
+  font-size: 1.125rem;
+
   /* Map the typography plugin's slate palette to brand tokens (F9). This block
      already outranks the plugin's own `.prose` variable defaults by source
      order, so setting the variables here re-tints every prose-inherited style
@@ -422,12 +471,17 @@ html {
      margin notes number 1, 2, 3… on their own. See the .sidenote-* rules. */
   counter-reset: sidenote;
 
-  /* Body headings inherit the sitewide 600 weight. The typography plugin's
-     `.prose :where(h2)` rule (700) outranks the base-layer `h2` rule by
-     specificity, so the weight must be reasserted at prose specificity here —
-     the same override channel the code styling below uses. */
+  /* Body headings inherit the sitewide weight. The typography plugin's
+     `.prose :where(h2)` rule outranks the base-layer `h2` rule by specificity,
+     so the weight must be reasserted at prose specificity here — the same
+     override channel the code styling below uses.
+
+     This value must track the base-layer rule above. It is not an independent
+     setting: an in-body h2 and a card h2 are the same thing seen in two places,
+     and Bricolage is variable across 200-800, so even 50 units apart reads as a
+     mistake on a page carrying both. */
   & :where(h1, h2, h3):not(:where([class~="not-prose"] *)) {
-    font-weight: 650;
+    font-weight: 700;
   }
   & :where(code):not(:where([class~="not-prose"] *)) {
     font-family:
@@ -445,7 +499,14 @@ html {
       color-mix(in srgb, var(--color-brand-crimson) 20%, transparent);
     padding: 0.1em 0.4em;
     border-radius: 0.25rem;
-    font-size: 0.875em;
+    /* 0.78em holds code at 14px against the 1.125rem prose base. The blocks in
+       lib/rich-text.tsx use the same value, so inline and block code match. The
+       value is a budget, not a preference: at 14px a 640px code content box
+       (the 672px column less p-4) fits about 76 mono columns, against
+       Prettier's 80-character print width. Raising it to 0.875em costs nine of
+       them, and overflow-x-auto means that scrolls quietly on every sample
+       rather than breaking loudly on one. */
+    font-size: 0.78em;
   }
   & :where(code):not(:where([class~="not-prose"] *))::before {
     content: none;
@@ -461,7 +522,13 @@ html {
    mode is free. Result markup comes from our own template in search-client.tsx
    and is styled there with ordinary Tailwind classes. */
 .pagefind-scope {
-  --pf-font: var(--font-inter), system-ui, sans-serif;
+  /* The body face, not the UI one. --pf-font styles the component's excerpt and
+     summary text, which is body copy — and the result titles in
+     search-client.tsx already set font-display themselves, so putting the
+     display family here too would render the whole panel in one face and lose
+     the pairing every other card on the site has. The fallback is a serif for
+     the same reason. */
+  --pf-font: var(--font-body), Georgia, serif;
   --pf-text: var(--color-brand-dark);
   --pf-text-secondary: var(--color-brand-muted);
   --pf-text-muted: var(--color-brand-muted);
