@@ -554,8 +554,15 @@ the two into one.
 - **UI** is an enumerated list of chrome that must not compete with prose, and
   it is the whole list: the two header nav links and the header tagline, the
   footer column labels, footer links and the bottom legal line, the two
-  table-of-contents labels, the tag pill, and the two count spans in
-  `app/archive/page.tsx` and `app/tags/page.tsx` (both former `font-sans`).
+  table-of-contents labels, the "Explore with AI" label, the tag pill, and the
+  two count spans in `app/archive/page.tsx` and `app/tags/page.tsx` (both former
+  `font-sans`).
+
+  The two sidebar labels — table of contents and "Explore with AI" — must stay
+  identical in face, size and tracking. They sit one above the other in the same
+  column, so any difference between them reads as an accident. The second was
+  missed when the roles first split, which left one in the UI face at 12px and
+  the other in the body face at 14px.
 
 There is no `font-sans` utility — the token was removed when the roles split, so
 a `font-sans` class now silently does nothing. If a new surface seems to want

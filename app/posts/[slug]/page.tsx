@@ -244,8 +244,16 @@ export default async function PostPage({
             {/* text-pretty on the prose container inherits into every child —
                 paragraphs and in-body headings alike — so line breaking just
                 avoids a lone last word, without the aggressive re-balancing of
-                text-wrap: balance. One class covers the whole article body. */}
-            <div className="prose text-pretty prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
+                text-wrap: balance. One class covers the whole article body.
+
+                The heading sizes are em, so they track the prose base. h2 sits
+                at 1.6em rather than the 1.75em it carried before the base moved
+                to 1.125rem: the plugin keys a heading's margins to its own
+                font-size (2em above, 1em below), so an oversized h2 inflates
+                the space around it as well as the type. At 1.6em the gap above
+                lands at 57.6px, near where it sat before the bump, and the
+                h1-to-h2 step widens back out. */}
+            <div className="prose text-pretty prose-h2:text-[1.6em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
               <RichText
                 content={post.content}
                 headings={headings}

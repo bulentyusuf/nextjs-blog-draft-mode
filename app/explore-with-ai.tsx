@@ -19,7 +19,11 @@ export default function ExploreWithAI({ slug }: { slug: string }) {
 
   return (
     <nav aria-label="Explore this post with AI" className="text-sm">
-      <p className="mb-3 font-bold uppercase tracking-wide text-brand-muted">
+      {/* Matches the table-of-contents label exactly — same face, size and
+          tracking. The two sit one above the other in the same sidebar, so any
+          difference between them reads as an accident rather than a
+          distinction. */}
+      <p className="mb-3 font-ui text-xs font-bold uppercase tracking-widest text-brand-muted">
         Explore with AI
       </p>
       <ul className="space-y-2">
