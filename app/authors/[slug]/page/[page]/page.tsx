@@ -5,6 +5,7 @@ import ContentfulImage from "@/lib/contentful-image";
 import TaxonomyListing from "../../../../taxonomy-listing";
 import PageContext from "../../../../page-context";
 import { type Crumb } from "../../../../breadcrumb";
+import { RichText } from "@/lib/rich-text";
 import {
   getAllAuthors,
   getAuthorBySlug,
@@ -101,13 +102,13 @@ export default async function AuthorPaginatedPage({
       visibleTags={visibleTags}
       basePath={`/authors/${slug}`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-6">
         {author.picture?.url && (
           <ContentfulImage
             alt=""
-            className="rounded-full object-cover h-20 w-20 shrink-0"
-            width={80}
-            height={80}
+            className="rounded-full object-cover h-28 w-28 shrink-0"
+            width={112}
+            height={112}
             src={author.picture.url}
           />
         )}
@@ -116,6 +117,11 @@ export default async function AuthorPaginatedPage({
         </h1>
       </div>
       <PageContext currentPage={pageNumber} totalPages={totalPages} />
+      {author.bio && (
+        <div className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+          <RichText content={author.bio} headings={[]} />
+        </div>
+      )}
     </TaxonomyListing>
   );
 }
