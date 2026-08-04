@@ -22,6 +22,15 @@ function headingText(node: Block | Inline): string {
     .join("");
 }
 
+// A cell is numeric when every cell in its column is a bare number. Contentful
+// rich text carries no column metadata — the document is rows of cells — so
+// alignment has to be inferred from content. Anything else (mixed, empty, text)
+// falls back to start-aligned, which is the safe default for prose.
+function isNumericCell(node: Block | Inline): boolean {
+  const text = headingText(node).trim();
+  return text !== "" && /^\d+(\.\d+)?$/.test(text);
+}
+
 function RichTextAsset({
   id,
   assets,
@@ -202,6 +211,54 @@ export function RichText({
         <blockquote className="not-prose my-9 border-l-4 border-brand-crimson pl-5 font-display text-2xl font-normal leading-snug text-brand-dark md:text-[1.75rem] [&_p]:m-0 [&_p+p]:mt-4">
           {children}
         </blockquote>
+      ),
+      [BLOCKS.TABLE]: (_node: Block | Inline, children: ReactNode) => (
+        // Horizontal scroll rather than reflow: a table narrower than its
+        // content is unreadable, and Contentful gives no column hints to
+        // restructure from. tabIndex makes the scroll container reachable by
+        // keyboard (2.1.1), and a scrollable region that takes focus needs an
+        // accessible name and a role, or a screen reader announces an unlabelled
+        // focus stop. role="region" + aria-label supplies both.
+        <div
+          className="not-prose my-8 overflow-x-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Table"
+        >
+          <table className="w-full border-collapse text-[0.9em]">
+            <tbody>{children}</tbody>
+          </table>
+        </div>
+      ),
+      [BLOCKS.TABLE_ROW]: (_node: Block | Inline, children: ReactNode) => (
+        <tr className="border-b border-hairline/60 last:border-b-0">
+          {children}
+        </tr>
+      ),
+      [BLOCKS.TABLE_HEADER_CELL]: (
+        node: Block | Inline,
+        children: ReactNode,
+      ) => (
+        // scope="col" is not emitted by the default renderer. Contentful's
+        // table model only produces header cells in the first row, so col is
+        // always correct here.
+        <th
+          scope="col"
+          className={`border-b border-hairline px-3 py-2 font-semibold first:ps-0 last:pe-0 ${
+            isNumericCell(node) ? "text-end" : "text-start"
+          }`}
+        >
+          {children}
+        </th>
+      ),
+      [BLOCKS.TABLE_CELL]: (node: Block | Inline, children: ReactNode) => (
+        <td
+          className={`px-3 py-2 align-top first:ps-0 last:pe-0 ${
+            isNumericCell(node) ? "text-end tabular-nums" : "text-start"
+          }`}
+        >
+          {children}
+        </td>
       ),
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset

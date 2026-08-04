@@ -439,6 +439,24 @@ html {
      based for the same reason; do not pin one in rem. */
   font-size: 1.125rem;
 
+  /* The plugin's td padding is 0.5714286em at its own 1rem scale. This block
+     raises prose to 1.125rem for Literata's x-height, and every em inside
+     inherits it, so a single-line row was landing near 78px. Pinned here in em
+     against the prose size so it still scales with user font settings, but at a
+     value chosen for this column rather than the plugin's. */
+  & :is(th, td) {
+    padding-block: 0.5em;
+    padding-inline: 0.75em;
+  }
+
+  & :is(th, td):first-child {
+    padding-inline-start: 0;
+  }
+
+  & :is(th, td):last-child {
+    padding-inline-end: 0;
+  }
+
   /* Map the typography plugin's slate palette to brand tokens (F9). This block
      already outranks the plugin's own `.prose` variable defaults by source
      order, so setting the variables here re-tints every prose-inherited style
@@ -456,14 +474,17 @@ html {
   --tw-prose-quotes: var(--color-brand-dark);
   --tw-prose-quote-borders: var(--color-brand-crimson);
   --tw-prose-captions: var(--color-brand-muted);
-  --tw-prose-th-borders: color-mix(
-    in srgb,
-    var(--color-brand-dark) 15%,
-    transparent
-  );
+  /* Was brand-dark at 15%/10%, which composited to 1.22:1 (light) and 1.27:1
+     (dark) against the page — at or below the ~1.2 separation threshold noted
+     on --color-footer-bg, and the only dividers in the system that never got
+     the dark-mode lift --color-hairline carries. Both now defer to that token,
+     so table rules track every other rule on the site and there is one alpha to
+     maintain rather than three. The header rule stays a step stronger than the
+     row rules so the head still reads as distinct. */
+  --tw-prose-th-borders: var(--color-hairline);
   --tw-prose-td-borders: color-mix(
     in srgb,
-    var(--color-brand-dark) 10%,
+    var(--color-hairline) 60%,
     transparent
   );
 

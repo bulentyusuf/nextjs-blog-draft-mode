@@ -181,6 +181,42 @@ const embed = (nodeType: string, id: string) => ({
   data: { target: { sys: { id } } },
   content: [],
 });
+const cell = (nodeType: string, value: string) => ({
+  nodeType,
+  data: {},
+  content: [para(text(value))],
+});
+const row = (...cells: unknown[]) => ({
+  nodeType: BLOCKS.TABLE_ROW,
+  data: {},
+  content: cells,
+});
+const table = (...rows: unknown[]) => ({
+  nodeType: BLOCKS.TABLE,
+  data: {},
+  content: rows,
+});
+
+// Three columns: Category (text), Posts (numeric throughout), Updated (mixed
+// — a number in one row, "TBD" in the other), so the fixture exercises both
+// the numeric-alignment case and the inference edge in one table.
+const bodyTable = table(
+  row(
+    cell(BLOCKS.TABLE_HEADER_CELL, "Category"),
+    cell(BLOCKS.TABLE_HEADER_CELL, "Posts"),
+    cell(BLOCKS.TABLE_HEADER_CELL, "Updated"),
+  ),
+  row(
+    cell(BLOCKS.TABLE_CELL, "Design"),
+    cell(BLOCKS.TABLE_CELL, "12"),
+    cell(BLOCKS.TABLE_CELL, "3"),
+  ),
+  row(
+    cell(BLOCKS.TABLE_CELL, "Retro"),
+    cell(BLOCKS.TABLE_CELL, "4"),
+    cell(BLOCKS.TABLE_CELL, "TBD"),
+  ),
+);
 
 const bodyDoc = {
   nodeType: BLOCKS.DOCUMENT,
@@ -194,6 +230,7 @@ const bodyDoc = {
     embed(BLOCKS.EMBEDDED_ASSET, "img1"),
     embed(BLOCKS.EMBEDDED_ENTRY, "code1"),
     embed(BLOCKS.EMBEDDED_ENTRY, "prompt1"),
+    bodyTable,
     h2("Second section"),
     para(text("Closing copy.")),
   ],
@@ -363,6 +400,45 @@ describe("post page", () => {
       const caption = figure.querySelector("figcaption")?.textContent?.trim();
       if (caption) expect(img.getAttribute("alt")).toBe("");
     }
+  });
+
+  it("gives every header cell a column scope", async () => {
+    await render();
+    const headerCells = document.querySelectorAll("table th");
+    expect(headerCells.length).toBeGreaterThan(0);
+    for (const th of headerCells) {
+      expect(th.getAttribute("scope")).toBe("col");
+    }
+  });
+
+  it("exposes the scroll container as a focusable, named region", async () => {
+    await render();
+    const region = getByRole(document.body, "region", { name: "Table" });
+    expect(region.getAttribute("tabindex")).toBe("0");
+    expect(region.querySelector("table")).not.toBeNull();
+  });
+
+  it("right-aligns a genuinely numeric column, not a text one", async () => {
+    // "Posts" is numeric in every row of this fixture.
+    await render();
+    const cells = [...document.querySelectorAll("table td")];
+    const postsCell = cells.find((td) => td.textContent?.trim() === "12");
+    const categoryCell = cells.find(
+      (td) => td.textContent?.trim() === "Design",
+    );
+    expect(postsCell?.classList.contains("text-end")).toBe(true);
+    expect(categoryCell?.classList.contains("text-end")).toBe(false);
+  });
+
+  it("falls back to start-aligned for a column mixing text and numbers", async () => {
+    // "Updated" carries a number in one row and "TBD" in the other — the
+    // inference is per cell, so "TBD" must not be coerced end-aligned just
+    // because its column also holds a number.
+    await render();
+    const cells = [...document.querySelectorAll("table td")];
+    const tbdCell = cells.find((td) => td.textContent?.trim() === "TBD");
+    expect(tbdCell?.classList.contains("text-end")).toBe(false);
+    expect(tbdCell?.classList.contains("text-start")).toBe(true);
   });
 });
 
