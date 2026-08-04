@@ -11,6 +11,41 @@ second copy of the reasoning. An entry that grows past a few lines without a
 file to point at is either genuinely homeless (the workflow and infrastructure
 notes at the end) or wants moving into the code.
 
+## Bloat is the default failure mode
+
+Everything below is a decision someone had to defend. This governs the rest:
+**solve the problem with the smallest thing that works inside the stack already
+here**, and treat reaching outside it as a claim needing evidence.
+
+That stack is Next, React, Contentful's GraphQL API, Tailwind, Shiki and
+date-fns, with Pagefind at build time. `package.json` lists fifteen runtime
+dependencies; before adding a sixteenth, say what it does that the fifteen
+cannot. "Fewer lines in this file" is not an answer.
+
+Four tests, in the order they usually bite:
+
+- **Prefer the platform.** The view transitions are CSS with no library, the
+  sidenote toggle is a hidden checkbox and a sibling selector with no client JS,
+  the scroll offset is one `scroll-padding-top` rather than per-heading margins
+  plus a listener. Each replaced something heavier, and each is why the
+  equivalent JavaScript is not here to maintain.
+- **Count the duplication before abstracting it.** Six near-identical routes
+  were worth one shell; the `<header>` inside them was not, because folding it
+  in cost a conditional per difference — an abstraction needing a branch per
+  caller is just the callers, spelled worse. One refactor held both answers.
+- **A helper earns its place by removing a decision, not lines.**
+  `lib/paginate.ts` earns it: eight copies of the same arithmetic each had to be
+  right on their own. A wrapper that renames a one-liner does not.
+- **Do not build machinery for a problem that has not happened.** No rate
+  limiting, no `X-Frame-Options`, no nonce pipeline — each argued below as a live
+  decision rather than an oversight. Speculative generality costs the same as a
+  speculative dependency and is harder to remove later.
+
+When an elegant version and a thorough version both work, ship the elegant one
+and write down what it does not cover. Documentation obeys this too: prose
+repeating an argument the code already carries is bloat with a different file
+extension.
+
 ## Accepted trade-offs and known non-issues
 
 Intentional. Do not "fix" or re-flag without a new reason.
