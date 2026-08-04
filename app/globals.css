@@ -489,16 +489,24 @@ html {
       "Liberation Mono", monospace;
     font-weight: 400;
     font-style: normal;
+    /* No border. A 1px edge plus 0.4em padding made the inline box taller than
+       the line box, so leading went uneven in any paragraph carrying a pill
+       (measured 17px, 21px and 23px across three consecutive lines of one
+       paragraph). Worse, when a pill wrapped to the start of a line its border
+       sat on the margin and the letterforms inside began 0.4em further right,
+       so that line read as indented — and where a pill lands is not knowable
+       from the CMS. The tint alone still separates: 12% lands at 1.22:1
+       (light) and 1.20:1 (dark) against the page, matching the ~1.2 threshold
+       used for --color-footer-bg, while ink on the fill stays above 12.7:1 in
+       both modes. */
     background-color: color-mix(
       in srgb,
-      var(--color-brand-crimson) 8%,
+      var(--color-brand-crimson) 12%,
       transparent
     );
     color: var(--color-brand-dark);
-    border: 1px solid
-      color-mix(in srgb, var(--color-brand-crimson) 20%, transparent);
-    padding: 0.1em 0.4em;
-    border-radius: 0.25rem;
+    padding: 0.05em 0.3em;
+    border-radius: 0.2rem;
     /* 0.78em holds code at 14px against the 1.125rem prose base. The blocks in
        lib/rich-text.tsx use the same value, so inline and block code match. The
        value is a budget, not a preference: at 14px a 640px code content box
