@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
-import Container from "../../container";
-import MoreStories from "../../more-stories";
-import Pagination from "../../pagination";
-import Breadcrumb, { type Crumb } from "../../breadcrumb";
+import TaxonomyListing from "../../taxonomy-listing";
+import { type Crumb } from "../../breadcrumb";
 import { getAllPosts, getTagBySlug } from "@/lib/api";
 import { postsWithTag, visibleTagSlugs } from "@/lib/tags";
-import {
-  POSTS_PER_PAGE,
-  SITE_TITLE,
-  SITE_URL,
-  DEFAULT_OG_LOCALE,
-} from "@/lib/constants";
+import { SITE_TITLE, SITE_URL } from "@/lib/constants";
+import { listingMetadata } from "@/lib/page-metadata";
+import { pageItems, totalPagesFor } from "@/lib/paginate";
 import { widont } from "@/lib/typography";
 
 // Allow on-demand rendering of tags that clear the threshold after build time,
@@ -40,31 +35,11 @@ export async function generateMetadata({
     return { title: "Tag not found" };
   }
 
-  const description =
-    tag.description || `Posts tagged ${tag.name} on ${SITE_TITLE}`;
-  const canonical = `${SITE_URL}/tags/${slug}`;
-
-  return {
+  return listingMetadata({
     title: tag.name,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      description,
-      url: canonical,
-      siteName: SITE_TITLE,
-      images: [
-        { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
-      ],
-      type: "website",
-      locale: DEFAULT_OG_LOCALE,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: tag.name,
-      description,
-      images: ["/be_useful.jpg"],
-    },
-  };
+    description: tag.description || `Posts tagged ${tag.name} on ${SITE_TITLE}`,
+    canonical: `${SITE_URL}/tags/${slug}`,
+  });
 }
 
 export default async function TagPage({
@@ -106,35 +81,25 @@ export default async function TagPage({
     { label: tag.name },
   ];
 
-  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
-  const pagePosts = posts.slice(0, POSTS_PER_PAGE);
-
   return (
-    <Container>
-      <Breadcrumb items={crumbs} />
-      <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-          {widont(tag.name)}
-        </h1>
-        {tag.description && (
-          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            {tag.description}
-          </p>
-        )}
-      </header>
-
-      <MoreStories
-        morePosts={pagePosts}
-        variant="list"
-        heading={null}
-        priorityFirst
-        visibleTags={otherTags}
-      />
-      <Pagination
-        currentPage={1}
-        totalPages={totalPages}
-        basePath={`/tags/${slug}`}
-      />
-    </Container>
+    // No emptyMessage: the threshold gate above guarantees at least
+    // MIN_POSTS_PER_TAG posts by the time this renders.
+    <TaxonomyListing
+      crumbs={crumbs}
+      posts={pageItems(posts, 1)}
+      currentPage={1}
+      totalPages={totalPagesFor(posts.length)}
+      visibleTags={otherTags}
+      basePath={`/tags/${slug}`}
+    >
+      <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
+        {widont(tag.name)}
+      </h1>
+      {tag.description && (
+        <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+          {tag.description}
+        </p>
+      )}
+    </TaxonomyListing>
   );
 }

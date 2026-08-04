@@ -1,38 +1,29 @@
 import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import Container from "../../../../container";
-import MoreStories from "../../../../more-stories";
-import Pagination from "../../../../pagination";
+import TaxonomyListing from "../../../../taxonomy-listing";
 import PageContext from "../../../../page-context";
-import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
+import { type Crumb } from "../../../../breadcrumb";
 import { getAllPosts, getTagBySlug } from "@/lib/api";
 import { postsWithTag, visibleTagSlugs } from "@/lib/tags";
-import {
-  POSTS_PER_PAGE,
-  SITE_TITLE,
-  SITE_URL,
-  DEFAULT_OG_LOCALE,
-} from "@/lib/constants";
+import { SITE_TITLE, SITE_URL } from "@/lib/constants";
+import { listingMetadata } from "@/lib/page-metadata";
+import { pageItems, pageRangeParams, totalPagesFor } from "@/lib/paginate";
 import { widont } from "@/lib/typography";
 
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const posts = await getAllPosts(false);
-  const visible = [...visibleTagSlugs(posts)];
 
   // No extra fetch per tag, unlike the category equivalent: postsWithTag
   // filters the same getAllPosts result, so the counts are already here.
-  return visible.flatMap((slug) => {
-    const count = postsWithTag(posts, slug).length;
-    const totalPages = Math.max(1, Math.ceil(count / POSTS_PER_PAGE));
-    const params: { slug: string; page: string }[] = [];
-    for (let p = 2; p <= totalPages; p++) {
-      params.push({ slug, page: String(p) });
-    }
-    return params;
-  });
+  return [...visibleTagSlugs(posts)].flatMap((slug) =>
+    pageRangeParams(postsWithTag(posts, slug).length, (page) => ({
+      slug,
+      page,
+    })),
+  );
 }
 
 export async function generateMetadata({
@@ -48,32 +39,11 @@ export async function generateMetadata({
     return { title: "Tag not found" };
   }
 
-  const title = `${tag.name}, Page ${page}`;
-  const description =
-    tag.description || `Posts tagged ${tag.name} on ${SITE_TITLE}`;
-  const canonical = `${SITE_URL}/tags/${slug}/page/${page}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      description,
-      url: canonical,
-      siteName: SITE_TITLE,
-      images: [
-        { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
-      ],
-      type: "website",
-      locale: DEFAULT_OG_LOCALE,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: ["/be_useful.jpg"],
-    },
-  };
+  return listingMetadata({
+    title: `${tag.name}, Page ${page}`,
+    description: tag.description || `Posts tagged ${tag.name} on ${SITE_TITLE}`,
+    canonical: `${SITE_URL}/tags/${slug}/page/${page}`,
+  });
 }
 
 export default async function TagPaginatedPage({
@@ -114,44 +84,30 @@ export default async function TagPaginatedPage({
     { label: tag.name },
   ];
 
-  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+  const totalPages = totalPagesFor(posts.length);
 
   if (pageNumber > totalPages) {
     notFound();
   }
 
-  const pagePosts = posts.slice(
-    (pageNumber - 1) * POSTS_PER_PAGE,
-    pageNumber * POSTS_PER_PAGE,
-  );
-
   return (
-    <Container>
-      <Breadcrumb items={crumbs} />
-      <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-          {widont(tag.name)}
-        </h1>
-        <PageContext currentPage={pageNumber} totalPages={totalPages} />
-        {tag.description && (
-          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            {tag.description}
-          </p>
-        )}
-      </header>
-
-      <MoreStories
-        morePosts={pagePosts}
-        variant="list"
-        heading={null}
-        priorityFirst
-        visibleTags={otherTags}
-      />
-      <Pagination
-        currentPage={pageNumber}
-        totalPages={totalPages}
-        basePath={`/tags/${slug}`}
-      />
-    </Container>
+    <TaxonomyListing
+      crumbs={crumbs}
+      posts={pageItems(posts, pageNumber)}
+      currentPage={pageNumber}
+      totalPages={totalPages}
+      visibleTags={otherTags}
+      basePath={`/tags/${slug}`}
+    >
+      <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
+        {widont(tag.name)}
+      </h1>
+      <PageContext currentPage={pageNumber} totalPages={totalPages} />
+      {tag.description && (
+        <p className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+          {tag.description}
+        </p>
+      )}
+    </TaxonomyListing>
   );
 }
