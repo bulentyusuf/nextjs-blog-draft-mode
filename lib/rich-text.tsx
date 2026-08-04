@@ -258,10 +258,15 @@ export function RichText({
         if (entry.__typename === "PromptBlock") {
           return (
             <div className="not-prose my-8 overflow-hidden rounded-lg border border-hairline">
-              {/* In dark mode brand-crimson lifts (for link legibility); white
-                  text on the lifted hue fails AA, so the header ink goes dark. */}
-              <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 font-mono text-[0.67em] text-white dark:text-surface-dark">
-                <span className="min-w-0 flex-1 truncate">
+              {/* In dark mode brand-crimson lifts (for link legibility); white text on
+                  the lifted hue fails AA at 2.53:1, so the header ink goes dark
+                  (6.64:1). The label is not mono: at this size a fixed-advance face
+                  draws stems thin enough that measured contrast stops predicting
+                  legibility, and the label is a caption rather than a verbatim string.
+                  It also sits at the body's size rather than below it — a label
+                  smaller than the content it names had nothing to justify it. */}
+              <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 text-[0.78em] font-semibold text-white dark:text-surface-dark">
+                <span className="min-w-0 flex-1">
                   {entry.label || "Prompt"}
                 </span>
                 <CopyButton code={entry.prompt} label="prompt" variant="dark" />
