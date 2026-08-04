@@ -226,8 +226,8 @@ accessibility audit; do not restore any. Each file carries its reasoning.
   `/search` and `/archive` carry two crumbs, a parent and the current page,
   which is the minimum rather than a shallow special case.
 - **Position is carried separately** by `app/page-context.tsx`, a muted "Page N
-  of M" that returns `null` on page 1 — which is why paginated category, tag and
-  author chains stop at the section. Do not add page numbers to those chains.
+  of M" captioning the list — which is why paginated category, tag and author
+  chains stop at the section. Do not add page numbers to those chains.
 - Known and accepted: on `/categories/[slug]/page/[page]`, `aria-current="page"`
   sits on the section crumb, whose URL differs from the current one.
 - Archive rows carry two tab stops each, title and category, because the
@@ -483,15 +483,23 @@ difference), and the fetch strategy stays in the route (category and author
 pages issue `Promise.all([posts, visibleTags])`; tag pages read `getAllPosts`
 once and derive everything from it). Do not unify either.
 
-**The header is otherwise the same on page 1 and on later pages**: the same
-heading ramp, the same portrait size on an author page, and the standfirst — a
-category or tag description, an author bio — on every page rather than page 1
-only. The one difference is `app/page-context.tsx`, which the paginated routes
-render and which returns `null` on page 1 anyway. Author pages had drifted here,
-carrying a 112px portrait and a bio on page 1 against an 80px portrait and no
-bio on later ones; a reader arriving on page 3 from a search result got a
-thinner page than the same listing's first. Do not reintroduce a per-page
-variation without a reason written down.
+**The header is identical on page 1 and on later pages**, and carries nothing
+navigational: the same heading ramp, the same portrait size on an author page,
+and the standfirst — a category or tag description, an author bio — on every
+page rather than page 1 only. Author pages had drifted here, carrying a 112px
+portrait and a bio on page 1 against an 80px portrait and no bio on later ones;
+a reader arriving on page 3 from a search result got a thinner page than the
+same listing's first. Do not reintroduce a per-page variation without a reason
+written down.
+
+**Page position captions the list, not the heading.** `app/page-context.tsx`
+renders between the header and the posts, and `app/taxonomy-listing.tsx` renders
+it rather than any route passing it in — the component already holds both
+numbers, and PageContext returns `null` on page 1, so no route decides whether
+its own page counts as paginated. Do not move it back into the header: position
+describes the list, and in the header it split the heading from its standfirst
+and landed under the portrait on author pages instead of under the heading it
+referred to.
 
 `emptyMessage` is omitted by the routes where empty is unreachable, so leaving
 it out asserts that rather than quietly rendering an empty list. `lib/paginate.ts`

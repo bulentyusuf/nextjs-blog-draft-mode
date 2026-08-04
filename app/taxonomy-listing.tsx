@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Container from "./container";
 import MoreStories from "./more-stories";
 import Pagination from "./pagination";
+import PageContext from "./page-context";
 import Breadcrumb, { type Crumb } from "./breadcrumb";
 import { jsonLdHtml } from "@/lib/json-ld";
 import type { CardPost } from "@/lib/types";
@@ -12,14 +13,19 @@ import type { CardPost } from "@/lib/types";
  *
  * Those six routes rendered the same tree with the same props and differed only
  * in their `<header>`: a plain heading for a category or tag, a heading beside a
- * portrait for an author, with the position line and the standfirst arranged
- * differently on page 1 than on later pages. So the header is `children` rather
- * than a set of props. Passing `name`, `description`, `avatar` and `pageNumber`
- * and reassembling them here would mean a conditional per difference, which is
- * how a shared component becomes harder to read than the six copies it replaced.
+ * portrait for an author. So the header is `children` rather than a set of
+ * props. Passing `name`, `description` and `avatar` and reassembling them here
+ * would mean a conditional per difference, which is how a shared component
+ * becomes harder to read than the six copies it replaced.
  *
  * What is genuinely uniform lives here: the container, the breadcrumb, the
- * listing itself, the pager, and the empty state.
+ * position caption, the listing itself, the pager, and the empty state.
+ *
+ * `children` is therefore purely editorial — a heading and a standfirst, nothing
+ * navigational. The "Page N of M" caption is rendered here rather than passed
+ * in, because it belongs to the list and this component already holds the two
+ * numbers. PageContext returns null on page 1, so it is rendered unconditionally
+ * and no route decides whether its own page counts as paginated.
  */
 export default function TaxonomyListing({
   crumbs,
@@ -70,6 +76,7 @@ export default function TaxonomyListing({
         </p>
       ) : (
         <>
+          <PageContext currentPage={currentPage} totalPages={totalPages} />
           <MoreStories
             morePosts={posts}
             variant="list"

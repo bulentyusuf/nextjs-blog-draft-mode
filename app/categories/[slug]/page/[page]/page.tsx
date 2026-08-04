@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import TaxonomyListing from "../../../../taxonomy-listing";
-import PageContext from "../../../../page-context";
 import { type Crumb } from "../../../../breadcrumb";
 import {
   getAllCategories,
@@ -103,7 +102,6 @@ export default async function CategoryPaginatedPage({
       <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
         {widont(category.name)}
       </h1>
-      <PageContext currentPage={pageNumber} totalPages={totalPages} />
       {category.description && (
         <p className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
           {category.description}

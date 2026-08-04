@@ -3,7 +3,6 @@ import { draftMode } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import ContentfulImage from "@/lib/contentful-image";
 import TaxonomyListing from "../../../../taxonomy-listing";
-import PageContext from "../../../../page-context";
 import { type Crumb } from "../../../../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import {
@@ -116,7 +115,6 @@ export default async function AuthorPaginatedPage({
           {widont(author.name)}
         </h1>
       </div>
-      <PageContext currentPage={pageNumber} totalPages={totalPages} />
       {author.bio && (
         <div className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
           <RichText content={author.bio} headings={[]} />

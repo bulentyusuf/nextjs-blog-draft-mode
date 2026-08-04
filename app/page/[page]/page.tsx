@@ -69,8 +69,8 @@ export default async function IndexPage({
         <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
           Latest Posts
         </h1>
-        <PageContext currentPage={pageNumber} totalPages={totalPages} />
       </header>
+      <PageContext currentPage={pageNumber} totalPages={totalPages} />
       <MoreStories
         morePosts={posts}
         variant="list"
