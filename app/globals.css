@@ -528,12 +528,26 @@ html {
    off-white ink), so this isn't a WCAG failure — but thin monospace strokes in
    a light ink read fainter on a dark ground than the same weight does in dark
    ink on a light one, the mirror image of the PromptBlock label problem.
-   font-weight is the fix, same as there; size and the crimson tint are
-   untouched, and code blocks stay unaffected since they're not-prose. Light
-   mode keeps 400. */
+   font-weight is the fix, same as there; size is untouched, and code blocks
+   stay unaffected since they're not-prose. Light mode keeps 400.
+
+   The 12% crimson fill has the same problem the .pagefind-scope mark wash
+   below already documents: a tint tuned against the cream light page reads
+   correctly there but composites to a barely-there sliver on the near-black
+   dark ground, even though the numeric contrast ratio against the page is
+   nearly identical in both modes (1.22:1 light, 1.20:1 dark) — the eye is
+   simply less sensitive to small luminance steps at low absolute luminance.
+   22% restores a comparable perceived separation (1.45:1 against the page)
+   while ink-on-fill stays at 10.85:1, well clear of AAA. Light mode's 12%
+   is unaffected. */
 @media (prefers-color-scheme: dark) {
   .prose :where(code):not(:where([class~="not-prose"] *)) {
     font-weight: 500;
+    background-color: color-mix(
+      in srgb,
+      var(--color-brand-crimson) 22%,
+      transparent
+    );
   }
 }
 
