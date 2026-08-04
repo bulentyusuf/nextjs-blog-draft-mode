@@ -276,13 +276,19 @@ export function RichText({
               </figcaption>
               <div className="flow-root whitespace-pre-wrap break-words bg-gray-50 p-4 font-mono text-[0.78em] text-gray-800 dark:bg-white/5 dark:text-brand-dark">
                 {entry.image?.url && (
-                  /* Decorative thumbnail: floats only from sm up. Below that, a
-                     fixed 78px float leaves too narrow a column beside it to
-                     read (WCAG 1.4.10), and the image carries no information,
-                     so hiding it there costs nothing. */
+                  /* Decorative thumbnail: floats only from sm up, so text
+                     wraps around it rather than sitting in a fixed column for
+                     the whole prompt. Hidden below sm, where a fixed 78px
+                     column would leave too narrow a strip beside it to read
+                     (WCAG 1.4.10); the image carries no information, so
+                     hiding it there costs nothing. mt-2 corrects for the
+                     text's half-leading, which the image box has none of —
+                     the exact gap depends on which font in the font-mono
+                     stack the browser actually resolves, so treat this as a
+                     nudge tuned by eye rather than a computed constant. */
                   <span
                     aria-hidden="true"
-                    className="relative mb-1 mr-3 hidden h-[52px] w-[78px] overflow-hidden rounded-md shadow-md ring-1 ring-black/10 sm:float-left sm:block"
+                    className="relative mt-2 mb-1 mr-3 hidden h-[52px] w-[78px] overflow-hidden rounded-md shadow-md ring-1 ring-black/10 sm:float-left sm:block"
                   >
                     <ContentfulImage
                       src={entry.image.url}
