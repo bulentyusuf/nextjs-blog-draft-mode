@@ -5,6 +5,7 @@ import { describe, it, expect, vi } from "vitest";
 import { renderToReadableStream } from "react-dom/server";
 import axe from "axe-core";
 import type { AxeResults, Result } from "axe-core";
+import { getByRole, queryByRole } from "@testing-library/dom";
 import type { CardPost, Content } from "@/lib/types";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Document } from "@contentful/rich-text-types";
@@ -351,12 +352,97 @@ describe("post page", () => {
 
   it("describes a captioned figure once, not twice", async () => {
     // Contentful's `description` is one field feeding both. Emitted as alt as
-    // well as caption, every figure announced the same sentence twice.
+    // well as caption, every figure announced the same sentence twice. Only
+    // applies where a figure actually holds an image — the PromptBlock figure
+    // in this fixture has none, and its figcaption names the prompt, not a
+    // picture, so there is nothing for it to redundantly describe.
     await render();
     for (const figure of document.querySelectorAll("figure")) {
-      const alt = figure.querySelector("img")?.getAttribute("alt");
+      const img = figure.querySelector("img");
+      if (!img) continue;
       const caption = figure.querySelector("figcaption")?.textContent?.trim();
-      if (caption) expect(alt).toBe("");
+      if (caption) expect(img.getAttribute("alt")).toBe("");
     }
+  });
+});
+
+describe("prompt block", () => {
+  // A minimal body holding only the embedded PromptBlock under test, so role
+  // queries never have to disambiguate against the cover, avatar or other
+  // fixtures used elsewhere in this file.
+  function promptBody(entry: Record<string, unknown>) {
+    const doc = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [embed(BLOCKS.EMBEDDED_ENTRY, "prompt1")],
+    } as unknown as Document;
+    const content = {
+      json: doc,
+      links: {
+        entries: {
+          block: [
+            { sys: { id: "prompt1" }, __typename: "PromptBlock", ...entry },
+          ],
+          inline: [],
+        },
+      },
+    } as unknown as Content;
+    return { doc, content };
+  }
+
+  async function renderPrompt(entry: Record<string, unknown>) {
+    const { doc, content } = promptBody(entry);
+    await renderPage(
+      <RootLayout>
+        <div className="mx-auto max-w-5xl px-5 py-8">
+          <article>
+            <div className="prose">
+              <RichText content={content} headings={extractHeadings(doc)} />
+            </div>
+          </article>
+        </div>
+      </RootLayout>,
+    );
+  }
+
+  // dom-accessibility-api implements the generic ARIA accname algorithm, not
+  // the HTML-AAM rule naming a <figure> from a first-or-last-child
+  // <figcaption> — a jsdom/tooling gap (real browsers, and axe in one, do
+  // compute this), the same category as the color-contrast/target-size rules
+  // disabled above. getByRole locates the element; the name itself is read
+  // from the figcaption directly rather than through a name-option filter
+  // that this environment cannot resolve.
+  it("exposes an accessible name matching its label", async () => {
+    await renderPrompt({ label: "A prompt", prompt: "Draw a cat" });
+    const figure = getByRole(document.body, "figure");
+    expect(figure.querySelector("figcaption")?.textContent?.trim()).toBe(
+      "A prompt",
+    );
+  });
+
+  it("keeps the figcaption as the figure's direct child", async () => {
+    // The constraint most likely to be broken by a later layout change, and it
+    // fails silently: a figcaption nested in a wrapper div no longer names the
+    // figure at all.
+    await renderPrompt({ label: "A prompt", prompt: "Draw a cat" });
+    const figure = getByRole(document.body, "figure");
+    expect(figure.firstElementChild?.tagName).toBe("FIGCAPTION");
+  });
+
+  it('falls back to "Prompt" when the label is absent', async () => {
+    await renderPrompt({ prompt: "Draw a cat" });
+    const figure = getByRole(document.body, "figure");
+    expect(figure.querySelector("figcaption")?.textContent?.trim()).toBe(
+      "Prompt",
+    );
+  });
+
+  it("hides the decorative thumbnail from the accessibility tree", async () => {
+    await renderPrompt({
+      label: "A prompt",
+      prompt: "Draw a cat",
+      image: { url: "https://images.ctfassets.net/x/y/thumb.jpg" },
+    });
+    expect(queryByRole(document.body, "img")).toBeNull();
   });
 });

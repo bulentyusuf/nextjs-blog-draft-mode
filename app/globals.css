@@ -516,6 +516,19 @@ html {
   }
 }
 
+/* Inline code sits at high contrast against the near-black dark-mode page (the
+   off-white ink), so this isn't a WCAG failure — but thin monospace strokes in
+   a light ink read fainter on a dark ground than the same weight does in dark
+   ink on a light one, the mirror image of the PromptBlock label problem.
+   font-weight is the fix, same as there; size and the crimson tint are
+   untouched, and code blocks stay unaffected since they're not-prose. Light
+   mode keeps 400. */
+@media (prefers-color-scheme: dark) {
+  .prose :where(code):not(:where([class~="not-prose"] *)) {
+    font-weight: 500;
+  }
+}
+
 /* Pagefind Component UI (upstream web components) themed to house tokens via
    its documented --pf-* custom properties — no !important, no specificity war.
    Every value points at a brand token the dark override already flips, so dark
