@@ -132,9 +132,13 @@ crop/focus/height params is a decision, not an omission.
 
 All three are defined and argued in `app/globals.css`.
 
-- **`--color-hairline`** — every rule between list items, cards and panels. It
-  inverts on its own, so never add a `dark:` variant to an element using it, and
-  never reintroduce bare `gray-200` borders.
+- **`--color-hairline`** — every rule between list items, cards and panels, and
+  the edges a listing draws around itself. It inverts on its own, so never add a
+  `dark:` variant to an element using it, and never reintroduce bare `gray-200`
+  borders. **`app/pagination.tsx` deliberately has no top border**: the listing
+  above it closes itself with `border-y`, so a rule here would land in the same
+  row and print a double line. Both files carry the note; the pager looking
+  unattached is not a missing border.
 - **`--color-control-edge`** — `app/tag-pill.tsx` only, and **not** a divider
   despite having borrowed the divider token for a long time. It carries a
   contrast floor (WCAG 1.4.11), which is why it is two literal values rather

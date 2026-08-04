@@ -64,10 +64,10 @@ export default function Pagination({
   }
 
   return (
-    <nav
-      aria-label="Pagination"
-      className="mx-auto max-w-5xl border-t border-hairline pt-10 md:pt-12"
-    >
+    // No top border: every listing this follows draws its own closing hairline
+    // (see the container note in more-stories.tsx). One here would sit in the
+    // same row and print a double line.
+    <nav aria-label="Pagination" className="mx-auto max-w-5xl pt-10 md:pt-12">
       <ul className="flex items-center justify-center gap-2">
         <li>
           {hasPrev ? (
