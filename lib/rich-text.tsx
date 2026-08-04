@@ -274,18 +274,17 @@ export function RichText({
                 </span>
                 <CopyButton code={entry.prompt} label="prompt" variant="dark" />
               </figcaption>
-              <div className="whitespace-pre-wrap break-words bg-gray-50 p-4 font-mono text-[0.78em] text-gray-800 sm:flex sm:items-start sm:gap-3 dark:bg-white/5 dark:text-brand-dark">
+              <div className="flow-root whitespace-pre-wrap break-words bg-gray-50 p-4 font-mono text-[0.78em] text-gray-800 dark:bg-white/5 dark:text-brand-dark">
                 {entry.image?.url && (
-                  /* Decorative thumbnail: a flex row item from sm up, sitting
-                     flush with the first line rather than floated — a float
-                     here left text wrapping raggedly around it, with a line
-                     hanging mid-block once the float ended. Hidden below sm,
-                     where a fixed 78px column would leave too narrow a strip
-                     beside it to read (WCAG 1.4.10); the image carries no
-                     information, so hiding it there costs nothing. */
+                  /* Decorative thumbnail: floats only from sm up, so text
+                     wraps around it rather than sitting in a fixed column for
+                     the whole prompt. Hidden below sm, where a fixed 78px
+                     column would leave too narrow a strip beside it to read
+                     (WCAG 1.4.10); the image carries no information, so
+                     hiding it there costs nothing. */
                   <span
                     aria-hidden="true"
-                    className="relative mb-1 hidden h-[52px] w-[78px] shrink-0 overflow-hidden rounded-md shadow-md ring-1 ring-black/10 sm:mb-0 sm:block"
+                    className="relative mb-1 mr-3 hidden h-[52px] w-[78px] overflow-hidden rounded-md shadow-md ring-1 ring-black/10 sm:float-left sm:block"
                   >
                     <ContentfulImage
                       src={entry.image.url}
@@ -296,7 +295,7 @@ export function RichText({
                     />
                   </span>
                 )}
-                <code className="sm:min-w-0 sm:flex-1">{entry.prompt}</code>
+                <code>{entry.prompt}</code>
               </div>
             </figure>
           );
