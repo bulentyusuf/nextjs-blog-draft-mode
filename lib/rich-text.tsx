@@ -281,10 +281,14 @@ export function RichText({
                      the whole prompt. Hidden below sm, where a fixed 78px
                      column would leave too narrow a strip beside it to read
                      (WCAG 1.4.10); the image carries no information, so
-                     hiding it there costs nothing. */
+                     hiding it there costs nothing. mt-1 corrects for the
+                     text's half-leading: measured via getBoundingClientRect,
+                     the image's top sits 4px above the first line's actual
+                     glyph top with no offset, since the image box has no
+                     leading of its own. */
                   <span
                     aria-hidden="true"
-                    className="relative mb-1 mr-3 hidden h-[52px] w-[78px] overflow-hidden rounded-md shadow-md ring-1 ring-black/10 sm:float-left sm:block"
+                    className="relative mt-1 mb-1 mr-3 hidden h-[52px] w-[78px] overflow-hidden rounded-md shadow-md ring-1 ring-black/10 sm:float-left sm:block"
                   >
                     <ContentfulImage
                       src={entry.image.url}
