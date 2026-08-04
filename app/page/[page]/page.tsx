@@ -9,18 +9,16 @@ import PageContext from "../../page-context";
 
 import { getAllPosts } from "@/lib/api";
 import { visibleTagSlugs } from "@/lib/tags";
-import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
+import { SITE_URL } from "@/lib/constants";
+import { pageItems, pageRangeParams, totalPagesFor } from "@/lib/paginate";
 
 // Render pages added after build on demand; out-of-range pages 404 below.
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const posts = await getAllPosts(false);
-  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
   // Page 1 lives at "/", so only build 2..totalPages here.
-  return Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => ({
-    page: String(i + 2),
-  }));
+  return pageRangeParams(posts.length, (page) => ({ page }));
 }
 
 export async function generateMetadata({
@@ -53,16 +51,13 @@ export default async function IndexPage({
 
   const { isEnabled } = await draftMode();
   const allPosts = await getAllPosts(isEnabled);
-  const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
+  const totalPages = totalPagesFor(allPosts.length);
 
   if (pageNumber > totalPages) {
     notFound();
   }
 
-  const posts = allPosts.slice(
-    (pageNumber - 1) * POSTS_PER_PAGE,
-    pageNumber * POSTS_PER_PAGE,
-  );
+  const posts = pageItems(allPosts, pageNumber);
 
   return (
     <Container>
@@ -74,8 +69,8 @@ export default async function IndexPage({
         <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
           Latest Posts
         </h1>
-        <PageContext currentPage={pageNumber} totalPages={totalPages} />
       </header>
+      <PageContext currentPage={pageNumber} totalPages={totalPages} />
       <MoreStories
         morePosts={posts}
         variant="list"

@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import ContentfulImage from "@/lib/contentful-image";
-import Container from "../../container";
-import MoreStories from "../../more-stories";
-import Pagination from "../../pagination";
-import Breadcrumb, { type Crumb } from "../../breadcrumb";
+import TaxonomyListing from "../../taxonomy-listing";
+import { type Crumb } from "../../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import {
   getAllAuthors,
@@ -13,13 +11,9 @@ import {
   getPostsByAuthor,
   getVisibleTagSlugs,
 } from "@/lib/api";
-import {
-  POSTS_PER_PAGE,
-  SITE_TITLE,
-  SITE_URL,
-  DEFAULT_OG_LOCALE,
-} from "@/lib/constants";
-import { jsonLdHtml } from "@/lib/json-ld";
+import { SITE_TITLE, SITE_URL } from "@/lib/constants";
+import { listingMetadata } from "@/lib/page-metadata";
+import { pageItems, totalPagesFor } from "@/lib/paginate";
 import { widont } from "@/lib/typography";
 
 // Allow on-demand rendering of authors added after build time.
@@ -45,31 +39,12 @@ export async function generateMetadata({
     return { title: "Author not found" };
   }
 
-  const description = `Posts by ${author.name} on ${SITE_TITLE}`;
-  const images = author.picture?.url ? [author.picture.url] : undefined;
-  const canonical = `${SITE_URL}/authors/${slug}`;
-
-  return {
+  return listingMetadata({
     title: author.name,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      description,
-      url: canonical,
-      siteName: SITE_TITLE,
-      images: images ?? [
-        { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
-      ],
-      type: "website",
-      locale: DEFAULT_OG_LOCALE,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: author.name,
-      description,
-      images,
-    },
-  };
+    description: `Posts by ${author.name} on ${SITE_TITLE}`,
+    canonical: `${SITE_URL}/authors/${slug}`,
+    images: author.picture?.url ? [author.picture.url] : undefined,
+  });
 }
 
 export default async function AuthorPage({
@@ -98,8 +73,6 @@ export default async function AuthorPage({
     getPostsByAuthor(slug, isEnabled),
     getVisibleTagSlugs(isEnabled),
   ]);
-  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
-  const pagePosts = posts.slice(0, POSTS_PER_PAGE);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -113,54 +86,35 @@ export default async function AuthorPage({
   };
 
   return (
-    <Container>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
-      />
-      <Breadcrumb items={crumbs} />
-      <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <div className="flex items-center gap-6 mb-3">
-          {author.picture?.url && (
-            <ContentfulImage
-              alt=""
-              className="rounded-full object-cover h-28 w-28 shrink-0"
-              width={112}
-              height={112}
-              src={author.picture.url}
-            />
-          )}
-          <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-            {widont(author.name)}
-          </h1>
-        </div>
-        {author.bio && (
-          <div className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            <RichText content={author.bio} headings={[]} />
-          </div>
+    <TaxonomyListing
+      crumbs={crumbs}
+      posts={pageItems(posts, 1)}
+      currentPage={1}
+      totalPages={totalPagesFor(posts.length)}
+      visibleTags={visibleTags}
+      basePath={`/authors/${slug}`}
+      emptyMessage="No posts by this author yet."
+      jsonLd={jsonLd}
+    >
+      <div className="flex items-center gap-6 mb-3">
+        {author.picture?.url && (
+          <ContentfulImage
+            alt=""
+            className="rounded-full object-cover h-28 w-28 shrink-0"
+            width={112}
+            height={112}
+            src={author.picture.url}
+          />
         )}
-      </header>
-
-      {posts.length > 0 ? (
-        <>
-          <MoreStories
-            morePosts={pagePosts}
-            variant="list"
-            heading={null}
-            priorityFirst
-            visibleTags={visibleTags}
-          />
-          <Pagination
-            currentPage={1}
-            totalPages={totalPages}
-            basePath={`/authors/${slug}`}
-          />
-        </>
-      ) : (
-        <p className="mx-auto max-w-5xl text-lg text-brand-muted">
-          No posts by this author yet.
-        </p>
+        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
+          {widont(author.name)}
+        </h1>
+      </div>
+      {author.bio && (
+        <div className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+          <RichText content={author.bio} headings={[]} />
+        </div>
       )}
-    </Container>
+    </TaxonomyListing>
   );
 }

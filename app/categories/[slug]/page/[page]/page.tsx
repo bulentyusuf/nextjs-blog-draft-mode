@@ -1,23 +1,17 @@
 import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import Container from "../../../../container";
-import MoreStories from "../../../../more-stories";
-import Pagination from "../../../../pagination";
-import PageContext from "../../../../page-context";
-import Breadcrumb, { type Crumb } from "../../../../breadcrumb";
+import TaxonomyListing from "../../../../taxonomy-listing";
+import { type Crumb } from "../../../../breadcrumb";
 import {
   getAllCategories,
   getCategoryBySlug,
   getPostsByCategory,
   getVisibleTagSlugs,
 } from "@/lib/api";
-import {
-  POSTS_PER_PAGE,
-  SITE_TITLE,
-  SITE_URL,
-  DEFAULT_OG_LOCALE,
-} from "@/lib/constants";
+import { SITE_TITLE, SITE_URL } from "@/lib/constants";
+import { listingMetadata } from "@/lib/page-metadata";
+import { pageItems, pageRangeParams, totalPagesFor } from "@/lib/paginate";
 import { widont } from "@/lib/typography";
 
 export const dynamicParams = true;
@@ -27,12 +21,10 @@ export async function generateStaticParams() {
   const perCategory = await Promise.all(
     categories.map(async (category) => {
       const posts = await getPostsByCategory(category.slug, false);
-      const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
-      const params: { slug: string; page: string }[] = [];
-      for (let p = 2; p <= totalPages; p++) {
-        params.push({ slug: category.slug, page: String(p) });
-      }
-      return params;
+      return pageRangeParams(posts.length, (page) => ({
+        slug: category.slug,
+        page,
+      }));
     }),
   );
   return perCategory.flat();
@@ -51,32 +43,12 @@ export async function generateMetadata({
     return { title: "Category not found" };
   }
 
-  const title = `${category.name}, Page ${page}`;
-  const description =
-    category.description || `Posts in ${category.name} on ${SITE_TITLE}`;
-  const canonical = `${SITE_URL}/categories/${slug}/page/${page}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      description,
-      url: canonical,
-      siteName: SITE_TITLE,
-      images: [
-        { url: "/be_useful.jpg", width: 1200, height: 630, alt: SITE_TITLE },
-      ],
-      type: "website",
-      locale: DEFAULT_OG_LOCALE,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: ["/be_useful.jpg"],
-    },
-  };
+  return listingMetadata({
+    title: `${category.name}, Page ${page}`,
+    description:
+      category.description || `Posts in ${category.name} on ${SITE_TITLE}`,
+    canonical: `${SITE_URL}/categories/${slug}/page/${page}`,
+  });
 }
 
 export default async function CategoryPaginatedPage({
@@ -112,44 +84,29 @@ export default async function CategoryPaginatedPage({
     getPostsByCategory(slug, isEnabled),
     getVisibleTagSlugs(isEnabled),
   ]);
-  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+  const totalPages = totalPagesFor(posts.length);
 
   if (pageNumber > totalPages) {
     notFound();
   }
 
-  const pagePosts = posts.slice(
-    (pageNumber - 1) * POSTS_PER_PAGE,
-    pageNumber * POSTS_PER_PAGE,
-  );
-
   return (
-    <Container>
-      <Breadcrumb items={crumbs} />
-      <header className="mx-auto max-w-5xl mb-6 md:mb-8">
-        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-          {widont(category.name)}
-        </h1>
-        <PageContext currentPage={pageNumber} totalPages={totalPages} />
-        {category.description && (
-          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            {category.description}
-          </p>
-        )}
-      </header>
-
-      <MoreStories
-        morePosts={pagePosts}
-        variant="list"
-        heading={null}
-        priorityFirst
-        visibleTags={visibleTags}
-      />
-      <Pagination
-        currentPage={pageNumber}
-        totalPages={totalPages}
-        basePath={`/categories/${slug}`}
-      />
-    </Container>
+    <TaxonomyListing
+      crumbs={crumbs}
+      posts={pageItems(posts, pageNumber)}
+      currentPage={pageNumber}
+      totalPages={totalPages}
+      visibleTags={visibleTags}
+      basePath={`/categories/${slug}`}
+    >
+      <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
+        {widont(category.name)}
+      </h1>
+      {category.description && (
+        <p className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+          {category.description}
+        </p>
+      )}
+    </TaxonomyListing>
   );
 }

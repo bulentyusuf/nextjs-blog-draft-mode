@@ -4,8 +4,47 @@ Standing context for Claude Code working in this repo. Read before audits, so
 deliberate decisions are not re-raised as findings, and before implementation
 work, so house conventions are not relearned by accident.
 
-Entries are the short form. Where one names a file, that file's comment carries
-the full argument — read it before changing what it explains.
+**Entries are the short form.** Where one names a file, that file's comment
+carries the full argument — read it before changing what it explains. This
+document records _what_ was decided and _where the reasoning lives_; it is not a
+second copy of the reasoning. An entry that grows past a few lines without a
+file to point at is either genuinely homeless (the workflow and infrastructure
+notes at the end) or wants moving into the code.
+
+## Bloat is the default failure mode
+
+Everything below is a decision someone had to defend. This governs the rest:
+**solve the problem with the smallest thing that works inside the stack already
+here**, and treat reaching outside it as a claim needing evidence.
+
+That stack is Next, React, Contentful's GraphQL API, Tailwind, Shiki and
+date-fns, with Pagefind at build time. `package.json` lists fifteen runtime
+dependencies; before adding a sixteenth, say what it does that the fifteen
+cannot. "Fewer lines in this file" is not an answer.
+
+Four tests, in the order they usually bite:
+
+- **Prefer the platform.** The view transitions are CSS with no library, the
+  sidenote toggle is a hidden checkbox and a sibling selector with no client JS,
+  the scroll offset is one `scroll-padding-top` rather than per-heading margins
+  plus a listener. Each replaced something heavier, and each is why the
+  equivalent JavaScript is not here to maintain.
+- **Count the duplication before abstracting it.** Six near-identical routes
+  were worth one shell; the `<header>` inside them was not, because folding it
+  in cost a conditional per difference — an abstraction needing a branch per
+  caller is just the callers, spelled worse. One refactor held both answers.
+- **A helper earns its place by removing a decision, not lines.**
+  `lib/paginate.ts` earns it: eight copies of the same arithmetic each had to be
+  right on their own. A wrapper that renames a one-liner does not.
+- **Do not build machinery for a problem that has not happened.** No rate
+  limiting, no `X-Frame-Options`, no nonce pipeline — each argued below as a live
+  decision rather than an oversight. Speculative generality costs the same as a
+  speculative dependency and is harder to remove later.
+
+When an elegant version and a thorough version both work, ship the elegant one
+and write down what it does not cover. Documentation obeys this too: prose
+repeating an argument the code already carries is bloat with a different file
+extension.
 
 ## Accepted trade-offs and known non-issues
 
@@ -13,14 +52,11 @@ Intentional. Do not "fix" or re-flag without a new reason.
 
 ### Both CSP loosenings in `script-src` are deliberate
 
-- **`'unsafe-inline'`** — removing it needs a per-request nonce, which on the App
-  Router forces dynamic rendering and kills static optimisation, ISR and CDN HTML
-  caching. Single-author blog, trusted CMS, URL schemes allowlisted and JSON-LD
-  escaped already, so this is defence-in-depth, not the front line. Revisit only
-  if the site starts rendering untrusted user-generated content.
-- **`'wasm-unsafe-eval'`** — Pagefind's search core is WebAssembly. It permits
-  wasm compilation only, not JS `eval`. Removing it silently breaks search in
-  every Chromium browser.
+`'unsafe-inline'` (removing it needs a per-request nonce, which forces dynamic
+rendering) and `'wasm-unsafe-eval'` (Pagefind's search core; removing it
+silently breaks search in every Chromium browser) — `next.config.js` carries
+both arguments inline. Revisit `'unsafe-inline'` only if the site starts
+rendering untrusted user-generated content.
 
 ### Search runs on Pagefind's Component UI, and its quirks are upstream
 
@@ -66,18 +102,19 @@ Three more accepted properties:
 
 ### The search emblem's dark-mode ground
 
-`app/search/search-emblem.tsx` draws knockout artwork over a cream underlay
-sliced from the art. That ground stays cream in both schemes while every brand
-token flips, so **anything rendered on it uses literal hex in dark mode, never
-brand tokens** — including a border, caption or hover state added later. Hence
-`.search-lens-ground` at `#FAF5F1` and the figure's `dark:text-[#A4243B]`; the
-tokens would paint a black glass and a washed-out ink respectively.
+`app/search/search-emblem-art.ts` holds the artwork and the argument;
+`app/search/search-emblem.tsx` is the rendering. The knockout figure sits on a
+cream underlay sliced from the art, and that ground stays cream in both schemes
+while every brand token flips, so **anything rendered on it uses literal hex in
+dark mode, never brand tokens** — including a border, caption or hover state
+added later. Hence `.search-lens-ground` at `#FAF5F1` and the figure's
+`dark:text-[#A4243B]`.
 
-`LENS` is sliced from `PATH1` at render time so it cannot drift from the art —
-not a tuning knob, do not replace it with a hand-drawn shape. `p-8` may be
-nudged by eye. Tried and rejected: a rounded plate behind the figure, a
-hand-tuned tilted ellipse, inverting the ink to cream, stripping the face to
-keep only the glass.
+`LENS` is sliced from `PATH1` so it cannot drift from the art — not a tuning
+knob. `p-8` may be nudged by eye. Tried and rejected: a rounded plate behind the
+figure, a hand-tuned tilted ellipse, inverting the ink to cream, stripping the
+face to keep only the glass. The paths live apart from the component because
+they are 36 KB of coordinates and nothing else; do not inline them again.
 
 ### Brand colour exists in two places on purpose
 
@@ -93,85 +130,60 @@ crop/focus/height params is a decision, not an omission.
 
 ### Three border roles, and they are not interchangeable
 
-- **`--color-hairline`** — every rule between list items, cards and panels, via
-  `border-hairline` / `divide-hairline`. It inverts on its own, so never add a
+All three are defined and argued in `app/globals.css`.
+
+- **`--color-hairline`** — every rule between list items, cards and panels, and
+  the edges a listing draws around itself. It inverts on its own, so never add a
   `dark:` variant to an element using it, and never reintroduce bare `gray-200`
-  borders: those drew bright white lines through every card list in dark mode,
-  the defect this token replaced.
-- **`--color-control-edge`** — `app/tag-pill.tsx` only, the one closed boundary
-  around an interactive control, and **not** a divider despite having borrowed
-  the divider token for a long time. That decides a contrast floor: a rule
-  _between_ items is decorative and exempt, whereas this edge is the only thing
-  identifying the control, whose text is `text-brand-muted` like the meta beside
-  it. On the hairline token it sat at 1.14:1 light and 1.47:1 dark; at 70% of
-  the muted ink it reads 3.15:1 and 4.37:1, clearing WCAG 1.4.11's 3:1. Two
-  literal values with a dark override, deliberately **not** `color-mix()` over
-  `var(--color-brand-muted)`: Tailwind flattens a `var()` inside `color-mix()`
-  into an `@supports` block and leaves a literal light-mode fallback outside it,
-  so an engine without `color-mix` paints the light edge on the dark page. The
-  cost is that retuning the muted ink does not carry here.
-  `lib/tag-pill.test.ts` recomputes both ratios from the stylesheet and asserts
-  the tokens stay distinct, so "deduplicating" them fails loudly.
+  borders. **`app/pagination.tsx` deliberately has no top border**: the listing
+  above it closes itself with `border-y`, so a rule here would land in the same
+  row and print a double line. Both files carry the note; the pager looking
+  unattached is not a missing border.
+- **`--color-control-edge`** — `app/tag-pill.tsx` only, and **not** a divider
+  despite having borrowed the divider token for a long time. It carries a
+  contrast floor (WCAG 1.4.11), which is why it is two literal values rather
+  than a `color-mix()`. `lib/tag-pill.test.ts` recomputes both ratios from the
+  stylesheet and asserts the tokens stay distinct, so "deduplicating" them fails
+  loudly.
 - **The `border-2` image frames** in `lib/rich-text.tsx` and
-  `lib/lightbox-image.tsx` are a heavier role and keep their own
-  `border-gray-300 dark:border-brand-dark/15` pairing. Leave them.
+  `lib/lightbox-image.tsx` are a heavier role with their own pairing. Leave them.
 
 ### One focus indicator, set in `@layer base`
 
-`app/globals.css` defines a single `:focus-visible` rule: 2px
-`var(--color-brand-crimson)` at 2px offset, inverting with the scheme. Do not
-add `focus-visible:ring-*` or `focus-visible:outline-*` to components — focus
+`app/globals.css` defines a single `:focus-visible` rule. Do not add
+`focus-visible:ring-*` or `focus-visible:outline-*` to components — focus
 looking wrong usually means a missing `focus-visible:outline-hidden` before a
-local override. Three exceptions, each with contrast reasoning in the file:
-
-- **The coloured header and footer bands.** Crimson on the header navy `#1E3A8A`
-  is about 1.07:1 and fails WCAG 1.4.11, so the masthead, nav links, search
-  icon, skip link and footer links use `focus-visible:outline-hidden` plus a
-  white ring. The `outline-hidden` is required: without it the base outline
-  stacks underneath and still fails.
-- **Code block scroll regions.** The `role="region"` elements in
-  `lib/rich-text.tsx` draw inward with `focus-visible:outline-offset-[-2px]`,
-  because their `overflow-hidden rounded-lg` parent clips anything outside. A
-  ring is not an alternative: `ring-*` compiles to `box-shadow`, clipped the
-  same way.
-- **The two fixed controls.** `app/back-to-top.tsx` and
-  `app/exit-preview-button.tsx` (draft mode only) use `focus:outline-hidden`
-  plus a white ring on a `surface-dark` offset, because a `position: fixed`
-  control floats over unknown ground. Once "simplified" and reverted; do not
-  propose it again.
+local override. Three exceptions, each with its contrast reasoning in the file:
+the coloured header and footer bands (where the `outline-hidden` is required,
+not decorative); the code-block scroll regions in `lib/rich-text.tsx`, which
+draw inward because their `overflow-hidden` parent clips anything outside, so a
+`ring-*` is not an alternative; and the two fixed controls, `app/back-to-top.tsx`
+and `app/exit-preview-button.tsx`. The last was once "simplified" and reverted;
+do not propose it again.
 
 ### One scroll offset, `scroll-padding-top` on `html`
 
-`app/globals.css` sets `scroll-padding-top: 5rem` on the scroll container. It
-replaced the per-heading `scroll-mt-*` utilities and is not additional to them.
+`app/globals.css` sets it on the scroll container, not the target, and it
+**replaced** the per-heading `scroll-mt-*` utilities rather than joining them —
+they are additive, so the two cannot coexist. The file explains why the
+container wins (it also covers the browser scrolling a _focused_ element into
+view, WCAG 2.2's 2.4.11, which `scroll-margin` does not).
 
-**The container, not the target**, because `scroll-margin` is consulted only
-when something scrolls _to_ a heading, while `scroll-padding` also covers the
-browser scrolling a _focused_ element into view — tabbing to a link below the
-fold used to land it under the 52px sticky header, WCAG 2.2's 2.4.11. Nothing
-can opt out, which is the point.
+`app/table-of-contents.tsx` reads this offset to place its activation line;
+`lib/toc-active.ts` carries the derivation, and `lib/toc-active.test.ts` fails
+on any `className` carrying that utility and asserts the fallback constant still
+matches the stylesheet.
 
-**They are additive, so they cannot coexist.** A `scroll-mt-24` alongside would
-park a heading at 176px rather than 80px, and `app/table-of-contents.tsx` reads
-this offset to place its activation line, so a clicked entry would highlight the
-section above it. `lib/toc-active.test.ts` fails on any `className` carrying
-that utility, and asserts `FALLBACK_BAND_TOP_PX` in `lib/toc-active.ts` still
-equals the stylesheet's `5rem` — `activationBandTop()` parses the computed
-`scrollPaddingTop` off `document.documentElement` rather than hardcoding it, and
-that constant covers only a computed `auto`.
-
-5rem leaves 28px under the 52px band. Recompute it — and the skip link's
-`focus:top-2`, which centres a 36px link in that band rather than being a nudge
-— if the header's `py-3` or the masthead's `text-lg` changes.
+Recompute the 5rem — and the skip link's `focus:top-2`, which centres a 36px
+link in the 52px band rather than being a nudge — if the header's `py-3` or the
+masthead's `text-lg` changes.
 
 ### The skip link's target is focusable
 
-`<main id="main" tabIndex={-1}>` in `app/layout.tsx`. Following a fragment moves
-the sequential-focus starting point in current Chrome and Firefox but never
-moves focus itself, and Safari has historically not moved it at all — leaving a
-reader who had just skipped tabbing from the top again. `-1` is reachable
-programmatically and never sequentially, so it adds no tab stop. Not redundant;
-it is the half the browsers disagree on.
+`<main id="main" tabIndex={-1}>` in `app/layout.tsx`, which explains why: a
+fragment moves the sequential-focus starting point in some browsers and not
+others, and `-1` adds no tab stop. Not redundant; it is the half the browsers
+disagree on.
 
 ### The lightbox trigger is gated on `mounted`, deliberately
 
@@ -184,29 +196,20 @@ server HTML carries no `<button>`. Do not "simplify" the conditional away.
 ### One announced link per card, and one description per figure
 
 Three doubled labels that each look like a missing one. All came out of the
-accessibility audit; do not restore any.
+accessibility audit; do not restore any. Each file carries its reasoning.
 
-- **A linked cover is hidden from assistive tech.** `app/cover-image.tsx` gives
-  its `<Link>` `aria-hidden="true"` and `tabIndex={-1}`, which move together —
-  `aria-hidden` on a focusable element is its own violation. Every call site
-  passing `slug` or `href` renders a heading link to the same destination beside
-  it, so naming the cover meant two adjacent links per card with identical
-  accessible names. The component therefore has **no `title` prop**; the
-  post-page cover passes neither prop, renders no link, and is unaffected. Focus
-  can no longer land inside the cover, so the focus-within zoom went with it;
-  the hover zoom stays.
-- **Footer column labels are `<p>`, not `<h4>`.** As headings they skipped a
-  level on every page whose deepest heading is an `h2`, which axe reports as
-  `heading-order`. Promoting them to `h2` instead would flip them to the display
-  face, since `app/globals.css` gives it to `h1`–`h3`. Both navs already carry
-  `aria-label="Browse"` / `"Colophon"`, so the landmarks stay named.
-- **An embedded figure's `alt` is empty whenever a caption renders.**
-  Contentful's `description` is one field doing two jobs, so emitting it as both
-  made every figure announce the same sentence twice — three times through the
-  lightbox, whose trigger also read "Enlarge image: <desc>".
-  `lib/lightbox-image.tsx` derives this from `caption` being present and falls
-  back to `alt` when there is none. The build-time warning for a missing
-  description still fires.
+- **A linked cover is hidden from assistive tech** — `app/cover-image.tsx`, whose
+  `aria-hidden` and `tabIndex={-1}` move together and which explains why it has
+  **no `title` prop**. Focus can no longer land inside the cover, so the
+  focus-within zoom went with it; the hover zoom stays.
+- **Footer column labels are `<p>`, not `<h4>`** — as headings they skipped a
+  level on every page whose deepest heading is an `h2` (axe `heading-order`),
+  and promoting them to `h2` would flip them to the display face. Both navs
+  carry `aria-label`, so the landmarks stay named.
+- **An embedded figure's `alt` is empty whenever a caption renders** —
+  Contentful's `description` is one field doing two jobs. `lib/lightbox-image.tsx`
+  derives this from `caption` being present. The build-time warning for a
+  missing description still fires.
 
 ### Breadcrumbs, and the one page without them
 
@@ -222,13 +225,13 @@ accessibility audit; do not restore any.
   pagination sets `basePath="/"`, so page 1 of this listing _is_ the home page.
   "Latest Posts" is a component of Home, not a level beneath it — which is why
   it renders as a section `h2` on `/` and becomes the `h1` only from page 2. A
-  `Home / Latest Posts` trail would either point both crumbs at `/`, or claim
-  page 2 is the section while page 1 sits at a different URL. By contrast
-  `/about`, `/privacy`, `/search` and `/archive` carry two crumbs, a parent and
-  the current page, which is the minimum rather than a shallow special case.
+  trail would either point both crumbs at `/`, or claim page 2 is the section
+  while page 1 sits at a different URL. By contrast `/about`, `/privacy`,
+  `/search` and `/archive` carry two crumbs, a parent and the current page,
+  which is the minimum rather than a shallow special case.
 - **Position is carried separately** by `app/page-context.tsx`, a muted "Page N
-  of M" that returns `null` on page 1 — which is why paginated category and
-  author chains stop at the section. Do not add page numbers to those chains.
+  of M" captioning the list — which is why paginated category, tag and author
+  chains stop at the section. Do not add page numbers to those chains.
 - Known and accepted: on `/categories/[slug]/page/[page]`, `aria-current="page"`
   sits on the section crumb, whose URL differs from the current one.
 - Archive rows carry two tab stops each, title and category, because the
@@ -242,36 +245,30 @@ A `Sidenote` entry embedded inline in a post's rich text, pulled through the
 is not a `Sidenote`, so a deleted entry degrades to nothing. Do not replace that
 guard with an error.
 
-**Every element stays phrasing content** — `<span>`, `<sup>`, `<input>`,
-`<label>`. `<details>`, `<summary>` and `<p>` each implicitly close an open
-paragraph in the HTML parser, splitting the sentence the note sits in and
-desyncing React's tree from the parsed DOM. That is why the toggle is not a
-native disclosure, and why the note's own paragraphs render as `.sidenote-para`
-spans blocked out in CSS. `display: inline` cannot undo a parse-time split.
+Four constraints. `lib/sidenote.tsx` argues the first two in full:
 
-**The toggle needs no JavaScript.** Below 2xl a visually hidden checkbox drives
-`:checked ~ .sidenote-body`, so `lib/sidenote.tsx` is a server component and the
-feature ships zero client JS. Do not restore a `<button>` with React state:
-notes are content, and that version left them unreadable with scripts off and
-before hydration. The checkbox stays visually hidden rather than `display: none`
-or it stops being focusable. `app/sidenote-enter-key.tsx` exists only because
-checkboxes ignore Enter — an enhancement, never a dependency. Accepted cost: the
-control announces as a checkbox rather than carrying `aria-expanded`, but below
-2xl the note is `display: none`, so a screen reader must operate the control to
-read it at all — working without JS is worth more than the better ARIA state.
+- **Every element stays phrasing content.** Do not introduce `<details>`,
+  `<summary>` or `<p>` — each closes an open paragraph in the parser, and
+  `display: inline` cannot undo a parse-time split. Hence the note's paragraphs
+  rendering as `.sidenote-para` spans, and hence the toggle not being a native
+  disclosure.
+- **The toggle needs no JavaScript**, so `lib/sidenote.tsx` is a server
+  component shipping zero client JS. Do not restore a `<button>` with React
+  state. The checkbox stays visually hidden rather than `display: none` or it
+  stops being focusable, and `app/sidenote-enter-key.tsx` is an enhancement,
+  never a dependency.
+- **All responsive display lives in the unlayered `.sidenote-*` rules** in
+  `app/globals.css`, never as Tailwind utilities in the component: unlayered
+  author styles outrank the `utilities` layer, so a `2xl:hidden` there silently
+  loses — that is what once showed both markers at 2xl.
+- **Numbering has two halves that must move together**: a document-order index
+  in `lib/rich-text.tsx` and a CSS counter in `app/globals.css`. Both `<sup>`s
+  are `aria-hidden` and the label takes its name from an `sr-only` "Note N" — do
+  not name a `sup` (double announcement) or drop the span (the control announces
+  as a bare "1").
 
-**All responsive display lives in the unlayered `.sidenote-*` rules** in
-`app/globals.css`, never as Tailwind utilities in the component: unlayered
-author styles outrank the `utilities` layer, so a `2xl:hidden` on a
-`.sidenote-*` element silently loses — that is what once showed both markers at
-2xl.
-
-Numbering has two halves that must move together: a document-order index in
-`lib/rich-text.tsx` and a CSS counter in `app/globals.css`, both advancing once
-per note. Both `<sup>`s are `aria-hidden` and the label takes its name from an
-`sr-only` "Note N" — do not name a `sup` (double announcement) or drop the span
-(the control announces as a bare "1"). `lib/rich-text.test.tsx` guards the
-phrasing-content rule, the absent `<button>` and the numbering.
+`lib/rich-text.test.tsx` guards the phrasing-content rule, the absent `<button>`
+and the numbering.
 
 ### Cross-document view transitions are CSS-only, and names must stay unique
 
@@ -301,63 +298,50 @@ reader past the breadcrumb, the `h1` and the standfirst with nothing saying what
 page they are on. Section `id`s survive on the glossary so old anchors still
 land, but nothing generates them.
 
-- **Contentful's GraphQL cannot filter a collection on an `Array<Link>` field.**
-  There is no `where` for a multi-reference field, and the documented
-  `linkedFrom` workaround has no ordering, so neither reproduces `date_DESC`
-  (the REST CDA does support the filter). That constrains _how_ you fetch posts
-  for a tag, not whether a tag can have a page: `postsWithTag` in `lib/tags.ts`
-  filters the `getAllPosts` result in memory, and `generateStaticParams`
-  enumerates visible slugs from that same list.
-- **It takes the posts, it does not fetch them.** The routes need the sitewide
-  list anyway to test the slug against `MIN_POSTS_PER_TAG`, so a per-tag fetcher
-  wrapping `getAllPosts` — the removed `getPostsByTag` — issued a second
-  identical request per render, and `getAllPosts` is not `cache()`-wrapped, so
-  nothing collapsed them. Do not reintroduce one.
-- **A tag needs two posts to render anywhere.** `MIN_POSTS_PER_TAG` in
-  `lib/tags.ts` is read through the one `visibleTagSlugs` helper by every
-  surface, and they must stay on one helper. It gates three: the glossary, the
-  sitemap, and `/tags/[slug]`, which **404s** below the threshold. A test
-  asserts the surfaces agree.
+`lib/tags.ts` argues the data model — why `postsWithTag` filters in memory
+(Contentful's GraphQL cannot filter on an `Array<Link>` field, and `linkedFrom`
+has no ordering), and why `MIN_POSTS_PER_TAG` is two. What that leaves for here:
+
+- **It takes the posts, it does not fetch them.** A per-tag fetcher wrapping
+  `getAllPosts` — the removed `getPostsByTag` — issued a second identical
+  request per render, and `getAllPosts` is not `cache()`-wrapped, so nothing
+  collapsed them. Do not reintroduce one.
+- **Every surface reads the threshold through the one `visibleTagSlugs`
+  helper**, and they must stay on one helper. It gates three: the glossary, the
+  sitemap, and `/tags/[slug]`, which **404s** below it. A test asserts they
+  agree.
 - **`MoreStories` takes `visibleTags?: Set<string>`, not a boolean**, so pills
-  cannot be switched on without answering which tags have a live page — an
-  unfiltered pill can link to a 404. Compute the set from **all** posts:
-  category and author pages fetch only their own slice, and counting across a
-  slice hides tags the glossary shows. `getVisibleTagSlugs` in `lib/api.ts` does
-  that fetch for those pages; the home pages already hold `getAllPosts` and pass
-  `visibleTagSlugs(allPosts)` directly, since calling it twice is two requests.
-  A tag page passes the set **minus its own slug**, because a pill repeating the
-  tag every post on the page carries says nothing.
+  cannot be switched on without answering which tags have a live page. Compute
+  the set from **all** posts — category and author pages fetch only their own
+  slice, and counting across a slice hides tags the glossary shows.
+  `getVisibleTagSlugs` in `lib/api.ts` does that fetch for those pages; the home
+  pages already hold `getAllPosts` and pass `visibleTagSlugs(allPosts)`
+  directly. A tag page passes the set **minus its own slug**.
 - The glossary is `data-pagefind-ignore`: it repeats every post title once per
-  tag, and Pagefind would weight the repeats above the posts themselves — same
+  tag, so Pagefind would weight the repeats above the posts themselves — same
   reasoning as the table of contents.
 - Pills sit below the article body, not in the `xl`-and-up sidebar where they
   would vanish on the viewports most people read on. They also appear on listing
   cards on the home index and its pages and on category, author and tag pages —
-  not on the "Latest Posts" block at the foot of a post, which sits directly
+  **not** on the "Latest Posts" block at the foot of a post, which sits directly
   under that post's own tags and would say the same thing twice in one viewport.
-  `/search` never had the option; it renders Pagefind's client-side templates
-  and holds no tag data.
-- **Tag a post as part of publishing it.** Every published post carries at least
-  one today, so no card renders a gap. The first untagged publish is the first
-  ragged card.
+  `/search` renders Pagefind's client-side templates and holds no tag data.
+- **Tag a post as part of publishing it.** The first untagged publish is the
+  first ragged card.
 
 ### Browse-page copy is editable, site identity is not
 
 The standfirst and meta description on `/tags`, `/categories`, `/authors` and
-`/archive` come from a `browseIntro` entry keyed by route slug. All four pages
-therefore use `generateMetadata()` rather than a static `metadata` object, and
-`lib/page-metadata.ts` holds the one copy of what were four byte-identical
-metadata blocks. `getBrowseIntro` must be called with the same slug in
-`generateMetadata` and in the component — see the `cache()` section below. A
-missing entry degrades: the standfirst is omitted and the meta description falls
-back to `SITE_DESCRIPTION`, so a fork with an empty space renders a heading, not
-a 500.
+`/archive` come from a `browseIntro` entry keyed by route slug, so all four use
+`generateMetadata()` rather than a static `metadata` object and share
+`browsePageMetadata` in `lib/page-metadata.ts`. `getBrowseIntro` must be called
+with the same slug in `generateMetadata` and in the component — see the
+`cache()` section below. A missing entry degrades to a heading, not a 500.
 
 **`/archive` is deliberately different.** Its standfirst is generated from the
-data — post count and earliest month — and stays current on its own. The
-`browseIntro` field there is an _override_: leave it empty and the counter
-renders, which is why `standfirst` is optional on the content type and the
-seeded Archive entry has none. The override is all-or-nothing and untrimmed, so
+data — post count and earliest month — and the `browseIntro` field there is an
+_override_: leave it empty and the counter renders, which is why `standfirst` is
+optional on the content type. The override is all-or-nothing and untrimmed, so
 whitespace would suppress the counter and render an empty paragraph.
 
 Site-level constants stay in code. `SITE_TITLE` alone is read by fourteen files
@@ -368,15 +352,10 @@ than editing a standfirst; not the obvious next step.
 ### The OG card's font is guarded by a real render, not a hash
 
 `app/posts/[slug]/opengraph-image.font.test.tsx` renders the committed WOFF
-through `next/og` and asserts a PNG comes out. `next/og` vendors an **older
-Satori than the standalone `satori` package**, and that copy rejects OpenType
-layout tables the standalone one parses fine — a font can pass a hand check
-against `satori` and still throw `lookupType: 6 - substFormat: 2 is not yet
-supported` on every card in production, which is what sank an earlier display
-face whose `liga` feature carried a contextual lookup. **Any font check must
-import from `next/og`, never from `satori`.** A hash pin is weaker: it catches a
-swapped file without saying whether the new one renders. The sample string's
-`fi` and `ffl` pairs are deliberate, since `liga` is where that lookup lived.
+through `next/og` and asserts a PNG comes out, and explains why that beats a
+hash pin. The rule it enforces: **any font check must import from `next/og`,
+never from `satori`** — the vendored Satori is older and rejects layout tables
+the standalone package parses fine, which is what sank an earlier display face.
 
 ### Other reviewed items, intentionally left as-is
 
@@ -402,9 +381,8 @@ swapped file without saying whether the new one renders. The sample string's
 - CI actions are pinned to major tags (`@v4`), not commit SHAs — accepted as low
   risk because they are first-party.
 - `package.json` pins **postcss** `^8.5.23` and **sharp** `^0.35.3` through
-  `overrides`, clearing advisories in copies `next` bundles and does not update
-  (16.2.12 ships postcss 8.4.31 and pins `sharp ^0.34.5`; no release fixes
-  either). With the uuid override below they are the only reason `npm audit` has no high
+  `overrides`, clearing advisories in copies `next` bundles and does not update.
+  With the uuid override below they are the only reason `npm audit` has no high
   findings — do not remove them to "let next manage its own deps", and re-check
   them on every `next` bump, since an override silently pins a dependency the
   parent may have moved past. Forcing sharp is safe because `next.config.js`
@@ -427,7 +405,7 @@ swapped file without saying whether the new one renders. The sample string's
 so Preflight puts it on `<body>`; Tailwind generates the three utilities from
 those tokens. **Nothing in a component names a family** — that is what kept the
 last three swaps to a handful of lines. `--font-ui` resolves to the same family
-as `--font-display` by choice, and keeps its own token so handing UI back to a
+as `--font-display` by choice and keeps its own token, so handing UI back to a
 face of its own stays one line; do not deduplicate them. There is no `font-sans`
 utility any more — that class now silently does nothing.
 
@@ -452,22 +430,26 @@ utility any more — that class now silently does nothing.
 
 `app/global-error.tsx` is deliberately excluded: it replaces the root layout and
 renders its own `<html>` without the font variables, so `font-ui` there would
-resolve to an undefined custom property and style nothing. The two sidebar
-labels, table of contents and "Explore with AI", must stay identical in face,
-size and tracking — they sit one above the other in the same column, so any
-difference reads as an accident.
+resolve to an undefined custom property. The two sidebar labels, table of
+contents and "Explore with AI", must stay identical in face, size and tracking —
+they sit one above the other in the same column.
 
-A replacement display face has to clear three bars. It must hold the
-**grotesque-against-serif contrast**: the face before this one was a
-transitional serif like Literata, so at heading sizes an h2 dissolved into the
-paragraph under it. Its **`opsz` axis must reach roughly 45pt**, what headings
-hit at `lg:text-6xl`, or it clamps and the browser scales a text master, which
-reads flat — Bricolage runs 12–96, Literata 7–72. And the body face must keep a
-**true italic**, which is why the `italic` classes on `<em>` and the figure
-captions in `lib/rich-text.tsx` and `lib/lightbox-image.tsx` stay; Bricolage is
-roman only. Bricolage's `wdth` axis (75–100) is deliberately not requested — it
-costs bytes and nothing reaches for it, but it is why this face suits the de-DE
-work, where a long compound can narrow instead of dropping a size step.
+**A replacement display face has to clear three bars**, and this is the only
+place they are written down:
+
+- **Grotesque-against-serif contrast.** The face before this one was a
+  transitional serif like Literata, so at heading sizes an h2 dissolved into the
+  paragraph under it.
+- **An `opsz` axis reaching roughly 45pt**, what headings hit at `lg:text-6xl`,
+  or it clamps and the browser scales a text master, which reads flat —
+  Bricolage runs 12–96, Literata 7–72.
+- **A body face keeping a true italic**, which is why the `italic` classes on
+  `<em>` and the figure captions in `lib/rich-text.tsx` and
+  `lib/lightbox-image.tsx` stay; Bricolage is roman only.
+
+Bricolage's `wdth` axis (75–100) is deliberately not requested — it costs bytes
+and nothing reaches for it, but it is why this face suits the de-DE work, where
+a long compound can narrow instead of dropping a size step.
 
 ### The prose column is never measured in `ch`
 
@@ -481,7 +463,7 @@ resizes on any body-face swap — Inter's zero is 0.6309em against Literata's
 
 ### Two h1 treatments, chosen by column width
 
-Full-width browsing and content pages (home, posts, archive, categories,
+Full-width browsing and content pages (home, posts, archive, categories, tags,
 authors, pagination) use the full ramp:
 `text-4xl leading-tight md:text-5xl lg:text-6xl`. Narrow document pages in a
 `max-w-2xl` column (about, privacy, search) cap at `mb-6 text-4xl md:text-5xl`,
@@ -489,6 +471,44 @@ no `leading-tight` — a 6xl heading in a 42rem measure looks enormous despite
 identical classes, and that mismatch is the tell. Any new page picks the
 treatment matching its column, not the nearest existing h1. The same
 `max-w-5xl` versus `max-w-2xl` split governs breadcrumb placement.
+
+### The six taxonomy listings share one shell
+
+Category, tag and author pages — each paginated and not — render through
+`app/taxonomy-listing.tsx`, which owns the container, breadcrumb, listing, pager
+and empty state. `lib/paginate.ts` owns the page arithmetic and `listingMetadata`
+in `lib/page-metadata.ts` owns the Open Graph and Twitter blocks, which ten
+pages each carried a copy of.
+
+Two things are deliberately **not** absorbed into the shell, both argued in
+`app/taxonomy-listing.tsx`: the `<header>` is `children` (it is where all six
+genuinely differ, and reassembling it centrally costs a conditional per
+difference), and the fetch strategy stays in the route (category and author
+pages issue `Promise.all([posts, visibleTags])`; tag pages read `getAllPosts`
+once and derive everything from it). Do not unify either.
+
+**The header is identical on page 1 and on later pages**, and carries nothing
+navigational: the same heading ramp, the same portrait size on an author page,
+and the standfirst — a category or tag description, an author bio — on every
+page rather than page 1 only. Author pages had drifted here, carrying a 112px
+portrait and a bio on page 1 against an 80px portrait and no bio on later ones;
+a reader arriving on page 3 from a search result got a thinner page than the
+same listing's first. Do not reintroduce a per-page variation without a reason
+written down.
+
+**Page position captions the list, not the heading.** `app/page-context.tsx`
+renders between the header and the posts, and `app/taxonomy-listing.tsx` renders
+it rather than any route passing it in — the component already holds both
+numbers, and PageContext returns `null` on page 1, so no route decides whether
+its own page counts as paginated. Do not move it back into the header: position
+describes the list, and in the header it split the heading from its standfirst
+and landed under the portrait on author pages instead of under the heading it
+referred to.
+
+`emptyMessage` is omitted by the routes where empty is unreachable, so leaving
+it out asserts that rather than quietly rendering an empty list. `lib/paginate.ts`
+also backs the home index and is free of `next/navigation` on purpose: a route's
+404 and redirect decisions are control flow and belong visible in the route.
 
 ### Every rich-text hyperlink goes through `lib/rich-text-link.tsx`
 
@@ -521,52 +541,41 @@ forking this repo into their own space, not a mirror of the live space. Do not
 
 Six fetchers in `lib/api.ts` are wrapped in React's `cache()`: `getPost`,
 `getPostAndMorePosts`, `getBrowseIntro`, `getTagBySlug`, `getCategoryBySlug` and
-`getAuthorBySlug`. Next only memoises `GET` and `fetchGraphQL` issues `POST`, so
-without this every route reading the same entity in both `generateMetadata` and
-its page component fetched it twice.
+`getAuthorBySlug`. Next only memoises `GET` and `fetchGraphQL` issues `POST`;
+the file explains the rest.
 
+The rule that is easy to break from outside those functions:
 **`generateMetadata` must call the same function the page calls, with the same
 arguments** — `cache()` dedupes identical calls, not equivalent ones. On
-`/posts/[slug]` both call `getPostAndMorePosts`; switching the metadata pass
-back to the slimmer `getPost` looks like an optimisation and is the exact change
-that reintroduces the second request, because a smaller second query is still a
-second query. The four browse pages carry the same requirement for
-`getBrowseIntro`, so getting it wrong there costs four extra requests rather
-than one. Do not re-flag the duplicate fetch as a finding; it is fixed. Do not
-"simplify" a metadata call back to a narrower helper.
+`/posts/[slug]` both call `getPostAndMorePosts`, and switching the metadata pass
+back to the slimmer `getPost` looks like an optimisation while being the exact
+change that reintroduces the second request. The four browse pages carry the
+same requirement for `getBrowseIntro`. Do not re-flag the duplicate fetch as a
+finding; it is fixed. Do not "simplify" a metadata call back to a narrower
+helper.
 
 `getPost` stays correct where nothing else fetches the post in the same pass, as
 in `app/posts/[slug]/opengraph-image.tsx`, which renders in its own request and
 carries its own `generateStaticParams` — colocated metadata routes do not
-inherit the page's, and without one the card route was the only dynamic non-API
-route on the site, paying for a query, a Satori render and a cover fetch per
-scrape. The duplicate `getAllPosts` across the two files is the accepted cost,
-one listing query per build. Leave `dynamicParams` at its default `true`, so a
-post published through the webhook still gets a card on demand.
+inherit the page's. The duplicate `getAllPosts` across those two files is the
+accepted cost. Leave `dynamicParams` at its default `true`, so a post published
+through the webhook still gets a card on demand.
 
 ### Every unbounded collection query pages, and must keep selecting `total`
 
-Contentful returns at most 100 items and puts the real count only in `total`. A
-query asking for neither took the first 100 and said nothing — the worst shape a
-limit can have, because the 101st post would drop out of the sitemap, the feed,
-the archive, the tag glossary, the home pagination and `generateStaticParams`
-simultaneously, with no error and no missing page in the build log.
-
-`fetchAllCollectionItems` in `lib/api.ts` pages through instead, and the seven
-unbounded fetchers go through it: `getAllPosts`, `getAllPages`, `getAllTags`,
-`getAllCategories`, `getAllAuthors`, `getPostsByCategory`, `getPostsByAuthor`.
-Below 100 items it is exactly one request — the loop exits on the first pass.
+`fetchAllCollectionItems` in `lib/api.ts` pages through Contentful's 100-item
+ceiling, and argues why a query asking for neither a limit nor `total` is the
+worst shape a limit can have. Seven unbounded fetchers go through it:
+`getAllPosts`, `getAllPages`, `getAllTags`, `getAllCategories`, `getAllAuthors`,
+`getPostsByCategory`, `getPostsByAuthor`.
 
 **A query handed to it must accept `$limit: Int!` and `$skip: Int!`, pass both
-to the collection, and select `total` beside `items`.** Drop `total` and there
-is nothing to page against: the first response silently becomes the whole
-result, the bug this replaced. A new list query belongs here too.
+to the collection, and select `total` beside `items`.** Drop `total` and the
+first response silently becomes the whole result — the bug this replaced. A new
+list query belongs here too.
 
 The page size stays at Contentful's own 100 rather than the documented 1000
-maximum: a bigger page means fewer round-trips but a higher per-query complexity
-score, and CI has no credentials to check the complexity budget — the same
-reason the fixtures guard cannot compare field validations. Raise it only
-against a real measurement. Deliberately **not** paged:
+maximum; raise it only against a real measurement. Deliberately **not** paged:
 `getRecentPostsByCategory`, capped on purpose to tease a few posts, and every
 single-entry fetcher on `limit: 1`.
 
@@ -672,29 +681,26 @@ leaves no trace in the codebase and survives no project rebuild:
   **Production** → **Branch Tracking**, not Settings → Git.
 - **Ignored Build Step is "Only build production"** (Settings → **Build and
   Deployment**), so PR pushes report as cancelled rather than building. Leave
-  it: with no preview deployments being created it has nothing to catch, but it
-  still guards the production path and costs nothing.
+  it: it guards the production path and costs nothing.
 - **Preview → Branch Tracking is disabled** (Settings → **Environments** →
-  **Preview**). Off rather than narrowed, because Preview is a catch-all that
-  cannot be scoped to a branch: with `demo` taken by Production its selector is
-  greyed out at "All unassigned branches", so the toggle is the only lever. Left
-  enabled it created a `demo-site` deployment for every push to `main` and every
-  PR branch, which the Ignored Build Step then cancelled — those burn no build
-  minutes but are real deployment objects, and the cap is on deployments.
-  Nothing was lost: no such preview was ever usable, the environment has no
-  domains, and a one-off preview is still reachable with `vercel deploy`. **A
-  missing `Preview – demo-site` check is the expected state.**
+  **Preview**). Off rather than narrowed, because Preview cannot be scoped to a
+  branch: with `demo` taken by Production its selector is greyed out at "All
+  unassigned branches", so the toggle is the only lever. Left enabled it created
+  a `demo-site` deployment for every push to `main` and every PR branch — those
+  burn no build minutes but are real deployment objects, and the cap is on
+  deployments. Nothing was lost; a one-off preview is still reachable with
+  `vercel deploy`. **A missing `Preview – demo-site` check is the expected
+  state.**
 
 `demo` is protected by its own GitHub ruleset, `demo branch protection`
 (id 20204826), with exactly two rules: `deletion` and `non_fast_forward`.
 **Deliberately not `pull_request`** — both routes onto this branch push directly
-(the manual push below and `.github/workflows/sync-demo.yml` with
-`GITHUB_TOKEN`), so requiring a PR would protect the branch by making it
-unmaintainable. Copying `main`'s ruleset across is the obvious wrong move. The
-two rules that are there close the two ways it can actually be damaged: deleting
-it breaks demo-site's Production branch tracking, and `non_fast_forward` moves
-an invariant the sync workflow can only assert in a shell script onto the
-server. A genuine fast-forward is unaffected.
+(the manual push below and `.github/workflows/sync-demo.yml`), so requiring a PR
+would protect the branch by making it unmaintainable; copying `main`'s ruleset
+across is the obvious wrong move. The two rules close the two ways it can
+actually be damaged: deleting it breaks demo-site's Production branch tracking,
+and `non_fast_forward` moves an invariant the sync workflow can only assert in a
+shell script onto the server.
 
 Refresh the demo deliberately, when the template has changed in a way worth
 showing:
@@ -712,79 +718,51 @@ a day's worth inside an hour.
 
 ### What the guards catch, and what they cannot
 
-Three suites carry the invariants above. Every check in them has already caught
-a real defect: do not weaken one to make a change pass.
+Four suites carry the invariants above, and each file's header explains what it
+checks and why. Every check has already caught a real defect: do not weaken one
+to make a change pass. What matters here is what they **cannot** do, because
+each gap has already let a defect through:
 
-**`lib/contentful-fixtures.test.ts`** — the export ships every content type the
-queries reference through `... on X`; every field a fragment selects exists on
-that type; each type carries `publishedVersion` and an editor interface; seed
-entries only use types the export ships; no embed dangles; and
-`contentful/seed.json` still deep-equals what the generator emits. It **cannot**
-compare a field's _validations_ against the live space, because CI has no
-Contentful credentials — a language added to the live Code Block took a
-fortnight to reach the export, with every test passing throughout. Keeping the
-export in step after a schema edit is manual; the guards will not remind you.
-
-**`app/a11y.test.tsx`** runs axe-core over the real components composed inside
-the real `RootLayout` — the shipped header, footer, skip link and landmarks, not
-a fixture approximating them. It uses `renderToReadableStream`, since
-`renderToStaticMarkup` resolves neither the async layout nor the `CoverImage`
-nested in it. Beyond axe's own rules (chiefly `heading-order`) it checks
-contiguous heading levels, a captioned figure describing itself once, and
-**duplicate announcements** — two links inside `<main>` sharing both a
-destination and an accessible name, which axe does not implement and which was
-every listing card announcing one post twice. Scoped to `<main>` on purpose: the
-header and footer both link to `/categories` as "Categories", ordinary chrome.
-`color-contrast` and `target-size` are disabled and cannot be otherwise here —
-both need a layout engine, and jsdom computes no boxes and applies no
-stylesheet, so axe would report a false pass; contrast is covered better by
-`lib/tag-pill.test.ts` recomputing the ratios from the tokens. A finding that
-needs real layout needs a browser. The mocks (`next/font/google`,
-`next/headers`, the Vercel analytics pair, `lib/blur`) exist because each
-reaches the network or the request scope at module load.
-
-**`lib/docs-consistency.test.ts`** is the prose analogue — documentation is
-otherwise the only artefact here with no verification path — and it checks the
-**names** of things: every `npm run <script>` named in CLAUDE.md or README.md
-exists in `package.json`; every repo-relative path either doc backticks exists
-on disk; the CI-gate sentence below names every command
-`.github/workflows/ci.yml` runs; and `SITE_REPO_URL`, README.md and
-`public/llms.txt` agree on the repository URL, with no pre-rename
-`nextjs-blog-draft-mode` left on `github.com`. That last one exists because
-GitHub **redirects** the old URL, so a missed reference keeps working and stays
-wrong indefinitely; README.md line 5 is the deliberate exception, linking
-Vercel's upstream _template_ at their own URL, which is why the check is scoped
-to `github.com`. It **cannot verify a claim** — a sentence can name a real file
-and describe it wrongly, and only a reader catches that.
+- **`lib/contentful-fixtures.test.ts`** cannot compare a field's _validations_
+  against the live space — CI has no Contentful credentials. A language added to
+  the live Code Block took a fortnight to reach the export with every test
+  passing throughout. Keeping the export in step after a schema edit is manual.
+- **`app/a11y.test.tsx`** cannot check `color-contrast` or `target-size`, and
+  cannot be made to: both need a layout engine, and jsdom computes no boxes and
+  applies no stylesheet, so axe would report a false pass. Contrast is covered
+  instead by `lib/tag-pill.test.ts` recomputing ratios from the stylesheet. A
+  finding that needs real layout needs a browser. Note it runs axe over the real
+  components inside the real `RootLayout`, and adds a **duplicate
+  announcement** check axe does not implement — two links inside `<main>`
+  sharing a destination and an accessible name — scoped to `<main>` because the
+  header and footer both link to `/categories` as "Categories".
+- **`lib/paginate.test.ts`** covers the page arithmetic the six taxonomy routes
+  and the home index share, including that every item lands on exactly one page.
+  It says nothing about what those pages then render.
+- **`lib/docs-consistency.test.ts`** checks only the **names** of things —
+  scripts, paths, the CI-gate sentence, the repo URL. It **cannot verify a
+  claim**: a sentence can name a real file and describe it wrongly, and only a
+  reader catches that. This document's accuracy is unguarded.
 
 ### Documentation is excluded from Tailwind's source scanning
 
 `app/globals.css` carries `@source not "../CLAUDE.md"` and the same for
-`README.md`. Tailwind v4 detects sources automatically — every file `.gitignore`
-does not exclude is scanned for class-name candidates, markdown included — so a
-utility merely **named** in prose is generated as though a component used it.
-Not hypothetical: this file's own sentence about `scroll-mt-*` was emitting that
-rule into production after every component using it had been removed.
+`README.md`, and explains why: a utility merely **named** in prose is generated
+as though a component used it.
 
-The exclusions work and do not solve the whole problem. Two categories remain,
-and only one is worth acting on:
+The exclusions work and do not solve the whole problem, because `app/` and
+`lib/` are scanned and cannot be excluded. Two categories remain, and only one
+is worth acting on:
 
-- **A literal class name in a source comment.** `app/` and `lib/` are scanned
-  and cannot be excluded, so a comment naming a real utility regenerates it.
-  That is why the notes in `app/globals.css` and `lib/toc-active.test.ts` say
-  "the utility" instead of spelling it, and why a test there asserts the literal
+- **Never name a literal utility in a source comment** — it regenerates the
+  rule. Hence the notes in `app/globals.css` and `lib/toc-active.test.ts` saying
+  "the utility" instead of spelling it, and the test there asserting the literal
   appears nowhere under `app/` or `lib/`, assembling its needle at runtime so
-  the assertion is not itself the offence. Worth fixing: a class name is not
-  prose.
-- **Ordinary English that happens to be a utility name.** `.collapse`,
-  `.invisible`, `.static` and `.text-wrap` ship because comments contain those
-  words; `.resize` ships because `app/table-of-contents.tsx` calls
-  `addEventListener("resize", …)`, which is real code. **Do not chase these** —
-  contorting comments or code to avoid English is a far worse trade than a few
-  dozen bytes, and the scanner cannot be taught the difference.
-
-So: exclude pure-prose files, because it is free; never name a literal utility
-in a source comment; leave the incidental matches alone.
+  the assertion is not itself the offence.
+- **Leave ordinary English alone.** `.collapse`, `.invisible`, `.static` and
+  `.text-wrap` ship because comments contain those words; `.resize` ships
+  because `app/table-of-contents.tsx` calls `addEventListener("resize", …)`.
+  Contorting code to avoid English is a far worse trade than a few dozen bytes.
 
 **A caution on verifying this.** Compiling `app/globals.css` locally through
 `@tailwindcss/postcss` reports every one of these as absent, including the two

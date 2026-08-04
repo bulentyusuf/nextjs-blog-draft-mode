@@ -12,6 +12,7 @@ import Pagination from "./pagination";
 import { getAllPosts } from "@/lib/api";
 import { visibleTagSlugs } from "@/lib/tags";
 import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
+import { totalPagesFor } from "@/lib/paginate";
 import { createCoverNamer } from "@/lib/view-transition-name";
 
 export const metadata: Metadata = {
@@ -118,7 +119,7 @@ export default async function Page() {
   // Hero counts toward the page budget, so page 1 shows the hero plus
   // (POSTS_PER_PAGE - 1) cards.
   const morePosts = allPosts.slice(1, POSTS_PER_PAGE);
-  const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
+  const totalPages = totalPagesFor(allPosts.length);
 
   // One name allocator for the whole page so the hero and the cards below can
   // never emit the same cover-{slug} twice (a duplicate would invalidate the

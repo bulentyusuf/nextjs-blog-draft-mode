@@ -63,7 +63,13 @@ function PostPreview({
 
   if (variant === "list") {
     return (
-      <article className="grid grid-cols-1 gap-5 py-10 first:pt-0 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start md:py-12 md:first:pt-0">
+      // Symmetric vertical padding on every item, the first included. It once
+      // dropped its top padding, because the list had no rule above the first
+      // item and the gap would have been dead space under the heading. The list
+      // draws that rule now, so the exception would press the first cover image
+      // flat against it while every other rule in the run breathes. Do not
+      // restore it without also taking the border off the container.
+      <article className="grid grid-cols-1 gap-5 py-10 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start md:py-12">
         {coverImage && (
           <div>
             <CoverImage
@@ -160,9 +166,22 @@ export default function MoreStories({
   // and would hide tags the glossary shows.
   visibleTags?: Set<string>;
 }) {
+  // The list closes itself. divide-y rules between items left the first one
+  // with nothing above it, so a listing began mid-air and only ended because
+  // the pager happened to draw a rule above itself — which meant a single-page
+  // listing, where the pager renders nothing, was open at both ends.
+  //
+  // border-y here puts the same hairline above the first item and below the
+  // last, so the whole run reads as one evenly ruled block on every page and
+  // owns its own edges. The pager no longer draws that closing rule; it keeps
+  // its top padding and sits below this one. Do not give it a border again, or
+  // the two land in the same row and print a double line.
+  //
+  // Deliberately list-only. The grid variant is a teaser block on the post
+  // page, not a listing, and has no rules between its cells to continue.
   const container =
     variant === "list"
-      ? "flex flex-col divide-y divide-hairline"
+      ? "flex flex-col divide-y divide-hairline border-y border-hairline"
       : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32";
 
   // When the section renders its own h2 heading, post titles sit one level
