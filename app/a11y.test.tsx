@@ -181,6 +181,41 @@ const embed = (nodeType: string, id: string) => ({
   data: { target: { sys: { id } } },
   content: [],
 });
+const cell = (nodeType: string, value: string) => ({
+  nodeType,
+  data: {},
+  content: [para(text(value))],
+});
+const row = (...cells: unknown[]) => ({
+  nodeType: BLOCKS.TABLE_ROW,
+  data: {},
+  content: cells,
+});
+const table = (...rows: unknown[]) => ({
+  nodeType: BLOCKS.TABLE,
+  data: {},
+  content: rows,
+});
+
+// Three columns, one of them ("Updated") mixing digits and text, exercising
+// a table with a header row and more than one body row.
+const bodyTable = table(
+  row(
+    cell(BLOCKS.TABLE_HEADER_CELL, "Category"),
+    cell(BLOCKS.TABLE_HEADER_CELL, "Posts"),
+    cell(BLOCKS.TABLE_HEADER_CELL, "Updated"),
+  ),
+  row(
+    cell(BLOCKS.TABLE_CELL, "Design"),
+    cell(BLOCKS.TABLE_CELL, "12"),
+    cell(BLOCKS.TABLE_CELL, "3"),
+  ),
+  row(
+    cell(BLOCKS.TABLE_CELL, "Retro"),
+    cell(BLOCKS.TABLE_CELL, "4"),
+    cell(BLOCKS.TABLE_CELL, "TBD"),
+  ),
+);
 
 const bodyDoc = {
   nodeType: BLOCKS.DOCUMENT,
@@ -194,6 +229,7 @@ const bodyDoc = {
     embed(BLOCKS.EMBEDDED_ASSET, "img1"),
     embed(BLOCKS.EMBEDDED_ENTRY, "code1"),
     embed(BLOCKS.EMBEDDED_ENTRY, "prompt1"),
+    bodyTable,
     h2("Second section"),
     para(text("Closing copy.")),
   ],
@@ -362,6 +398,39 @@ describe("post page", () => {
       if (!img) continue;
       const caption = figure.querySelector("figcaption")?.textContent?.trim();
       if (caption) expect(img.getAttribute("alt")).toBe("");
+    }
+  });
+
+  it("gives every header cell a column scope", async () => {
+    await render();
+    const headerCells = document.querySelectorAll("table th");
+    expect(headerCells.length).toBeGreaterThan(0);
+    for (const th of headerCells) {
+      expect(th.getAttribute("scope")).toBe("col");
+    }
+  });
+
+  it("exposes the scroll container as a focusable, named region", async () => {
+    await render();
+    const region = getByRole(document.body, "region", { name: "Table" });
+    expect(region.getAttribute("tabindex")).toBe("0");
+    expect(region.querySelector("table")).not.toBeNull();
+  });
+
+  it("aligns every cell start, header included", async () => {
+    // Per-cell numeric inference made the header disagree with its own
+    // column by construction ("Posts" isn't a number, its digits are) — every
+    // value in a real table is a single digit anyway, so there's nothing for
+    // right-alignment to buy. All cells are start-aligned, uniformly.
+    await render();
+    const cells = [
+      ...document.querySelectorAll("table th"),
+      ...document.querySelectorAll("table td"),
+    ];
+    expect(cells.length).toBeGreaterThan(0);
+    for (const cell of cells) {
+      expect(cell.classList.contains("text-start")).toBe(true);
+      expect(cell.classList.contains("text-end")).toBe(false);
     }
   });
 });

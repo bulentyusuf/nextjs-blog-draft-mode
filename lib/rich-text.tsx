@@ -203,6 +203,55 @@ export function RichText({
           {children}
         </blockquote>
       ),
+      [BLOCKS.TABLE]: (_node: Block | Inline, children: ReactNode) => (
+        // Horizontal scroll rather than reflow: a table narrower than its
+        // content is unreadable, and Contentful gives no column hints to
+        // restructure from. tabIndex makes the scroll container reachable by
+        // keyboard (2.1.1); a focusable scroll region needs a role and an
+        // accessible name or a screen reader announces an unlabelled stop.
+        // Two nested wrappers: overflow-hidden on the outer element clips the
+        // header fill to the rounded corners, overflow-x-auto on the inner one
+        // scrolls — one element can't do both without losing the radius.
+        <div className="not-prose my-8 overflow-hidden rounded-lg border border-table-edge">
+          <div
+            className="overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-label="Table"
+          >
+            <table className="w-full border-collapse text-[0.9em]">
+              <tbody>{children}</tbody>
+            </table>
+          </div>
+        </div>
+      ),
+      [BLOCKS.TABLE_ROW]: (_node: Block | Inline, children: ReactNode) => (
+        // last:border-b-0 so the final row's rule does not sit a hair inside
+        // the container's own bottom edge and read as a double line. The
+        // header row's own <tr> picks this rule up too, but border-collapse
+        // resolves a shared edge in favour of the cell-level border, so the
+        // header's stronger border-table-edge wins there, not a doubled line.
+        <tr className="border-b border-table-rule last:border-b-0">
+          {children}
+        </tr>
+      ),
+      [BLOCKS.TABLE_HEADER_CELL]: (
+        _node: Block | Inline,
+        children: ReactNode,
+      ) => (
+        // scope="col" is not emitted by the default renderer. Contentful's
+        // table model only produces header cells in the first row, so col is
+        // always correct here.
+        <th
+          scope="col"
+          className="border-b border-table-edge bg-table-header px-3 py-2 text-start font-semibold"
+        >
+          {children}
+        </th>
+      ),
+      [BLOCKS.TABLE_CELL]: (_node: Block | Inline, children: ReactNode) => (
+        <td className="px-3 py-2 text-start align-top">{children}</td>
+      ),
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset
           id={(node as Block).data.target.sys.id}
