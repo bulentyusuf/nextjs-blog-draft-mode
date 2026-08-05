@@ -433,6 +433,22 @@ describe("post page", () => {
       expect(cell.classList.contains("text-end")).toBe(false);
     }
   });
+
+  it("shrinks a bare-number column but not a text one", async () => {
+    // w-full stretches the table to the full prose measure, and auto layout
+    // otherwise spreads that surplus across every column regardless of need —
+    // a single digit was landing in a column wide enough for a sentence.
+    // w-[1%] + whitespace-nowrap tells auto layout this column's minimum is
+    // its own content, freeing the surplus for columns that use it.
+    await render();
+    const cells = [...document.querySelectorAll("table td")];
+    const numericCell = cells.find((td) => td.textContent?.trim() === "12");
+    const textCell = cells.find((td) => td.textContent?.trim() === "Design");
+    expect(numericCell?.classList.contains("w-[1%]")).toBe(true);
+    expect(numericCell?.classList.contains("whitespace-nowrap")).toBe(true);
+    expect(textCell?.classList.contains("w-[1%]")).toBe(false);
+    expect(textCell?.classList.contains("whitespace-nowrap")).toBe(false);
+  });
 });
 
 describe("prompt block", () => {

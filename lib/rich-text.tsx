@@ -22,6 +22,22 @@ function headingText(node: Block | Inline): string {
     .join("");
 }
 
+// A table's w-full stretches to the full prose measure, and content-driven
+// auto layout then spreads that surplus across every column regardless of
+// need — a single digit in a "Posts" column was landing in a column wide
+// enough for a sentence. w-[1%] plus whitespace-nowrap is the standard fix
+// for auto table layout: it tells the column "your minimum is your own
+// content", freeing the surplus for columns that actually use it. This is
+// safe to infer per cell, unlike the alignment case it superficially
+// resembles: column width is the max across every cell in it regardless of
+// which ones ask to shrink, so a column mixing short and long values just
+// falls back to ordinary auto sizing — never a visible mismatch the way a
+// header disagreeing with its own column's alignment was.
+function isShortValue(node: Block | Inline): boolean {
+  const text = headingText(node).trim();
+  return text !== "" && /^\d+(\.\d+)?$/.test(text);
+}
+
 function RichTextAsset({
   id,
   assets,
@@ -236,7 +252,7 @@ export function RichText({
         </tr>
       ),
       [BLOCKS.TABLE_HEADER_CELL]: (
-        _node: Block | Inline,
+        node: Block | Inline,
         children: ReactNode,
       ) => (
         // scope="col" is not emitted by the default renderer. Contentful's
@@ -244,13 +260,21 @@ export function RichText({
         // always correct here.
         <th
           scope="col"
-          className="border-b border-table-edge bg-table-header px-3 py-2 text-start font-semibold"
+          className={`border-b border-table-edge bg-table-header px-3 py-3 text-start font-semibold ${
+            isShortValue(node) ? "w-[1%] whitespace-nowrap" : ""
+          }`}
         >
           {children}
         </th>
       ),
-      [BLOCKS.TABLE_CELL]: (_node: Block | Inline, children: ReactNode) => (
-        <td className="px-3 py-2 text-start align-top">{children}</td>
+      [BLOCKS.TABLE_CELL]: (node: Block | Inline, children: ReactNode) => (
+        <td
+          className={`px-3 py-3 text-start align-top ${
+            isShortValue(node) ? "w-[1%] whitespace-nowrap" : ""
+          }`}
+        >
+          {children}
+        </td>
       ),
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset

@@ -466,17 +466,26 @@ html {
      raises prose to 1.125rem for Literata's x-height, and every em inside
      inherits it, so a single-line row was landing near 78px. Pinned here in em
      against the prose size so it still scales with user font settings, but at a
-     value chosen for this column rather than the plugin's. */
-  & :is(th, td) {
+     value chosen for this column rather than the plugin's.
+
+     :not(:where([class~="not-prose"] *)) is required, not decorative: without
+     it this is a plain descendant selector, so it reaches straight through the
+     table renderer's not-prose wrapper by DOM structure and outranks the
+     renderer's own px-3/py-* utility classes on specificity — a class selector
+     alone loses to a class selector plus two tag names. That silently pinned
+     every table's row height back to this rule regardless of what the
+     renderer asked for, which is exactly the bug this guard exists to close;
+     see the same pattern on the :where(code) rule below. */
+  & :is(th, td):not(:where([class~="not-prose"] *)) {
     padding-block: 0.5em;
     padding-inline: 0.75em;
   }
 
-  & :is(th, td):first-child {
+  & :is(th, td):first-child:not(:where([class~="not-prose"] *)) {
     padding-inline-start: 0;
   }
 
-  & :is(th, td):last-child {
+  & :is(th, td):last-child:not(:where([class~="not-prose"] *)) {
     padding-inline-end: 0;
   }
 
