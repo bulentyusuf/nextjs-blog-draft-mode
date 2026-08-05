@@ -244,13 +244,13 @@ export function RichText({
         // always correct here.
         <th
           scope="col"
-          className="border-b border-table-edge bg-table-header px-3 py-2 text-start font-semibold"
+          className="border-b border-table-edge bg-table-header px-3 py-3 text-start font-semibold"
         >
           {children}
         </th>
       ),
       [BLOCKS.TABLE_CELL]: (_node: Block | Inline, children: ReactNode) => (
-        <td className="px-3 py-2 text-start align-top">{children}</td>
+        <td className="px-3 py-3 text-start align-top">{children}</td>
       ),
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset
