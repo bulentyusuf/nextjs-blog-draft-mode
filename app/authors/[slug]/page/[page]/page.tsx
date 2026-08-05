@@ -13,7 +13,12 @@ import {
 } from "@/lib/api";
 import { SITE_TITLE, SITE_URL } from "@/lib/constants";
 import { listingMetadata } from "@/lib/page-metadata";
-import { pageItems, pageRangeParams, totalPagesFor } from "@/lib/paginate";
+import {
+  pageItems,
+  pageRangeParams,
+  parsePageParam,
+  totalPagesFor,
+} from "@/lib/paginate";
 import { widont } from "@/lib/typography";
 
 export const dynamicParams = true;
@@ -39,6 +44,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { isEnabled } = await draftMode();
   const { slug, page } = await params;
+  // Metadata has to make the same judgement the component does, or a title and
+  // a canonical get built out of a segment that is about to 404.
+  if (parsePageParam(page) === null) {
+    return { title: "Page not found" };
+  }
+
   const author = await getAuthorBySlug(slug, isEnabled);
 
   if (!author) {
@@ -60,9 +71,9 @@ export default async function AuthorPaginatedPage({
 }) {
   const { isEnabled } = await draftMode();
   const { slug, page } = await params;
-  const pageNumber = Number(page);
+  const pageNumber = parsePageParam(page);
 
-  if (!Number.isInteger(pageNumber) || pageNumber < 1) {
+  if (pageNumber === null) {
     notFound();
   }
   // Page 1 has a single canonical home at /authors/<slug>.

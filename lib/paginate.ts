@@ -12,6 +12,27 @@
 import { POSTS_PER_PAGE } from "./constants";
 
 /**
+ * A `[page]` route segment as a page number, or null when it is not one.
+ *
+ * The four paginated routes each parsed this inline in their component and then
+ * did not parse it at all in `generateMetadata`, which built a title and a
+ * canonical out of the raw segment: `/page/abc` advertised
+ * `<link rel="canonical" href=".../page/abc">` on a URL the component was about
+ * to 404. Eight call sites, one predicate — the same argument the arithmetic
+ * below is here for.
+ *
+ * Deliberately the exact test those components already made, so metadata and
+ * render agree and nothing else changes. It is looser than the canonical form:
+ * `/page/2.0` and `/page/%202` still parse as 2 and still emit their own
+ * spelling as the canonical. Tightening that is a duplicate-URL decision, not
+ * this one.
+ */
+export function parsePageParam(page: string): number | null {
+  const pageNumber = Number(page);
+  return Number.isInteger(pageNumber) && pageNumber >= 1 ? pageNumber : null;
+}
+
+/**
  * How many pages a listing of `count` items spans.
  *
  * Never returns 0. An empty listing still has a page 1 to render its empty
