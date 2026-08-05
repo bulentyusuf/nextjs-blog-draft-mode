@@ -120,6 +120,29 @@
      contrast — the two roles diverge in dark mode. */
   --color-footer-bg: #241b1d;
 
+  /* Table treatment. Derived from the crimson token rather than the divider
+     hairline, whose light value is a cool grey on a warm cream page and sits
+     at 1.14:1, too weak to enclose. Three strengths — edge and header rule at
+     28% (1.63:1 light, 1.65:1 dark), row rules a step down at 18% (1.36:1,
+     1.34:1), header fill lightest at 12% because it is a field rather than a
+     line. Kept as color-mix so all three track the crimson token when it
+     lifts in dark mode. */
+  --color-table-edge: color-mix(
+    in srgb,
+    var(--color-brand-crimson) 28%,
+    transparent
+  );
+  --color-table-rule: color-mix(
+    in srgb,
+    var(--color-brand-crimson) 18%,
+    transparent
+  );
+  --color-table-header: color-mix(
+    in srgb,
+    var(--color-brand-crimson) 12%,
+    transparent
+  );
+
   --spacing-section: 4rem;
 }
 

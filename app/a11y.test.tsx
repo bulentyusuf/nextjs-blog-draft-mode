@@ -197,9 +197,8 @@ const table = (...rows: unknown[]) => ({
   content: rows,
 });
 
-// Three columns: Category (text), Posts (numeric throughout), Updated (mixed
-// — a number in one row, "TBD" in the other), so the fixture exercises both
-// the numeric-alignment case and the inference edge in one table.
+// Three columns, one of them ("Updated") mixing digits and text, exercising
+// a table with a header row and more than one body row.
 const bodyTable = table(
   row(
     cell(BLOCKS.TABLE_HEADER_CELL, "Category"),
@@ -418,27 +417,21 @@ describe("post page", () => {
     expect(region.querySelector("table")).not.toBeNull();
   });
 
-  it("right-aligns a genuinely numeric column, not a text one", async () => {
-    // "Posts" is numeric in every row of this fixture.
+  it("aligns every cell start, header included", async () => {
+    // Per-cell numeric inference made the header disagree with its own
+    // column by construction ("Posts" isn't a number, its digits are) — every
+    // value in a real table is a single digit anyway, so there's nothing for
+    // right-alignment to buy. All cells are start-aligned, uniformly.
     await render();
-    const cells = [...document.querySelectorAll("table td")];
-    const postsCell = cells.find((td) => td.textContent?.trim() === "12");
-    const categoryCell = cells.find(
-      (td) => td.textContent?.trim() === "Design",
-    );
-    expect(postsCell?.classList.contains("text-end")).toBe(true);
-    expect(categoryCell?.classList.contains("text-end")).toBe(false);
-  });
-
-  it("falls back to start-aligned for a column mixing text and numbers", async () => {
-    // "Updated" carries a number in one row and "TBD" in the other — the
-    // inference is per cell, so "TBD" must not be coerced end-aligned just
-    // because its column also holds a number.
-    await render();
-    const cells = [...document.querySelectorAll("table td")];
-    const tbdCell = cells.find((td) => td.textContent?.trim() === "TBD");
-    expect(tbdCell?.classList.contains("text-end")).toBe(false);
-    expect(tbdCell?.classList.contains("text-start")).toBe(true);
+    const cells = [
+      ...document.querySelectorAll("table th"),
+      ...document.querySelectorAll("table td"),
+    ];
+    expect(cells.length).toBeGreaterThan(0);
+    for (const cell of cells) {
+      expect(cell.classList.contains("text-start")).toBe(true);
+      expect(cell.classList.contains("text-end")).toBe(false);
+    }
   });
 });
 

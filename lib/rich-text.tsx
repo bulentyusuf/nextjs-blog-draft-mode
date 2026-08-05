@@ -22,15 +22,6 @@ function headingText(node: Block | Inline): string {
     .join("");
 }
 
-// A cell is numeric when every cell in its column is a bare number. Contentful
-// rich text carries no column metadata — the document is rows of cells — so
-// alignment has to be inferred from content. Anything else (mixed, empty, text)
-// falls back to start-aligned, which is the safe default for prose.
-function isNumericCell(node: Block | Inline): boolean {
-  const text = headingText(node).trim();
-  return text !== "" && /^\d+(\.\d+)?$/.test(text);
-}
-
 function RichTextAsset({
   id,
   assets,
@@ -216,27 +207,36 @@ export function RichText({
         // Horizontal scroll rather than reflow: a table narrower than its
         // content is unreadable, and Contentful gives no column hints to
         // restructure from. tabIndex makes the scroll container reachable by
-        // keyboard (2.1.1), and a scrollable region that takes focus needs an
-        // accessible name and a role, or a screen reader announces an unlabelled
-        // focus stop. role="region" + aria-label supplies both.
-        <div
-          className="not-prose my-8 overflow-x-auto"
-          tabIndex={0}
-          role="region"
-          aria-label="Table"
-        >
-          <table className="w-full border-collapse text-[0.9em]">
-            <tbody>{children}</tbody>
-          </table>
+        // keyboard (2.1.1); a focusable scroll region needs a role and an
+        // accessible name or a screen reader announces an unlabelled stop.
+        // Two nested wrappers: overflow-hidden on the outer element clips the
+        // header fill to the rounded corners, overflow-x-auto on the inner one
+        // scrolls — one element can't do both without losing the radius.
+        <div className="not-prose my-8 overflow-hidden rounded-lg border border-table-edge">
+          <div
+            className="overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-label="Table"
+          >
+            <table className="w-full border-collapse text-[0.9em]">
+              <tbody>{children}</tbody>
+            </table>
+          </div>
         </div>
       ),
       [BLOCKS.TABLE_ROW]: (_node: Block | Inline, children: ReactNode) => (
-        <tr className="border-b border-hairline/60 last:border-b-0">
+        // last:border-b-0 so the final row's rule does not sit a hair inside
+        // the container's own bottom edge and read as a double line. The
+        // header row's own <tr> picks this rule up too, but border-collapse
+        // resolves a shared edge in favour of the cell-level border, so the
+        // header's stronger border-table-edge wins there, not a doubled line.
+        <tr className="border-b border-table-rule last:border-b-0">
           {children}
         </tr>
       ),
       [BLOCKS.TABLE_HEADER_CELL]: (
-        node: Block | Inline,
+        _node: Block | Inline,
         children: ReactNode,
       ) => (
         // scope="col" is not emitted by the default renderer. Contentful's
@@ -244,21 +244,13 @@ export function RichText({
         // always correct here.
         <th
           scope="col"
-          className={`border-b border-hairline px-3 py-2 font-semibold first:ps-0 last:pe-0 ${
-            isNumericCell(node) ? "text-end" : "text-start"
-          }`}
+          className="border-b border-table-edge bg-table-header px-3 py-2 text-start font-semibold"
         >
           {children}
         </th>
       ),
-      [BLOCKS.TABLE_CELL]: (node: Block | Inline, children: ReactNode) => (
-        <td
-          className={`px-3 py-2 align-top first:ps-0 last:pe-0 ${
-            isNumericCell(node) ? "text-end tabular-nums" : "text-start"
-          }`}
-        >
-          {children}
-        </td>
+      [BLOCKS.TABLE_CELL]: (_node: Block | Inline, children: ReactNode) => (
+        <td className="px-3 py-2 text-start align-top">{children}</td>
       ),
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset
