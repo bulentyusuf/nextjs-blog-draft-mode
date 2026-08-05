@@ -540,24 +540,32 @@ export const getPostAndMorePosts = cache(
   },
 );
 
-export async function getPage(
-  slug: string,
-  preview = false,
-): Promise<Page | undefined> {
-  const entry = await fetchGraphQL<PageCollectionResponse>(
-    `query GetPage($slug: String!, $preview: Boolean) {
+// A CMS Page (about, privacy), body included.
+//
+// cache()-wrapped for the same reason getBrowseIntro is: both routes that use
+// it call it TWICE per render, once in generateMetadata and once in the
+// component. Next only memoises GET and fetchGraphQL issues POST, so without
+// this /about and /privacy each issued two identical requests — and this
+// fragment carries the whole page body, so it was the most expensive duplicate
+// on the site. The two calls must pass the same arguments, which is why both
+// resolve draftMode() first and pass the same SLUG constant.
+export const getPage = cache(
+  async (slug: string, preview = false): Promise<Page | undefined> => {
+    const entry = await fetchGraphQL<PageCollectionResponse>(
+      `query GetPage($slug: String!, $preview: Boolean) {
       pageCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
         items {
           ${PAGE_GRAPHQL_FIELDS}
         }
       }
     }`,
-    preview,
-    { slug, preview },
-  );
+      preview,
+      { slug, preview },
+    );
 
-  return entry?.data?.pageCollection?.items?.[0];
-}
+    return entry?.data?.pageCollection?.items?.[0];
+  },
+);
 
 export async function getAllPages(isDraftMode: boolean): Promise<PageMeta[]> {
   return fetchAllCollectionItems<PageMeta>(

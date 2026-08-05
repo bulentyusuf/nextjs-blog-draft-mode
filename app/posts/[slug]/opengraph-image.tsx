@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getAllPosts, getPost } from "@/lib/api";
 import { SITE_TITLE, SITE_AUTHOR } from "@/lib/constants";
+import { CONTENTFUL_IMAGE_HOST } from "@/lib/contentful-host";
 import { widont } from "@/lib/typography";
 
 // Branded Open Graph card generated per post at request time. This colocated
@@ -75,6 +76,45 @@ function cardTitle(title: string): string {
   return widont(clamped);
 }
 
+// The cover panel's source, host-checked before it is handed to Satori.
+//
+// The third server-side fetch of a CMS-supplied URL on the site, and it was the
+// only one not checking where the URL pointed — lib/blur.ts and
+// lib/contentful-image.tsx both do. It belongs in the same set for blur.ts's
+// reason rather than the loader's: Satori resolves an <img src> with a plain
+// fetch() and bakes the bytes it gets back into the PNG this route publishes,
+// so an off-host URL would make the build fetch an arbitrary address and serve
+// what came back as this post's social card. CSP does not apply — nothing here
+// is a browser.
+//
+// Realistically the entry would have to be a compromised CMS to hold one, which
+// is outside the stated threat model. This is the guard being consistent rather
+// than a live hole: two of three sites checking was drift, not a decision.
+//
+// An unusable URL degrades to the solid ink panel, the same branch a post with
+// no cover already takes.
+function coverPanelUrl(url: string | undefined): string | null {
+  if (!url) return null;
+  try {
+    // Contentful has historically returned protocol-relative asset URLs;
+    // normalised here exactly as lib/blur.ts does.
+    const parsed = new URL(url.startsWith("//") ? `https:${url}` : url);
+    if (parsed.hostname !== CONTENTFUL_IMAGE_HOST) return null;
+    // Requested at the panel's exact pixel size. The card output is a fixed
+    // 1200x630 PNG, so the panel is 480x630 at 1:1 and there is no DPR to
+    // serve. Asking for a wider derivative only makes Satori crop a second
+    // time.
+    parsed.searchParams.set("w", "480");
+    parsed.searchParams.set("h", "630");
+    parsed.searchParams.set("fit", "fill");
+    parsed.searchParams.set("fm", "jpg");
+    parsed.searchParams.set("q", "80");
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
 export default async function OpengraphImage({
   params,
 }: {
@@ -86,12 +126,7 @@ export default async function OpengraphImage({
 
   const title = post ? cardTitle(post.title) : SITE_TITLE;
   const author = post?.author?.name ?? SITE_AUTHOR;
-  // Requested at the panel's exact pixel size. The card output is a fixed
-  // 1200x630 PNG, so the panel is 480x630 at 1:1 and there is no DPR to serve.
-  // Asking for a wider derivative only makes Satori crop a second time.
-  const coverUrl = post?.coverImage
-    ? `${post.coverImage.url}?w=480&h=630&fit=fill&fm=jpg&q=80`
-    : null;
+  const coverUrl = coverPanelUrl(post?.coverImage?.url);
 
   return new ImageResponse(
     <div

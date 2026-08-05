@@ -1,8 +1,29 @@
 import { describe, expect, it } from "vitest";
 import { POSTS_PER_PAGE } from "./constants";
-import { pageItems, pageRangeParams, totalPagesFor } from "./paginate";
+import {
+  pageItems,
+  pageRangeParams,
+  parsePageParam,
+  totalPagesFor,
+} from "./paginate";
 
 const items = (n: number) => Array.from({ length: n }, (_, i) => i);
+
+describe("parsePageParam", () => {
+  it("accepts a page number", () => {
+    expect(parsePageParam("2")).toBe(2);
+    expect(parsePageParam("17")).toBe(17);
+  });
+
+  // The four paginated routes 404 on each of these. Before this helper their
+  // generateMetadata did not look, and built a title and a canonical out of the
+  // raw segment for a URL that was about to not exist.
+  it("rejects what the routes 404 on", () => {
+    for (const segment of ["abc", "", "0", "-1", "1.5", "NaN", "Infinity"]) {
+      expect(parsePageParam(segment)).toBeNull();
+    }
+  });
+});
 
 describe("totalPagesFor", () => {
   it("gives an empty listing one page to render its empty state on", () => {

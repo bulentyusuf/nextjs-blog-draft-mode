@@ -23,6 +23,14 @@ function getHighlighter() {
     highlighterPromise = createHighlighter({
       themes: [THEME],
       langs: [...LANGS],
+    }).catch((error) => {
+      // Clear the slot before rethrowing. Caching the rejected promise meant a
+      // single transient failure here poisoned every later post render for the
+      // life of the process — the module-scope memo would keep handing back the
+      // same rejection with nothing left to retry. Dropping it costs one repeat
+      // attempt and restores the next request's chance of succeeding.
+      highlighterPromise = null;
+      throw error;
     });
   }
   return highlighterPromise;

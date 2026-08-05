@@ -128,6 +128,24 @@ JS and cannot read CSS custom properties. Any change touches both files.
 Cropping is CSS-side (`object-cover`). The absence of Contentful's
 crop/focus/height params is a decision, not an omission.
 
+### A `priority` image is opaque in the server HTML, and that is the LCP fix
+
+`lib/contentful-image.tsx` starts its reveal state at `instant` when `priority`
+is set, so the LCP candidate never waits on hydration; the file carries the
+argument. Chromium's LCP algorithm skips fully transparent elements, so the
+`opacity-0` every image once shipped with meant the measured paint was the React
+commit rather than the (preloaded) bitmap's arrival, and `@media (scripting:
+none)` does not cover the pre-hydration window. Lazy body images keep the full
+pending → instant/fade machine, and `lib/contentful-image.test.tsx` asserts both
+halves. Do not collapse the branch back to one initial state.
+
+**A `sizes` value must stop growing where its container does.** `Container` is
+`max-w-5xl` with `px-5`, so content tops out at 984px, and a bare `vw` clause
+past that point buys a derivative one or two steps larger than anything on
+screen — the listing covers in `app/more-stories.tsx` and the thumbnails in
+`app/categories/page.tsx` each carry the arithmetic for their own track. The
+home and post hero covers are already capped in px and need nothing.
+
 ### Three border roles, and they are not interchangeable
 
 All three are defined and argued in `app/globals.css`.
@@ -480,6 +498,14 @@ and empty state. `lib/paginate.ts` owns the page arithmetic and `listingMetadata
 in `lib/page-metadata.ts` owns the Open Graph and Twitter blocks, which ten
 pages each carried a copy of.
 
+`lib/paginate.ts` also owns `parsePageParam`, and **both** halves of a paginated
+route read the `[page]` segment through it — the component, which 404s on null,
+and `generateMetadata`, which returns a not-found title. They were allowed to
+disagree once: the component 404'd on `/page/abc` while the metadata pass built
+a title and a canonical out of the raw segment. It stays deliberately as loose
+as the guard it replaced, so `/page/2.0` still resolves; tightening that is a
+duplicate-URL decision nobody has taken.
+
 Two things are deliberately **not** absorbed into the shell, both argued in
 `app/taxonomy-listing.tsx`: the `<header>` is `children` (it is where all six
 genuinely differ, and reassembling it centrally costs a conditional per
@@ -539,10 +565,13 @@ forking this repo into their own space, not a mirror of the live space. Do not
 
 ### Single-entry fetchers are `cache()`-wrapped on purpose
 
-Six fetchers in `lib/api.ts` are wrapped in React's `cache()`: `getPost`,
-`getPostAndMorePosts`, `getBrowseIntro`, `getTagBySlug`, `getCategoryBySlug` and
-`getAuthorBySlug`. Next only memoises `GET` and `fetchGraphQL` issues `POST`;
-the file explains the rest.
+**Every** single-entry fetcher in `lib/api.ts` is wrapped in React's `cache()`:
+`getPost`, `getPostAndMorePosts`, `getPage`, `getBrowseIntro`, `getTagBySlug`,
+`getCategoryBySlug` and `getAuthorBySlug`. Next only memoises `GET` and
+`fetchGraphQL` issues `POST`; the file explains the rest. `getPage` was the one
+exception for a long time and it was not a decision — `/about` and `/privacy`
+each issued two identical requests for the whole page body. A new single-entry
+fetcher joins the list; there is no case here for staying out of it.
 
 The rule that is easy to break from outside those functions:
 **`generateMetadata` must call the same function the page calls, with the same
@@ -550,9 +579,10 @@ arguments** — `cache()` dedupes identical calls, not equivalent ones. On
 `/posts/[slug]` both call `getPostAndMorePosts`, and switching the metadata pass
 back to the slimmer `getPost` looks like an optimisation while being the exact
 change that reintroduces the second request. The four browse pages carry the
-same requirement for `getBrowseIntro`. Do not re-flag the duplicate fetch as a
-finding; it is fixed. Do not "simplify" a metadata call back to a narrower
-helper.
+same requirement for `getBrowseIntro`, and `/about` and `/privacy` for `getPage`
+— both pass the same `SLUG` constant for exactly this reason. Do not re-flag the
+duplicate fetch as a finding; it is fixed. Do not "simplify" a metadata call
+back to a narrower helper.
 
 `getPost` stays correct where nothing else fetches the post in the same pass, as
 in `app/posts/[slug]/opengraph-image.tsx`, which renders in its own request and

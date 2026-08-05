@@ -45,8 +45,24 @@ export default function ContentfulImage({
   //   'pending' = not yet shown (blur underlay visible)
   //   'instant' = already complete at hydration (cached) -> show with no fade
   //   'fade'    = arrived over the network -> crossfade in
+  //
+  // A `priority` image starts at 'instant', so it ships opaque in the server
+  // HTML and never waits on JavaScript. That is not a tidy-up: 'pending' emits
+  // opacity-0, and Chromium's Largest Contentful Paint algorithm skips fully
+  // transparent elements, so the LCP candidate on every page that has one — the
+  // home hero, the post cover, the first card of a heroless listing — was not
+  // the moment its (preloaded) bitmap arrived but the moment React hydrated and
+  // flipped the class. On a slow device that is seconds later, and invisible
+  // from the code because the image genuinely did arrive early. `@media
+  // (scripting: none)` covers scripts-off but not the pre-hydration window,
+  // which is exactly where LCP lands.
+  //
+  // Nothing is lost visually. Before its bitmap arrives an <img> paints
+  // nothing, so the blur underlay still shows through; the only casualty is the
+  // fade, which is reveal theatre the LCP element should not be paying for.
+  // Lazy body images keep the whole state machine.
   const [reveal, setReveal] = useState<"pending" | "instant" | "fade">(
-    "pending",
+    props.priority ? "instant" : "pending",
   );
 
   return (

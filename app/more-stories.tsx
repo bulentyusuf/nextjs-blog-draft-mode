@@ -78,7 +78,15 @@ function PostPreview({
               priority={priority}
               hover
               transitionName={transitionName}
-              sizes="(max-width: 768px) 100vw, 40vw"
+              // Capped in px above the point the container stops growing.
+              // Container is max-w-5xl with px-5, so content tops out at 984px,
+              // and this grid is [2fr_3fr] with a 32px gap — the cover track is
+              // (984 - 32) * 2/5 = 381px and never widens again. A bare 40vw
+              // kept growing with the viewport: at 1440px it claimed 576px, so
+              // at DPR 2 the browser asked for 1152 and took the 1200
+              // derivative where 828 covers it. The vw clause stays for the
+              // fluid range below 1024px, where it is accurate.
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 40vw, 381px"
             />
           </div>
         )}

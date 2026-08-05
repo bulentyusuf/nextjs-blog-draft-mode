@@ -10,7 +10,12 @@ import PageContext from "../../page-context";
 import { getAllPosts } from "@/lib/api";
 import { visibleTagSlugs } from "@/lib/tags";
 import { SITE_URL } from "@/lib/constants";
-import { pageItems, pageRangeParams, totalPagesFor } from "@/lib/paginate";
+import {
+  pageItems,
+  pageRangeParams,
+  parsePageParam,
+  totalPagesFor,
+} from "@/lib/paginate";
 
 // Render pages added after build on demand; out-of-range pages 404 below.
 export const dynamicParams = true;
@@ -27,6 +32,12 @@ export async function generateMetadata({
   params: Promise<{ page: string }>;
 }): Promise<Metadata> {
   const { page } = await params;
+  // The component 404s on anything that is not a page number, so metadata has
+  // to agree — otherwise a title and a canonical are built out of the raw
+  // segment for a URL that is about to not exist.
+  if (parsePageParam(page) === null) {
+    return { title: "Page not found" };
+  }
   return {
     title: `Latest Posts, Page ${page}`,
     alternates: { canonical: `${SITE_URL}/page/${page}` },
@@ -39,9 +50,9 @@ export default async function IndexPage({
   params: Promise<{ page: string }>;
 }) {
   const { page } = await params;
-  const pageNumber = Number(page);
+  const pageNumber = parsePageParam(page);
 
-  if (!Number.isInteger(pageNumber) || pageNumber < 1) {
+  if (pageNumber === null) {
     notFound();
   }
   // Page 1 has a single canonical home at "/".

@@ -23,6 +23,7 @@ import {
   DEFAULT_OG_LOCALE,
 } from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
+import { createCoverNamer } from "@/lib/view-transition-name";
 import { widont } from "@/lib/typography";
 
 export async function generateStaticParams() {
@@ -159,6 +160,14 @@ export default async function PostPage({
   const headings = extractHeadings(post.content.json);
   const highlighted = await highlightCodeBlocks(post.content);
 
+  // One name allocator for the whole page, as on the home index. The cover
+  // below and the "Read Next" cards draw from it, so a duplicate cover-{slug}
+  // — which invalidates the entire view transition — is impossible by
+  // construction. It was previously impossible only because the related-post
+  // queries filter with slug_not_in: [$slug], which put a page-level invariant
+  // two files away in a GraphQL where clause.
+  const coverName = createCoverNamer();
+
   const crumbs: Crumb[] = post.category
     ? [
         { label: "Home", href: "/" },
@@ -201,7 +210,7 @@ export default async function PostPage({
               url={post.coverImage.url}
               wide
               priority
-              transitionName={`cover-${post.slug}`}
+              transitionName={coverName(post.slug)}
               sizes="(max-width: 768px) 100vw, 1024px"
             />
           </div>
@@ -306,7 +315,12 @@ export default async function PostPage({
         </div>
       </article>
       <div className="mt-section">
-        <MoreStories morePosts={morePosts} variant="grid" heading="Read Next" />
+        <MoreStories
+          morePosts={morePosts}
+          variant="grid"
+          heading="Read Next"
+          coverName={coverName}
+        />
       </div>
     </Container>
   );
