@@ -84,6 +84,129 @@ describe("footer small print clears AAA in both schemes", () => {
   });
 });
 
+describe("the browse band carries solid white text", () => {
+  // Read through schemeTokens rather than hardcoded, so a retune of the band
+  // is caught here rather than shipping a band nobody rechecked. 16.60:1 light
+  // and 12.61:1 dark today, which is the whole reason the band's text is
+  // solid: white/85 on the old header navy was 7.93 light and 6.38 dark, and
+  // the second of those missed this floor.
+  it.each(["light", "dark"] as const)("%s", (scheme) => {
+    const token = scheme === "light" ? light : dark;
+    expect(
+      contrast({ r: 255, g: 255, b: 255, a: 1 }, token("--color-brand-band")),
+    ).toBeGreaterThanOrEqual(MIN_AAA_TEXT);
+  });
+});
+
+describe("the browse band stays a visible block in both schemes", () => {
+  // Not a text pairing, so the bar is deliberately far below any WCAG
+  // threshold: this asserts only that the masthead is still a block rather
+  // than bare page. It is the assertion the first cut of this feature would
+  // have failed — the band shipped with no dark override, which left the
+  // light #0F1C42 sitting at 1.13:1 on the #17110F dark page, invisible, with
+  // a large h1 apparently floating on nothing. Every text-contrast assertion
+  // above stayed green throughout, because white on the band was never the
+  // problem.
+  //
+  // 15.33:1 light and 1.48:1 dark today. The band is darker than the page in
+  // light and lighter than it in dark; only the separation is asserted,
+  // because which side it sits on is the page's doing, not the band's.
+  const MIN_BLOCK_SEPARATION = 1.4;
+
+  it.each(["light", "dark"] as const)("%s", (scheme) => {
+    const token = scheme === "light" ? light : dark;
+    expect(
+      contrast(token("--color-brand-band"), token("--color-brand-bg")),
+    ).toBeGreaterThanOrEqual(MIN_BLOCK_SEPARATION);
+  });
+});
+
+describe("the browse band's markup", () => {
+  const band = read("app/page-band.tsx");
+
+  it("sets a text colour on its root, so children inherit it", () => {
+    // The gap every other guard here missed. <body> carries text-brand-dark,
+    // so an element placed in the band without a colour class of its own
+    // inherits BODY INK, not white — which is how the h1 shipped at 1.01:1 on
+    // the light band. Nothing above caught it: the contrast assertions all ask
+    // what white does on the band, and white was never what the h1 rendered in.
+    //
+    // It is invisible in dark mode, too, because there brand-dark IS the warm
+    // off-white ink and lands at 10.61:1. A reviewer on a dark-themed machine
+    // sees a perfectly good masthead.
+    //
+    // Asserted on the ROOT specifically: inheritance is what makes this hold
+    // for markup that does not exist yet, which per-element classes cannot.
+    const root = /<div className="bg-brand-band([^"]*)"/.exec(band);
+    expect(root).not.toBeNull();
+    expect(root![1]).toContain("text-white");
+  });
+
+  it("uses no translucent white anywhere inside", () => {
+    // Same regex the footer block above scrapes out of layout.tsx, pointed at
+    // the band. Without this, a `text-white/70` added to the dek later passes
+    // every check — the footer block only ever reads layout.tsx — and the AAA
+    // floor quietly breaks across ten routes.
+    expect([...band.matchAll(/text-white\/(\d+)/g)]).toEqual([]);
+  });
+});
+
+describe("no route paints body ink inside the band", () => {
+  // The companion to the root-inherits-white check above, from the other end.
+  // Inheritance only holds while nothing overrides it, and an explicit
+  // text-brand-muted beats it — which is what left the category and tag
+  // standfirsts dark on navy after the h1 was fixed. Same failure, same
+  // invisibility in dark mode, one component further out.
+  //
+  // brand-muted and brand-dark are body ink; brand-crimson is 1.35:1 on this
+  // navy. None of the three has an on-band treatment, so the band's contents
+  // name no colour at all and take white from the root.
+  const INK = /text-brand-(muted|dark|crimson)/;
+
+  // Targeted at the two elements that go in the band rather than at the
+  // wrapper around them. Slicing on `<PageBand>` was the obvious approach and
+  // it broke the moment the routes started passing their header through
+  // BrowsePage instead — a guard that silently stops covering anything when
+  // markup is recomposed is worse than none. An h1 and the standfirst
+  // signature survive that; they are what the band actually renders.
+  const STANDFIRST = /className="[^"]*max-w-3xl text-lg leading-relaxed[^"]*"/g;
+  const HEADING = /<h1 className="([^"]*)"/g;
+
+  it.each([
+    "app/categories/page.tsx",
+    "app/tags/page.tsx",
+    "app/authors/page.tsx",
+    "app/archive/page.tsx",
+    "app/categories/[slug]/page.tsx",
+    "app/categories/[slug]/page/[page]/page.tsx",
+    "app/tags/[slug]/page.tsx",
+    "app/tags/[slug]/page/[page]/page.tsx",
+    // The author routes used to be exempt: their bio rendered on cream through
+    // an `intro` slot and was legitimately muted. It is in the band now, so
+    // they are held to the same rule as the other eight.
+    "app/authors/[slug]/page.tsx",
+    "app/authors/[slug]/page/[page]/page.tsx",
+  ])("%s", (file) => {
+    const source = read(file);
+    const inBand = [
+      ...(source.match(STANDFIRST) ?? []),
+      ...(source.match(HEADING) ?? []),
+    ];
+    // Non-vacuous: every one of these routes renders an h1 in the band, so an
+    // empty list means the signatures stopped matching, not that the page is
+    // clean.
+    expect(inBand.length).toBeGreaterThan(0);
+    for (const className of inBand) expect(className).not.toMatch(INK);
+  });
+
+  it("the position caption names no colour either", () => {
+    // It moved into the band and lost its text-brand-muted. Same failure as the
+    // standfirsts if it comes back — body ink on navy, invisible in light mode
+    // and fine in dark.
+    expect(read("app/page-context.tsx")).not.toMatch(INK);
+  });
+});
+
 describe("literal hexes track the tokens they duplicate", () => {
   // Channel comparison, not string: globals.css writes tokens lowercase and the
   // TSX literals are uppercase, so === on the text fails for the wrong reason.

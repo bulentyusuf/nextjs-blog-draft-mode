@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { draftMode } from "next/headers";
 import ContentfulImage from "@/lib/contentful-image";
-import Container from "../container";
-import Breadcrumb, { type Crumb } from "../breadcrumb";
+import BrowsePage from "../browse-page";
+import { type Crumb } from "../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import { getAllAuthors, getAuthorBySlug, getBrowseIntro } from "@/lib/api";
 import { browsePageMetadata } from "@/lib/page-metadata";
@@ -38,19 +38,21 @@ export default async function AuthorsPage() {
   const crumbs: Crumb[] = [{ label: "Home", href: "/" }, { label: "Authors" }];
 
   return (
-    <Container>
-      <Breadcrumb items={crumbs} />
-      <header className="mb-6 md:mb-8">
-        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
-          Authors
-        </h1>
-        {intro?.standfirst && (
-          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            {intro.standfirst}
-          </p>
-        )}
-      </header>
-
+    <BrowsePage
+      crumbs={crumbs}
+      header={
+        <>
+          <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
+            Authors
+          </h1>
+          {intro?.standfirst && (
+            <p className="max-w-3xl text-lg leading-relaxed text-pretty">
+              {intro.standfirst}
+            </p>
+          )}
+        </>
+      }
+    >
       <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
         {authors.map((author) => (
           <article
@@ -94,6 +96,6 @@ export default async function AuthorsPage() {
           </article>
         ))}
       </div>
-    </Container>
+    </BrowsePage>
   );
 }

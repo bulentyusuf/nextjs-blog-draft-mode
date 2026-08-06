@@ -3,8 +3,8 @@ import Link from "next/link";
 import { draftMode } from "next/headers";
 import CoverImage from "../cover-image";
 import DateComponent from "../date";
-import Container from "../container";
-import Breadcrumb, { type Crumb } from "../breadcrumb";
+import BrowsePage from "../browse-page";
+import { type Crumb } from "../breadcrumb";
 import {
   getAllCategories,
   getRecentPostsByCategory,
@@ -57,19 +57,21 @@ export default async function CategoriesPage() {
   ];
 
   return (
-    <Container>
-      <Breadcrumb items={crumbs} />
-      <header className="mb-6 md:mb-8">
-        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
-          Categories
-        </h1>
-        {intro?.standfirst && (
-          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            {intro.standfirst}
-          </p>
-        )}
-      </header>
-
+    <BrowsePage
+      crumbs={crumbs}
+      header={
+        <>
+          <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
+            Categories
+          </h1>
+          {intro?.standfirst && (
+            <p className="max-w-3xl text-lg leading-relaxed text-pretty">
+              {intro.standfirst}
+            </p>
+          )}
+        </>
+      }
+    >
       {/* One card per category, two across on desktop, stacked on mobile. */}
       <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
         {categories.map((category, index) => {
@@ -77,13 +79,28 @@ export default async function CategoriesPage() {
           const thumbUrl = category.thumbnail?.url;
           return (
             <article key={category.slug} className="flex flex-col min-w-0">
+              <h2 className="mb-3 text-2xl leading-snug md:text-3xl text-pretty">
+                <Link
+                  href={`/categories/${category.slug}`}
+                  className="hover:text-brand-crimson transition-colors duration-200"
+                >
+                  {widont(category.name)}
+                </Link>
+              </h2>
+
+              {category.description && (
+                <p className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
+                  {category.description}
+                </p>
+              )}
+
               {thumbUrl && (
                 // Thumbnails render through the shared CoverImage so they inherit
                 // its frame (border, blur underlay, shadow, aspect) rather than
                 // duplicating it. Deliberately NOT previews of the cover morph:
                 // no `hover` zoom, no `transitionName`, no `wide`. alt is empty
-                // and the thumbnail's link is hidden from assistive tech, so
-                // the h2 below is the single announced link to this category.
+                // and the thumbnail's link is hidden from assistive tech, so the
+                // h2 above it is the single announced link to this category.
                 <div className="mb-5">
                   <CoverImage
                     url={thumbUrl}
@@ -98,21 +115,6 @@ export default async function CategoriesPage() {
                     priority={index === 0}
                   />
                 </div>
-              )}
-
-              <h2 className="mb-3 text-2xl leading-snug md:text-3xl text-pretty">
-                <Link
-                  href={`/categories/${category.slug}`}
-                  className="hover:text-brand-crimson transition-colors duration-200"
-                >
-                  {widont(category.name)}
-                </Link>
-              </h2>
-
-              {category.description && (
-                <p className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
-                  {category.description}
-                </p>
               )}
 
               {posts.length > 0 ? (
@@ -151,6 +153,6 @@ export default async function CategoriesPage() {
           );
         })}
       </div>
-    </Container>
+    </BrowsePage>
   );
 }

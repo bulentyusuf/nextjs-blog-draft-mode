@@ -96,22 +96,32 @@ export default async function AuthorPage({
       emptyMessage="No posts by this author yet."
       jsonLd={jsonLd}
     >
-      <div className="flex items-center gap-6 mb-3">
+      <div className="flex items-center gap-6">
         {author.picture?.url && (
+          // ring-white/25 so a dark-toned portrait keeps an edge against the
+          // band instead of bleeding into it. Decorative and non-textual, so
+          // the band's solid-white text rule does not reach it.
           <ContentfulImage
             alt=""
-            className="rounded-full object-cover h-28 w-28 shrink-0"
+            className="rounded-full object-cover h-28 w-28 shrink-0 ring-2 ring-white/25"
             width={112}
             height={112}
             src={author.picture.url}
           />
         )}
+        {/* Stays on the current ramp rather than the raised one the section
+            fronts take: this h1 sits beside a 112px portrait, and the raised
+            ramp overflows the row on a long name at md. */}
         <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
           {widont(author.name)}
         </h1>
       </div>
       {author.bio && (
-        <div className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+        // In the band, like every other browse page's standfirst. The one thing
+        // RichText needs on navy is a link treatment: brand-crimson is 1.35:1
+        // here, so .band-prose in globals.css underlines them and lets them
+        // take the band's white. Emphasis and lists need nothing.
+        <div className="band-prose mt-4 max-w-3xl text-lg leading-relaxed text-pretty">
           <RichText content={author.bio} headings={[]} />
         </div>
       )}

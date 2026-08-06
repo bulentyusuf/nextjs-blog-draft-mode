@@ -116,7 +116,7 @@ export default async function AuthorPaginatedPage({
         {author.picture?.url && (
           <ContentfulImage
             alt=""
-            className="rounded-full object-cover h-28 w-28 shrink-0"
+            className="rounded-full object-cover h-28 w-28 shrink-0 ring-2 ring-white/25"
             width={112}
             height={112}
             src={author.picture.url}
@@ -127,7 +127,11 @@ export default async function AuthorPaginatedPage({
         </h1>
       </div>
       {author.bio && (
-        <div className="mt-4 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+        // In the band, like every other browse page's standfirst. The one thing
+        // RichText needs on navy is a link treatment: brand-crimson is 1.35:1
+        // here, so .band-prose in globals.css underlines them and lets them
+        // take the band's white. Emphasis and lists need nothing.
+        <div className="band-prose mt-4 max-w-3xl text-lg leading-relaxed text-pretty">
           <RichText content={author.bio} headings={[]} />
         </div>
       )}

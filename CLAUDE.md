@@ -154,9 +154,10 @@ All three are defined and argued in `app/globals.css`.
   the edges a listing draws around itself. It inverts on its own, so never add a
   `dark:` variant to an element using it, and never reintroduce bare `gray-200`
   borders. **`app/pagination.tsx` deliberately has no top border**: the listing
-  above it closes itself with `border-y`, so a rule here would land in the same
-  row and print a double line. Both files carry the note; the pager looking
-  unattached is not a missing border.
+  above it closes itself, so a rule here would land in the same row and print a
+  double line. Both files carry the note; the pager looking unattached is not a
+  missing border. The listing's **closing** rule is the load-bearing half —
+  banded pages drop the opening one via `openRule={false}`, never the other.
 - **`--color-control-edge`** — `app/tag-pill.tsx` only, and **not** a divider
   despite having borrowed the divider token for a long time. It carries a
   contrast floor (WCAG 1.4.11), which is why it is two literal values rather
@@ -489,6 +490,97 @@ no `leading-tight` — a 6xl heading in a 42rem measure looks enormous despite
 identical classes, and that mismatch is the tell. Any new page picks the
 treatment matching its column, not the nearest existing h1. The same
 `max-w-5xl` versus `max-w-2xl` split governs breadcrumb placement.
+
+### Browsing pages wear a navy band; reading pages stay on cream
+
+**`app/browse-page.tsx` is the one shell all ten browsing routes render
+through** — the four section fronts and the six taxonomy listings, the latter
+via `app/taxonomy-listing.tsx`. It owns the band, the container and the whole
+vertical rhythm, and it exists because those ten pages were previously two
+implementations of one design: every tuning pass had to be applied twice, and
+the half that got missed drifted. The raised `h1` ramp and the standfirst
+colour each shipped to one half only. Do not add an eleventh browse route that
+assembles `PageBand` and `Container` itself.
+
+`app/page-band.tsx` is the full-bleed masthead inside that shell, holding the
+breadcrumb, `h1` and standfirst. The component carries the argument; what
+matters here is the axis: **it tracks what the reader is doing, not how deep
+they have clicked**, so a navy-to-cream step never happens without also
+crossing from a list into an article. Home, post, about, privacy and search are
+deliberately unbanded, each for a reason set out in the component or its
+neighbours.
+
+- **`--color-brand-band` is lifted in dark mode, and what stays fixed is the
+  step between the bar and the band** — 1.60:1 light, 1.55:1 dark, band darker
+  in both. The page is what changes which side of the band it sits on, so two
+  blues that both moved have not drifted. It is _not_ derived from
+  `--color-brand-header`; the two need different amounts of lift, a 52px bar
+  more than a 200px block. This began life with no dark override at all, which
+  left the light value at 1.13:1 on the dark page — no block, a large `h1`
+  floating on bare page — so `lib/palette-contrast.test.ts` now asserts the
+  band separates from `--color-brand-bg` in **both** schemes, at a deliberately
+  sub-WCAG 1.4:1. That is a block-visibility guard, not a text one, and it is
+  the check every text-contrast assertion missed.
+- **Every text node inside the band is solid white, inherited from the band's
+  root.** `<body>` carries `text-brand-dark`, so anything placed in the band
+  without a colour class of its own inherits body ink — which is how the `h1`
+  first shipped at 1.01:1 on the light band while looking perfect in dark,
+  where `brand-dark` _is_ the off-white ink. A test asserts the root sets the
+  colour; a second forbids `text-white/N`. Hierarchy comes from size and face,
+  not tint. The crumb separators and the author portrait's ring are the only
+  translucent whites and are decorative, so 1.4.3 does not reach them.
+- **No crimson inside the band**, which is why `app/breadcrumb.tsx` takes a
+  `tone` prop rather than being forked: crimson on this navy is 1.35:1. Dark
+  tone is also the one place a breadcrumb overrides the sitewide focus ring,
+  the same exception the header and footer bands take.
+- **An author's bio renders in the band**, like every other browse page's
+  standfirst. The only thing `RichText` needs on navy is a link treatment:
+  crimson is 1.35:1 here, so `.band-prose` in `app/globals.css` underlines
+  links and lets them take the band's white. That is WCAG 1.4.1, not taste —
+  with the accent unavailable, colour cannot be the only thing marking a link.
+  An earlier `intro` prop routed the bio onto cream to dodge this; it is gone.
+- **The position caption is the band's last line**, not a line floating above
+  the list. `app/page-context.tsx` carries why, including why the reasoning
+  that once moved it out of the header no longer applies.
+- **Nothing inside the band names a text colour**, so everything takes white
+  from the root. A `text-brand-muted` on a standfirst beats that inheritance
+  and is the same defect one component further out — it left the category and
+  tag standfirsts dark on navy. A test slices the `<PageBand>` block on the
+  four section fronts and asserts the whole file on the four category/tag
+  routes. The two author routes are exempt: their bio is muted, on cream, via
+  `intro`.
+- **Nothing inside the band changes the type or the spacing the page already
+  had** — the `h1` ramp stays `text-4xl md:text-5xl lg:text-6xl`, the `h1`
+  keeps its `mb-3`, and both breadcrumb tones keep `mb-4`. The band's `py-8` is
+  `Container`'s own `pt-8`, so the trail and heading land at identical
+  coordinates on **every** page, banded or not. That matters more than it
+  looks: a browse page and a post are one navigation apart, and these are full
+  document loads with a view transition over them, so a difference is animated
+  rather than merely present. A tighter band and a tighter dark-tone trail both
+  looked better in isolation and together shifted the heading 16px on every
+  browse-to-post step. `lib/listing-rhythm.test.ts` holds both. The band
+  contributes exactly one thing, its `py-6 md:py-8` inset. A raised ramp and an
+  extra `mt` on the header were both tried and reverted: the brief was a colour
+  band behind the existing masthead, and resizing the headings was scope nobody
+  asked for.
+- **The listing under a band drops its opening rule and nothing else**
+  (`openRule={false}` on `MoreStories`). The item padding stays, and the page
+  contributes no gap of its own instead (`contentOwnsLeading` on
+  `BrowsePage`) — every item is `py-10 md:py-12`, which is how far a hairline
+  sits from the cover below it, and the band's bottom edge plays a hairline's
+  part. Zeroing that padding made the first post hug the band while every post
+  after it breathed; adding the gap on top made band-to-first-post disagree
+  with post-to-post. One or the other, never both. The closing rule stays, and
+  `app/pagination.tsx` still has no top border of its own.
+- **The vertical rhythm is set in one place**, `app/browse-page.tsx`: a
+  symmetric `py-8` band inset, then a `pt-6` cream gap on the section fronts
+  only, because the band has already drawn the boundary and
+  that space only has to stop the content touching it. The two are different
+  colours so they cannot collapse into one number, but they add up in the eye —
+  at `pb-14` against a `pt-10` they summed to 96px and read as a hole. Note
+  `Container`'s `className` appends rather than merges, so a spacing override
+  can only ever _increase_ a value; that is why its top inset is the `topPad`
+  prop and not a class.
 
 ### The six taxonomy listings share one shell
 

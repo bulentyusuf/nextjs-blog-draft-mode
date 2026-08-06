@@ -1,0 +1,76 @@
+import { describe, it, expect } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
+
+// The band-to-list rhythm, which has broken twice and is invisible to every
+// other suite: jsdom applies no stylesheet, so nothing here can be caught by
+// rendering. Both halves are asserted as source text instead.
+//
+// The rule: whatever sits above a list item — a hairline between items, or the
+// bottom edge of the masthead band — belongs the same distance from the cover
+// below it. That distance is the item's own top padding. So exactly one of the
+// two may contribute space, never both and never neither.
+
+const ROOT = path.join(__dirname, "..");
+const read = (p: string) => fs.readFileSync(path.join(ROOT, p), "utf8");
+
+describe("a banded listing keeps its item padding", () => {
+  const moreStories = read("app/more-stories.tsx");
+
+  it("never zeroes the first item's top padding", () => {
+    // The regression: dropping this made the first post hug the band while
+    // every post after it kept a full item's padding under its hairline.
+    expect(moreStories).not.toMatch(/first-child\]:pt-0/);
+  });
+
+  it("still sets a symmetric item padding to be the rhythm", () => {
+    // Non-vacuous: the check above passes trivially if the padding is gone.
+    expect(moreStories).toMatch(/py-10[^"]*md:py-12/);
+  });
+
+  it("drops only the rule when openRule is false", () => {
+    const ternary = /openRule \? "border-y" : "([^"]*)"/.exec(moreStories);
+    expect(ternary).not.toBeNull();
+    expect(ternary![1].trim()).toBe("border-b");
+  });
+});
+
+describe("a banded page sits on the same grid as an unbanded one", () => {
+  // A browse page and a post are one navigation apart, and that navigation is
+  // a full document load with a view transition over it — so a difference here
+  // is animated, not just present. Both values below were tightened on the
+  // band alone at one point, which moved the heading 16px on desktop and 20px
+  // on mobile every time the reader crossed between the two.
+
+  it("the band's inset equals Container's default top padding", () => {
+    const band = /px-5 (py-\d+)/.exec(read("app/page-band.tsx"));
+    expect(band).not.toBeNull();
+    const container = /default: "(pt-\d+)"/.exec(read("app/container.tsx"));
+    expect(container).not.toBeNull();
+    // py-8 against pt-8: the same number, so the breadcrumb starts at the same
+    // distance below the sticky header on every page.
+    expect(band![1].replace("py-", "")).toBe(container![1].replace("pt-", ""));
+  });
+
+  it("both breadcrumb tones keep the same bottom margin", () => {
+    const navs = [
+      ...read("app/breadcrumb.tsx").matchAll(/nav: "([^"]*)"/g),
+    ].map((m) => m[1]);
+    expect(navs).toHaveLength(2);
+    expect(navs[0]).toBe(navs[1]);
+  });
+});
+
+describe("the page under a band contributes no leading of its own", () => {
+  it("the taxonomy listing declares contentOwnsLeading", () => {
+    // The other half. With both the gap and the item padding, band-to-post
+    // disagreed with post-to-post in the other direction.
+    expect(read("app/taxonomy-listing.tsx")).toMatch(/contentOwnsLeading/);
+  });
+
+  it("BrowsePage maps that to no top padding", () => {
+    expect(read("app/browse-page.tsx")).toMatch(
+      /contentOwnsLeading \? "none" : "tight"/,
+    );
+  });
+});

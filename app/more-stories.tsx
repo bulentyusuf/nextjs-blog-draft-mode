@@ -63,12 +63,11 @@ function PostPreview({
 
   if (variant === "list") {
     return (
-      // Symmetric vertical padding on every item, the first included. It once
-      // dropped its top padding, because the list had no rule above the first
-      // item and the gap would have been dead space under the heading. The list
-      // draws that rule now, so the exception would press the first cover image
-      // flat against it while every other rule in the run breathes. Do not
-      // restore it without also taking the border off the container.
+      // Symmetric vertical padding on every item, the first included, and it
+      // is never dropped. This is the list's rhythm: whatever sits above an
+      // item — a hairline, or the bottom edge of the masthead band — belongs
+      // this far from the cover below it. Zeroing it for the first item made
+      // that post hug the band while every post after it breathed.
       <article className="grid grid-cols-1 gap-5 py-10 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start md:py-12">
         {coverImage && (
           <div>
@@ -147,6 +146,7 @@ export default function MoreStories({
   priorityFirst = false,
   coverName = createCoverNamer(),
   visibleTags,
+  openRule = true,
 }: {
   morePosts: CardPost[];
   variant?: Variant;
@@ -173,6 +173,13 @@ export default function MoreStories({
   // Deriving it from the posts on one category or author page counts a subset
   // and would hide tags the glossary shows.
   visibleTags?: Set<string>;
+  // Drops the opening rule, keeping the closing one. For a listing that already
+  // has an edge above it — the banded browsing pages, where the navy block ends
+  // where the list begins — the top rule draws a second boundary a few pixels
+  // under the first. The item padding stays: see the note under `container` for
+  // why the two must not move together. The CLOSING rule is not optional either
+  // way, because the pager below relies on it.
+  openRule?: boolean;
 }) {
   // The list closes itself. divide-y rules between items left the first one
   // with nothing above it, so a listing began mid-air and only ended because
@@ -187,9 +194,22 @@ export default function MoreStories({
   //
   // Deliberately list-only. The grid variant is a teaser block on the post
   // page, not a listing, and has no rules between its cells to continue.
+  //
+  // openRule=false drops the top half only. A banded page already ends the navy
+  // block where the list starts, so the opening rule lands just under that edge
+  // and reads as a stray line rather than the start of anything.
+  //
+  // The item padding is NOT dropped with it. Each item is py-10 md:py-12, so a
+  // hairline sits that far from the cover below it; the band's bottom edge is
+  // playing the same role, and it should sit the same distance away. Zeroing it
+  // made the first post hug the band while every post after it breathed — the
+  // rhythm broke at exactly the point the reader starts reading. The page that
+  // owns the band contributes no gap of its own instead (BrowsePage).
   const container =
     variant === "list"
-      ? "flex flex-col divide-y divide-hairline border-y border-hairline"
+      ? `flex flex-col divide-y divide-hairline border-hairline ${
+          openRule ? "border-y" : "border-b"
+        }`
       : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32";
 
   // When the section renders its own h2 heading, post titles sit one level

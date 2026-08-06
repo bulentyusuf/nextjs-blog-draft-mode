@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { draftMode } from "next/headers";
 import DateComponent from "../date";
-import Container from "../container";
-import Breadcrumb, { type Crumb } from "../breadcrumb";
+import BrowsePage from "../browse-page";
+import { type Crumb } from "../breadcrumb";
 import { getAllPosts, getAllTags, getBrowseIntro } from "@/lib/api";
 import { groupPostsByTag, MIN_POSTS_PER_TAG } from "@/lib/tags";
 import { browsePageMetadata } from "@/lib/page-metadata";
@@ -48,22 +48,24 @@ export default async function TagsPage() {
   const crumbs: Crumb[] = [{ label: "Home", href: "/" }, { label: "Tags" }];
 
   return (
-    <Container>
-      <Breadcrumb items={crumbs} />
-      <header className="mb-8 md:mb-10">
-        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
-          Tags
-        </h1>
-        {/* Not the metadata description: that one is written for search
+    <BrowsePage
+      crumbs={crumbs}
+      header={
+        <>
+          <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
+            Tags
+          </h1>
+          {/* Not the metadata description: that one is written for search
             results and repeats the site name, which reads oddly next to the
             h1 and collides with the full stop in "Be Useful." */}
-        {intro?.standfirst && (
-          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            {intro.standfirst}
-          </p>
-        )}
-      </header>
-
+          {intro?.standfirst && (
+            <p className="max-w-3xl text-lg leading-relaxed text-pretty">
+              {intro.standfirst}
+            </p>
+          )}
+        </>
+      }
+    >
       {groups.length === 0 ? (
         <p className="text-lg text-brand-muted">
           No tags yet. A tag appears here once {MIN_POSTS_PER_TAG} posts carry
@@ -156,6 +158,6 @@ export default async function TagsPage() {
           ))}
         </div>
       )}
-    </Container>
+    </BrowsePage>
   );
 }
