@@ -63,12 +63,11 @@ function PostPreview({
 
   if (variant === "list") {
     return (
-      // Symmetric vertical padding on every item, the first included — while
-      // the list draws a rule above it. Without that rule the top padding is
-      // dead space under whatever precedes the list, so the container drops it
-      // for the first item when openRule is false (see the note there). The two
-      // move together in both directions: a rule with no padding presses the
-      // first cover flat against it, padding with no rule is a gap.
+      // Symmetric vertical padding on every item, the first included, and it
+      // is never dropped. This is the list's rhythm: whatever sits above an
+      // item — a hairline, or the bottom edge of the masthead band — belongs
+      // this far from the cover below it. Zeroing it for the first item made
+      // that post hug the band while every post after it breathed.
       <article className="grid grid-cols-1 gap-5 py-10 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start md:py-12">
         {coverImage && (
           <div>
@@ -209,7 +208,7 @@ export default function MoreStories({
   const container =
     variant === "list"
       ? `flex flex-col divide-y divide-hairline border-hairline ${
-          openRule ? "border-y" : "border-b [&>article:first-child]:pt-0"
+          openRule ? "border-y" : "border-b"
         }`
       : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32";
 
