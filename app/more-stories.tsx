@@ -177,8 +177,9 @@ export default function MoreStories({
   // Drops the opening rule, keeping the closing one. For a listing that already
   // has an edge above it — the banded browsing pages, where the navy block ends
   // where the list begins — the top rule draws a second boundary a few pixels
-  // under the first. The CLOSING rule is not optional either way: the pager
-  // below relies on it, per the note under `container`.
+  // under the first. The item padding stays: see the note under `container` for
+  // why the two must not move together. The CLOSING rule is not optional either
+  // way, because the pager below relies on it.
   openRule?: boolean;
 }) {
   // The list closes itself. divide-y rules between items left the first one
@@ -199,12 +200,12 @@ export default function MoreStories({
   // block where the list starts, so the opening rule lands just under that edge
   // and reads as a stray line rather than the start of anything.
   //
-  // It also drops the FIRST item's top padding, and that half is not optional.
-  // Each item is py-10 md:py-12, which reads as the rule's breathing room while
-  // there is a rule; with none, it is 48px of nothing between the band and the
-  // first cover. That gap is what "the band looks detached from its list" turns
-  // out to be every time. The child selector outranks the item's own md:py-12
-  // on specificity, so it holds at every breakpoint without a variant of its own.
+  // The item padding is NOT dropped with it. Each item is py-10 md:py-12, so a
+  // hairline sits that far from the cover below it; the band's bottom edge is
+  // playing the same role, and it should sit the same distance away. Zeroing it
+  // made the first post hug the band while every post after it breathed — the
+  // rhythm broke at exactly the point the reader starts reading. The page that
+  // owns the band contributes no gap of its own instead (BrowsePage).
   const container =
     variant === "list"
       ? `flex flex-col divide-y divide-hairline border-hairline ${

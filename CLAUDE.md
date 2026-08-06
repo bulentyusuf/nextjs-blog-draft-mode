@@ -551,21 +551,26 @@ neighbours.
   `intro`.
 - **Nothing inside the band changes the type or the spacing the page already
   had.** The `h1` ramp stays `text-4xl md:text-5xl lg:text-6xl` on all ten
-  routes, the breadcrumb keeps its own `mb-4` and the `h1` its `mb-3`. The band
+  routes and the `h1` keeps its `mb-3`. The breadcrumb's own margin is the one
+  exception, tightened to `mb-2` on the dark tone only: the value is identical
+  on both surfaces, but on navy the gap is a slab of colour rather than page
+  background and reads larger. The band
   contributes exactly one thing, its `py-6 md:py-8` inset. A raised ramp and an
   extra `mt` on the header were both tried and reverted: the brief was a colour
   band behind the existing masthead, and resizing the headings was scope nobody
   asked for.
-- **The listing under a band drops its opening rule AND the first item's top
-  padding** (`openRule={false}` on `MoreStories`), because the band already
-  draws that edge. Those two move together in both directions: each item is
-  `py-10 md:py-12`, which reads as the rule's breathing room while there is a
-  rule and as 48px of dead space when there is not. That gap is what "the band
-  looks detached from its list" has turned out to be every time. The closing
-  rule stays, and `app/pagination.tsx` still has no top border of its own.
+- **The listing under a band drops its opening rule and nothing else**
+  (`openRule={false}` on `MoreStories`). The item padding stays, and the page
+  contributes no gap of its own instead (`contentOwnsLeading` on
+  `BrowsePage`) — every item is `py-10 md:py-12`, which is how far a hairline
+  sits from the cover below it, and the band's bottom edge plays a hairline's
+  part. Zeroing that padding made the first post hug the band while every post
+  after it breathed; adding the gap on top made band-to-first-post disagree
+  with post-to-post. One or the other, never both. The closing rule stays, and
+  `app/pagination.tsx` still has no top border of its own.
 - **The vertical rhythm is set in one place**, `app/browse-page.tsx`: a
-  symmetric `py-8 md:py-10` band inset, then a deliberately smaller
-  `pt-6 md:pt-8` cream gap, because the band has already drawn the boundary and
+  symmetric `py-5 md:py-6` band inset, then a `pt-6` cream gap on the section
+  fronts only, because the band has already drawn the boundary and
   that space only has to stop the content touching it. The two are different
   colours so they cannot collapse into one number, but they add up in the eye —
   at `pb-14` against a `pt-10` they summed to 96px and read as a hole. Note

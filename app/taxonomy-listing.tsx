@@ -68,6 +68,9 @@ export default function TaxonomyListing({
   return (
     <BrowsePage
       crumbs={crumbs}
+      // The listing's own item padding is the space under the band — see the
+      // prop's note. The empty state below carries its own instead.
+      contentOwnsLeading
       header={
         <>
           {children}
@@ -84,7 +87,7 @@ export default function TaxonomyListing({
         />
       )}
       {emptyMessage !== undefined && posts.length === 0 ? (
-        <p className="mx-auto max-w-5xl text-lg text-brand-muted">
+        <p className="mx-auto max-w-5xl pt-6 text-lg text-brand-muted">
           {emptyMessage}
         </p>
       ) : (

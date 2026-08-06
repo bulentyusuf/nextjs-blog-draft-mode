@@ -48,7 +48,7 @@ const TONES: Record<
     // changes. The value is the same 16px on both surfaces, but on navy the
     // gap is a slab of colour rather than page background and reads larger,
     // so the trail looks detached from the heading it labels.
-    nav: "mb-3",
+    nav: "mb-2",
     list: "text-white",
     link: "hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white",
     current: "font-medium text-white",

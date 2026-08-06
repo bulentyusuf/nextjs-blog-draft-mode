@@ -56,10 +56,11 @@ export default function PageBand({
           that has always used 16.
 
           Symmetric, because the band is a block and an uneven inset reads as a
-          mistake. Note the bottom half is only part of the gap under the
-          standfirst; app/browse-page.tsx adds the cream gap below and the two
-          sum, so they are budgeted together there. */}
-      <div className="max-w-5xl mx-auto px-5 py-6 md:py-8">
+          mistake. Kept tight deliberately: the band is a masthead, not a hero,
+          and every pixel here pushes the first post further down. What sits
+          below the bottom edge is budgeted separately in app/browse-page.tsx,
+          because it depends on whether the content brings its own. */}
+      <div className="max-w-5xl mx-auto px-5 py-5 md:py-6">
         <Breadcrumb items={crumbs} tone="dark" />
         <header>{children}</header>
       </div>

@@ -42,17 +42,30 @@ export default function BrowsePage({
   crumbs,
   header,
   children,
+  contentOwnsLeading = false,
 }: {
   crumbs: Crumb[];
   /** Band contents — the h1, a standfirst, whatever sits beside them. */
   header: ReactNode;
   /** Everything below the band, on cream. */
   children: ReactNode;
+  /**
+   * Set when the content already carries its own space above its first
+   * element, so the shell adds none. The ruled listing does: every item is
+   * `py-10 md:py-12`, which is the distance a hairline keeps from the cover
+   * below it, and the band's bottom edge is playing a hairline's part. Adding
+   * the gap on top made the band-to-first-post distance differ from every
+   * post-to-post distance under it, which is the inconsistency you see before
+   * you can name it. The section fronts do not, so they take the gap.
+   */
+  contentOwnsLeading?: boolean;
 }) {
   return (
     <>
       <PageBand crumbs={crumbs}>{header}</PageBand>
-      <Container topPad="tight">{children}</Container>
+      <Container topPad={contentOwnsLeading ? "none" : "tight"}>
+        {children}
+      </Container>
     </>
   );
 }
