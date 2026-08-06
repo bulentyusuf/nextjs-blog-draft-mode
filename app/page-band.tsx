@@ -48,7 +48,11 @@ export default function PageBand({
     // brand-dark IS the off-white ink at 10.61:1. Children may still name
     // text-white for clarity; none of them may rely on doing so.
     <div className="bg-brand-band text-white">
-      <div className="max-w-5xl mx-auto px-5 pt-5 pb-10 md:pb-14">
+      {/* The bottom padding is half of the gap under the standfirst, not all
+          of it: Container adds its own pt-8 below, and the two sum. Budget
+          both together — at pb-10/md:pb-14 against a pt-10 override this came
+          to 96px on desktop and read as a hole. 64px base, 72px desktop. */}
+      <div className="max-w-5xl mx-auto px-5 pt-5 pb-8 md:pb-10">
         <Breadcrumb items={crumbs} tone="dark" />
         <header className="mt-5">{children}</header>
       </div>

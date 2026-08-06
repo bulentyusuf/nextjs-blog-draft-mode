@@ -530,10 +530,12 @@ for a reason set out in the component or its neighbours.
 - The section fronts raise their `h1` a step (`text-5xl md:text-6xl
 lg:text-7xl`); an author `h1` does **not**, because it sits beside a 112px
   portrait and the raised ramp overflows that row at `md`.
-- `Container`'s `className` appends rather than merges, so the banded pages'
-  `pt-10` beats its `pt-8` only because Tailwind emits utilities in ascending
-  value order. The file carries the warning; anything needing to _reduce_ that
-  padding wants a real prop.
+- **The band's bottom padding and `Container`'s `pt-8` sum**, so budget them
+  together — they shipped at 96px on desktop and read as a hole. The band owns
+  that space; `Container` is left at its default and nothing overrides it.
+  Note `Container`'s `className` appends rather than merges, so a spacing
+  override can only ever _increase_ a value: Tailwind emits utilities in
+  ascending order and a smaller one silently loses. The file carries that.
 
 ### The six taxonomy listings share one shell
 

@@ -5,10 +5,12 @@ import { clsx } from "clsx";
  * about Tailwind, so an override lands beside the default rather than replacing
  * it and the winner is decided by source order in the generated stylesheet.
  *
- * Tailwind emits utilities in ascending value order, so this only works in one
- * direction: the banded pages pass `pt-10` and it beats the `pt-8` here because
- * it is emitted after it. A caller passing `pt-6` would silently lose. Anything
- * needing to REDUCE this padding wants a real prop, not a class.
+ * Tailwind emits utilities in ascending value order, so a spacing override only
+ * works in one direction: a larger value beats the default because it is
+ * emitted after it, and a smaller one silently loses. Nothing overrides the
+ * padding today — the banded pages briefly passed `pt-10` and it worked, but
+ * the gap it made was too large and the band now owns that space instead.
+ * Anything needing to REDUCE this padding wants a real prop, not a class.
  */
 export default function Container({
   children,

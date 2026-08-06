@@ -69,7 +69,7 @@ export default async function CategoriesPage() {
           </p>
         )}
       </PageBand>
-      <Container className="pt-10">
+      <Container>
         {/* One card per category, two across on desktop, stacked on mobile. */}
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
           {categories.map((category, index) => {

@@ -50,7 +50,7 @@ export default async function AuthorsPage() {
           </p>
         )}
       </PageBand>
-      <Container className="pt-10">
+      <Container>
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
           {authors.map((author) => (
             <article

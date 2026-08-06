@@ -79,10 +79,11 @@ export default function TaxonomyListing({
   return (
     <>
       <PageBand crumbs={crumbs}>{children}</PageBand>
-      {/* pt-10 rather than Container's own pt-8: the band already closes with
-          its own bottom padding, so the cards need a touch more room to read as
-          a separate block rather than the two paddings simply summing. */}
-      <Container className="pt-10">
+      {/* Container's own pt-8, not an override. The band closes with its own
+          bottom padding and the two sum, so anything added here is added twice
+          over — which is how the gap under the standfirst first shipped at
+          96px. The band owns the space beneath itself; see app/page-band.tsx. */}
+      <Container>
         {/* Stays inside Container: it is a script tag, so its position in the
             tree is irrelevant and moving it into the band buys nothing. */}
         {jsonLd !== undefined && (

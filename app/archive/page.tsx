@@ -73,7 +73,7 @@ export default async function ArchivePage() {
           )
         )}
       </PageBand>
-      <Container className="pt-10">
+      <Container>
         {years.length === 0 ? (
           <p className="text-lg text-brand-muted">No posts yet.</p>
         ) : (

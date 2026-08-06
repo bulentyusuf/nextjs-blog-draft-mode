@@ -63,7 +63,7 @@ export default async function TagsPage() {
           </p>
         )}
       </PageBand>
-      <Container className="pt-10">
+      <Container>
         {groups.length === 0 ? (
           <p className="text-lg text-brand-muted">
             No tags yet. A tag appears here once {MIN_POSTS_PER_TAG} posts carry
