@@ -27,19 +27,15 @@ import type { CardPost } from "@/lib/types";
  * numbers. PageContext returns null on page 1, so it is rendered unconditionally
  * and no route decides whether its own page counts as paginated.
  *
- * `intro` is the one genuine exception to the no-prop-per-difference rule
- * above, and it earns it by being about the surface rather than the layout.
- * The band is navy, and an author bio is Contentful RichText: it renders links
- * in brand-crimson (1.35:1 on the band), plus lists and emphasis, none of which
- * have on-navy treatments today. Building those is a separate decision from
- * this one, so the bio leaves the band and lands on cream directly beneath it.
- * Only app/authors/[slug] passes it. Do not "tidy" it back into `children` —
- * that is the change that puts unreadable crimson links on navy.
+ * The position caption goes into the band as its last line rather than into
+ * the flow above the list — app/page-context.tsx carries why. It is rendered
+ * here rather than passed in, because this component already holds both
+ * numbers and PageContext returns null on page 1, so no route decides whether
+ * its own page counts as paginated.
  */
 export default function TaxonomyListing({
   crumbs,
   children,
-  intro,
   posts,
   currentPage,
   totalPages,
@@ -51,12 +47,6 @@ export default function TaxonomyListing({
   crumbs: Crumb[];
   /** The band's contents: the heading, and whatever belongs beside it. */
   children: ReactNode;
-  /**
-   * Editorial matter that cannot sit on navy, rendered on cream directly under
-   * the band and above the position caption. Only the author bio uses it — see
-   * the note above before adding a second caller.
-   */
-  intro?: ReactNode;
   /** This page's slice, not the whole listing. */
   posts: CardPost[];
   currentPage: number;
@@ -76,7 +66,15 @@ export default function TaxonomyListing({
   jsonLd?: unknown;
 }) {
   return (
-    <BrowsePage crumbs={crumbs} header={children}>
+    <BrowsePage
+      crumbs={crumbs}
+      header={
+        <>
+          {children}
+          <PageContext currentPage={currentPage} totalPages={totalPages} />
+        </>
+      }
+    >
       {/* Stays here rather than in the band: it is a script tag, so its
           position in the tree is irrelevant. */}
       {jsonLd !== undefined && (
@@ -85,15 +83,12 @@ export default function TaxonomyListing({
           dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
         />
       )}
-      {intro}
-
       {emptyMessage !== undefined && posts.length === 0 ? (
         <p className="mx-auto max-w-5xl text-lg text-brand-muted">
           {emptyMessage}
         </p>
       ) : (
         <>
-          <PageContext currentPage={currentPage} totalPages={totalPages} />
           <MoreStories
             morePosts={posts}
             variant="list"

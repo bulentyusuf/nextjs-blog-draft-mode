@@ -111,15 +111,6 @@ export default async function AuthorPaginatedPage({
       totalPages={totalPages}
       visibleTags={visibleTags}
       basePath={`/authors/${slug}`}
-      // See the unpaginated page: the bio cannot sit on navy, and the header
-      // is identical on page 1 and on later pages by design.
-      intro={
-        author.bio && (
-          <div className="mb-8 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            <RichText content={author.bio} headings={[]} />
-          </div>
-        )
-      }
     >
       <div className="flex items-center gap-6">
         {author.picture?.url && (
@@ -135,6 +126,15 @@ export default async function AuthorPaginatedPage({
           {widont(author.name)}
         </h1>
       </div>
+      {author.bio && (
+        // In the band, like every other browse page's standfirst. The one thing
+        // RichText needs on navy is a link treatment: brand-crimson is 1.35:1
+        // here, so .band-prose in globals.css underlines them and lets them
+        // take the band's white. Emphasis and lists need nothing.
+        <div className="band-prose mt-4 max-w-3xl text-lg leading-relaxed text-pretty">
+          <RichText content={author.bio} headings={[]} />
+        </div>
+      )}
     </TaxonomyListing>
   );
 }

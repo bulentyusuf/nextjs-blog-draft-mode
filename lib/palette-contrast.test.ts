@@ -181,6 +181,11 @@ describe("no route paints body ink inside the band", () => {
     "app/categories/[slug]/page/[page]/page.tsx",
     "app/tags/[slug]/page.tsx",
     "app/tags/[slug]/page/[page]/page.tsx",
+    // The author routes used to be exempt: their bio rendered on cream through
+    // an `intro` slot and was legitimately muted. It is in the band now, so
+    // they are held to the same rule as the other eight.
+    "app/authors/[slug]/page.tsx",
+    "app/authors/[slug]/page/[page]/page.tsx",
   ])("%s", (file) => {
     const source = read(file);
     const inBand = [
@@ -194,11 +199,12 @@ describe("no route paints body ink inside the band", () => {
     for (const className of inBand) expect(className).not.toMatch(INK);
   });
 
-  // The two author routes are deliberately absent. Their bio DOES carry
-  // text-brand-muted and is correct: it goes through TaxonomyListing's `intro`
-  // slot, which renders on cream below the band precisely because RichText has
-  // no on-navy treatment. Adding them here would assert the opposite of the
-  // design.
+  it("the position caption names no colour either", () => {
+    // It moved into the band and lost its text-brand-muted. Same failure as the
+    // standfirsts if it comes back — body ink on navy, invisible in light mode
+    // and fine in dark.
+    expect(read("app/page-context.tsx")).not.toMatch(INK);
+  });
 });
 
 describe("literal hexes track the tokens they duplicate", () => {

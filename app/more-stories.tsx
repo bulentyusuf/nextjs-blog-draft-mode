@@ -63,12 +63,12 @@ function PostPreview({
 
   if (variant === "list") {
     return (
-      // Symmetric vertical padding on every item, the first included. It once
-      // dropped its top padding, because the list had no rule above the first
-      // item and the gap would have been dead space under the heading. The list
-      // draws that rule now, so the exception would press the first cover image
-      // flat against it while every other rule in the run breathes. Do not
-      // restore it without also taking the border off the container.
+      // Symmetric vertical padding on every item, the first included — while
+      // the list draws a rule above it. Without that rule the top padding is
+      // dead space under whatever precedes the list, so the container drops it
+      // for the first item when openRule is false (see the note there). The two
+      // move together in both directions: a rule with no padding presses the
+      // first cover flat against it, padding with no rule is a gap.
       <article className="grid grid-cols-1 gap-5 py-10 md:grid-cols-[2fr_3fr] md:gap-8 md:items-start md:py-12">
         {coverImage && (
           <div>
@@ -198,10 +198,17 @@ export default function MoreStories({
   // openRule=false drops the top half only. A banded page already ends the navy
   // block where the list starts, so the opening rule lands just under that edge
   // and reads as a stray line rather than the start of anything.
+  //
+  // It also drops the FIRST item's top padding, and that half is not optional.
+  // Each item is py-10 md:py-12, which reads as the rule's breathing room while
+  // there is a rule; with none, it is 48px of nothing between the band and the
+  // first cover. That gap is what "the band looks detached from its list" turns
+  // out to be every time. The child selector outranks the item's own md:py-12
+  // on specificity, so it holds at every breakpoint without a variant of its own.
   const container =
     variant === "list"
       ? `flex flex-col divide-y divide-hairline border-hairline ${
-          openRule ? "border-y" : "border-b"
+          openRule ? "border-y" : "border-b [&>article:first-child]:pt-0"
         }`
       : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32";
 

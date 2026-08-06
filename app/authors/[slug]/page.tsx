@@ -95,16 +95,6 @@ export default async function AuthorPage({
       basePath={`/authors/${slug}`}
       emptyMessage="No posts by this author yet."
       jsonLd={jsonLd}
-      // On cream, below the band. The bio is RichText and renders crimson
-      // links, lists and emphasis, none of which have on-navy treatments —
-      // see the note in app/taxonomy-listing.tsx.
-      intro={
-        author.bio && (
-          <div className="mb-8 max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
-            <RichText content={author.bio} headings={[]} />
-          </div>
-        )
-      }
     >
       <div className="flex items-center gap-6">
         {author.picture?.url && (
@@ -126,6 +116,15 @@ export default async function AuthorPage({
           {widont(author.name)}
         </h1>
       </div>
+      {author.bio && (
+        // In the band, like every other browse page's standfirst. The one thing
+        // RichText needs on navy is a link treatment: brand-crimson is 1.35:1
+        // here, so .band-prose in globals.css underlines them and lets them
+        // take the band's white. Emphasis and lists need nothing.
+        <div className="band-prose mt-4 max-w-3xl text-lg leading-relaxed text-pretty">
+          <RichText content={author.bio} headings={[]} />
+        </div>
+      )}
     </TaxonomyListing>
   );
 }

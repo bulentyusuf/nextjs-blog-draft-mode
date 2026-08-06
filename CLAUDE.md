@@ -533,10 +533,15 @@ neighbours.
   `tone` prop rather than being forked: crimson on this navy is 1.35:1. Dark
   tone is also the one place a breadcrumb overrides the sitewide focus ring,
   the same exception the header and footer bands take.
-- **`TaxonomyListing`'s `intro` prop exists so the author bio can leave the
-  band.** It is Contentful `RichText` and renders crimson links, lists and
-  emphasis, none of which have on-navy treatments. Do not tidy it back into
-  `children`.
+- **An author's bio renders in the band**, like every other browse page's
+  standfirst. The only thing `RichText` needs on navy is a link treatment:
+  crimson is 1.35:1 here, so `.band-prose` in `app/globals.css` underlines
+  links and lets them take the band's white. That is WCAG 1.4.1, not taste —
+  with the accent unavailable, colour cannot be the only thing marking a link.
+  An earlier `intro` prop routed the bio onto cream to dodge this; it is gone.
+- **The position caption is the band's last line**, not a line floating above
+  the list. `app/page-context.tsx` carries why, including why the reasoning
+  that once moved it out of the header no longer applies.
 - **Nothing inside the band names a text colour**, so everything takes white
   from the root. A `text-brand-muted` on a standfirst beats that inheritance
   and is the same defect one component further out — it left the category and
@@ -547,9 +552,13 @@ neighbours.
 - The section fronts **and the category and tag pages** raise their `h1` a step
   (`text-5xl md:text-6xl lg:text-7xl`); an author `h1` does **not**, because it
   sits beside a 112px portrait and the raised ramp overflows that row at `md`.
-- **The listing under a band drops its opening rule** (`openRule={false}` on
-  `MoreStories`), because the band already draws that edge. The closing rule
-  stays, and `app/pagination.tsx` still has no top border of its own.
+- **The listing under a band drops its opening rule AND the first item's top
+  padding** (`openRule={false}` on `MoreStories`), because the band already
+  draws that edge. Those two move together in both directions: each item is
+  `py-10 md:py-12`, which reads as the rule's breathing room while there is a
+  rule and as 48px of dead space when there is not. That gap is what "the band
+  looks detached from its list" has turned out to be every time. The closing
+  rule stays, and `app/pagination.tsx` still has no top border of its own.
 - **The vertical rhythm is set in one place**, `app/browse-page.tsx`: a
   symmetric `py-8 md:py-10` band inset, then a deliberately smaller
   `pt-6 md:pt-8` cream gap, because the band has already drawn the boundary and
