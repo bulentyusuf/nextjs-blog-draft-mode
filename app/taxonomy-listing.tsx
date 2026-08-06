@@ -107,6 +107,10 @@ export default function TaxonomyListing({
               heading={null}
               priorityFirst
               visibleTags={visibleTags}
+              // The band closes the page above this list, so the listing's own
+              // opening rule would draw a second edge just below the first. It
+              // still closes at the bottom, which is what the pager sits under.
+              openRule={false}
             />
             <Pagination
               currentPage={currentPage}

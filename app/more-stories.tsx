@@ -147,6 +147,7 @@ export default function MoreStories({
   priorityFirst = false,
   coverName = createCoverNamer(),
   visibleTags,
+  openRule = true,
 }: {
   morePosts: CardPost[];
   variant?: Variant;
@@ -173,6 +174,12 @@ export default function MoreStories({
   // Deriving it from the posts on one category or author page counts a subset
   // and would hide tags the glossary shows.
   visibleTags?: Set<string>;
+  // Drops the opening rule, keeping the closing one. For a listing that already
+  // has an edge above it — the banded browsing pages, where the navy block ends
+  // where the list begins — the top rule draws a second boundary a few pixels
+  // under the first. The CLOSING rule is not optional either way: the pager
+  // below relies on it, per the note under `container`.
+  openRule?: boolean;
 }) {
   // The list closes itself. divide-y rules between items left the first one
   // with nothing above it, so a listing began mid-air and only ended because
@@ -187,9 +194,15 @@ export default function MoreStories({
   //
   // Deliberately list-only. The grid variant is a teaser block on the post
   // page, not a listing, and has no rules between its cells to continue.
+  //
+  // openRule=false drops the top half only. A banded page already ends the navy
+  // block where the list starts, so the opening rule lands just under that edge
+  // and reads as a stray line rather than the start of anything.
   const container =
     variant === "list"
-      ? "flex flex-col divide-y divide-hairline border-y border-hairline"
+      ? `flex flex-col divide-y divide-hairline border-hairline ${
+          openRule ? "border-y" : "border-b"
+        }`
       : "grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32";
 
   // When the section renders its own h2 heading, post titles sit one level

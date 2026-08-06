@@ -154,9 +154,10 @@ All three are defined and argued in `app/globals.css`.
   the edges a listing draws around itself. It inverts on its own, so never add a
   `dark:` variant to an element using it, and never reintroduce bare `gray-200`
   borders. **`app/pagination.tsx` deliberately has no top border**: the listing
-  above it closes itself with `border-y`, so a rule here would land in the same
-  row and print a double line. Both files carry the note; the pager looking
-  unattached is not a missing border.
+  above it closes itself, so a rule here would land in the same row and print a
+  double line. Both files carry the note; the pager looking unattached is not a
+  missing border. The listing's **closing** rule is the load-bearing half —
+  banded pages drop the opening one via `openRule={false}`, never the other.
 - **`--color-control-edge`** — `app/tag-pill.tsx` only, and **not** a divider
   despite having borrowed the divider token for a long time. It carries a
   contrast floor (WCAG 1.4.11), which is why it is two literal values rather
@@ -527,9 +528,19 @@ for a reason set out in the component or its neighbours.
   band.** It is Contentful `RichText` and renders crimson links, lists and
   emphasis, none of which have on-navy treatments. Do not tidy it back into
   `children`.
-- The section fronts raise their `h1` a step (`text-5xl md:text-6xl
-lg:text-7xl`); an author `h1` does **not**, because it sits beside a 112px
-  portrait and the raised ramp overflows that row at `md`.
+- **Nothing inside the band names a text colour**, so everything takes white
+  from the root. A `text-brand-muted` on a standfirst beats that inheritance
+  and is the same defect one component further out — it left the category and
+  tag standfirsts dark on navy. A test slices the `<PageBand>` block on the
+  four section fronts and asserts the whole file on the four category/tag
+  routes. The two author routes are exempt: their bio is muted, on cream, via
+  `intro`.
+- The section fronts **and the category and tag pages** raise their `h1` a step
+  (`text-5xl md:text-6xl lg:text-7xl`); an author `h1` does **not**, because it
+  sits beside a 112px portrait and the raised ramp overflows that row at `md`.
+- **The listing under a band drops its opening rule** (`openRule={false}` on
+  `MoreStories`), because the band already draws that edge. The closing rule
+  stays, and `app/pagination.tsx` still has no top border of its own.
 - **The band's bottom padding and `Container`'s `pt-8` sum**, so budget them
   together — they shipped at 96px on desktop and read as a hole. The band owns
   that space; `Container` is left at its default and nothing overrides it.

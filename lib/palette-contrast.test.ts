@@ -151,6 +151,53 @@ describe("the browse band's markup", () => {
   });
 });
 
+describe("no route paints body ink inside the band", () => {
+  // The companion to the root-inherits-white check above, from the other end.
+  // Inheritance only holds while nothing overrides it, and an explicit
+  // text-brand-muted beats it — which is what left the category and tag
+  // standfirsts dark on navy after the h1 was fixed. Same failure, same
+  // invisibility in dark mode, one component further out.
+  //
+  // brand-muted and brand-dark are body ink; brand-crimson is 1.35:1 on this
+  // navy. None of the three has an on-band treatment, so the band's contents
+  // name no colour at all and take white from the root.
+  const INK = /text-brand-(muted|dark|crimson)/g;
+
+  // The four section fronts mark the band with a literal element, so the region
+  // is exact. Their card bodies below the band use muted ink legitimately,
+  // which is why this cannot be a whole-file assertion.
+  it.each([
+    "app/categories/page.tsx",
+    "app/tags/page.tsx",
+    "app/authors/page.tsx",
+    "app/archive/page.tsx",
+  ])("%s", (file) => {
+    const source = read(file);
+    const band = /<PageBand[\s\S]*?<\/PageBand>/.exec(source);
+    expect(band).not.toBeNull();
+    expect(band![0].match(INK)).toBeNull();
+  });
+
+  // The six taxonomy routes pass their band contents as children of
+  // TaxonomyListing, so there is no marker to slice on. A whole-file assertion
+  // works instead, because after this change these four hold no muted text
+  // anywhere — everything else on the page is rendered by shared components.
+  it.each([
+    "app/categories/[slug]/page.tsx",
+    "app/categories/[slug]/page/[page]/page.tsx",
+    "app/tags/[slug]/page.tsx",
+    "app/tags/[slug]/page/[page]/page.tsx",
+  ])("%s", (file) => {
+    expect(read(file).match(INK)).toBeNull();
+  });
+
+  // The two author routes are deliberately absent. Their bio DOES carry
+  // text-brand-muted and is correct: it goes through TaxonomyListing's `intro`
+  // slot, which renders on cream below the band precisely because RichText has
+  // no on-navy treatment. Adding them here would assert the opposite of the
+  // design.
+});
+
 describe("literal hexes track the tokens they duplicate", () => {
   // Channel comparison, not string: globals.css writes tokens lowercase and the
   // TSX literals are uppercase, so === on the text fails for the wrong reason.
