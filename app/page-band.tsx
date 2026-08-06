@@ -48,14 +48,20 @@ export default function PageBand({
     // brand-dark IS the off-white ink at 10.61:1. Children may still name
     // text-white for clarity; none of them may rely on doing so.
     <div className="bg-brand-band text-white">
-      {/* Symmetric: the band is a block, so it is inset equally top and bottom.
-          The bottom is only half the gap the reader sees under the standfirst,
-          though — Container adds its own pt-8 below and the two sum, so budget
-          them together. At pb-10/md:pb-14 against a pt-10 override that gap
-          came to 96px on desktop and read as a hole. */}
-      <div className="max-w-5xl mx-auto px-5 py-8 md:py-10">
+      {/* The band adds ONE thing to the page: this inset. Everything between
+          the breadcrumb and the standfirst is the spacing the unbanded pages
+          already had — the nav's own mb-4, then the h1's mb-3 — and it stays
+          that way. There is no `mt` on the header: adding one here sat on top
+          of the breadcrumb's margin and pushed the heading 36px down a page
+          that has always used 16.
+
+          Symmetric, because the band is a block and an uneven inset reads as a
+          mistake. Note the bottom half is only part of the gap under the
+          standfirst; app/browse-page.tsx adds the cream gap below and the two
+          sum, so they are budgeted together there. */}
+      <div className="max-w-5xl mx-auto px-5 py-6 md:py-8">
         <Breadcrumb items={crumbs} tone="dark" />
-        <header className="mt-5">{children}</header>
+        <header>{children}</header>
       </div>
     </div>
   );

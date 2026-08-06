@@ -549,9 +549,13 @@ neighbours.
   four section fronts and asserts the whole file on the four category/tag
   routes. The two author routes are exempt: their bio is muted, on cream, via
   `intro`.
-- The section fronts **and the category and tag pages** raise their `h1` a step
-  (`text-5xl md:text-6xl lg:text-7xl`); an author `h1` does **not**, because it
-  sits beside a 112px portrait and the raised ramp overflows that row at `md`.
+- **Nothing inside the band changes the type or the spacing the page already
+  had.** The `h1` ramp stays `text-4xl md:text-5xl lg:text-6xl` on all ten
+  routes, the breadcrumb keeps its own `mb-4` and the `h1` its `mb-3`. The band
+  contributes exactly one thing, its `py-6 md:py-8` inset. A raised ramp and an
+  extra `mt` on the header were both tried and reverted: the brief was a colour
+  band behind the existing masthead, and resizing the headings was scope nobody
+  asked for.
 - **The listing under a band drops its opening rule AND the first item's top
   padding** (`openRule={false}` on `MoreStories`), because the band already
   draws that edge. Those two move together in both directions: each item is

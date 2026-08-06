@@ -42,7 +42,7 @@ export default async function AuthorsPage() {
       crumbs={crumbs}
       header={
         <>
-          <h1 className="mb-3 text-5xl leading-tight md:text-6xl lg:text-7xl text-pretty">
+          <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
             Authors
           </h1>
           {intro?.standfirst && (

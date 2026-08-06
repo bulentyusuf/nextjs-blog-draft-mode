@@ -110,7 +110,7 @@ export default async function CategoryPaginatedPage({
       visibleTags={visibleTags}
       basePath={`/categories/${slug}`}
     >
-      <h1 className="mb-3 text-5xl leading-tight md:text-6xl lg:text-7xl text-pretty">
+      <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
         {widont(category.name)}
       </h1>
       {category.description && (

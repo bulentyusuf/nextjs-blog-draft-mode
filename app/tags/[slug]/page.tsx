@@ -92,7 +92,7 @@ export default async function TagPage({
       visibleTags={otherTags}
       basePath={`/tags/${slug}`}
     >
-      <h1 className="mb-3 text-5xl leading-tight md:text-6xl lg:text-7xl text-pretty">
+      <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
         {widont(tag.name)}
       </h1>
       {tag.description && (
