@@ -87,6 +87,13 @@ export default async function CategoriesPage() {
                   {widont(category.name)}
                 </Link>
               </h2>
+
+              {category.description && (
+                <p className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
+                  {category.description}
+                </p>
+              )}
+
               {thumbUrl && (
                 // Thumbnails render through the shared CoverImage so they inherit
                 // its frame (border, blur underlay, shadow, aspect) rather than
@@ -108,12 +115,6 @@ export default async function CategoriesPage() {
                     priority={index === 0}
                   />
                 </div>
-              )}
-
-              {category.description && (
-                <p className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
-                  {category.description}
-                </p>
               )}
 
               {posts.length > 0 ? (
