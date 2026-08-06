@@ -55,12 +55,20 @@ export default function PageBand({
           of the breadcrumb's margin and pushed the heading 36px down a page
           that has always used 16.
 
-          Symmetric, because the band is a block and an uneven inset reads as a
-          mistake. Kept tight deliberately: the band is a masthead, not a hero,
-          and every pixel here pushes the first post further down. What sits
-          below the bottom edge is budgeted separately in app/browse-page.tsx,
-          because it depends on whether the content brings its own. */}
-      <div className="max-w-5xl mx-auto px-5 py-5 md:py-6">
+          py-8 is not a tuning knob. It is Container's own pt-8, which is how
+          far the breadcrumb sits below the sticky header on a post, about,
+          privacy or search page. Matching it means the trail and the heading
+          land at identical coordinates on EVERY page on the site, so a
+          browse-to-post navigation moves nothing — and these are full document
+          loads with a view transition across them, so any difference is
+          animated rather than merely present. A tighter band looked better on
+          its own and shifted the heading 16px on every such step.
+
+          The band therefore adds one thing to the page: colour, plus the
+          bottom half of this inset. What sits below that edge is budgeted in
+          app/browse-page.tsx, because it depends on whether the content brings
+          its own leading. */}
+      <div className="max-w-5xl mx-auto px-5 py-8">
         <Breadcrumb items={crumbs} tone="dark" />
         <header>{children}</header>
       </div>

@@ -35,6 +35,32 @@ describe("a banded listing keeps its item padding", () => {
   });
 });
 
+describe("a banded page sits on the same grid as an unbanded one", () => {
+  // A browse page and a post are one navigation apart, and that navigation is
+  // a full document load with a view transition over it — so a difference here
+  // is animated, not just present. Both values below were tightened on the
+  // band alone at one point, which moved the heading 16px on desktop and 20px
+  // on mobile every time the reader crossed between the two.
+
+  it("the band's inset equals Container's default top padding", () => {
+    const band = /px-5 (py-\d+)/.exec(read("app/page-band.tsx"));
+    expect(band).not.toBeNull();
+    const container = /default: "(pt-\d+)"/.exec(read("app/container.tsx"));
+    expect(container).not.toBeNull();
+    // py-8 against pt-8: the same number, so the breadcrumb starts at the same
+    // distance below the sticky header on every page.
+    expect(band![1].replace("py-", "")).toBe(container![1].replace("pt-", ""));
+  });
+
+  it("both breadcrumb tones keep the same bottom margin", () => {
+    const navs = [
+      ...read("app/breadcrumb.tsx").matchAll(/nav: "([^"]*)"/g),
+    ].map((m) => m[1]);
+    expect(navs).toHaveLength(2);
+    expect(navs[0]).toBe(navs[1]);
+  });
+});
+
 describe("the page under a band contributes no leading of its own", () => {
   it("the taxonomy listing declares contentOwnsLeading", () => {
     // The other half. With both the gap and the item padding, band-to-post

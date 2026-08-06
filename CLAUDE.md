@@ -550,11 +550,15 @@ neighbours.
   routes. The two author routes are exempt: their bio is muted, on cream, via
   `intro`.
 - **Nothing inside the band changes the type or the spacing the page already
-  had.** The `h1` ramp stays `text-4xl md:text-5xl lg:text-6xl` on all ten
-  routes and the `h1` keeps its `mb-3`. The breadcrumb's own margin is the one
-  exception, tightened to `mb-2` on the dark tone only: the value is identical
-  on both surfaces, but on navy the gap is a slab of colour rather than page
-  background and reads larger. The band
+  had** — the `h1` ramp stays `text-4xl md:text-5xl lg:text-6xl`, the `h1`
+  keeps its `mb-3`, and both breadcrumb tones keep `mb-4`. The band's `py-8` is
+  `Container`'s own `pt-8`, so the trail and heading land at identical
+  coordinates on **every** page, banded or not. That matters more than it
+  looks: a browse page and a post are one navigation apart, and these are full
+  document loads with a view transition over them, so a difference is animated
+  rather than merely present. A tighter band and a tighter dark-tone trail both
+  looked better in isolation and together shifted the heading 16px on every
+  browse-to-post step. `lib/listing-rhythm.test.ts` holds both. The band
   contributes exactly one thing, its `py-6 md:py-8` inset. A raised ramp and an
   extra `mt` on the header were both tried and reverted: the brief was a colour
   band behind the existing masthead, and resizing the headings was scope nobody
@@ -569,8 +573,8 @@ neighbours.
   with post-to-post. One or the other, never both. The closing rule stays, and
   `app/pagination.tsx` still has no top border of its own.
 - **The vertical rhythm is set in one place**, `app/browse-page.tsx`: a
-  symmetric `py-5 md:py-6` band inset, then a `pt-6` cream gap on the section
-  fronts only, because the band has already drawn the boundary and
+  symmetric `py-8` band inset, then a `pt-6` cream gap on the section fronts
+  only, because the band has already drawn the boundary and
   that space only has to stop the content touching it. The two are different
   colours so they cannot collapse into one number, but they add up in the eye —
   at `pb-14` against a `pt-10` they summed to 96px and read as a hole. Note

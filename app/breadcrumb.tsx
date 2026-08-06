@@ -44,11 +44,12 @@ const TONES: Record<
     separator: "text-brand-muted",
   },
   dark: {
-    // One step tighter than the light tone, and the only spacing the band
-    // changes. The value is the same 16px on both surfaces, but on navy the
-    // gap is a slab of colour rather than page background and reads larger,
-    // so the trail looks detached from the heading it labels.
-    nav: "mb-2",
+    // Identical to the light tone, and it must stay that way. A browse page
+    // and a post are one navigation apart, so any difference here moves the
+    // trail and the heading under it between two pages the reader treats as
+    // the same place. Tightening this on navy alone looked better in isolation
+    // and shifted the heading 8px on every browse-to-post step.
+    nav: "mb-4",
     list: "text-white",
     link: "hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white",
     current: "font-medium text-white",
