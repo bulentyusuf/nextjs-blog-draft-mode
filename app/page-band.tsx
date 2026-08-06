@@ -18,7 +18,8 @@ import Breadcrumb, { type Crumb } from "./breadcrumb";
  * navy-to-cream step never happens without also crossing from a list into an
  * article.
  *
- * Every text colour inside is solid white. No `text-white/N` — on brand-band
+ * Every text colour inside is solid white, inherited from the root rather than
+ * named per element — see the comment on the wrapper. No `text-white/N` — on brand-band
  * white is 16.60:1 light and 12.61:1 dark, whereas white/85 on the old header
  * navy was 7.93 light and 6.38 dark, and the second of those missed the AAA
  * floor that lib/palette-contrast.test.ts already enforces sitewide. Hierarchy
@@ -39,7 +40,14 @@ export default function PageBand({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-brand-band">
+    // text-white sits on the ROOT so the whole subtree inherits it. That is
+    // load-bearing, not belt-and-braces: <body> carries text-brand-dark, so
+    // anything placed in here without a colour class of its own inherits body
+    // ink instead. The h1 shipped exactly that way and rendered at 1.01:1 on
+    // the light band — invisible — while looking perfect in dark, where
+    // brand-dark IS the off-white ink at 10.61:1. Children may still name
+    // text-white for clarity; none of them may rely on doing so.
+    <div className="bg-brand-band text-white">
       <div className="max-w-5xl mx-auto px-5 pt-5 pb-10 md:pb-14">
         <Breadcrumb items={crumbs} tone="dark" />
         <header className="mt-5">{children}</header>

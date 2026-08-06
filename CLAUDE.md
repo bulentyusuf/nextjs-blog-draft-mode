@@ -511,9 +511,13 @@ for a reason set out in the component or its neighbours.
   band separates from `--color-brand-bg` in **both** schemes, at a deliberately
   sub-WCAG 1.4:1. That is a block-visibility guard, not a text one, and it is
   the check every text-contrast assertion missed.
-- **Every text node inside the band is solid white.** No `text-white/N` — a
-  test scrapes the component for it. Hierarchy comes from size and face, not
-  tint. The crumb separators and the author portrait's ring are the only
+- **Every text node inside the band is solid white, inherited from the band's
+  root.** `<body>` carries `text-brand-dark`, so anything placed in the band
+  without a colour class of its own inherits body ink — which is how the `h1`
+  first shipped at 1.01:1 on the light band while looking perfect in dark,
+  where `brand-dark` _is_ the off-white ink. A test asserts the root sets the
+  colour; a second forbids `text-white/N`. Hierarchy comes from size and face,
+  not tint. The crumb separators and the author portrait's ring are the only
   translucent whites and are decorative, so 1.4.3 does not reach them.
 - **No crimson inside the band**, which is why `app/breadcrumb.tsx` takes a
   `tone` prop rather than being forked: crimson on this navy is 1.35:1. Dark

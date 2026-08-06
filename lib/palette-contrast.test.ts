@@ -122,12 +122,31 @@ describe("the browse band stays a visible block in both schemes", () => {
 });
 
 describe("the browse band's markup", () => {
+  const band = read("app/page-band.tsx");
+
+  it("sets a text colour on its root, so children inherit it", () => {
+    // The gap every other guard here missed. <body> carries text-brand-dark,
+    // so an element placed in the band without a colour class of its own
+    // inherits BODY INK, not white — which is how the h1 shipped at 1.01:1 on
+    // the light band. Nothing above caught it: the contrast assertions all ask
+    // what white does on the band, and white was never what the h1 rendered in.
+    //
+    // It is invisible in dark mode, too, because there brand-dark IS the warm
+    // off-white ink and lands at 10.61:1. A reviewer on a dark-themed machine
+    // sees a perfectly good masthead.
+    //
+    // Asserted on the ROOT specifically: inheritance is what makes this hold
+    // for markup that does not exist yet, which per-element classes cannot.
+    const root = /<div className="bg-brand-band([^"]*)"/.exec(band);
+    expect(root).not.toBeNull();
+    expect(root![1]).toContain("text-white");
+  });
+
   it("uses no translucent white anywhere inside", () => {
     // Same regex the footer block above scrapes out of layout.tsx, pointed at
     // the band. Without this, a `text-white/70` added to the dek later passes
     // every check — the footer block only ever reads layout.tsx — and the AAA
     // floor quietly breaks across ten routes.
-    const band = read("app/page-band.tsx");
     expect([...band.matchAll(/text-white\/(\d+)/g)]).toEqual([]);
   });
 });
