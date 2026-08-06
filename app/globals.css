@@ -57,10 +57,23 @@
 }
 
 @theme {
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-fraunces);
+  /* Two faces, three jobs. Display is headings and mastheads. Body is
+     everything you read, prose and the meta around it. UI is the display face
+     at smaller sizes — chrome that should not compete with prose: nav, labels,
+     pills, counts, an enumerated list, see CLAUDE.md. --default-font-family is
+     what Preflight puts on <body>, so body copy flips with one token, and
+     font-display / font-body / font-ui are generated from these by Tailwind.
+     Nothing names a family directly.
 
-  --color-brand-crimson: #a4243b;
+     --font-ui resolving to the same family as --font-display is a choice, not a
+     redundancy to tidy away: the roles stay separate, so handing UI back to its
+     own face is one line here rather than a hunt through components. */
+  --font-display: var(--font-bricolage);
+  --font-body: var(--font-literata);
+  --font-ui: var(--font-bricolage);
+  --default-font-family: var(--font-body);
+
+  --color-brand-crimson: #9e2238;
   --color-brand-header: #1e3a8a;
   --color-brand-dark: #241b1d;
   --color-brand-bg: #faf5f1;
@@ -107,6 +120,29 @@
      contrast — the two roles diverge in dark mode. */
   --color-footer-bg: #241b1d;
 
+  /* Table treatment. Derived from the crimson token rather than the divider
+     hairline, whose light value is a cool grey on a warm cream page and sits
+     at 1.14:1, too weak to enclose. Three strengths — edge and header rule at
+     28% (1.63:1 light, 1.65:1 dark), row rules a step down at 18% (1.36:1,
+     1.34:1), header fill lightest at 12% because it is a field rather than a
+     line. Kept as color-mix so all three track the crimson token when it
+     lifts in dark mode. */
+  --color-table-edge: color-mix(
+    in srgb,
+    var(--color-brand-crimson) 28%,
+    transparent
+  );
+  --color-table-rule: color-mix(
+    in srgb,
+    var(--color-brand-crimson) 18%,
+    transparent
+  );
+  --color-table-header: color-mix(
+    in srgb,
+    var(--color-brand-crimson) 12%,
+    transparent
+  );
+
   --spacing-section: 4rem;
 }
 
@@ -115,7 +151,7 @@
   persisted preference, so the browser applies it before first paint and there
   is no flash. We keep every --color-brand-* NAME and only swap its VALUE here,
   so no utility class in any component changes. Values are tuned to WCAG AA on
-  their real usage (body ink 15.7:1, meta 7.8:1, links 5.6:1 on the dark bg);
+  their real usage (body ink 15.7:1, meta 7.8:1, links 7.4:1 on the dark bg);
   accents are lifted because the light hexes fail on a dark background. The
   light values above are byte-identical to production and untouched.
 */
@@ -124,7 +160,7 @@
     --color-brand-bg: #17110f; /* warm near-black page (not pure #000) */
     --color-brand-dark: #f2eae4; /* warm off-white ink */
     --color-brand-muted: #b3a49c; /* lifted so meta text keeps AA on dark */
-    --color-brand-crimson: #e0667a; /* lifted so links stay vivid + AA on dark */
+    --color-brand-crimson: #ec8494; /* lifted so links stay vivid + AAA on dark */
     --color-brand-header: #2e4a9e; /* lifted so the bar reads distinct from page */
 
     /* Raise the footer band so it reads as distinct above the page. Pinned to
@@ -163,20 +199,26 @@
 }
 
 /*
-  All top-level headings inherit the display face (Fraunces) sitewide. This is
+  All top-level headings inherit the display face (Bricolage Grotesque) sitewide. This is
   the single mechanism — do not add per-component font-display classes. h4 and
-  below stay in Inter deliberately, for small UI headings.
+  below stay in the body face deliberately, for small UI headings.
 
   This rule is why the footer's column labels are <p> rather than headings: as
   h4 they skipped a level after the page's h2s, and promoting them to h2 to fix
-  that would have pulled them into Fraunces. See CLAUDE.md.
+  that would have pulled them into Bricolage. See CLAUDE.md.
+
+  A grotesque needs more weight than a serif to hold the same presence, and less
+  manual tracking: Bricolage's opsz axis does the optical fitting that the
+  previous face needed compensating for by hand. Both values are starting points
+  to settle on the preview at the largest heading step, not fixed numbers.
 */
 @layer base {
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 650;
+    font-weight: 700;
+    letter-spacing: -0.005em;
   }
 }
 
@@ -210,7 +252,7 @@ html {
 
 /*
   One focus indicator for the whole site. Crimson picks up the accent token, so
-  it inverts with the scheme automatically (#A4243B light, #E0667A dark) and
+  it inverts with the scheme automatically (#9E2238 light, #EC8494 dark) and
   clears 3:1 against both page backgrounds. Elements sitting on the coloured
   header or footer bands override this locally with a white ring, because
   crimson on navy does not clear contrast — see app/layout.tsx.
@@ -322,7 +364,10 @@ html {
 
 .sidenote-body {
   display: none;
-  font-size: 0.875rem;
+  /* em, not rem: a note sits inside the prose column and must keep its ratio to
+     the body when that size moves. The figure caption in lib/rich-text.tsx uses
+     the same 0.875em so the two still measure alike side by side. */
+  font-size: 0.875em;
   line-height: 1.4;
   color: var(--color-brand-muted);
 }
@@ -362,13 +407,21 @@ html {
      reference clusters can still collide — a known Tufte-CSS limit). The
      :checked selector is repeated so a note opened on mobile and then resized
      to 2xl drops its mobile rule instead of keeping the left border. */
+  /* 13.5rem, up from 12rem, because the note's type went from 14px to 15.75px
+     when the prose base moved to 1.125rem — the same +12.5% — so a fixed width
+     would have cost about three characters a line. The right margin carries the
+     increase so the 3rem gap to the column is unchanged (margin = width + 3rem,
+     negative). The note then extends 16.5rem past the column's right edge; at
+     the 1536px breakpoint where it floats, that edge sits at 1214px, leaving
+     roughly 58px of viewport to spare. Widen either value further only against
+     a real measurement. */
   .sidenote-body,
   .sidenote-checkbox:checked ~ .sidenote-body {
     display: block;
     float: right;
     clear: right;
-    width: 12rem;
-    margin: 0 -15rem 0 0;
+    width: 13.5rem;
+    margin: 0 -16.5rem 0 0;
     padding-left: 0;
     border-left: 0;
   }
@@ -378,7 +431,7 @@ html {
     color: var(--color-brand-crimson);
   }
   /* Run the note's first line in after the number rather than letting the
-     blocked-out paragraph push it down: a 12rem margin cannot spare a whole
+     blocked-out paragraph push it down: a note this narrow cannot spare a whole
      line for a two-character label, and a label alone on its line reads as a
      heading for the note instead of a reference mark. Only the first paragraph
      goes inline; later ones stay blocks and keep their margin. Scoped to 2xl
@@ -390,6 +443,52 @@ html {
 }
 
 @utility prose {
+  /* The plugin defaults to max-width: 65ch, and `ch` is the advance width of
+     the current font's zero glyph — so the measure drifts with the body face.
+     Inter's zero is 0.6309em and Literata's is 0.5790em, so swapping the body
+     face narrowed this column by 8% (656px to 602px at a 16px root) with no
+     width anywhere in the diff to point at. Every prose container is already
+     wrapped in a max-w-2xl parent, which declares the intended measure once, in
+     rem; neutralising the default hands it back. Do not add a rem value here as
+     well — one number, one place. app/globals.measure.test.ts guards this. */
+  max-width: none;
+
+  /* Bumped from the plugin's 1rem. Literata's x-height is 0.507em against
+     Inter's 0.546em, so it reads about 7% smaller at the same nominal size, and
+     the measure now comes from max-w-2xl in rem, which does not scale with this
+     value — at 1rem the 672px column ran to about 88 characters a line. At
+     1.125rem it lands near 78. The plugin's line-height is unitless and scales
+     with this, so it needs nothing here. Every size inside this column is em-
+     based for the same reason; do not pin one in rem. */
+  font-size: 1.125rem;
+
+  /* The plugin's td padding is 0.5714286em at its own 1rem scale. This block
+     raises prose to 1.125rem for Literata's x-height, and every em inside
+     inherits it, so a single-line row was landing near 78px. Pinned here in em
+     against the prose size so it still scales with user font settings, but at a
+     value chosen for this column rather than the plugin's.
+
+     :not(:where([class~="not-prose"] *)) is required, not decorative: without
+     it this is a plain descendant selector, so it reaches straight through the
+     table renderer's not-prose wrapper by DOM structure and outranks the
+     renderer's own px-3/py-* utility classes on specificity — a class selector
+     alone loses to a class selector plus two tag names. That silently pinned
+     every table's row height back to this rule regardless of what the
+     renderer asked for, which is exactly the bug this guard exists to close;
+     see the same pattern on the :where(code) rule below. */
+  & :is(th, td):not(:where([class~="not-prose"] *)) {
+    padding-block: 0.5em;
+    padding-inline: 0.75em;
+  }
+
+  & :is(th, td):first-child:not(:where([class~="not-prose"] *)) {
+    padding-inline-start: 0;
+  }
+
+  & :is(th, td):last-child:not(:where([class~="not-prose"] *)) {
+    padding-inline-end: 0;
+  }
+
   /* Map the typography plugin's slate palette to brand tokens (F9). This block
      already outranks the plugin's own `.prose` variable defaults by source
      order, so setting the variables here re-tints every prose-inherited style
@@ -407,14 +506,17 @@ html {
   --tw-prose-quotes: var(--color-brand-dark);
   --tw-prose-quote-borders: var(--color-brand-crimson);
   --tw-prose-captions: var(--color-brand-muted);
-  --tw-prose-th-borders: color-mix(
-    in srgb,
-    var(--color-brand-dark) 15%,
-    transparent
-  );
+  /* Was brand-dark at 15%/10%, which composited to 1.22:1 (light) and 1.27:1
+     (dark) against the page — at or below the ~1.2 separation threshold noted
+     on --color-footer-bg, and the only dividers in the system that never got
+     the dark-mode lift --color-hairline carries. Both now defer to that token,
+     so table rules track every other rule on the site and there is one alpha to
+     maintain rather than three. The header rule stays a step stronger than the
+     row rules so the head still reads as distinct. */
+  --tw-prose-th-borders: var(--color-hairline);
   --tw-prose-td-borders: color-mix(
     in srgb,
-    var(--color-brand-dark) 10%,
+    var(--color-hairline) 60%,
     transparent
   );
 
@@ -422,12 +524,17 @@ html {
      margin notes number 1, 2, 3… on their own. See the .sidenote-* rules. */
   counter-reset: sidenote;
 
-  /* Body headings inherit the sitewide 600 weight. The typography plugin's
-     `.prose :where(h2)` rule (700) outranks the base-layer `h2` rule by
-     specificity, so the weight must be reasserted at prose specificity here —
-     the same override channel the code styling below uses. */
+  /* Body headings inherit the sitewide weight. The typography plugin's
+     `.prose :where(h2)` rule outranks the base-layer `h2` rule by specificity,
+     so the weight must be reasserted at prose specificity here — the same
+     override channel the code styling below uses.
+
+     This value must track the base-layer rule above. It is not an independent
+     setting: an in-body h2 and a card h2 are the same thing seen in two places,
+     and Bricolage is variable across 200-800, so even 50 units apart reads as a
+     mistake on a page carrying both. */
   & :where(h1, h2, h3):not(:where([class~="not-prose"] *)) {
-    font-weight: 650;
+    font-weight: 700;
   }
   & :where(code):not(:where([class~="not-prose"] *)) {
     font-family:
@@ -435,17 +542,32 @@ html {
       "Liberation Mono", monospace;
     font-weight: 400;
     font-style: normal;
+    /* No border. A 1px edge plus 0.4em padding made the inline box taller than
+       the line box, so leading went uneven in any paragraph carrying a pill
+       (measured 17px, 21px and 23px across three consecutive lines of one
+       paragraph). Worse, when a pill wrapped to the start of a line its border
+       sat on the margin and the letterforms inside began 0.4em further right,
+       so that line read as indented — and where a pill lands is not knowable
+       from the CMS. The tint alone still separates: 12% lands at 1.22:1
+       (light) and 1.20:1 (dark) against the page, matching the ~1.2 threshold
+       used for --color-footer-bg, while ink on the fill stays above 12.7:1 in
+       both modes. */
     background-color: color-mix(
       in srgb,
-      var(--color-brand-crimson) 8%,
+      var(--color-brand-crimson) 12%,
       transparent
     );
     color: var(--color-brand-dark);
-    border: 1px solid
-      color-mix(in srgb, var(--color-brand-crimson) 20%, transparent);
-    padding: 0.1em 0.4em;
-    border-radius: 0.25rem;
-    font-size: 0.875em;
+    padding: 0.05em 0.3em;
+    border-radius: 0.2rem;
+    /* 0.78em holds code at 14px against the 1.125rem prose base. The blocks in
+       lib/rich-text.tsx use the same value, so inline and block code match. The
+       value is a budget, not a preference: at 14px a 640px code content box
+       (the 672px column less p-4) fits about 76 mono columns, against
+       Prettier's 80-character print width. Raising it to 0.875em costs nine of
+       them, and overflow-x-auto means that scrolls quietly on every sample
+       rather than breaking loudly on one. */
+    font-size: 0.78em;
   }
   & :where(code):not(:where([class~="not-prose"] *))::before {
     content: none;
@@ -455,13 +577,46 @@ html {
   }
 }
 
+/* Inline code sits at high contrast against the near-black dark-mode page (the
+   off-white ink), so this isn't a WCAG failure — but thin monospace strokes in
+   a light ink read fainter on a dark ground than the same weight does in dark
+   ink on a light one, the mirror image of the PromptBlock label problem.
+   font-weight is the fix, same as there; size is untouched, and code blocks
+   stay unaffected since they're not-prose. Light mode keeps 400.
+
+   The 12% crimson fill has the same problem the .pagefind-scope mark wash
+   below already documents: a tint tuned against the cream light page reads
+   correctly there but composites to a barely-there sliver on the near-black
+   dark ground, even though the numeric contrast ratio against the page is
+   nearly identical in both modes (1.22:1 light, 1.20:1 dark) — the eye is
+   simply less sensitive to small luminance steps at low absolute luminance.
+   22% restores a comparable perceived separation (1.45:1 against the page)
+   while ink-on-fill stays at 10.85:1, well clear of AAA. Light mode's 12%
+   is unaffected. */
+@media (prefers-color-scheme: dark) {
+  .prose :where(code):not(:where([class~="not-prose"] *)) {
+    font-weight: 500;
+    background-color: color-mix(
+      in srgb,
+      var(--color-brand-crimson) 22%,
+      transparent
+    );
+  }
+}
+
 /* Pagefind Component UI (upstream web components) themed to house tokens via
    its documented --pf-* custom properties — no !important, no specificity war.
    Every value points at a brand token the dark override already flips, so dark
    mode is free. Result markup comes from our own template in search-client.tsx
    and is styled there with ordinary Tailwind classes. */
 .pagefind-scope {
-  --pf-font: var(--font-inter), system-ui, sans-serif;
+  /* The body face, not the UI one. --pf-font styles the component's excerpt and
+     summary text, which is body copy — and the result titles in
+     search-client.tsx already set font-display themselves, so putting the
+     display family here too would render the whole panel in one face and lose
+     the pairing every other card on the site has. The fallback is a serif for
+     the same reason. */
+  --pf-font: var(--font-body), Georgia, serif;
   --pf-text: var(--color-brand-dark);
   --pf-text-secondary: var(--color-brand-muted);
   --pf-text-muted: var(--color-brand-muted);
@@ -484,7 +639,7 @@ html {
 }
 
 /* The 18% wash is tuned on the cream light page. In dark mode the ground is
-   near-black (#17110F) and the crimson token is lifted to a pinker #E0667A, so
+   near-black (#17110F) and the crimson token is lifted to a pinker #EC8494, so
    the same 18% composites to roughly #3B2022 — all but invisible, and the
    highlight stops reading. Raise the mix for dark mode only; the light value
    stays. */

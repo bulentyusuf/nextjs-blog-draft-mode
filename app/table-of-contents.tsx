@@ -175,7 +175,7 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
         panel open regardless of the [open] attribute (see globals.css
         .toc-details rule), so one scroll listener serves both viewports.
       */}
-      <summary className="xl:hidden list-none flex items-center justify-between gap-3 cursor-pointer select-none rounded-lg border border-brand-dark/10 bg-brand-dark/5 px-4 py-3 text-sm font-bold uppercase tracking-wide text-brand-dark">
+      <summary className="xl:hidden list-none flex items-center justify-between gap-3 cursor-pointer select-none rounded-lg border border-brand-dark/10 bg-brand-dark/5 px-4 py-3 font-ui text-sm font-bold uppercase tracking-wide text-brand-dark">
         <span className="flex items-center gap-2">
           <svg
             className="h-4 w-4 text-brand-crimson"
@@ -203,7 +203,7 @@ export default function TableOfContents({ headings }: { headings: Heading[] }) {
         </svg>
       </summary>
       <nav aria-label="Table of contents" className="text-sm pt-3 xl:pt-0">
-        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-brand-muted hidden xl:block">
+        <p className="mb-3 font-ui text-xs font-bold uppercase tracking-widest text-brand-muted hidden xl:block">
           On this page
         </p>
         <ul className="space-y-2 border-l border-brand-dark/10">

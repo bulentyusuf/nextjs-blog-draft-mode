@@ -22,6 +22,22 @@ function headingText(node: Block | Inline): string {
     .join("");
 }
 
+// A table's w-full stretches to the full prose measure, and content-driven
+// auto layout then spreads that surplus across every column regardless of
+// need — a single digit in a "Posts" column was landing in a column wide
+// enough for a sentence. w-[1%] plus whitespace-nowrap is the standard fix
+// for auto table layout: it tells the column "your minimum is your own
+// content", freeing the surplus for columns that actually use it. This is
+// safe to infer per cell, unlike the alignment case it superficially
+// resembles: column width is the max across every cell in it regardless of
+// which ones ask to shrink, so a column mixing short and long values just
+// falls back to ordinary auto sizing — never a visible mismatch the way a
+// header disagreeing with its own column's alignment was.
+function isShortValue(node: Block | Inline): boolean {
+  const text = headingText(node).trim();
+  return text !== "" && /^\d+(\.\d+)?$/.test(text);
+}
+
 function RichTextAsset({
   id,
   assets,
@@ -61,6 +77,8 @@ function RichTextAsset({
           src={asset.url}
           alt={asset.description || ""}
           caption={asset.description}
+          width={asset.width}
+          height={asset.height}
         />
       ) : (
         <ContentfulImage
@@ -73,8 +91,12 @@ function RichTextAsset({
           // description there is no caption either, and empty was already the
           // documented render (the build warning above still fires).
           alt=""
-          width={1200}
-          height={800}
+          // The asset's real shape, with 3:2 as the fallback for an asset that
+          // carries no dimensions — see the same pair in lightbox-image.tsx.
+          // w-full h-auto means the bitmap wins once loaded either way, so a
+          // wrong ratio here is a layout shift rather than a wrong render.
+          width={asset.width ?? 1200}
+          height={asset.height ?? 800}
           priority={priority}
           sizes="(max-width: 768px) 100vw, 672px"
           className="w-full h-auto border-2 border-gray-300 dark:border-brand-dark/15"
@@ -85,7 +107,9 @@ function RichTextAsset({
         // body, so slant is what tells the two apart when a note sits level
         // with a figure. Deliberately not applied to the sidenote instead — a
         // note's own italic emphasis would then have nothing to flip to.
-        <figcaption className="text-sm italic text-brand-muted mt-1.5 text-center">
+        // The size is em, matching .sidenote-body in globals.css, so the pair
+        // keeps its ratio to the prose body when that size moves.
+        <figcaption className="text-[0.875em] italic text-brand-muted mt-1.5 text-center">
           {asset.description}
         </figcaption>
       )}
@@ -163,7 +187,22 @@ export function RichText({
                 // its title twice. Per-section descriptive links live in the
                 // ToC, which is where AT users reach for them anyway.
                 aria-label="Permalink"
-                className="ml-2 inline-block align-middle text-brand-muted no-underline opacity-0 transition-opacity duration-200 group-hover/heading:opacity-100 focus-visible:opacity-100 hover:text-brand-crimson"
+                // The negative right margin cancels the anchor's own advance,
+                // so it consumes no width when the line is measured and can
+                // never be pushed onto a line of its own. Without it the marker
+                // wraps whenever a heading's last line is nearly full, and
+                // because it is opacity-0 rather than hidden that line still
+                // takes its height — an empty band under the heading, on a
+                // heading that looks like it had room to spare. Measured in
+                // Chromium across 201 column widths: 15 of them orphaned the
+                // marker before, none after.
+                //
+                // Deliberately not zero-width, which fixes the wrap equally
+                // well and collapses the focus ring to a 2px bar beside the
+                // glyph instead of tracing it. The cost is that the marker can
+                // overhang the measure by up to about 22px when the last line
+                // is completely full, which is inside the gutter it sits in.
+                className="ml-2 -mr-[1em] inline-block align-middle text-brand-muted no-underline opacity-0 transition-opacity duration-200 group-hover/heading:opacity-100 focus-visible:opacity-100 hover:text-brand-crimson"
               >
                 <span aria-hidden="true">#</span>
               </a>
@@ -176,9 +215,66 @@ export function RichText({
         // Pull quote: crimson rule, display face. not-prose so the typography
         // plugin's blockquote styling doesn't fight ours; inner paragraphs are
         // de-margined ([&_p]:m-0) with a gap only between multiple paragraphs.
-        <blockquote className="not-prose my-9 border-l-4 border-brand-crimson pl-5 font-display text-2xl font-medium leading-snug text-brand-dark md:text-[1.75rem] [&_p]:m-0 [&_p+p]:mt-4">
+        <blockquote className="not-prose my-9 border-l-4 border-brand-crimson pl-5 font-display text-2xl font-normal leading-snug text-brand-dark md:text-[1.75rem] [&_p]:m-0 [&_p+p]:mt-4">
           {children}
         </blockquote>
+      ),
+      [BLOCKS.TABLE]: (_node: Block | Inline, children: ReactNode) => (
+        // Horizontal scroll rather than reflow: a table narrower than its
+        // content is unreadable, and Contentful gives no column hints to
+        // restructure from. tabIndex makes the scroll container reachable by
+        // keyboard (2.1.1); a focusable scroll region needs a role and an
+        // accessible name or a screen reader announces an unlabelled stop.
+        // Two nested wrappers: overflow-hidden on the outer element clips the
+        // header fill to the rounded corners, overflow-x-auto on the inner one
+        // scrolls — one element can't do both without losing the radius.
+        <div className="not-prose my-8 overflow-hidden rounded-lg border border-table-edge">
+          <div
+            className="overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-label="Table"
+          >
+            <table className="w-full border-collapse text-[0.9em]">
+              <tbody>{children}</tbody>
+            </table>
+          </div>
+        </div>
+      ),
+      [BLOCKS.TABLE_ROW]: (_node: Block | Inline, children: ReactNode) => (
+        // last:border-b-0 so the final row's rule does not sit a hair inside
+        // the container's own bottom edge and read as a double line. The
+        // header row's own <tr> picks this rule up too, but border-collapse
+        // resolves a shared edge in favour of the cell-level border, so the
+        // header's stronger border-table-edge wins there, not a doubled line.
+        <tr className="border-b border-table-rule last:border-b-0">
+          {children}
+        </tr>
+      ),
+      [BLOCKS.TABLE_HEADER_CELL]: (
+        node: Block | Inline,
+        children: ReactNode,
+      ) => (
+        // scope="col" is not emitted by the default renderer. Contentful's
+        // table model only produces header cells in the first row, so col is
+        // always correct here.
+        <th
+          scope="col"
+          className={`border-b border-table-edge bg-table-header px-3 py-3 text-start font-semibold ${
+            isShortValue(node) ? "w-[1%] whitespace-nowrap" : ""
+          }`}
+        >
+          {children}
+        </th>
+      ),
+      [BLOCKS.TABLE_CELL]: (node: Block | Inline, children: ReactNode) => (
+        <td
+          className={`px-3 py-3 text-start align-top ${
+            isShortValue(node) ? "w-[1%] whitespace-nowrap" : ""
+          }`}
+        >
+          {children}
+        </td>
       ),
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => (
         <RichTextAsset
@@ -201,7 +297,7 @@ export function RichText({
           return (
             <div className="not-prose relative my-8 overflow-hidden rounded-lg border border-hairline">
               {entry.filename ? (
-                <div className="flex items-center justify-between border-b border-hairline bg-gray-50 px-4 py-2 font-mono text-xs text-brand-muted dark:bg-white/5">
+                <div className="flex items-center justify-between border-b border-hairline bg-gray-50 px-4 py-2 font-mono text-[0.67em] text-brand-muted dark:bg-white/5">
                   <span>{entry.filename}</span>
                   <CopyButton code={entry.code} />
                 </div>
@@ -215,7 +311,7 @@ export function RichText({
                   tabIndex={0}
                   role="region"
                   aria-label={entry.filename || "Code block"}
-                  className="overflow-x-auto text-sm [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline-offset-[-2px]"
+                  className="overflow-x-auto text-[0.78em] [&_pre]:m-0 [&_pre]:p-4 [&_pre]:w-max [&_pre]:min-w-full focus-visible:outline-offset-[-2px]"
                   dangerouslySetInnerHTML={{ __html: html }}
                 />
               ) : (
@@ -223,7 +319,7 @@ export function RichText({
                   tabIndex={0}
                   role="region"
                   aria-label={entry.filename || "Code block"}
-                  className="overflow-x-auto p-4 text-sm focus-visible:outline-offset-[-2px]"
+                  className="overflow-x-auto p-4 text-[0.78em] focus-visible:outline-offset-[-2px]"
                 >
                   <code>{entry.code}</code>
                 </pre>
@@ -234,20 +330,38 @@ export function RichText({
 
         if (entry.__typename === "PromptBlock") {
           return (
-            <div className="not-prose my-8 overflow-hidden rounded-lg border border-hairline">
-              {/* In dark mode brand-crimson lifts (for link legibility); white
-                  text on the lifted hue fails AA, so the header ink goes dark. */}
-              <div className="flex items-center justify-between bg-brand-crimson px-4 py-2 font-mono text-xs text-white dark:text-surface-dark">
-                <span className="min-w-0 flex-1 truncate">
+            <figure className="not-prose my-8 overflow-hidden rounded-lg border border-hairline">
+              {/* figcaption as figure's first child names the whole block
+                  natively — no role or aria-labelledby needed. In dark mode
+                  brand-crimson lifts (for link legibility); white text on the
+                  lifted hue fails AA at 2.53:1, so the header ink goes dark
+                  (6.64:1). The label is not mono: at this size a fixed-advance
+                  face draws stems thin enough that measured contrast stops
+                  predicting legibility, and the label is a caption rather than a
+                  verbatim string. It also sits at the body's size rather than
+                  below it — a label smaller than the content it names had
+                  nothing to justify it. */}
+              <figcaption className="flex items-center justify-between bg-brand-crimson px-4 py-2 text-[0.78em] font-semibold text-white dark:text-surface-dark">
+                <span className="min-w-0 flex-1">
                   {entry.label || "Prompt"}
                 </span>
                 <CopyButton code={entry.prompt} label="prompt" variant="dark" />
-              </div>
-              <div className="flow-root whitespace-pre-wrap break-words bg-gray-50 p-4 font-mono text-sm text-gray-800 dark:bg-white/5 dark:text-brand-dark">
+              </figcaption>
+              <div className="flow-root whitespace-pre-wrap break-words bg-gray-50 p-4 font-mono text-[0.78em] text-gray-800 dark:bg-white/5 dark:text-brand-dark">
                 {entry.image?.url && (
+                  /* Decorative thumbnail: floats only from sm up, so text
+                     wraps around it rather than sitting in a fixed column for
+                     the whole prompt. Hidden below sm, where a fixed 78px
+                     column would leave too narrow a strip beside it to read
+                     (WCAG 1.4.10); the image carries no information, so
+                     hiding it there costs nothing. mt-2 corrects for the
+                     text's half-leading, which the image box has none of —
+                     the exact gap depends on which font in the font-mono
+                     stack the browser actually resolves, so treat this as a
+                     nudge tuned by eye rather than a computed constant. */
                   <span
                     aria-hidden="true"
-                    className="relative float-left mb-1 mr-3 block h-[52px] w-[78px] overflow-hidden rounded-md shadow-md ring-1 ring-black/10"
+                    className="relative mt-2 mb-1 mr-3 hidden h-[52px] w-[78px] overflow-hidden rounded-md shadow-md ring-1 ring-black/10 sm:float-left sm:block"
                   >
                     <ContentfulImage
                       src={entry.image.url}
@@ -258,9 +372,9 @@ export function RichText({
                     />
                   </span>
                 )}
-                {entry.prompt}
+                <code>{entry.prompt}</code>
               </div>
-            </div>
+            </figure>
           );
         }
 

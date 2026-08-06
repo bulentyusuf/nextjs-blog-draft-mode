@@ -6,8 +6,8 @@
 // exact thing that failed. Only runs in production.
 //
 // globals.css is imported so Tailwind utilities and the brand tokens resolve.
-// The Inter font variable lives on the root layout, which is bypassed here, so
-// type falls back to the system sans stack. Fine for a last-resort page.
+// The font variables live on the root layout, which is bypassed here, so type
+// falls back to the system stack. Fine for a last-resort page.
 // Copy is yours to tweak.
 
 import "./globals.css";

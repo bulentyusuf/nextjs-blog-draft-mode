@@ -5,6 +5,7 @@ import { describe, it, expect, vi } from "vitest";
 import { renderToReadableStream } from "react-dom/server";
 import axe from "axe-core";
 import type { AxeResults, Result } from "axe-core";
+import { getByRole, queryByRole } from "@testing-library/dom";
 import type { CardPost, Content } from "@/lib/types";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Document } from "@contentful/rich-text-types";
@@ -29,8 +30,8 @@ vi.mock("server-only", () => ({}));
 // next/font/google reaches the network at module scope. The layout only uses
 // the returned `variable`, so a stub is faithful enough for structure.
 vi.mock("next/font/google", () => ({
-  Inter: () => ({ variable: "--font-inter" }),
-  Fraunces: () => ({ variable: "--font-fraunces" }),
+  Bricolage_Grotesque: () => ({ variable: "--font-bricolage" }),
+  Literata: () => ({ variable: "--font-literata" }),
 }));
 vi.mock("next/headers", () => ({
   draftMode: async () => ({ isEnabled: false }),
@@ -180,6 +181,41 @@ const embed = (nodeType: string, id: string) => ({
   data: { target: { sys: { id } } },
   content: [],
 });
+const cell = (nodeType: string, value: string) => ({
+  nodeType,
+  data: {},
+  content: [para(text(value))],
+});
+const row = (...cells: unknown[]) => ({
+  nodeType: BLOCKS.TABLE_ROW,
+  data: {},
+  content: cells,
+});
+const table = (...rows: unknown[]) => ({
+  nodeType: BLOCKS.TABLE,
+  data: {},
+  content: rows,
+});
+
+// Three columns, one of them ("Updated") mixing digits and text, exercising
+// a table with a header row and more than one body row.
+const bodyTable = table(
+  row(
+    cell(BLOCKS.TABLE_HEADER_CELL, "Category"),
+    cell(BLOCKS.TABLE_HEADER_CELL, "Posts"),
+    cell(BLOCKS.TABLE_HEADER_CELL, "Updated"),
+  ),
+  row(
+    cell(BLOCKS.TABLE_CELL, "Design"),
+    cell(BLOCKS.TABLE_CELL, "12"),
+    cell(BLOCKS.TABLE_CELL, "3"),
+  ),
+  row(
+    cell(BLOCKS.TABLE_CELL, "Retro"),
+    cell(BLOCKS.TABLE_CELL, "4"),
+    cell(BLOCKS.TABLE_CELL, "TBD"),
+  ),
+);
 
 const bodyDoc = {
   nodeType: BLOCKS.DOCUMENT,
@@ -193,6 +229,7 @@ const bodyDoc = {
     embed(BLOCKS.EMBEDDED_ASSET, "img1"),
     embed(BLOCKS.EMBEDDED_ENTRY, "code1"),
     embed(BLOCKS.EMBEDDED_ENTRY, "prompt1"),
+    bodyTable,
     h2("Second section"),
     para(text("Closing copy.")),
   ],
@@ -351,12 +388,146 @@ describe("post page", () => {
 
   it("describes a captioned figure once, not twice", async () => {
     // Contentful's `description` is one field feeding both. Emitted as alt as
-    // well as caption, every figure announced the same sentence twice.
+    // well as caption, every figure announced the same sentence twice. Only
+    // applies where a figure actually holds an image — the PromptBlock figure
+    // in this fixture has none, and its figcaption names the prompt, not a
+    // picture, so there is nothing for it to redundantly describe.
     await render();
     for (const figure of document.querySelectorAll("figure")) {
-      const alt = figure.querySelector("img")?.getAttribute("alt");
+      const img = figure.querySelector("img");
+      if (!img) continue;
       const caption = figure.querySelector("figcaption")?.textContent?.trim();
-      if (caption) expect(alt).toBe("");
+      if (caption) expect(img.getAttribute("alt")).toBe("");
     }
+  });
+
+  it("gives every header cell a column scope", async () => {
+    await render();
+    const headerCells = document.querySelectorAll("table th");
+    expect(headerCells.length).toBeGreaterThan(0);
+    for (const th of headerCells) {
+      expect(th.getAttribute("scope")).toBe("col");
+    }
+  });
+
+  it("exposes the scroll container as a focusable, named region", async () => {
+    await render();
+    const region = getByRole(document.body, "region", { name: "Table" });
+    expect(region.getAttribute("tabindex")).toBe("0");
+    expect(region.querySelector("table")).not.toBeNull();
+  });
+
+  it("aligns every cell start, header included", async () => {
+    // Per-cell numeric inference made the header disagree with its own
+    // column by construction ("Posts" isn't a number, its digits are) — every
+    // value in a real table is a single digit anyway, so there's nothing for
+    // right-alignment to buy. All cells are start-aligned, uniformly.
+    await render();
+    const cells = [
+      ...document.querySelectorAll("table th"),
+      ...document.querySelectorAll("table td"),
+    ];
+    expect(cells.length).toBeGreaterThan(0);
+    for (const cell of cells) {
+      expect(cell.classList.contains("text-start")).toBe(true);
+      expect(cell.classList.contains("text-end")).toBe(false);
+    }
+  });
+
+  it("shrinks a bare-number column but not a text one", async () => {
+    // w-full stretches the table to the full prose measure, and auto layout
+    // otherwise spreads that surplus across every column regardless of need —
+    // a single digit was landing in a column wide enough for a sentence.
+    // w-[1%] + whitespace-nowrap tells auto layout this column's minimum is
+    // its own content, freeing the surplus for columns that use it.
+    await render();
+    const cells = [...document.querySelectorAll("table td")];
+    const numericCell = cells.find((td) => td.textContent?.trim() === "12");
+    const textCell = cells.find((td) => td.textContent?.trim() === "Design");
+    expect(numericCell?.classList.contains("w-[1%]")).toBe(true);
+    expect(numericCell?.classList.contains("whitespace-nowrap")).toBe(true);
+    expect(textCell?.classList.contains("w-[1%]")).toBe(false);
+    expect(textCell?.classList.contains("whitespace-nowrap")).toBe(false);
+  });
+});
+
+describe("prompt block", () => {
+  // A minimal body holding only the embedded PromptBlock under test, so role
+  // queries never have to disambiguate against the cover, avatar or other
+  // fixtures used elsewhere in this file.
+  function promptBody(entry: Record<string, unknown>) {
+    const doc = {
+      nodeType: BLOCKS.DOCUMENT,
+      data: {},
+      content: [embed(BLOCKS.EMBEDDED_ENTRY, "prompt1")],
+    } as unknown as Document;
+    const content = {
+      json: doc,
+      links: {
+        entries: {
+          block: [
+            { sys: { id: "prompt1" }, __typename: "PromptBlock", ...entry },
+          ],
+          inline: [],
+        },
+      },
+    } as unknown as Content;
+    return { doc, content };
+  }
+
+  async function renderPrompt(entry: Record<string, unknown>) {
+    const { doc, content } = promptBody(entry);
+    await renderPage(
+      <RootLayout>
+        <div className="mx-auto max-w-5xl px-5 py-8">
+          <article>
+            <div className="prose">
+              <RichText content={content} headings={extractHeadings(doc)} />
+            </div>
+          </article>
+        </div>
+      </RootLayout>,
+    );
+  }
+
+  // dom-accessibility-api implements the generic ARIA accname algorithm, not
+  // the HTML-AAM rule naming a <figure> from a first-or-last-child
+  // <figcaption> — a jsdom/tooling gap (real browsers, and axe in one, do
+  // compute this), the same category as the color-contrast/target-size rules
+  // disabled above. getByRole locates the element; the name itself is read
+  // from the figcaption directly rather than through a name-option filter
+  // that this environment cannot resolve.
+  it("exposes an accessible name matching its label", async () => {
+    await renderPrompt({ label: "A prompt", prompt: "Draw a cat" });
+    const figure = getByRole(document.body, "figure");
+    expect(figure.querySelector("figcaption")?.textContent?.trim()).toBe(
+      "A prompt",
+    );
+  });
+
+  it("keeps the figcaption as the figure's direct child", async () => {
+    // The constraint most likely to be broken by a later layout change, and it
+    // fails silently: a figcaption nested in a wrapper div no longer names the
+    // figure at all.
+    await renderPrompt({ label: "A prompt", prompt: "Draw a cat" });
+    const figure = getByRole(document.body, "figure");
+    expect(figure.firstElementChild?.tagName).toBe("FIGCAPTION");
+  });
+
+  it('falls back to "Prompt" when the label is absent', async () => {
+    await renderPrompt({ prompt: "Draw a cat" });
+    const figure = getByRole(document.body, "figure");
+    expect(figure.querySelector("figcaption")?.textContent?.trim()).toBe(
+      "Prompt",
+    );
+  });
+
+  it("hides the decorative thumbnail from the accessibility tree", async () => {
+    await renderPrompt({
+      label: "A prompt",
+      prompt: "Draw a cat",
+      image: { url: "https://images.ctfassets.net/x/y/thumb.jpg" },
+    });
+    expect(queryByRole(document.body, "img")).toBeNull();
   });
 });

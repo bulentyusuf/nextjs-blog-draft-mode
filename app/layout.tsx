@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Inter, Fraunces } from "next/font/google";
+import { Bricolage_Grotesque, Literata } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import {
@@ -68,15 +68,28 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
 };
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+// Two faces, three jobs — see the token block in globals.css. latin-ext on both
+// is deliberate: the capital eszett ẞ (U+1E9E) sits in that range and de-DE will
+// need it. German low-9 quotes „ (U+201E) are already inside latin.
+//
+// opsz only. The wdth axis (75-100) is why Bricolage is the right long-term
+// choice — it lets a long German compound narrow rather than drop a size step —
+// but nothing reaches for it today and the axis costs bytes for no current
+// benefit. Add it when the de-DE work actually needs it.
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin", "latin-ext"],
   display: "swap",
+  axes: ["opsz"],
 });
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
+// Literata carries the italic because it is the prose face: <em> in rich text
+// and the figure captions were browser-synthesised slants before. Bricolage is
+// roman only — a display italic is a separate decision.
+const literata = Literata({
+  variable: "--font-literata",
+  subsets: ["latin", "latin-ext"],
   display: "swap",
+  style: ["normal", "italic"],
   axes: ["opsz"],
 });
 function Header() {
@@ -86,24 +99,24 @@ function Header() {
         <div className="flex items-baseline gap-3">
           <Link
             href="/"
-            className="font-display text-lg font-[650] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
+            className="font-display text-lg font-[700] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             {SITE_TITLE}
           </Link>
-          <p className="hidden lg:block text-sm text-white/90">
+          <p className="hidden lg:block font-ui text-sm text-white/90">
             {SITE_DESCRIPTION}
           </p>
         </div>
         <nav aria-label="Primary" className="flex items-center gap-4 md:gap-6">
           <Link
             href="/categories"
-            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
+            className="font-ui text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             Categories
           </Link>
           <Link
             href="/about"
-            className="text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
+            className="font-ui text-sm font-bold text-white hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             About
           </Link>
@@ -138,7 +151,7 @@ function Header() {
 // Shared link treatment for the footer: quiet by default, visible focus ring
 // matching the skip-link convention above.
 const footerLink =
-  "text-white/80 hover:text-white transition-colors duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white";
+  "font-ui text-white/80 hover:text-white transition-colors duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white";
 
 function Footer() {
   return (
@@ -147,7 +160,7 @@ function Footer() {
         <div className="grid gap-8 md:grid-cols-[2fr_1fr_1fr] md:gap-12">
           {/* Column 1 — masthead + blurb */}
           <div>
-            <p className="font-display text-2xl font-[650] text-white">
+            <p className="font-display text-2xl font-[700] text-white">
               {SITE_TITLE}
             </p>
             <p className="mt-3 max-w-sm text-sm text-white/80">
@@ -161,11 +174,11 @@ function Footer() {
               whose deepest heading is an h2 — post pages, /about, /privacy,
               /search and all four browse indexes — which axe reports as
               heading-order. Promoting it to h2 instead would flip it to
-              Fraunces, since globals.css gives the display face to h1-h3. It
+              Bricolage, since globals.css gives the display face to h1-h3. It
               loses nothing as a <p>: the nav already carries aria-label="Browse",
               so the landmark is named either way. Same for Colophon below. */}
           <nav aria-label="Browse">
-            <p className="text-xs font-bold uppercase tracking-widest text-white/60">
+            <p className="font-ui text-xs font-bold uppercase tracking-widest text-white/65">
               Browse
             </p>
             <ul className="mt-4 space-y-2 text-sm">
@@ -199,7 +212,7 @@ function Footer() {
 
           {/* Column 3 — colophon */}
           <nav aria-label="Colophon">
-            <p className="text-xs font-bold uppercase tracking-widest text-white/60">
+            <p className="font-ui text-xs font-bold uppercase tracking-widest text-white/65">
               Colophon
             </p>
             <ul className="mt-4 space-y-2 text-sm">
@@ -235,9 +248,9 @@ function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 border-t border-white/10 pt-8">
-          <p className="text-xs text-white/60">
+          <p className="font-ui text-xs text-white/65">
             © {new Date().getFullYear()} Bulent Yusuf · Built with Next.js &
-            Contentful · Type set in Fraunces and Inter
+            Contentful · Type set in Bricolage Grotesque and Literata
           </p>
         </div>
       </div>
@@ -253,7 +266,7 @@ export default async function RootLayout({
   return (
     <html
       lang={DEFAULT_LOCALE}
-      className={`${inter.variable} ${fraunces.variable}`}
+      className={`${bricolage.variable} ${literata.variable}`}
     >
       <body className="min-h-screen flex flex-col bg-brand-bg text-brand-dark">
         {/* top-2 centres the 36px link in the 52px header band. If the header's

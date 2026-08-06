@@ -88,7 +88,13 @@ export default async function CategoriesPage() {
                   <CoverImage
                     url={thumbUrl}
                     href={`/categories/${category.slug}`}
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    // Capped in px for the same reason as the listing covers in
+                    // more-stories.tsx. This grid is two columns with a 40px
+                    // gap inside the 984px container, so a thumbnail tops out
+                    // at (984 - 40) / 2 = 472px. Left at 50vw it asked for
+                    // 720px at a 1440px viewport, which at DPR 2 pulled the
+                    // 1920 derivative instead of the 1080 that covers it.
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 472px"
                     priority={index === 0}
                   />
                 </div>
@@ -133,7 +139,7 @@ export default async function CategoriesPage() {
                   </ul>
                   <Link
                     href={`/categories/${category.slug}`}
-                    className="mt-5 inline-block text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+                    className="mt-5 inline-block font-ui text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
                   >
                     See all in {category.name} &rarr;
                   </Link>

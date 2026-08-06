@@ -9,18 +9,21 @@ import PageContext from "../../page-context";
 
 import { getAllPosts } from "@/lib/api";
 import { visibleTagSlugs } from "@/lib/tags";
-import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
+import { SITE_URL } from "@/lib/constants";
+import {
+  pageItems,
+  pageRangeParams,
+  parsePageParam,
+  totalPagesFor,
+} from "@/lib/paginate";
 
 // Render pages added after build on demand; out-of-range pages 404 below.
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const posts = await getAllPosts(false);
-  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
   // Page 1 lives at "/", so only build 2..totalPages here.
-  return Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => ({
-    page: String(i + 2),
-  }));
+  return pageRangeParams(posts.length, (page) => ({ page }));
 }
 
 export async function generateMetadata({
@@ -29,6 +32,12 @@ export async function generateMetadata({
   params: Promise<{ page: string }>;
 }): Promise<Metadata> {
   const { page } = await params;
+  // The component 404s on anything that is not a page number, so metadata has
+  // to agree — otherwise a title and a canonical are built out of the raw
+  // segment for a URL that is about to not exist.
+  if (parsePageParam(page) === null) {
+    return { title: "Page not found" };
+  }
   return {
     title: `Latest Posts, Page ${page}`,
     alternates: { canonical: `${SITE_URL}/page/${page}` },
@@ -41,9 +50,9 @@ export default async function IndexPage({
   params: Promise<{ page: string }>;
 }) {
   const { page } = await params;
-  const pageNumber = Number(page);
+  const pageNumber = parsePageParam(page);
 
-  if (!Number.isInteger(pageNumber) || pageNumber < 1) {
+  if (pageNumber === null) {
     notFound();
   }
   // Page 1 has a single canonical home at "/".
@@ -53,16 +62,13 @@ export default async function IndexPage({
 
   const { isEnabled } = await draftMode();
   const allPosts = await getAllPosts(isEnabled);
-  const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
+  const totalPages = totalPagesFor(allPosts.length);
 
   if (pageNumber > totalPages) {
     notFound();
   }
 
-  const posts = allPosts.slice(
-    (pageNumber - 1) * POSTS_PER_PAGE,
-    pageNumber * POSTS_PER_PAGE,
-  );
+  const posts = pageItems(allPosts, pageNumber);
 
   return (
     <Container>
@@ -74,8 +80,8 @@ export default async function IndexPage({
         <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
           Latest Posts
         </h1>
-        <PageContext currentPage={pageNumber} totalPages={totalPages} />
       </header>
+      <PageContext currentPage={pageNumber} totalPages={totalPages} />
       <MoreStories
         morePosts={posts}
         variant="list"

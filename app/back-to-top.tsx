@@ -30,7 +30,7 @@ export default function BackToTop() {
        control (draft mode only) and carries the same ring for the same reason.
        A fixed control's indicator floats over unknown ground — light page,
        dark page, the footer band, a code block. No single colour clears 3:1 against all of those: crimson is
-       2.32:1 on the light-mode footer (#A4243B on #241B1D), which is where it
+       2.19:1 on the light-mode footer (#9E2238 on #241B1D), which is where it
        was caught. The white ring plus dark offset is a two-tone indicator —
        whichever tone loses contrast against the background, the other carries
        (white is 18.7:1 on the dark page, the dark offset is 15.5:1 on the light

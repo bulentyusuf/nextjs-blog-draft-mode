@@ -23,6 +23,7 @@ import {
   DEFAULT_OG_LOCALE,
 } from "@/lib/constants";
 import { jsonLdHtml } from "@/lib/json-ld";
+import { createCoverNamer } from "@/lib/view-transition-name";
 import { widont } from "@/lib/typography";
 
 export async function generateStaticParams() {
@@ -159,6 +160,14 @@ export default async function PostPage({
   const headings = extractHeadings(post.content.json);
   const highlighted = await highlightCodeBlocks(post.content);
 
+  // One name allocator for the whole page, as on the home index. The cover
+  // below and the "Read Next" cards draw from it, so a duplicate cover-{slug}
+  // — which invalidates the entire view transition — is impossible by
+  // construction. It was previously impossible only because the related-post
+  // queries filter with slug_not_in: [$slug], which put a page-level invariant
+  // two files away in a GraphQL where clause.
+  const coverName = createCoverNamer();
+
   const crumbs: Crumb[] = post.category
     ? [
         { label: "Home", href: "/" },
@@ -201,7 +210,7 @@ export default async function PostPage({
               url={post.coverImage.url}
               wide
               priority
-              transitionName={`cover-${post.slug}`}
+              transitionName={coverName(post.slug)}
               sizes="(max-width: 768px) 100vw, 1024px"
             />
           </div>
@@ -228,7 +237,7 @@ export default async function PostPage({
           </aside>
 
           <div className="mx-auto max-w-2xl xl:mx-0">
-            <p className="mb-8 text-lg leading-relaxed text-brand-muted text-pretty">
+            <p className="mb-8 text-xl leading-relaxed text-brand-muted text-pretty">
               {post.excerpt}
             </p>
             {post.author && (
@@ -244,8 +253,16 @@ export default async function PostPage({
             {/* text-pretty on the prose container inherits into every child —
                 paragraphs and in-body headings alike — so line breaking just
                 avoids a lone last word, without the aggressive re-balancing of
-                text-wrap: balance. One class covers the whole article body. */}
-            <div className="prose text-pretty prose-h2:text-[1.75em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
+                text-wrap: balance. One class covers the whole article body.
+
+                The heading sizes are em, so they track the prose base. h2 sits
+                at 1.6em rather than the 1.75em it carried before the base moved
+                to 1.125rem: the plugin keys a heading's margins to its own
+                font-size (2em above, 1em below), so an oversized h2 inflates
+                the space around it as well as the type. At 1.6em the gap above
+                lands at 57.6px, near where it sat before the bump, and the
+                h1-to-h2 step widens back out. */}
+            <div className="prose text-pretty prose-h2:text-[1.6em] prose-h3:text-[1.375em] prose-h4:text-[1.15em]">
               <RichText
                 content={post.content}
                 headings={headings}
@@ -298,7 +315,12 @@ export default async function PostPage({
         </div>
       </article>
       <div className="mt-section">
-        <MoreStories morePosts={morePosts} variant="grid" heading="Read Next" />
+        <MoreStories
+          morePosts={morePosts}
+          variant="grid"
+          heading="Read Next"
+          coverName={coverName}
+        />
       </div>
     </Container>
   );

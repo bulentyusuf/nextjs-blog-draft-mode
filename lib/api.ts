@@ -20,6 +20,21 @@ import type {
   AuthorCollectionResponse,
 } from "./types";
 
+// Every rich-text asset selection, in one place. Five queries embed this and
+// they were byte-identical, so a field added to one and not the others was a
+// silent inconsistency waiting to happen — which is how width and height came
+// to be missing everywhere at once. width and height feed the figure's aspect
+// ratio; without them every image was laid out 3:2.
+const ASSET_BLOCK_FIELDS = `
+  sys {
+    id
+  }
+  url
+  description
+  width
+  height
+`;
+
 const POST_GRAPHQL_FIELDS = `
   slug
   title
@@ -39,11 +54,7 @@ const POST_GRAPHQL_FIELDS = `
       links {
         assets {
           block {
-            sys {
-              id
-            }
-            url
-            description
+            ${ASSET_BLOCK_FIELDS}
           }
         }
       }
@@ -55,11 +66,7 @@ const POST_GRAPHQL_FIELDS = `
     links {
       assets {
         block {
-          sys {
-            id
-          }
-          url
-          description
+          ${ASSET_BLOCK_FIELDS}
         }
       }
       entries {
@@ -93,11 +100,7 @@ const POST_GRAPHQL_FIELDS = `
               links {
                 assets {
                   block {
-                    sys {
-                      id
-                    }
-                    url
-                    description
+                    ${ASSET_BLOCK_FIELDS}
                   }
                 }
               }
@@ -203,11 +206,7 @@ const PAGE_GRAPHQL_FIELDS = `
     links {
       assets {
         block {
-          sys {
-            id
-          }
-          url
-          description
+          ${ASSET_BLOCK_FIELDS}
         }
       }
     }
@@ -541,24 +540,32 @@ export const getPostAndMorePosts = cache(
   },
 );
 
-export async function getPage(
-  slug: string,
-  preview = false,
-): Promise<Page | undefined> {
-  const entry = await fetchGraphQL<PageCollectionResponse>(
-    `query GetPage($slug: String!, $preview: Boolean) {
+// A CMS Page (about, privacy), body included.
+//
+// cache()-wrapped for the same reason getBrowseIntro is: both routes that use
+// it call it TWICE per render, once in generateMetadata and once in the
+// component. Next only memoises GET and fetchGraphQL issues POST, so without
+// this /about and /privacy each issued two identical requests — and this
+// fragment carries the whole page body, so it was the most expensive duplicate
+// on the site. The two calls must pass the same arguments, which is why both
+// resolve draftMode() first and pass the same SLUG constant.
+export const getPage = cache(
+  async (slug: string, preview = false): Promise<Page | undefined> => {
+    const entry = await fetchGraphQL<PageCollectionResponse>(
+      `query GetPage($slug: String!, $preview: Boolean) {
       pageCollection(where: { slug: $slug }, preview: $preview, limit: 1) {
         items {
           ${PAGE_GRAPHQL_FIELDS}
         }
       }
     }`,
-    preview,
-    { slug, preview },
-  );
+      preview,
+      { slug, preview },
+    );
 
-  return entry?.data?.pageCollection?.items?.[0];
-}
+    return entry?.data?.pageCollection?.items?.[0];
+  },
+);
 
 export async function getAllPages(isDraftMode: boolean): Promise<PageMeta[]> {
   return fetchAllCollectionItems<PageMeta>(
@@ -783,9 +790,7 @@ export const getAuthorBySlug = cache(
             links {
               assets {
                 block {
-                  sys { id }
-                  url
-                  description
+                  ${ASSET_BLOCK_FIELDS}
                 }
               }
             }

@@ -229,6 +229,18 @@ describe("heading permalink anchor", () => {
     expect(html).toContain("focus-visible:opacity-100");
   });
 
+  it("keeps the anchor out of the heading's line measurement", () => {
+    // The marker is opacity-0, not hidden, so if it wraps onto a line of its
+    // own that line still takes its height and the heading grows an empty band
+    // beneath it. The negative right margin cancels the anchor's advance so it
+    // can never be the thing that wraps. jsdom computes no layout, so this
+    // guards the mechanism rather than the geometry — measured in Chromium at
+    // the time: 15 of 201 column widths orphaned the marker without it, none
+    // with it.
+    const html = render(text("Getting set up"));
+    expect(html).toContain("-mr-[1em]");
+  });
+
   it("emits no permalink for an empty heading (no slug, no anchor)", () => {
     const html = render(text(""));
     expect(html).not.toContain("<a");
@@ -621,7 +633,7 @@ describe("embedded asset descriptions", () => {
     );
 
     expect(html).toContain(
-      '<figcaption class="text-sm italic text-brand-muted mt-1.5 text-center">A tabby asleep on a keyboard</figcaption>',
+      '<figcaption class="text-[0.875em] italic text-brand-muted mt-1.5 text-center">A tabby asleep on a keyboard</figcaption>',
     );
     expect(html).toContain('alt=""');
     expect(html).not.toContain('alt="A tabby asleep on a keyboard"');
@@ -646,4 +658,56 @@ describe("embedded asset descriptions", () => {
     expect(html).not.toContain('alt="A tabby asleep on a keyboard"');
     warn.mockRestore();
   });
+
+  // The asset's shape has to survive the trip from the query to both render
+  // branches. Every image was laid out 3:2 before, so a portrait figure
+  // reserved a landscape box and jumped to its real height on load.
+  const portrait = (): Content =>
+    ({
+      json: assetDoc,
+      links: {
+        assets: {
+          block: [
+            {
+              sys: { id: "asset-1" },
+              url: "https://images.ctfassets.net/a.jpg",
+              description: "A box shot",
+              width: 800,
+              height: 1200,
+            },
+          ],
+        },
+      },
+    }) as unknown as Content;
+
+  it.each([true, false])(
+    "carries the asset's own dimensions through (lightbox=%s)",
+    (lightbox) => {
+      const html = renderToStaticMarkup(
+        <RichText content={portrait()} headings={[]} lightbox={lightbox} />,
+      );
+
+      expect(html).toContain('width="800"');
+      expect(html).toContain('height="1200"');
+    },
+  );
+
+  it.each([true, false])(
+    "falls back to 3:2 for an asset with no dimensions (lightbox=%s)",
+    (lightbox) => {
+      // Contentful returns null for both on a non-image asset, and a payload
+      // cached before they were queried carries neither. The fixture above
+      // omits them, which is that path.
+      const html = renderToStaticMarkup(
+        <RichText
+          content={withDescription("A tabby asleep on a keyboard")}
+          headings={[]}
+          lightbox={lightbox}
+        />,
+      );
+
+      expect(html).toContain('width="1200"');
+      expect(html).toContain('height="800"');
+    },
+  );
 });

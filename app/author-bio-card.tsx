@@ -22,7 +22,7 @@ export default function AuthorBioCard({ author }: { author: Author }) {
         />
       )}
       <div>
-        <p className="text-xs font-bold uppercase tracking-widest text-brand-muted">
+        <p className="font-ui text-xs font-bold uppercase tracking-widest text-brand-muted">
           Written by
         </p>
         <p className="mt-1 text-xl font-bold text-brand-dark">{author.name}</p>
