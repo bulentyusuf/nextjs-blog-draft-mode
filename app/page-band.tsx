@@ -9,8 +9,9 @@ import Breadcrumb, { type Crumb } from "./breadcrumb";
  * edge lines up with the cards that follow. The band is a sibling of the
  * sticky header, never part of it: on scroll the band leaves while the 52px
  * bar stays pinned. The band is a step darker than the bar, not the same
- * colour, so the seam where they meet is deliberate at 1.60:1 rather than an
- * artefact.
+ * colour, so the seam where they meet is deliberate — 1.60:1 in light, 1.55:1
+ * in dark. Both blues move between schemes to hold that step; globals.css
+ * carries why.
  *
  * The axis is what the reader is doing, not how deep they have clicked: every
  * browsing surface bands, every reading surface stays on cream, so a
@@ -18,13 +19,13 @@ import Breadcrumb, { type Crumb } from "./breadcrumb";
  * article.
  *
  * Every text colour inside is solid white. No `text-white/N` — on brand-band
- * white is 16.60:1, whereas white/85 on the old header navy was 7.93 light and
- * 6.38 dark, and the second of those missed the AAA floor that
- * lib/palette-contrast.test.ts already enforces sitewide. Hierarchy comes from
- * size and face instead of tint, which the two-face system supports better
- * than an opacity ladder anyway. Decorative marks — the crumb separators, the
- * author portrait's ring — may still be translucent: they are aria-hidden or
- * non-textual and exempt under 1.4.3.
+ * white is 16.60:1 light and 12.61:1 dark, whereas white/85 on the old header
+ * navy was 7.93 light and 6.38 dark, and the second of those missed the AAA
+ * floor that lib/palette-contrast.test.ts already enforces sitewide. Hierarchy
+ * comes from size and face instead of tint, which the two-face system supports
+ * better than an opacity ladder anyway. Decorative marks — the crumb
+ * separators, the author portrait's ring — may still be translucent: they are
+ * aria-hidden or non-textual and exempt under 1.4.3.
  *
  * No crimson anywhere inside. brand-crimson on brand-header is 1.35:1 in
  * light, so the accent that carries links everywhere else cannot come in here.

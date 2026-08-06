@@ -76,24 +76,38 @@
   --color-brand-crimson: #9e2238;
   --color-brand-header: #1e3a8a;
 
-  /* Masthead band on the browsing pages, in BOTH schemes. Like
-     --color-surface-dark it is deliberately excluded from the dark override
-     below, and for the same kind of reason: the band is a large dark field
-     that must stay dark, not a value that inverts with the page.
+  /* Masthead band on the browsing pages. Lifted in dark mode (below), and the
+     thing to understand before retuning either value is WHAT stays fixed.
+
+     What is fixed is the step between the sticky bar and the band: 1.60:1 in
+     light, 1.55:1 in dark, band darker in both. That relationship is the
+     design — the bar reads as the light end of a two-step ramp, and the seam
+     where they meet is deliberate rather than an artefact. The PAGE is the
+     thing that changes which side of the band it sits on, so two blues that
+     both moved between schemes have not drifted; they moved together to hold
+     that step while the ground under them inverted.
+
+     Why the dark value must be lifted at all: a dark block cannot read on a
+     dark page. At the light-mode #0F1C42 the band sits at 1.13:1 against the
+     #17110F page, which is no block at all — the bar would appear to float on
+     bare page with a large h1 beneath it. #1B2F6B gives 1.48:1. That makes the
+     band lighter than the page in dark and darker than it in light, which is
+     not an inconsistency: the header bar and the footer already run
+     chrome-lighter-than-content in dark, so this conforms to the scheme rather
+     than inverting it. lib/palette-contrast.test.ts holds the separation in
+     both schemes, which is the guard the 1.13:1 version would have failed.
 
      A separate token rather than a reuse of --color-brand-header because the
-     two diverge in dark mode by design. brand-header lifts to #2E4A9E there so
-     a 52px bar separates from a near-black page; a 200px slab neither needs
-     that help nor survives it, becoming a bright block sitting on a dark page.
-     The bar is meant to read as the light end of a two-step ramp above this.
+     two need different amounts of lift: brand-header rises to #2E4A9E so a
+     52px bar separates from a near-black page, and a 200px block needs less.
+     Not derived from it with color-mix either — see the note on
+     --color-control-edge for why a hand-carried literal beats a color-mix over
+     a var() in this file. The name says what it is rather than what it is
+     derived from, because palette work here is done across the whole spectrum
+     at once and a name encoding a derivation would promise something nothing
+     enforces. Where a relationship does need holding, a test holds it.
 
-     Not derived from brand-header with color-mix. The tokens are related by
-     intent, not by arithmetic — see the note on --color-control-edge for why a
-     hand-carried literal beats a color-mix over a var() here. The name says
-     what it is rather than what it is derived from, because palette work here
-     is done across the whole spectrum at once and a name encoding a derivation
-     would promise something nothing enforces. Where a relationship does need
-     holding, a test holds it. */
+     White holds at 16.60:1 on the light value and 12.61:1 on the dark one. */
   --color-brand-band: #0f1c42;
 
   --color-brand-dark: #241b1d;
@@ -183,6 +197,11 @@
     --color-brand-muted: #b3a49c; /* lifted so meta text keeps AA on dark */
     --color-brand-crimson: #ec8494; /* lifted so links stay vivid + AAA on dark */
     --color-brand-header: #2e4a9e; /* lifted so the bar reads distinct from page */
+
+    /* Lifted less than the bar above, holding the 1.55:1 step between them.
+       The light #0F1C42 would sit at 1.13:1 on this page and vanish. See the
+       full argument on the light value. */
+    --color-brand-band: #1b2f6b;
 
     /* Raise the footer band so it reads as distinct above the page. Pinned to
        surface-dark (#241B1D) it sat at only 1.11:1 vs the #17110F page and

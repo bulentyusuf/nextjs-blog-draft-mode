@@ -500,12 +500,17 @@ a navy-to-cream step never happens without also crossing from a list into an
 article. Home, post, about, privacy and search are deliberately unbanded, each
 for a reason set out in the component or its neighbours.
 
-- **`--color-brand-band` has no dark override, and that is the point.** Like
-  `--color-surface-dark` it is an always-dark surface. It is _not_ derived from
-  `--color-brand-header`: that token lifts in dark mode so a 52px bar separates
-  from a near-black page, and a 200px slab neither needs that help nor survives
-  it. `lib/palette-contrast.test.ts` asserts the two schemes stay equal, so
-  adding the override fails loudly.
+- **`--color-brand-band` is lifted in dark mode, and what stays fixed is the
+  step between the bar and the band** — 1.60:1 light, 1.55:1 dark, band darker
+  in both. The page is what changes which side of the band it sits on, so two
+  blues that both moved have not drifted. It is _not_ derived from
+  `--color-brand-header`; the two need different amounts of lift, a 52px bar
+  more than a 200px block. This began life with no dark override at all, which
+  left the light value at 1.13:1 on the dark page — no block, a large `h1`
+  floating on bare page — so `lib/palette-contrast.test.ts` now asserts the
+  band separates from `--color-brand-bg` in **both** schemes, at a deliberately
+  sub-WCAG 1.4:1. That is a block-visibility guard, not a text one, and it is
+  the check every text-contrast assertion missed.
 - **Every text node inside the band is solid white.** No `text-white/N` — a
   test scrapes the component for it. Hierarchy comes from size and face, not
   tint. The crumb separators and the author portrait's ring are the only

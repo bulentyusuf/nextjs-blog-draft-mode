@@ -86,28 +86,42 @@ describe("footer small print clears AAA in both schemes", () => {
 
 describe("the browse band carries solid white text", () => {
   // Read through schemeTokens rather than hardcoded, so a retune of the band
-  // is caught here rather than shipping a band nobody rechecked. 16.60:1 in
-  // both schemes today, which is the whole reason the band's text is solid:
-  // white/85 on the old header navy was 7.93 light and 6.38 dark, and the
-  // second of those missed this floor.
+  // is caught here rather than shipping a band nobody rechecked. 16.60:1 light
+  // and 12.61:1 dark today, which is the whole reason the band's text is
+  // solid: white/85 on the old header navy was 7.93 light and 6.38 dark, and
+  // the second of those missed this floor.
   it.each(["light", "dark"] as const)("%s", (scheme) => {
     const token = scheme === "light" ? light : dark;
     expect(
       contrast({ r: 255, g: 255, b: 255, a: 1 }, token("--color-brand-band")),
     ).toBeGreaterThanOrEqual(MIN_AAA_TEXT);
   });
+});
 
-  it("is the same paint in both schemes", () => {
-    // The exclusion from the dark block is the design, not an omission. The
-    // band is a large always-dark field like --color-surface-dark, and the
-    // instinct this catches is a reasonable-looking one: that every colour
-    // token needs a dark override. Lifting it the way --color-brand-header
-    // lifts would turn a 200px slab into a bright block on a near-black page.
+describe("the browse band stays a visible block in both schemes", () => {
+  // Not a text pairing, so the bar is deliberately far below any WCAG
+  // threshold: this asserts only that the masthead is still a block rather
+  // than bare page. It is the assertion the first cut of this feature would
+  // have failed — the band shipped with no dark override, which left the
+  // light #0F1C42 sitting at 1.13:1 on the #17110F dark page, invisible, with
+  // a large h1 apparently floating on nothing. Every text-contrast assertion
+  // above stayed green throughout, because white on the band was never the
+  // problem.
+  //
+  // 15.33:1 light and 1.48:1 dark today. The band is darker than the page in
+  // light and lighter than it in dark; only the separation is asserted,
+  // because which side it sits on is the page's doing, not the band's.
+  const MIN_BLOCK_SEPARATION = 1.4;
+
+  it.each(["light", "dark"] as const)("%s", (scheme) => {
+    const token = scheme === "light" ? light : dark;
     expect(
-      sameColour(light("--color-brand-band"), dark("--color-brand-band")),
-    ).toBe(true);
+      contrast(token("--color-brand-band"), token("--color-brand-bg")),
+    ).toBeGreaterThanOrEqual(MIN_BLOCK_SEPARATION);
   });
+});
 
+describe("the browse band's markup", () => {
   it("uses no translucent white anywhere inside", () => {
     // Same regex the footer block above scrapes out of layout.tsx, pointed at
     // the band. Without this, a `text-white/70` added to the dek later passes
