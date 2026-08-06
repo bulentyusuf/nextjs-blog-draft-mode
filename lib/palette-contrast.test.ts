@@ -161,34 +161,37 @@ describe("no route paints body ink inside the band", () => {
   // brand-muted and brand-dark are body ink; brand-crimson is 1.35:1 on this
   // navy. None of the three has an on-band treatment, so the band's contents
   // name no colour at all and take white from the root.
-  const INK = /text-brand-(muted|dark|crimson)/g;
+  const INK = /text-brand-(muted|dark|crimson)/;
 
-  // The four section fronts mark the band with a literal element, so the region
-  // is exact. Their card bodies below the band use muted ink legitimately,
-  // which is why this cannot be a whole-file assertion.
+  // Targeted at the two elements that go in the band rather than at the
+  // wrapper around them. Slicing on `<PageBand>` was the obvious approach and
+  // it broke the moment the routes started passing their header through
+  // BrowsePage instead — a guard that silently stops covering anything when
+  // markup is recomposed is worse than none. An h1 and the standfirst
+  // signature survive that; they are what the band actually renders.
+  const STANDFIRST = /className="[^"]*max-w-3xl text-lg leading-relaxed[^"]*"/g;
+  const HEADING = /<h1 className="([^"]*)"/g;
+
   it.each([
     "app/categories/page.tsx",
     "app/tags/page.tsx",
     "app/authors/page.tsx",
     "app/archive/page.tsx",
-  ])("%s", (file) => {
-    const source = read(file);
-    const band = /<PageBand[\s\S]*?<\/PageBand>/.exec(source);
-    expect(band).not.toBeNull();
-    expect(band![0].match(INK)).toBeNull();
-  });
-
-  // The six taxonomy routes pass their band contents as children of
-  // TaxonomyListing, so there is no marker to slice on. A whole-file assertion
-  // works instead, because after this change these four hold no muted text
-  // anywhere — everything else on the page is rendered by shared components.
-  it.each([
     "app/categories/[slug]/page.tsx",
     "app/categories/[slug]/page/[page]/page.tsx",
     "app/tags/[slug]/page.tsx",
     "app/tags/[slug]/page/[page]/page.tsx",
   ])("%s", (file) => {
-    expect(read(file).match(INK)).toBeNull();
+    const source = read(file);
+    const inBand = [
+      ...(source.match(STANDFIRST) ?? []),
+      ...(source.match(HEADING) ?? []),
+    ];
+    // Non-vacuous: every one of these routes renders an h1 in the band, so an
+    // empty list means the signatures stopped matching, not that the page is
+    // clean.
+    expect(inBand.length).toBeGreaterThan(0);
+    for (const className of inBand) expect(className).not.toMatch(INK);
   });
 
   // The two author routes are deliberately absent. Their bio DOES carry

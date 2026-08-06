@@ -4,8 +4,7 @@ import { draftMode } from "next/headers";
 import { format } from "date-fns";
 import { enGB } from "date-fns/locale";
 import DateComponent from "../date";
-import Container from "../container";
-import PageBand from "../page-band";
+import BrowsePage from "../browse-page";
 import { type Crumb } from "../breadcrumb";
 import { getAllPosts, getBrowseIntro } from "@/lib/api";
 import type { ListPost } from "@/lib/types";
@@ -49,98 +48,99 @@ export default async function ArchivePage() {
   const crumbs: Crumb[] = [{ label: "Home", href: "/" }, { label: "Archive" }];
 
   return (
-    <>
-      <PageBand crumbs={crumbs}>
-        <h1 className="mb-3 text-5xl leading-tight md:text-6xl lg:text-7xl text-pretty">
-          Archive
-        </h1>
-        {/* Unlike the other browse pages, this standfirst is generated rather
+    <BrowsePage
+      crumbs={crumbs}
+      header={
+        <>
+          <h1 className="mb-3 text-5xl leading-tight md:text-6xl lg:text-7xl text-pretty">
+            Archive
+          </h1>
+          {/* Unlike the other browse pages, this standfirst is generated rather
             than written: the count and the earliest month come from the posts
             themselves and stay current without anyone editing them. A Page
             Intro entry can override it, but leaving that field empty is the
             better default — typed prose here would be stale by the next post. */}
-        {intro?.standfirst ? (
-          <p className="max-w-3xl text-lg leading-relaxed text-pretty">
-            {intro.standfirst}
-          </p>
-        ) : (
-          oldest && (
+          {intro?.standfirst ? (
             <p className="max-w-3xl text-lg leading-relaxed text-pretty">
-              {posts.length} {posts.length === 1 ? "post" : "posts"} since{" "}
-              {format(new Date(oldest.date), "LLLL yyyy", { locale: enGB })},
-              newest first.
+              {intro.standfirst}
             </p>
-          )
-        )}
-      </PageBand>
-      <Container>
-        {years.length === 0 ? (
-          <p className="text-lg text-brand-muted">No posts yet.</p>
-        ) : (
-          years.map((year) => {
-            const yearPosts = byYear.get(year)!;
-            return (
-              <section key={year} className="mb-10 last:mb-0">
-                {/* Section marker, deliberately subordinate to the h1. Bricolage
+          ) : (
+            oldest && (
+              <p className="max-w-3xl text-lg leading-relaxed text-pretty">
+                {posts.length} {posts.length === 1 ? "post" : "posts"} since{" "}
+                {format(new Date(oldest.date), "LLLL yyyy", { locale: enGB })},
+                newest first.
+              </p>
+            )
+          )}
+        </>
+      }
+    >
+      {years.length === 0 ? (
+        <p className="text-lg text-brand-muted">No posts yet.</p>
+      ) : (
+        years.map((year) => {
+          const yearPosts = byYear.get(year)!;
+          return (
+            <section key={year} className="mb-10 last:mb-0">
+              {/* Section marker, deliberately subordinate to the h1. Bricolage
                   comes from the base layer; brand-muted keeps it legible in
                   both colour schemes without any scheme-specific code. */}
-                <h2 className="mb-4 flex items-baseline gap-x-3 text-2xl text-brand-muted md:text-3xl tabular-nums">
-                  {year}
-                  {/* Uppercase and tracked, the same signal the category links
+              <h2 className="mb-4 flex items-baseline gap-x-3 text-2xl text-brand-muted md:text-3xl tabular-nums">
+                {year}
+                {/* Uppercase and tracked, the same signal the category links
                     below and the footer headings use for a label. In sentence
                     case at body-muted it dressed as prose and read as the start
                     of one; as a tally it stays out of the way. Matches the tag
                     counts on /tags — the same phrase should not look like two
                     different things. */}
-                  <span className="font-ui text-xs font-normal uppercase tracking-wide text-brand-muted">
-                    {yearPosts.length}{" "}
-                    {yearPosts.length === 1 ? "post" : "posts"}
-                  </span>
-                </h2>
-                <ul className="space-y-3">
-                  {yearPosts.map((post) => (
-                    <li
-                      key={post.slug}
-                      className="flex flex-col gap-y-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-6"
-                    >
-                      <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="font-ui text-xs font-normal uppercase tracking-wide text-brand-muted">
+                  {yearPosts.length} {yearPosts.length === 1 ? "post" : "posts"}
+                </span>
+              </h2>
+              <ul className="space-y-3">
+                {yearPosts.map((post) => (
+                  <li
+                    key={post.slug}
+                    className="flex flex-col gap-y-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-6"
+                  >
+                    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <Link
+                        href={`/posts/${post.slug}`}
+                        className="hover:text-brand-crimson transition-colors duration-200"
+                      >
+                        {widont(post.title)}
+                      </Link>
+                      {post.category && (
                         <Link
-                          href={`/posts/${post.slug}`}
-                          className="hover:text-brand-crimson transition-colors duration-200"
+                          href={`/categories/${post.category.slug}`}
+                          className="font-ui text-sm uppercase tracking-wide text-brand-muted transition-colors duration-200 hover:text-brand-crimson"
                         >
-                          {widont(post.title)}
-                        </Link>
-                        {post.category && (
-                          <Link
-                            href={`/categories/${post.category.slug}`}
-                            className="font-ui text-sm uppercase tracking-wide text-brand-muted transition-colors duration-200 hover:text-brand-crimson"
-                          >
-                            {/* Screen readers run adjacent inline elements
+                          {/* Screen readers run adjacent inline elements
                               together, so the title ran straight into the
                               category name. A word gives it a boundary. */}
-                            <span className="sr-only">in </span>
-                            {post.category.name}
-                          </Link>
-                        )}
-                      </span>
-                      <span className="shrink-0 text-sm tabular-nums text-brand-muted sm:text-right">
-                        <DateComponent
-                          dateString={post.date}
-                          formatString="d MMM"
-                        />
-                        {/* The visible date drops the year because the section
+                          <span className="sr-only">in </span>
+                          {post.category.name}
+                        </Link>
+                      )}
+                    </span>
+                    <span className="shrink-0 text-sm tabular-nums text-brand-muted sm:text-right">
+                      <DateComponent
+                        dateString={post.date}
+                        formatString="d MMM"
+                      />
+                      {/* The visible date drops the year because the section
                           heading carries it. Someone moving link to link skips
                           that heading, so restore it for them only. */}
-                        <span className="sr-only"> {year}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })
-        )}
-      </Container>
-    </>
+                      <span className="sr-only"> {year}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })
+      )}
+    </BrowsePage>
   );
 }

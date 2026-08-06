@@ -3,24 +3,38 @@ import { clsx } from "clsx";
 /**
  * `className` appends, it does not merge — clsx concatenates and knows nothing
  * about Tailwind, so an override lands beside the default rather than replacing
- * it and the winner is decided by source order in the generated stylesheet.
+ * it, and the winner is decided by source order in the generated stylesheet.
+ * Tailwind emits utilities in ascending value order, so a spacing override can
+ * only ever INCREASE a value: a smaller one silently loses.
  *
- * Tailwind emits utilities in ascending value order, so a spacing override only
- * works in one direction: a larger value beats the default because it is
- * emitted after it, and a smaller one silently loses. Nothing overrides the
- * padding today — the banded pages briefly passed `pt-10` and it worked, but
- * the gap it made was too large and the band now owns that space instead.
- * Anything needing to REDUCE this padding wants a real prop, not a class.
+ * That is why the top inset is a prop rather than a class. Browse pages sit
+ * under a full-bleed band that has already drawn the boundary, so they need
+ * LESS space above their content than a bare page does, and `className` cannot
+ * express that. app/browse-page.tsx sets the browse rhythm; nothing else passes
+ * this.
  */
+const TOP_PAD = {
+  default: "pt-8",
+  tight: "pt-6 md:pt-8",
+} as const;
+
 export default function Container({
   children,
   className,
+  topPad = "default",
 }: {
   children: React.ReactNode;
   className?: string;
+  topPad?: keyof typeof TOP_PAD;
 }) {
   return (
-    <div className={clsx("max-w-5xl mx-auto px-5 pt-8 pb-12", className)}>
+    <div
+      className={clsx(
+        "max-w-5xl mx-auto px-5 pb-12",
+        TOP_PAD[topPad],
+        className,
+      )}
+    >
       {children}
     </div>
   );

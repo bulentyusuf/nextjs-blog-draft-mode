@@ -493,13 +493,22 @@ treatment matching its column, not the nearest existing h1. The same
 
 ### Browsing pages wear a navy band; reading pages stay on cream
 
-`app/page-band.tsx` is the full-bleed masthead holding the breadcrumb, `h1` and
-standfirst on all ten browsing routes — the four section fronts and the six
-taxonomy listings. The component carries the argument; what matters here is the
-axis: **it tracks what the reader is doing, not how deep they have clicked**, so
-a navy-to-cream step never happens without also crossing from a list into an
-article. Home, post, about, privacy and search are deliberately unbanded, each
-for a reason set out in the component or its neighbours.
+**`app/browse-page.tsx` is the one shell all ten browsing routes render
+through** — the four section fronts and the six taxonomy listings, the latter
+via `app/taxonomy-listing.tsx`. It owns the band, the container and the whole
+vertical rhythm, and it exists because those ten pages were previously two
+implementations of one design: every tuning pass had to be applied twice, and
+the half that got missed drifted. The raised `h1` ramp and the standfirst
+colour each shipped to one half only. Do not add an eleventh browse route that
+assembles `PageBand` and `Container` itself.
+
+`app/page-band.tsx` is the full-bleed masthead inside that shell, holding the
+breadcrumb, `h1` and standfirst. The component carries the argument; what
+matters here is the axis: **it tracks what the reader is doing, not how deep
+they have clicked**, so a navy-to-cream step never happens without also
+crossing from a list into an article. Home, post, about, privacy and search are
+deliberately unbanded, each for a reason set out in the component or its
+neighbours.
 
 - **`--color-brand-band` is lifted in dark mode, and what stays fixed is the
   step between the bar and the band** — 1.60:1 light, 1.55:1 dark, band darker
@@ -541,12 +550,15 @@ for a reason set out in the component or its neighbours.
 - **The listing under a band drops its opening rule** (`openRule={false}` on
   `MoreStories`), because the band already draws that edge. The closing rule
   stays, and `app/pagination.tsx` still has no top border of its own.
-- **The band's bottom padding and `Container`'s `pt-8` sum**, so budget them
-  together — they shipped at 96px on desktop and read as a hole. The band owns
-  that space; `Container` is left at its default and nothing overrides it.
-  Note `Container`'s `className` appends rather than merges, so a spacing
-  override can only ever _increase_ a value: Tailwind emits utilities in
-  ascending order and a smaller one silently loses. The file carries that.
+- **The vertical rhythm is set in one place**, `app/browse-page.tsx`: a
+  symmetric `py-8 md:py-10` band inset, then a deliberately smaller
+  `pt-6 md:pt-8` cream gap, because the band has already drawn the boundary and
+  that space only has to stop the content touching it. The two are different
+  colours so they cannot collapse into one number, but they add up in the eye —
+  at `pb-14` against a `pt-10` they summed to 96px and read as a hole. Note
+  `Container`'s `className` appends rather than merges, so a spacing override
+  can only ever _increase_ a value; that is why its top inset is the `topPad`
+  prop and not a class.
 
 ### The six taxonomy listings share one shell
 

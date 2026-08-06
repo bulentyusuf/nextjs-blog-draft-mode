@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
-import Container from "./container";
+import BrowsePage from "./browse-page";
 import MoreStories from "./more-stories";
 import Pagination from "./pagination";
 import PageContext from "./page-context";
-import PageBand from "./page-band";
 import { type Crumb } from "./breadcrumb";
 import { jsonLdHtml } from "@/lib/json-ld";
 import type { CardPost } from "@/lib/types";
@@ -77,49 +76,42 @@ export default function TaxonomyListing({
   jsonLd?: unknown;
 }) {
   return (
-    <>
-      <PageBand crumbs={crumbs}>{children}</PageBand>
-      {/* Container's own pt-8, not an override. The band closes with its own
-          bottom padding and the two sum, so anything added here is added twice
-          over — which is how the gap under the standfirst first shipped at
-          96px. The band owns the space beneath itself; see app/page-band.tsx. */}
-      <Container>
-        {/* Stays inside Container: it is a script tag, so its position in the
-            tree is irrelevant and moving it into the band buys nothing. */}
-        {jsonLd !== undefined && (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
-          />
-        )}
-        {intro}
+    <BrowsePage crumbs={crumbs} header={children}>
+      {/* Stays here rather than in the band: it is a script tag, so its
+          position in the tree is irrelevant. */}
+      {jsonLd !== undefined && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
+        />
+      )}
+      {intro}
 
-        {emptyMessage !== undefined && posts.length === 0 ? (
-          <p className="mx-auto max-w-5xl text-lg text-brand-muted">
-            {emptyMessage}
-          </p>
-        ) : (
-          <>
-            <PageContext currentPage={currentPage} totalPages={totalPages} />
-            <MoreStories
-              morePosts={posts}
-              variant="list"
-              heading={null}
-              priorityFirst
-              visibleTags={visibleTags}
-              // The band closes the page above this list, so the listing's own
-              // opening rule would draw a second edge just below the first. It
-              // still closes at the bottom, which is what the pager sits under.
-              openRule={false}
-            />
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              basePath={basePath}
-            />
-          </>
-        )}
-      </Container>
-    </>
+      {emptyMessage !== undefined && posts.length === 0 ? (
+        <p className="mx-auto max-w-5xl text-lg text-brand-muted">
+          {emptyMessage}
+        </p>
+      ) : (
+        <>
+          <PageContext currentPage={currentPage} totalPages={totalPages} />
+          <MoreStories
+            morePosts={posts}
+            variant="list"
+            heading={null}
+            priorityFirst
+            visibleTags={visibleTags}
+            // The band closes the page above this list, so the listing's own
+            // opening rule would draw a second edge just below the first. It
+            // still closes at the bottom, which is what the pager sits under.
+            openRule={false}
+          />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            basePath={basePath}
+          />
+        </>
+      )}
+    </BrowsePage>
   );
 }
