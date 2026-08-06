@@ -490,6 +490,42 @@ identical classes, and that mismatch is the tell. Any new page picks the
 treatment matching its column, not the nearest existing h1. The same
 `max-w-5xl` versus `max-w-2xl` split governs breadcrumb placement.
 
+### Browsing pages wear a navy band; reading pages stay on cream
+
+`app/page-band.tsx` is the full-bleed masthead holding the breadcrumb, `h1` and
+standfirst on all ten browsing routes — the four section fronts and the six
+taxonomy listings. The component carries the argument; what matters here is the
+axis: **it tracks what the reader is doing, not how deep they have clicked**, so
+a navy-to-cream step never happens without also crossing from a list into an
+article. Home, post, about, privacy and search are deliberately unbanded, each
+for a reason set out in the component or its neighbours.
+
+- **`--color-brand-band` has no dark override, and that is the point.** Like
+  `--color-surface-dark` it is an always-dark surface. It is _not_ derived from
+  `--color-brand-header`: that token lifts in dark mode so a 52px bar separates
+  from a near-black page, and a 200px slab neither needs that help nor survives
+  it. `lib/palette-contrast.test.ts` asserts the two schemes stay equal, so
+  adding the override fails loudly.
+- **Every text node inside the band is solid white.** No `text-white/N` — a
+  test scrapes the component for it. Hierarchy comes from size and face, not
+  tint. The crumb separators and the author portrait's ring are the only
+  translucent whites and are decorative, so 1.4.3 does not reach them.
+- **No crimson inside the band**, which is why `app/breadcrumb.tsx` takes a
+  `tone` prop rather than being forked: crimson on this navy is 1.35:1. Dark
+  tone is also the one place a breadcrumb overrides the sitewide focus ring,
+  the same exception the header and footer bands take.
+- **`TaxonomyListing`'s `intro` prop exists so the author bio can leave the
+  band.** It is Contentful `RichText` and renders crimson links, lists and
+  emphasis, none of which have on-navy treatments. Do not tidy it back into
+  `children`.
+- The section fronts raise their `h1` a step (`text-5xl md:text-6xl
+lg:text-7xl`); an author `h1` does **not**, because it sits beside a 112px
+  portrait and the raised ramp overflows that row at `md`.
+- `Container`'s `className` appends rather than merges, so the banded pages'
+  `pt-10` beats its `pt-8` only because Tailwind emits utilities in ascending
+  value order. The file carries the warning; anything needing to _reduce_ that
+  padding wants a real prop.
+
 ### The six taxonomy listings share one shell
 
 Category, tag and author pages — each paginated and not — render through

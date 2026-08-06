@@ -1,5 +1,15 @@
 import { clsx } from "clsx";
 
+/**
+ * `className` appends, it does not merge — clsx concatenates and knows nothing
+ * about Tailwind, so an override lands beside the default rather than replacing
+ * it and the winner is decided by source order in the generated stylesheet.
+ *
+ * Tailwind emits utilities in ascending value order, so this only works in one
+ * direction: the banded pages pass `pt-10` and it beats the `pt-8` here because
+ * it is emitted after it. A caller passing `pt-6` would silently lose. Anything
+ * needing to REDUCE this padding wants a real prop, not a class.
+ */
 export default function Container({
   children,
   className,

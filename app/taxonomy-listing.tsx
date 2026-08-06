@@ -3,7 +3,8 @@ import Container from "./container";
 import MoreStories from "./more-stories";
 import Pagination from "./pagination";
 import PageContext from "./page-context";
-import Breadcrumb, { type Crumb } from "./breadcrumb";
+import PageBand from "./page-band";
+import { type Crumb } from "./breadcrumb";
 import { jsonLdHtml } from "@/lib/json-ld";
 import type { CardPost } from "@/lib/types";
 
@@ -18,18 +19,28 @@ import type { CardPost } from "@/lib/types";
  * would mean a conditional per difference, which is how a shared component
  * becomes harder to read than the six copies it replaced.
  *
- * What is genuinely uniform lives here: the container, the breadcrumb, the
- * position caption, the listing itself, the pager, and the empty state.
+ * What is genuinely uniform lives here: the band, the position caption, the
+ * listing itself, the pager, and the empty state.
  *
  * `children` is therefore purely editorial — a heading and a standfirst, nothing
  * navigational. The "Page N of M" caption is rendered here rather than passed
  * in, because it belongs to the list and this component already holds the two
  * numbers. PageContext returns null on page 1, so it is rendered unconditionally
  * and no route decides whether its own page counts as paginated.
+ *
+ * `intro` is the one genuine exception to the no-prop-per-difference rule
+ * above, and it earns it by being about the surface rather than the layout.
+ * The band is navy, and an author bio is Contentful RichText: it renders links
+ * in brand-crimson (1.35:1 on the band), plus lists and emphasis, none of which
+ * have on-navy treatments today. Building those is a separate decision from
+ * this one, so the bio leaves the band and lands on cream directly beneath it.
+ * Only app/authors/[slug] passes it. Do not "tidy" it back into `children` —
+ * that is the change that puts unreadable crimson links on navy.
  */
 export default function TaxonomyListing({
   crumbs,
   children,
+  intro,
   posts,
   currentPage,
   totalPages,
@@ -39,8 +50,14 @@ export default function TaxonomyListing({
   jsonLd,
 }: {
   crumbs: Crumb[];
-  /** The `<header>`'s contents: the heading, and whatever belongs beside it. */
+  /** The band's contents: the heading, and whatever belongs beside it. */
   children: ReactNode;
+  /**
+   * Editorial matter that cannot sit on navy, rendered on cream directly under
+   * the band and above the position caption. Only the author bio uses it — see
+   * the note above before adding a second caller.
+   */
+  intro?: ReactNode;
   /** This page's slice, not the whole listing. */
   posts: CardPost[];
   currentPage: number;
@@ -60,37 +77,44 @@ export default function TaxonomyListing({
   jsonLd?: unknown;
 }) {
   return (
-    <Container>
-      {jsonLd !== undefined && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
-        />
-      )}
-      <Breadcrumb items={crumbs} />
-      <header className="mx-auto max-w-5xl mb-6 md:mb-8">{children}</header>
+    <>
+      <PageBand crumbs={crumbs}>{children}</PageBand>
+      {/* pt-10 rather than Container's own pt-8: the band already closes with
+          its own bottom padding, so the cards need a touch more room to read as
+          a separate block rather than the two paddings simply summing. */}
+      <Container className="pt-10">
+        {/* Stays inside Container: it is a script tag, so its position in the
+            tree is irrelevant and moving it into the band buys nothing. */}
+        {jsonLd !== undefined && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
+          />
+        )}
+        {intro}
 
-      {emptyMessage !== undefined && posts.length === 0 ? (
-        <p className="mx-auto max-w-5xl text-lg text-brand-muted">
-          {emptyMessage}
-        </p>
-      ) : (
-        <>
-          <PageContext currentPage={currentPage} totalPages={totalPages} />
-          <MoreStories
-            morePosts={posts}
-            variant="list"
-            heading={null}
-            priorityFirst
-            visibleTags={visibleTags}
-          />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            basePath={basePath}
-          />
-        </>
-      )}
-    </Container>
+        {emptyMessage !== undefined && posts.length === 0 ? (
+          <p className="mx-auto max-w-5xl text-lg text-brand-muted">
+            {emptyMessage}
+          </p>
+        ) : (
+          <>
+            <PageContext currentPage={currentPage} totalPages={totalPages} />
+            <MoreStories
+              morePosts={posts}
+              variant="list"
+              heading={null}
+              priorityFirst
+              visibleTags={visibleTags}
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              basePath={basePath}
+            />
+          </>
+        )}
+      </Container>
+    </>
   );
 }

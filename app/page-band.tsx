@@ -1,0 +1,48 @@
+import Breadcrumb, { type Crumb } from "./breadcrumb";
+
+/**
+ * The masthead band on browsing pages — the four section fronts and every
+ * category, tag and author listing.
+ *
+ * Full-bleed on purpose, so it must sit OUTSIDE Container rather than inside
+ * it, and it carries its own `max-w-5xl px-5` inner column so the h1's left
+ * edge lines up with the cards that follow. The band is a sibling of the
+ * sticky header, never part of it: on scroll the band leaves while the 52px
+ * bar stays pinned. The band is a step darker than the bar, not the same
+ * colour, so the seam where they meet is deliberate at 1.60:1 rather than an
+ * artefact.
+ *
+ * The axis is what the reader is doing, not how deep they have clicked: every
+ * browsing surface bands, every reading surface stays on cream, so a
+ * navy-to-cream step never happens without also crossing from a list into an
+ * article.
+ *
+ * Every text colour inside is solid white. No `text-white/N` — on brand-band
+ * white is 16.60:1, whereas white/85 on the old header navy was 7.93 light and
+ * 6.38 dark, and the second of those missed the AAA floor that
+ * lib/palette-contrast.test.ts already enforces sitewide. Hierarchy comes from
+ * size and face instead of tint, which the two-face system supports better
+ * than an opacity ladder anyway. Decorative marks — the crumb separators, the
+ * author portrait's ring — may still be translucent: they are aria-hidden or
+ * non-textual and exempt under 1.4.3.
+ *
+ * No crimson anywhere inside. brand-crimson on brand-header is 1.35:1 in
+ * light, so the accent that carries links everywhere else cannot come in here.
+ */
+export default function PageBand({
+  crumbs,
+  children,
+}: {
+  crumbs: Crumb[];
+  /** The band's editorial contents — an h1, a standfirst, whatever sits beside them. */
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-brand-band">
+      <div className="max-w-5xl mx-auto px-5 pt-5 pb-10 md:pb-14">
+        <Breadcrumb items={crumbs} tone="dark" />
+        <header className="mt-5">{children}</header>
+      </div>
+    </div>
+  );
+}

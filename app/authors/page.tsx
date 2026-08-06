@@ -3,7 +3,8 @@ import Link from "next/link";
 import { draftMode } from "next/headers";
 import ContentfulImage from "@/lib/contentful-image";
 import Container from "../container";
-import Breadcrumb, { type Crumb } from "../breadcrumb";
+import PageBand from "../page-band";
+import { type Crumb } from "../breadcrumb";
 import { RichText } from "@/lib/rich-text";
 import { getAllAuthors, getAuthorBySlug, getBrowseIntro } from "@/lib/api";
 import { browsePageMetadata } from "@/lib/page-metadata";
@@ -38,62 +39,62 @@ export default async function AuthorsPage() {
   const crumbs: Crumb[] = [{ label: "Home", href: "/" }, { label: "Authors" }];
 
   return (
-    <Container>
-      <Breadcrumb items={crumbs} />
-      <header className="mb-6 md:mb-8">
-        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
+    <>
+      <PageBand crumbs={crumbs}>
+        <h1 className="mb-3 text-5xl leading-tight md:text-6xl lg:text-7xl text-pretty">
           Authors
         </h1>
         {intro?.standfirst && (
-          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+          <p className="max-w-3xl text-lg leading-relaxed text-white text-pretty">
             {intro.standfirst}
           </p>
         )}
-      </header>
-
-      <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
-        {authors.map((author) => (
-          <article
-            key={author.slug ?? author.name}
-            className="flex flex-col min-w-0"
-          >
-            <div className="mb-5 flex items-center gap-4">
-              {author.picture?.url && (
-                // Decorative: the heading carries the name, so alt is empty to
-                // avoid screen-reader duplication, same as the category cards.
-                <ContentfulImage
-                  alt=""
-                  src={author.picture.url}
-                  width={80}
-                  height={80}
-                  className="rounded-full object-cover h-20 w-20 shrink-0"
-                />
-              )}
-              <h2 className="text-2xl leading-snug md:text-3xl text-pretty">
-                <Link
-                  href={`/authors/${author.slug}`}
-                  className="hover:text-brand-crimson transition-colors duration-200"
-                >
-                  {widont(author.name)}
-                </Link>
-              </h2>
-            </div>
-
-            {author.bio && (
-              <div className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
-                <RichText content={author.bio} headings={[]} />
-              </div>
-            )}
-
-            <Link
-              href={`/authors/${author.slug}`}
-              className="mt-auto inline-block font-ui text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+      </PageBand>
+      <Container className="pt-10">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
+          {authors.map((author) => (
+            <article
+              key={author.slug ?? author.name}
+              className="flex flex-col min-w-0"
             >
-              View posts by {author.name} &rarr;
-            </Link>
-          </article>
-        ))}
-      </div>
-    </Container>
+              <div className="mb-5 flex items-center gap-4">
+                {author.picture?.url && (
+                  // Decorative: the heading carries the name, so alt is empty to
+                  // avoid screen-reader duplication, same as the category cards.
+                  <ContentfulImage
+                    alt=""
+                    src={author.picture.url}
+                    width={80}
+                    height={80}
+                    className="rounded-full object-cover h-20 w-20 shrink-0"
+                  />
+                )}
+                <h2 className="text-2xl leading-snug md:text-3xl text-pretty">
+                  <Link
+                    href={`/authors/${author.slug}`}
+                    className="hover:text-brand-crimson transition-colors duration-200"
+                  >
+                    {widont(author.name)}
+                  </Link>
+                </h2>
+              </div>
+
+              {author.bio && (
+                <div className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
+                  <RichText content={author.bio} headings={[]} />
+                </div>
+              )}
+
+              <Link
+                href={`/authors/${author.slug}`}
+                className="mt-auto inline-block font-ui text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+              >
+                View posts by {author.name} &rarr;
+              </Link>
+            </article>
+          ))}
+        </div>
+      </Container>
+    </>
   );
 }

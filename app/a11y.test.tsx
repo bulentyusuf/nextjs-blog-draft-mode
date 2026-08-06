@@ -45,6 +45,7 @@ vi.mock("@/lib/blur", () => ({ getBlurDataURL: async () => undefined }));
 const RootLayout = (await import("@/app/layout")).default;
 const MoreStories = (await import("@/app/more-stories")).default;
 const Breadcrumb = (await import("@/app/breadcrumb")).default;
+const TaxonomyListing = (await import("@/app/taxonomy-listing")).default;
 const Pagination = (await import("@/app/pagination")).default;
 const CoverImage = (await import("@/app/cover-image")).default;
 const Avatar = (await import("@/app/avatar")).default;
@@ -328,6 +329,73 @@ describe("listing page", () => {
     for (let i = 1; i < levels.length; i++) {
       expect(levels[i] - levels[i - 1]).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+describe("banded listing page", () => {
+  // One of the ten browsing routes, rendered through the real shared shell so
+  // the band, its breadcrumb and the listing under it are the shipped ones.
+  // Structural only: the band's whole point is a colour change, and this suite
+  // disables axe's color-contrast rule because jsdom computes no boxes. The
+  // numeric guard for the band lives in lib/palette-contrast.test.ts.
+  const render = () =>
+    renderPage(
+      <RootLayout>
+        <TaxonomyListing
+          crumbs={[
+            { label: "Home", href: "/" },
+            { label: "Categories", href: "/categories" },
+            { label: "Design" },
+          ]}
+          posts={[post("a", ["Design"]), post("b", ["Retro"])]}
+          currentPage={1}
+          totalPages={2}
+          visibleTags={new Set(["design", "retro"])}
+          basePath="/categories/design"
+        >
+          <h1>Design</h1>
+          <p>Posts filed under Design.</p>
+        </TaxonomyListing>
+      </RootLayout>,
+    );
+
+  it("has no axe violations", async () => {
+    expectNoViolations(await render());
+  });
+
+  it("announces each post exactly once", async () => {
+    await render();
+    expect(duplicateLinksInMain()).toEqual([]);
+  });
+
+  it("keeps heading levels contiguous across the move into the band", async () => {
+    // The h1 left <Container> for a full-bleed sibling above it. Document
+    // order is what heading-order reads, so this is the check that the move
+    // did not reorder anything relative to the listing's h2s.
+    await render();
+    const levels = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(
+      (h) => Number(h.tagName[1]),
+    );
+    expect(levels[0]).toBe(1);
+    for (let i = 1; i < levels.length; i++) {
+      expect(levels[i] - levels[i - 1]).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("has exactly one h1, and it is the band's", async () => {
+    await render();
+    const h1s = [...document.querySelectorAll("h1")];
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0].textContent).toBe("Design");
+  });
+
+  it("renders exactly one breadcrumb trail", async () => {
+    // The band owns the trail now. Two would mean a route kept its own after
+    // the shell grew one — a duplicate landmark and a duplicate tab sequence.
+    await render();
+    expect(
+      document.querySelectorAll('nav[aria-label="Breadcrumb"]'),
+    ).toHaveLength(1);
   });
 });
 

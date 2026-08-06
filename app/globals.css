@@ -75,6 +75,27 @@
 
   --color-brand-crimson: #9e2238;
   --color-brand-header: #1e3a8a;
+
+  /* Masthead band on the browsing pages, in BOTH schemes. Like
+     --color-surface-dark it is deliberately excluded from the dark override
+     below, and for the same kind of reason: the band is a large dark field
+     that must stay dark, not a value that inverts with the page.
+
+     A separate token rather than a reuse of --color-brand-header because the
+     two diverge in dark mode by design. brand-header lifts to #2E4A9E there so
+     a 52px bar separates from a near-black page; a 200px slab neither needs
+     that help nor survives it, becoming a bright block sitting on a dark page.
+     The bar is meant to read as the light end of a two-step ramp above this.
+
+     Not derived from brand-header with color-mix. The tokens are related by
+     intent, not by arithmetic — see the note on --color-control-edge for why a
+     hand-carried literal beats a color-mix over a var() here. The name says
+     what it is rather than what it is derived from, because palette work here
+     is done across the whole spectrum at once and a name encoding a derivation
+     would promise something nothing enforces. Where a relationship does need
+     holding, a test holds it. */
+  --color-brand-band: #0f1c42;
+
   --color-brand-dark: #241b1d;
   --color-brand-bg: #faf5f1;
   --color-brand-muted: #6b5a52;

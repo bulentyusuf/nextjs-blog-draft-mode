@@ -4,7 +4,8 @@ import { draftMode } from "next/headers";
 import CoverImage from "../cover-image";
 import DateComponent from "../date";
 import Container from "../container";
-import Breadcrumb, { type Crumb } from "../breadcrumb";
+import PageBand from "../page-band";
+import { type Crumb } from "../breadcrumb";
 import {
   getAllCategories,
   getRecentPostsByCategory,
@@ -57,100 +58,100 @@ export default async function CategoriesPage() {
   ];
 
   return (
-    <Container>
-      <Breadcrumb items={crumbs} />
-      <header className="mb-6 md:mb-8">
-        <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
+    <>
+      <PageBand crumbs={crumbs}>
+        <h1 className="mb-3 text-5xl leading-tight md:text-6xl lg:text-7xl text-pretty">
           Categories
         </h1>
         {intro?.standfirst && (
-          <p className="max-w-3xl text-lg leading-relaxed text-brand-muted text-pretty">
+          <p className="max-w-3xl text-lg leading-relaxed text-white text-pretty">
             {intro.standfirst}
           </p>
         )}
-      </header>
+      </PageBand>
+      <Container className="pt-10">
+        {/* One card per category, two across on desktop, stacked on mobile. */}
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
+          {categories.map((category, index) => {
+            const posts = postsBySlug.get(category.slug) ?? [];
+            const thumbUrl = category.thumbnail?.url;
+            return (
+              <article key={category.slug} className="flex flex-col min-w-0">
+                {thumbUrl && (
+                  // Thumbnails render through the shared CoverImage so they inherit
+                  // its frame (border, blur underlay, shadow, aspect) rather than
+                  // duplicating it. Deliberately NOT previews of the cover morph:
+                  // no `hover` zoom, no `transitionName`, no `wide`. alt is empty
+                  // and the thumbnail's link is hidden from assistive tech, so
+                  // the h2 below is the single announced link to this category.
+                  <div className="mb-5">
+                    <CoverImage
+                      url={thumbUrl}
+                      href={`/categories/${category.slug}`}
+                      // Capped in px for the same reason as the listing covers in
+                      // more-stories.tsx. This grid is two columns with a 40px
+                      // gap inside the 984px container, so a thumbnail tops out
+                      // at (984 - 40) / 2 = 472px. Left at 50vw it asked for
+                      // 720px at a 1440px viewport, which at DPR 2 pulled the
+                      // 1920 derivative instead of the 1080 that covers it.
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 472px"
+                      priority={index === 0}
+                    />
+                  </div>
+                )}
 
-      {/* One card per category, two across on desktop, stacked on mobile. */}
-      <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
-        {categories.map((category, index) => {
-          const posts = postsBySlug.get(category.slug) ?? [];
-          const thumbUrl = category.thumbnail?.url;
-          return (
-            <article key={category.slug} className="flex flex-col min-w-0">
-              {thumbUrl && (
-                // Thumbnails render through the shared CoverImage so they inherit
-                // its frame (border, blur underlay, shadow, aspect) rather than
-                // duplicating it. Deliberately NOT previews of the cover morph:
-                // no `hover` zoom, no `transitionName`, no `wide`. alt is empty
-                // and the thumbnail's link is hidden from assistive tech, so
-                // the h2 below is the single announced link to this category.
-                <div className="mb-5">
-                  <CoverImage
-                    url={thumbUrl}
-                    href={`/categories/${category.slug}`}
-                    // Capped in px for the same reason as the listing covers in
-                    // more-stories.tsx. This grid is two columns with a 40px
-                    // gap inside the 984px container, so a thumbnail tops out
-                    // at (984 - 40) / 2 = 472px. Left at 50vw it asked for
-                    // 720px at a 1440px viewport, which at DPR 2 pulled the
-                    // 1920 derivative instead of the 1080 that covers it.
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 472px"
-                    priority={index === 0}
-                  />
-                </div>
-              )}
-
-              <h2 className="mb-3 text-2xl leading-snug md:text-3xl text-pretty">
-                <Link
-                  href={`/categories/${category.slug}`}
-                  className="hover:text-brand-crimson transition-colors duration-200"
-                >
-                  {widont(category.name)}
-                </Link>
-              </h2>
-
-              {category.description && (
-                <p className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
-                  {category.description}
-                </p>
-              )}
-
-              {posts.length > 0 ? (
-                <>
-                  <ul className="flex flex-col divide-y divide-hairline border-t border-hairline">
-                    {posts.map((post) => (
-                      <li key={post.slug} className="py-4">
-                        <Link
-                          href={`/posts/${post.slug}`}
-                          className="block text-lg font-medium text-pretty hover:text-brand-crimson transition-colors duration-200"
-                        >
-                          {widont(post.title)}
-                        </Link>
-                        <div className="mt-1 text-sm text-brand-muted">
-                          <DateComponent dateString={post.date} />
-                        </div>
-                        {post.excerpt && (
-                          <p className="mt-1 text-base leading-relaxed text-brand-muted line-clamp-1">
-                            {post.excerpt}
-                          </p>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+                <h2 className="mb-3 text-2xl leading-snug md:text-3xl text-pretty">
                   <Link
                     href={`/categories/${category.slug}`}
-                    className="mt-5 inline-block font-ui text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+                    className="hover:text-brand-crimson transition-colors duration-200"
                   >
-                    See all in {category.name} &rarr;
+                    {widont(category.name)}
                   </Link>
-                </>
-              ) : (
-                <p className="text-lg text-brand-muted">No posts here yet.</p>
-              )}
-            </article>
-          );
-        })}
-      </div>
-    </Container>
+                </h2>
+
+                {category.description && (
+                  <p className="mb-5 text-lg leading-relaxed text-brand-muted text-pretty">
+                    {category.description}
+                  </p>
+                )}
+
+                {posts.length > 0 ? (
+                  <>
+                    <ul className="flex flex-col divide-y divide-hairline border-t border-hairline">
+                      {posts.map((post) => (
+                        <li key={post.slug} className="py-4">
+                          <Link
+                            href={`/posts/${post.slug}`}
+                            className="block text-lg font-medium text-pretty hover:text-brand-crimson transition-colors duration-200"
+                          >
+                            {widont(post.title)}
+                          </Link>
+                          <div className="mt-1 text-sm text-brand-muted">
+                            <DateComponent dateString={post.date} />
+                          </div>
+                          {post.excerpt && (
+                            <p className="mt-1 text-base leading-relaxed text-brand-muted line-clamp-1">
+                              {post.excerpt}
+                            </p>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={`/categories/${category.slug}`}
+                      className="mt-5 inline-block font-ui text-sm font-bold uppercase tracking-wide text-brand-crimson hover:underline"
+                    >
+                      See all in {category.name} &rarr;
+                    </Link>
+                  </>
+                ) : (
+                  <p className="text-lg text-brand-muted">No posts here yet.</p>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </Container>
+    </>
   );
 }

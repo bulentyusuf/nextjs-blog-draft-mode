@@ -84,6 +84,40 @@ describe("footer small print clears AAA in both schemes", () => {
   });
 });
 
+describe("the browse band carries solid white text", () => {
+  // Read through schemeTokens rather than hardcoded, so a retune of the band
+  // is caught here rather than shipping a band nobody rechecked. 16.60:1 in
+  // both schemes today, which is the whole reason the band's text is solid:
+  // white/85 on the old header navy was 7.93 light and 6.38 dark, and the
+  // second of those missed this floor.
+  it.each(["light", "dark"] as const)("%s", (scheme) => {
+    const token = scheme === "light" ? light : dark;
+    expect(
+      contrast({ r: 255, g: 255, b: 255, a: 1 }, token("--color-brand-band")),
+    ).toBeGreaterThanOrEqual(MIN_AAA_TEXT);
+  });
+
+  it("is the same paint in both schemes", () => {
+    // The exclusion from the dark block is the design, not an omission. The
+    // band is a large always-dark field like --color-surface-dark, and the
+    // instinct this catches is a reasonable-looking one: that every colour
+    // token needs a dark override. Lifting it the way --color-brand-header
+    // lifts would turn a 200px slab into a bright block on a near-black page.
+    expect(
+      sameColour(light("--color-brand-band"), dark("--color-brand-band")),
+    ).toBe(true);
+  });
+
+  it("uses no translucent white anywhere inside", () => {
+    // Same regex the footer block above scrapes out of layout.tsx, pointed at
+    // the band. Without this, a `text-white/70` added to the dek later passes
+    // every check — the footer block only ever reads layout.tsx — and the AAA
+    // floor quietly breaks across ten routes.
+    const band = read("app/page-band.tsx");
+    expect([...band.matchAll(/text-white\/(\d+)/g)]).toEqual([]);
+  });
+});
+
 describe("literal hexes track the tokens they duplicate", () => {
   // Channel comparison, not string: globals.css writes tokens lowercase and the
   // TSX literals are uppercase, so === on the text fails for the wrong reason.
