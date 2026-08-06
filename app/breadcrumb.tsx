@@ -27,15 +27,28 @@ type Tone = "light" | "dark";
 
 const TONES: Record<
   Tone,
-  { list: string; link: string; current: string; separator: string }
+  {
+    nav: string;
+    list: string;
+    link: string;
+    current: string;
+    separator: string;
+  }
 > = {
   light: {
+    // Unchanged from every unbanded page: post, about, privacy, search.
+    nav: "mb-4",
     list: "text-brand-muted",
     link: "hover:text-brand-crimson transition-colors duration-200",
     current: "font-medium text-brand-dark",
     separator: "text-brand-muted",
   },
   dark: {
+    // One step tighter than the light tone, and the only spacing the band
+    // changes. The value is the same 16px on both surfaces, but on navy the
+    // gap is a slab of colour rather than page background and reads larger,
+    // so the trail looks detached from the heading it labels.
+    nav: "mb-3",
     list: "text-white",
     link: "hover:opacity-80 transition-opacity duration-200 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white",
     current: "font-medium text-white",
@@ -73,7 +86,7 @@ export default function Breadcrumb({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
-      <nav aria-label="Breadcrumb" className="mb-4">
+      <nav aria-label="Breadcrumb" className={styles.nav}>
         <ol
           className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-sm ${styles.list}`}
         >

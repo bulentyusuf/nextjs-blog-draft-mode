@@ -15,7 +15,7 @@ import { clsx } from "clsx";
  */
 const TOP_PAD = {
   default: "pt-8",
-  tight: "pt-6 md:pt-8",
+  tight: "pt-6",
 } as const;
 
 export default function Container({
