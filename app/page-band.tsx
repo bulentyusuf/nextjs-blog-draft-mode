@@ -39,11 +39,18 @@ import Breadcrumb, { type Crumb } from "./breadcrumb";
 export default function PageBand({
   crumbs,
   children,
+  bleed = false,
 }: {
   /** Omitted, or empty, on a banded route with nothing above it. */
   crumbs?: Crumb[];
   /** The band's editorial contents — an h1, a standfirst, whatever sits beside them. */
   children: React.ReactNode;
+  /**
+   * Deepens the bottom inset for a page whose next element pulls up into the
+   * band. Only the post page sets it, so every other banded route renders the
+   * inset it always had. See the note on the inset itself for the arithmetic.
+   */
+  bleed?: boolean;
 }) {
   return (
     // text-white sits on the ROOT so the whole subtree inherits it. That is
@@ -61,20 +68,29 @@ export default function PageBand({
           of the breadcrumb's margin and pushed the heading 36px down a page
           that has always used 16.
 
-          py-8 is not a tuning knob. It is Container's own pt-8, which is how
-          far the breadcrumb sits below the sticky header on a post, about,
-          privacy or search page. Matching it means the trail and the heading
-          land at identical coordinates on EVERY page on the site, so a
+          pt-8 is not a tuning knob and it never varies. It is Container's own
+          pt-8, which is how far the breadcrumb sits below the sticky header on
+          an about, privacy or search page. Matching it means the trail and the
+          heading land at identical coordinates on EVERY page on the site, so a
           browse-to-post navigation moves nothing — and these are full document
           loads with a view transition across them, so any difference is
           animated rather than merely present. A tighter band looked better on
           its own and shifted the heading 16px on every such step.
 
+          The BOTTOM is the half a page can spend, and only the post page does.
+          Its cover pulls up 64px into the band, so pb-24 leaves 96 minus 64,
+          which is 32, which is pt-8 again. The band's VISIBLE inset stays
+          symmetric and the extra 64 is the part the cover covers. That is a
+          derivation rather than a taste value, though the 64 itself is a
+          preview call.
+
           The band therefore adds one thing to the page: colour, plus the
           bottom half of this inset. What sits below that edge is budgeted in
           app/browse-page.tsx, because it depends on whether the content brings
           its own leading. */}
-      <div className="max-w-5xl mx-auto px-5 py-8">
+      <div
+        className={`max-w-5xl mx-auto px-5 pt-8 ${bleed ? "pb-24" : "pb-8"}`}
+      >
         {crumbs && crumbs.length > 0 && (
           <Breadcrumb items={crumbs} tone="dark" />
         )}

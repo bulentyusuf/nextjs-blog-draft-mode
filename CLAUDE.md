@@ -511,16 +511,18 @@ that grid at the article's full `max-w-5xl`, so a post is a wide page whose
 body happens to be narrow. `/search` is the mirror case: it browses posts by
 function and is narrow by shape, and shape decides.
 
-**Two routes are not yet on the axis.** `/` and `/posts/[slug]` are wide and
-unbanded at the time of writing. They are being brought over one PR at a time;
-delete each from this paragraph as it lands. They are outstanding work, not
-exceptions, and nothing new should be built against them as though they were.
+**One route is not yet on the axis.** `/` is wide and unbanded at the time of
+writing, because it needs a masthead it does not yet have. Delete this
+paragraph when it lands. It is outstanding work, not an exception, and nothing
+new should be built against it as though it were.
 
 ### How the band is built
 
-**`app/browse-page.tsx` is the one shell every browsing route renders
-through** — the four section fronts, the six taxonomy listings and the index
-listing at `/page/[page]`, the last seven via `app/taxonomy-listing.tsx`. It
+**`app/browse-page.tsx` is the one shell every wide route renders
+through** — the four section fronts, the six taxonomy listings, the index
+listing at `/page/[page]` and the post page, the middle seven via
+`app/taxonomy-listing.tsx`. A post is not a browsing route and the component's
+name is now wrong; it is renamed alongside `TaxonomyListing` in a later PR. It
 owns the band, the container and the whole vertical rhythm, and it exists
 because ten of those pages were previously two implementations of one design:
 every tuning pass had to be applied twice, and the half that got missed
@@ -571,6 +573,39 @@ at identical coordinates sitewide.
   `tone` prop rather than being forked: crimson on this navy is 1.35:1. Dark
   tone is also the one place a breadcrumb overrides the sitewide focus ring,
   the same exception the header and footer bands take.
+- **The band's top inset is invariant and only its bottom can be spent.**
+  `pt-8` is `Container`'s own `pt-8` and never varies, which is the whole
+  reason the trail starts the same distance below the sticky header on every
+  page. The bottom is `pb-8` everywhere except under `bleed`, which the post
+  page sets and which gives `pb-24`. The arithmetic is a derivation rather than
+  a taste value — the cover pulls up 64px, so 96 minus 64 is 32, which is
+  `pt-8` again, leaving the band's _visible_ inset symmetric and the extra 64
+  as the part the cover covers. The 64 itself is a preview call.
+  `lib/listing-rhythm.test.ts` holds the top against `Container` and asserts
+  the bled bottom stays strictly greater, because equal values still render and
+  silently leave the cover with no navy to sit on.
+- **The cover crosses the band's bottom edge on a post, and needs two edge
+  mechanisms to do it.** `shadow-lg` is black at roughly 18% composited, so it
+  separates the image at 1.52:1 on `--color-brand-bg` and 1.06:1 on
+  `--color-brand-band` — the whole job on cream, none of it on navy, which is
+  exactly the half this treatment adds. `--color-cover-keyline` is the other
+  half. In light mode the cover crosses from near-black to near-white, so no
+  single edge colour reads on both grounds and neither mechanism competes,
+  because each is invisible where the other works. The border is on **every**
+  cover, not only the post's, because one rule beats a post-only exception and
+  a listing cover is one navigation from the same cover on a banded post.
+  `lib/palette-contrast.test.ts` holds the keyline against the band at the same
+  sub-WCAG 1.4:1 the band's own separation check uses. The dark value this
+  replaced, `brand-dark/12`, sat at 1.38:1 there with every check green,
+  because every other edge assertion asks what an edge does against the page
+  and the page is not the ground that fails.
+- **A post's `h1` carries `data-pagefind-body` of its own.** It sits in the
+  band now, outside the `<article>` that scopes the index, and Pagefind indexes
+  only what a body region contains. `meta.title` survives regardless, since
+  Pagefind reads the page's first `h1` wherever it is, so a results list looks
+  perfectly correct while every title-only term has silently dropped out of the
+  searchable text. Pagefind concatenates multiple body regions into one
+  fragment, so the second tag restores exactly what the index held before.
 - **`crumbs` is optional on the band**, because one banded route has nothing
   above it. `/page/[page]` and `/` are one listing at two offsets and both are
   the root, so neither carries a trail. Without a trail the `h1` starts at the

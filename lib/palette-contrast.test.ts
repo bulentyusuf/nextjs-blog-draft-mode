@@ -121,6 +121,32 @@ describe("the browse band stays a visible block in both schemes", () => {
   });
 });
 
+describe("the cover keyline stays visible on the band in both schemes", () => {
+  // The post cover crosses the band's bottom edge, so one image has navy
+  // behind its top and cream behind the rest. shadow-lg separates it on cream
+  // and vanishes on navy, at 1.52:1 and 1.06:1, so the keyline is the half
+  // that covers navy and this is the pairing that has to hold.
+  //
+  // Deliberately sub-WCAG, the same 1.4:1 the band's own separation check uses
+  // and for the same reason. This is block visibility, not text.
+  //
+  // Nothing that existed before this could catch it. Every other edge
+  // assertion here asks what an edge does against the PAGE, and the page is
+  // not the ground that fails. The dark value this replaced sat at 1.38:1 on
+  // the band with every check green.
+  const MIN_BLOCK_SEPARATION = 1.4;
+
+  it.each(["light", "dark"] as const)("%s", (scheme) => {
+    const token = scheme === "light" ? light : dark;
+    // Read as tokens and composited by contrast(), not pinned to a literal, so
+    // retuning either the keyline's alpha or the band underneath it fails here
+    // rather than shipping an edge nobody rechecked.
+    expect(
+      contrast(token("--color-cover-keyline"), token("--color-brand-band")),
+    ).toBeGreaterThanOrEqual(MIN_BLOCK_SEPARATION);
+  });
+});
+
 describe("the browse band's markup", () => {
   const band = read("app/page-band.tsx");
 
@@ -170,7 +196,10 @@ describe("no route paints body ink inside the band", () => {
   // markup is recomposed is worse than none. An h1 and the standfirst
   // signature survive that; they are what the band actually renders.
   const STANDFIRST = /className="[^"]*max-w-3xl text-lg leading-relaxed[^"]*"/g;
-  const HEADING = /<h1 className="([^"]*)"/g;
+  // Attributes may precede className, and on the post page one does. Anchored
+  // on `<h1 ` alone this failed OPEN, matching nothing and reporting a clean
+  // page, which the non-vacuous assertion below is what caught.
+  const HEADING = /<h1[^>]*className="([^"]*)"/g;
 
   it.each([
     "app/categories/page.tsx",
@@ -189,6 +218,9 @@ describe("no route paints body ink inside the band", () => {
     // The index listing has an h1 in the band and no standfirst. The check
     // wants at least one match rather than both, so it holds here too.
     "app/page/[page]/page.tsx",
+    // Same shape. The post's excerpt stays in the body column, so the h1 is
+    // the only signature here.
+    "app/posts/[slug]/page.tsx",
   ])("%s", (file) => {
     const source = read(file);
     const inBand = [

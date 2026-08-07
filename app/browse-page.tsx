@@ -44,6 +44,7 @@ export default function BrowsePage({
   header,
   children,
   contentOwnsLeading = false,
+  bleed = false,
 }: {
   /** Passed straight to the band, which omits the trail when there is none. */
   crumbs?: Crumb[];
@@ -61,10 +62,18 @@ export default function BrowsePage({
    * you can name it. The section fronts do not, so they take the gap.
    */
   contentOwnsLeading?: boolean;
+  /**
+   * Passed to the band, which deepens its bottom inset. Set by the post page,
+   * whose cover pulls up across the band's edge. The band carries the
+   * arithmetic.
+   */
+  bleed?: boolean;
 }) {
   return (
     <>
-      <PageBand crumbs={crumbs}>{header}</PageBand>
+      <PageBand crumbs={crumbs} bleed={bleed}>
+        {header}
+      </PageBand>
       <Container topPad={contentOwnsLeading ? "none" : "tight"}>
         {children}
       </Container>

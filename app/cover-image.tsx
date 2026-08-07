@@ -72,6 +72,14 @@ export default async function CoverImage({
     />
   );
   return (
+    // The shadow and the keyline below are complementary, not redundant. The
+    // shadow is black at roughly 18% composited, so it separates the image on
+    // the cream page at 1.52:1 and does nothing on the band at 1.06:1. The
+    // keyline is the other half, and it covers the ground the shadow cannot.
+    // Only the post cover crosses onto navy, but the border is unconditional
+    // because one rule beats a post-only exception and a cover on a listing is
+    // one navigation from the same cover on a banded post. On cream the light
+    // keyline is the page's own colour and near-invisible.
     <div
       className="shadow-lg sm:mx-0"
       style={
@@ -80,7 +88,7 @@ export default async function CoverImage({
     >
       <div
         className={cn(
-          "relative overflow-hidden bg-brand-dark/5 dark:border dark:border-brand-dark/12",
+          "relative overflow-hidden bg-brand-dark/5 border border-cover-keyline",
           wide ? "aspect-3/2 md:aspect-video" : "aspect-3/2",
           {
             "cursor-pointer": linkHref,
