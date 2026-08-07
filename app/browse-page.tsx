@@ -45,7 +45,8 @@ export default function BrowsePage({
   children,
   contentOwnsLeading = false,
 }: {
-  crumbs: Crumb[];
+  /** Passed straight to the band, which omits the trail when there is none. */
+  crumbs?: Crumb[];
   /** Band contents — the h1, a standfirst, whatever sits beside them. */
   header: ReactNode;
   /** Everything below the band, on cream. */

@@ -399,6 +399,56 @@ describe("banded listing page", () => {
   });
 });
 
+describe("banded listing page with no trail", () => {
+  // The index listing at /page/[page] is the one banded route with nothing
+  // above it, so its band renders no breadcrumb. Composed through the same
+  // shared shell as the block above, with `crumbs` omitted rather than passed
+  // empty, because that is how the route calls it.
+  const render = () =>
+    renderPage(
+      <RootLayout>
+        <TaxonomyListing
+          posts={[post("a", ["Design"]), post("b", ["Retro"])]}
+          currentPage={2}
+          totalPages={3}
+          visibleTags={new Set(["design", "retro"])}
+          basePath="/"
+        >
+          <h1>Latest Posts</h1>
+        </TaxonomyListing>
+      </RootLayout>,
+    );
+
+  it("keeps heading levels contiguous without a trail above the h1", async () => {
+    await render();
+    const levels = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(
+      (h) => Number(h.tagName[1]),
+    );
+    expect(levels[0]).toBe(1);
+    for (let i = 1; i < levels.length; i++) {
+      expect(levels[i] - levels[i - 1]).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("has exactly one h1, and it is the band's", async () => {
+    await render();
+    const h1s = [...document.querySelectorAll("h1")];
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0].textContent).toBe("Latest Posts");
+  });
+
+  it("emits no breadcrumb landmark", async () => {
+    // The one that matters. A trail here would claim a level above a listing
+    // whose page 1 is the home page, and it would be a nav landmark and a tab
+    // stop announcing a hierarchy that does not exist. This fails if a future
+    // change makes the band render its trail unconditionally again.
+    await render();
+    expect(
+      document.querySelectorAll('nav[aria-label="Breadcrumb"]'),
+    ).toHaveLength(0);
+  });
+});
+
 describe("post page", () => {
   const render = () =>
     renderPage(

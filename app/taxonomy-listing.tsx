@@ -8,8 +8,14 @@ import { jsonLdHtml } from "@/lib/json-ld";
 import type { CardPost } from "@/lib/types";
 
 /**
- * The shell every taxonomy listing shares — a category, tag or author page, in
- * either its paginated or its unpaginated form.
+ * The shell every paginated listing shares — a category, tag or author page in
+ * either its paginated or its unpaginated form, and the index listing at
+ * /page/[page].
+ *
+ * The name is narrower than the component, because the index listing is not a
+ * taxonomy. `ListingPage` would be right and the rename reaches eight files, so
+ * it is deferred rather than folded into the change that widened the scope.
+ * Recorded here so the mismatch is a known debt and not a discovery.
  *
  * Those six routes rendered the same tree with the same props and differed only
  * in their `<header>`: a plain heading for a category or tag, a heading beside a
@@ -44,7 +50,8 @@ export default function TaxonomyListing({
   emptyMessage,
   jsonLd,
 }: {
-  crumbs: Crumb[];
+  /** Omitted by the index listing, which has nothing above it. */
+  crumbs?: Crumb[];
   /** The band's contents: the heading, and whatever belongs beside it. */
   children: ReactNode;
   /** This page's slice, not the whole listing. */

@@ -186,6 +186,9 @@ describe("no route paints body ink inside the band", () => {
     // they are held to the same rule as the other eight.
     "app/authors/[slug]/page.tsx",
     "app/authors/[slug]/page/[page]/page.tsx",
+    // The index listing has an h1 in the band and no standfirst. The check
+    // wants at least one match rather than both, so it holds here too.
+    "app/page/[page]/page.tsx",
   ])("%s", (file) => {
     const source = read(file);
     const inBand = [

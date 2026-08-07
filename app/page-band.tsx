@@ -1,8 +1,8 @@
 import Breadcrumb, { type Crumb } from "./breadcrumb";
 
 /**
- * The masthead band on browsing pages — the four section fronts and every
- * category, tag and author listing.
+ * The masthead band on browsing pages — the four section fronts, every
+ * category, tag and author listing, and the index listing at /page/[page].
  *
  * Full-bleed on purpose, so it must sit OUTSIDE Container rather than inside
  * it, and it carries its own `max-w-5xl px-5` inner column so the h1's left
@@ -13,10 +13,15 @@ import Breadcrumb, { type Crumb } from "./breadcrumb";
  * in dark. Both blues move between schemes to hold that step; globals.css
  * carries why.
  *
- * The axis is what the reader is doing, not how deep they have clicked: every
- * browsing surface bands, every reading surface stays on cream, so a
- * navy-to-cream step never happens without also crossing from a list into an
- * article.
+ * Which routes wear the band is the header measure, not what the reader is
+ * doing. A wide header bands and a narrow one does not, so the colour marks the
+ * one thing that changes the shape of the page. CLAUDE.md holds the assignment.
+ *
+ * The trail is optional because one banded route has nothing above it.
+ * /page/[page] and / are one listing at two offsets and both are the root, so
+ * neither carries a trail. Without it the h1 sits at the top of the band's
+ * inset rather than below a nav that carries its own mb-4. That is correct and
+ * not a spacing bug, because there is no trail for the heading to sit under.
  *
  * Every text colour inside is solid white, inherited from the root rather than
  * named per element — see the comment on the wrapper. No `text-white/N` — on brand-band
@@ -35,7 +40,8 @@ export default function PageBand({
   crumbs,
   children,
 }: {
-  crumbs: Crumb[];
+  /** Omitted, or empty, on a banded route with nothing above it. */
+  crumbs?: Crumb[];
   /** The band's editorial contents — an h1, a standfirst, whatever sits beside them. */
   children: React.ReactNode;
 }) {
@@ -69,7 +75,9 @@ export default function PageBand({
           app/browse-page.tsx, because it depends on whether the content brings
           its own leading. */}
       <div className="max-w-5xl mx-auto px-5 py-8">
-        <Breadcrumb items={crumbs} tone="dark" />
+        {crumbs && crumbs.length > 0 && (
+          <Breadcrumb items={crumbs} tone="dark" />
+        )}
         <header>{children}</header>
       </div>
     </div>

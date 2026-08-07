@@ -511,22 +511,22 @@ that grid at the article's full `max-w-5xl`, so a post is a wide page whose
 body happens to be narrow. `/search` is the mirror case: it browses posts by
 function and is narrow by shape, and shape decides.
 
-**Three routes are not yet on the axis.** `/`, `/page/[page]` and
-`/posts/[slug]` are wide and unbanded at the time of writing. They are being
-brought over one PR at a time; delete each from this paragraph as it lands.
-They are outstanding work, not exceptions, and nothing new should be built
-against them as though they were.
+**Two routes are not yet on the axis.** `/` and `/posts/[slug]` are wide and
+unbanded at the time of writing. They are being brought over one PR at a time;
+delete each from this paragraph as it lands. They are outstanding work, not
+exceptions, and nothing new should be built against them as though they were.
 
 ### How the band is built
 
-**`app/browse-page.tsx` is the one shell all ten browsing routes render
-through** — the four section fronts and the six taxonomy listings, the latter
-via `app/taxonomy-listing.tsx`. It owns the band, the container and the whole
-vertical rhythm, and it exists because those ten pages were previously two
-implementations of one design: every tuning pass had to be applied twice, and
-the half that got missed drifted. The raised `h1` ramp and the standfirst
-colour each shipped to one half only. Do not add an eleventh browse route that
-assembles `PageBand` and `Container` itself.
+**`app/browse-page.tsx` is the one shell every browsing route renders
+through** — the four section fronts, the six taxonomy listings and the index
+listing at `/page/[page]`, the last seven via `app/taxonomy-listing.tsx`. It
+owns the band, the container and the whole vertical rhythm, and it exists
+because ten of those pages were previously two implementations of one design:
+every tuning pass had to be applied twice, and the half that got missed
+drifted. The raised `h1` ramp and the standfirst colour each shipped to one
+half only. Do not add a browse route that assembles `PageBand` and `Container`
+itself.
 
 `app/page-band.tsx` is the full-bleed masthead inside that shell, holding the
 breadcrumb, `h1` and standfirst. Which routes wear it is settled by "One axis,
@@ -571,6 +571,12 @@ at identical coordinates sitewide.
   `tone` prop rather than being forked: crimson on this navy is 1.35:1. Dark
   tone is also the one place a breadcrumb overrides the sitewide focus ring,
   the same exception the header and footer bands take.
+- **`crumbs` is optional on the band**, because one banded route has nothing
+  above it. `/page/[page]` and `/` are one listing at two offsets and both are
+  the root, so neither carries a trail. Without a trail the `h1` starts at the
+  top of the band's inset instead of below a nav carrying `mb-4`, which is the
+  honest position rather than a regression. `app/a11y.test.tsx` asserts a
+  trail-less band emits no breadcrumb landmark.
 - **An author's bio renders in the band**, like every other browse page's
   standfirst. The only thing `RichText` needs on navy is a link treatment:
   crimson is 1.35:1 here, so `.band-prose` in `app/globals.css` underlines
@@ -625,11 +631,15 @@ at identical coordinates sitewide.
   can only ever _increase_ a value; that is why its top inset is the `topPad`
   prop and not a class.
 
-### The six taxonomy listings share one shell
+### The taxonomy listings and the index listing share one shell
 
-Category, tag and author pages — each paginated and not — render through
-`app/taxonomy-listing.tsx`, which owns the container, breadcrumb, listing, pager
-and empty state. `lib/paginate.ts` owns the page arithmetic and `listingMetadata`
+Category, tag and author pages — each paginated and not — and the index listing
+at `/page/[page]` render through `app/taxonomy-listing.tsx`, which owns the
+container, breadcrumb, listing, pager and empty state. The name is narrower
+than the component now that the index goes through it; `ListingPage` would be
+right and the rename reaches eight files, so it is a recorded deferral rather
+than an oversight. What the index does not bring is a trail, which is why
+`crumbs` is optional. `lib/paginate.ts` owns the page arithmetic and `listingMetadata`
 in `lib/page-metadata.ts` owns the Open Graph and Twitter blocks, which ten
 pages each carried a copy of.
 
