@@ -511,10 +511,18 @@ that grid at the article's full `max-w-5xl`, so a post is a wide page whose
 body happens to be narrow. `/search` is the mirror case: it browses posts by
 function and is narrow by shape, and shape decides.
 
-**One route is not yet on the axis.** `/` is wide and unbanded at the time of
-writing, because it needs a masthead it does not yet have. Delete this
-paragraph when it lands. It is outstanding work, not an exception, and nothing
-new should be built against it as though it were.
+**Home is the one wide page whose band carries a masthead rather than an
+`h1`.** Its `h1` is the hero post title down in the column, and that is where
+it stays — the band's two lines are `SITE_TITLE` at the display ramp and
+`SITE_DESCRIPTION` beneath it, both plain paragraphs. Neither is a heading,
+which would take the `h1` off the hero post, and neither is a link, which would
+point at the page the reader is already on, the same reason the last crumb is
+plain text. Home is the index whose subject is the whole site, so naming itself
+is what every other index already does. `lib/palette-contrast.test.ts` matches
+it on a `MASTHEAD` signature and holds that signature by name, because home is
+the one route whose file contains a heading that is _not_ in its band.
+
+All sixteen routes are now on the axis.
 
 ### How the band is built
 
@@ -606,6 +614,23 @@ at identical coordinates sitewide.
   perfectly correct while every title-only term has silently dropped out of the
   searchable text. Pagefind concatenates multiple body regions into one
   fragment, so the second tag restores exactly what the index held before.
+- **The bar's wordmark hides itself on home, through a `:has()` rule** in
+  `app/globals.css`, so the site is named once rather than twice within 100px.
+  A rule rather than `usePathname` keeps the header a server component and
+  ships no JS, the same trade the view transitions take. **It must be
+  `display: none`, never `visibility: hidden`** — a hidden element still
+  carries its `view-transition-name`, so it would collide with the masthead's
+  and invalidate the transition, whereas a `display: none` element does not
+  participate in one at all. The two share a name deliberately and never
+  coexist, which is what keeps it unique per document. The bar's tagline hides
+  with the wordmark, because a description sitting under a masthead repeating
+  it is the duplication the rule exists to remove. **The consequence is
+  deliberate**: past the masthead, home's sticky bar is nav and search with no
+  site name in it. The wordmark is wayfinding for a reader deep in the site,
+  and on home they are not; it returns on the next navigation. Do not add a
+  scroll listener, an `IntersectionObserver` or a mark to fill the gap.
+  `app/a11y.test.tsx` asserts the rule in two halves, because jsdom applies no
+  stylesheet and cannot evaluate `:has()` itself.
 - **`crumbs` is optional on the band**, because one banded route has nothing
   above it. `/page/[page]` and `/` are one listing at two offsets and both are
   the root, so neither carries a trail. Without a trail the `h1` starts at the

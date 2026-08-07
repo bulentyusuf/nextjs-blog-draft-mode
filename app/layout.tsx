@@ -96,14 +96,26 @@ function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-brand-header shadow-xs">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
+        {/* Both hide themselves on home, where the band names the site 60px
+            below and the bar would say it twice. The rule is a :has() in
+            globals.css rather than a usePathname, so this stays a server
+            component and the site ships no JS for it.
+
+            The cost, on the record rather than left to be quietly fixed later:
+            past the masthead, home's sticky bar is the nav and the search
+            control with no site name in it. The wordmark is wayfinding for a
+            reader deep in the site, and on home they are not deep in the site.
+            It returns the moment they navigate anywhere else. Do not add a
+            scroll listener or an IntersectionObserver to fill the gap, and do
+            not reach for a mark, because none exists in public/. */}
         <div className="flex items-baseline gap-3">
           <Link
             href="/"
-            className="font-display text-lg font-[700] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
+            className="site-wordmark font-display text-lg font-[700] text-white rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white"
           >
             {SITE_TITLE}
           </Link>
-          <p className="hidden lg:block font-ui text-sm text-white/90">
+          <p className="site-tagline hidden lg:block font-ui text-sm text-white/90">
             {SITE_DESCRIPTION}
           </p>
         </div>

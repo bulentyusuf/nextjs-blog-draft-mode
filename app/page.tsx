@@ -5,13 +5,18 @@ import { draftMode } from "next/headers";
 import Date from "./date";
 import CoverImage from "./cover-image";
 import Avatar from "./avatar";
-import Container from "./container";
+import BrowsePage from "./browse-page";
 import MoreStories from "./more-stories";
 import Pagination from "./pagination";
 
 import { getAllPosts } from "@/lib/api";
 import { visibleTagSlugs } from "@/lib/tags";
-import { POSTS_PER_PAGE, SITE_URL } from "@/lib/constants";
+import {
+  POSTS_PER_PAGE,
+  SITE_URL,
+  SITE_TITLE,
+  SITE_DESCRIPTION,
+} from "@/lib/constants";
 import { totalPagesFor } from "@/lib/paginate";
 import { createCoverNamer } from "@/lib/view-transition-name";
 
@@ -127,7 +132,32 @@ export default async function Page() {
   const coverName = createCoverNamer();
 
   return (
-    <Container>
+    // No crumbs, because this is the root, and no bleed, because the hero
+    // leads with its title rather than its cover and has nothing to pull up.
+    //
+    // Home is the one wide page with no page-level h1 of its own, since its h1
+    // is the hero post title down in the column. So the band carries the site
+    // masthead instead, which is what every other index does with the site as
+    // its subject. Neither element is a heading or a link. A heading would take
+    // the h1 away from the hero post, and a link would point at the page the
+    // reader is already on, which is why the last breadcrumb crumb is plain
+    // text too. The bar's own wordmark hides itself here through a rule in
+    // globals.css, so the name is said once rather than twice within 100px.
+    //
+    // Neither element names a colour. Both take white from the band's root, as
+    // every other band's contents do.
+    <BrowsePage
+      header={
+        <>
+          <p className="site-masthead font-display text-4xl leading-tight md:text-5xl lg:text-6xl">
+            {SITE_TITLE}
+          </p>
+          <p className="mt-3 max-w-3xl text-lg leading-relaxed">
+            {SITE_DESCRIPTION}
+          </p>
+        </>
+      }
+    >
       {heroPost && (
         <HeroPost
           title={heroPost.title}
@@ -149,6 +179,6 @@ export default async function Page() {
         visibleTags={visibleTagSlugs(allPosts)}
       />
       <Pagination currentPage={1} totalPages={totalPages} basePath="/" />
-    </Container>
+    </BrowsePage>
   );
 }

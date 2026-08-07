@@ -196,6 +196,12 @@ describe("no route paints body ink inside the band", () => {
   // markup is recomposed is worse than none. An h1 and the standfirst
   // signature survive that; they are what the band actually renders.
   const STANDFIRST = /className="[^"]*max-w-3xl text-lg leading-relaxed[^"]*"/g;
+  // Home's band carries a masthead instead of an h1, because its h1 is the
+  // hero post title down in the column. Anchored on the class attribute rather
+  // than on the element and its attribute order, which is the shape that let
+  // HEADING fail open. Home's description is an ordinary standfirst, so the
+  // signature above already covers the masthead's second line.
+  const MASTHEAD = /className="[^"]*site-masthead[^"]*"/g;
   // Attributes may precede className, and on the post page one does. Anchored
   // on `<h1 ` alone this failed OPEN, matching nothing and reporting a clean
   // page, which the non-vacuous assertion below is what caught.
@@ -221,17 +227,31 @@ describe("no route paints body ink inside the band", () => {
     // Same shape. The post's excerpt stays in the body column, so the h1 is
     // the only signature here.
     "app/posts/[slug]/page.tsx",
+    // Home matches on the masthead and its standfirst, never on a heading.
+    // The named check below is what actually holds it, for the reason there.
+    "app/page.tsx",
   ])("%s", (file) => {
     const source = read(file);
     const inBand = [
       ...(source.match(STANDFIRST) ?? []),
       ...(source.match(HEADING) ?? []),
+      ...(source.match(MASTHEAD) ?? []),
     ];
-    // Non-vacuous: every one of these routes renders an h1 in the band, so an
-    // empty list means the signatures stopped matching, not that the page is
+    // Non-vacuous: every one of these routes renders something in the band, so
+    // an empty list means the signatures stopped matching, not that the page is
     // clean.
     expect(inBand.length).toBeGreaterThan(0);
     for (const className of inBand) expect(className).not.toMatch(INK);
+  });
+
+  it("home is held by its masthead, not by the heading below the band", () => {
+    // Every other route in the list has its band contents and nothing else
+    // matching, so the non-vacuous check above is enough. Home is the
+    // exception: its h1 is the HERO post title, well below the band on cream,
+    // and it satisfies that check from outside the band. So deleting the
+    // masthead would leave the route in the list, passing, testing nothing.
+    // Naming the signature is what closes that.
+    expect(read("app/page.tsx").match(MASTHEAD)).not.toBeNull();
   });
 
   it("the position caption names no colour either", () => {

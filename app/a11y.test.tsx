@@ -6,6 +6,9 @@ import { renderToReadableStream } from "react-dom/server";
 import axe from "axe-core";
 import type { AxeResults, Result } from "axe-core";
 import { getByRole, queryByRole } from "@testing-library/dom";
+import fs from "node:fs";
+import path from "node:path";
+import { SITE_TITLE } from "@/lib/constants";
 import type { CardPost, Content } from "@/lib/types";
 import { BLOCKS, INLINES } from "@contentful/rich-text-types";
 import type { Document } from "@contentful/rich-text-types";
@@ -46,6 +49,7 @@ const RootLayout = (await import("@/app/layout")).default;
 const MoreStories = (await import("@/app/more-stories")).default;
 const Breadcrumb = (await import("@/app/breadcrumb")).default;
 const TaxonomyListing = (await import("@/app/taxonomy-listing")).default;
+const BrowsePage = (await import("@/app/browse-page")).default;
 const Pagination = (await import("@/app/pagination")).default;
 const CoverImage = (await import("@/app/cover-image")).default;
 const Avatar = (await import("@/app/avatar")).default;
@@ -446,6 +450,102 @@ describe("banded listing page with no trail", () => {
     expect(
       document.querySelectorAll('nav[aria-label="Breadcrumb"]'),
     ).toHaveLength(0);
+  });
+});
+
+describe("home, whose band carries a masthead rather than a heading", () => {
+  // Home is the one wide page with no page-level h1, because its h1 is the
+  // hero post title in the column below. The band names the site instead, as
+  // two plain paragraphs, and the assertions here are what stop that masthead
+  // quietly becoming a heading later.
+  const render = () =>
+    renderPage(
+      <RootLayout>
+        <BrowsePage
+          header={
+            <>
+              <p className="site-masthead font-display text-4xl leading-tight md:text-5xl lg:text-6xl">
+                {SITE_TITLE}
+              </p>
+              <p className="mt-3 max-w-3xl text-lg leading-relaxed">
+                A description of the site.
+              </p>
+            </>
+          }
+        >
+          <section className="mx-auto max-w-5xl mb-section">
+            <h1>
+              <a href="/posts/a">Post a</a>
+            </h1>
+            <p>Excerpt for post a.</p>
+          </section>
+          <MoreStories
+            morePosts={[post("b"), post("c")]}
+            variant="list"
+            heading="Latest Posts"
+          />
+        </BrowsePage>
+      </RootLayout>,
+    );
+
+  it("has no axe violations", async () => {
+    expectNoViolations(await render());
+  });
+
+  it("has exactly one h1, and it is the hero post rather than the masthead", async () => {
+    // Fails the moment someone promotes the masthead to a heading, which is
+    // the tempting change: it looks like a page title and it is not one.
+    await render();
+    const h1s = [...document.querySelectorAll("h1")];
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0].textContent).toBe("Post a");
+    expect(h1s[0].querySelector('a[href="/posts/a"]')).not.toBeNull();
+  });
+
+  it("keeps heading levels contiguous below a band with no heading in it", async () => {
+    await render();
+    const levels = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(
+      (h) => Number(h.tagName[1]),
+    );
+    expect(levels[0]).toBe(1);
+    for (let i = 1; i < levels.length; i++) {
+      expect(levels[i] - levels[i - 1]).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("emits no breadcrumb landmark", async () => {
+    await render();
+    expect(
+      document.querySelectorAll('nav[aria-label="Breadcrumb"]'),
+    ).toHaveLength(0);
+  });
+
+  it("names the site once, in two halves this environment cannot join", async () => {
+    // Both marks are in the DOM. What removes the bar's is a :has() rule, and
+    // jsdom applies no stylesheet, so a single querySelectorAll here would
+    // report two and prove nothing either way. The halves are asserted
+    // separately instead: the markup carries exactly the two hooks, and the
+    // stylesheet carries the rule that hides one of them.
+    await render();
+    expect(document.querySelectorAll(".site-masthead")).toHaveLength(1);
+    expect(document.querySelectorAll(".site-wordmark")).toHaveLength(1);
+
+    const css = fs.readFileSync(path.join(__dirname, "globals.css"), "utf8");
+    const rule =
+      /body:has\(\.site-masthead\)\s*:is\([^)]*\)\s*\{([^}]*)\}/.exec(css);
+    expect(rule).not.toBeNull();
+    // display: none, never visibility: hidden. A hidden element still carries
+    // its view-transition-name and would collide with the masthead's; a
+    // display: none element does not participate in a transition at all.
+    expect(rule![1]).toMatch(/display:\s*none/);
+    expect(rule![1]).not.toMatch(/visibility/);
+    // Both hooks are named in the rule, so hiding the wordmark and leaving the
+    // tagline under a masthead repeating it cannot pass.
+    const targets = /:is\(([^)]*)\)/.exec(
+      /body:has\(\.site-masthead\)[^{]*/.exec(css)![0],
+    );
+    expect(targets![1]).toContain(".site-wordmark");
+    expect(targets![1]).toContain(".site-tagline");
   });
 });
 
