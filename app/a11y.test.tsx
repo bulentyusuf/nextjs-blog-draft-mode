@@ -403,15 +403,21 @@ describe("banded listing page", () => {
   });
 });
 
-describe("banded listing page with no trail", () => {
-  // The index listing at /page/[page] is the one banded route with nothing
-  // above it, so its band renders no breadcrumb. Composed through the same
-  // shared shell as the block above, with `crumbs` omitted rather than passed
-  // empty, because that is how the route calls it.
+describe("the index listing, which carries a trail again", () => {
+  // A REVERSAL, recorded as one. /page/[page] shipped without a trail on the
+  // argument that both its crumbs would point at /. They would not: the last
+  // crumb is never a link here, so the trail is Home / Latest Posts with one
+  // link, and the objection was to a shape this site does not build. The page
+  // number still stays out of it, because position is a state rather than a
+  // level and PageContext captions the list with it.
+  //
+  // `crumbs` stays optional on the band regardless. Home is the only route
+  // using that now, which is correct, since home is the root.
   const render = () =>
     renderPage(
       <RootLayout>
         <TaxonomyListing
+          crumbs={[{ label: "Home", href: "/" }, { label: "Latest Posts" }]}
           posts={[post("a", ["Design"]), post("b", ["Retro"])]}
           currentPage={2}
           totalPages={3}
@@ -419,11 +425,23 @@ describe("banded listing page with no trail", () => {
           basePath="/"
         >
           <h1>Latest Posts</h1>
+          <p className="max-w-3xl text-lg leading-relaxed text-pretty">
+            The long dark teatime of the soul, continued.
+          </p>
         </TaxonomyListing>
       </RootLayout>,
     );
 
-  it("keeps heading levels contiguous without a trail above the h1", async () => {
+  it("emits a breadcrumb landmark, with only the first crumb linked", async () => {
+    await render();
+    const trails = document.querySelectorAll('nav[aria-label="Breadcrumb"]');
+    expect(trails).toHaveLength(1);
+    const links = trails[0].querySelectorAll("a");
+    expect(links).toHaveLength(1);
+    expect(links[0].getAttribute("href")).toBe("/");
+  });
+
+  it("keeps heading levels contiguous", async () => {
     await render();
     const levels = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(
       (h) => Number(h.tagName[1]),
@@ -440,43 +458,34 @@ describe("banded listing page with no trail", () => {
     expect(h1s).toHaveLength(1);
     expect(h1s[0].textContent).toBe("Latest Posts");
   });
-
-  it("emits no breadcrumb landmark", async () => {
-    // The one that matters. A trail here would claim a level above a listing
-    // whose page 1 is the home page, and it would be a nav landmark and a tab
-    // stop announcing a hierarchy that does not exist. This fails if a future
-    // change makes the band render its trail unconditionally again.
-    await render();
-    expect(
-      document.querySelectorAll('nav[aria-label="Breadcrumb"]'),
-    ).toHaveLength(0);
-  });
 });
 
-describe("home, whose band carries a masthead rather than a heading", () => {
-  // Home is the one wide page with no page-level h1, because its h1 is the
-  // hero post title in the column below. The band names the site instead, as
-  // two plain paragraphs, and the assertions here are what stop that masthead
-  // quietly becoming a heading later.
+describe("home, whose band carries the masthead as its h1", () => {
+  // The masthead is home's h1 and the hero below it is an h2, so the outline
+  // reads site name, hero, Latest Posts, cards. The two assertions below fail
+  // if either half is reverted on its own, which is the failure worth
+  // guarding: the masthead was a <p> precisely to protect a hero h1 that no
+  // longer exists, so putting one back without demoting the other gives the
+  // page two h1s and nothing complains at runtime.
   const render = () =>
     renderPage(
       <RootLayout>
         <BrowsePage
           header={
             <>
-              <p className="site-masthead font-display text-4xl leading-tight md:text-5xl lg:text-6xl">
+              <h1 className="site-masthead mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
                 {SITE_TITLE}
-              </p>
-              <p className="mt-3 max-w-3xl text-lg leading-relaxed">
+              </h1>
+              <p className="max-w-3xl text-lg leading-relaxed">
                 A description of the site.
               </p>
             </>
           }
         >
           <section className="mx-auto max-w-5xl mb-section">
-            <h1>
+            <h2>
               <a href="/posts/a">Post a</a>
-            </h1>
+            </h2>
             <p>Excerpt for post a.</p>
           </section>
           <MoreStories
@@ -492,14 +501,19 @@ describe("home, whose band carries a masthead rather than a heading", () => {
     expectNoViolations(await render());
   });
 
-  it("has exactly one h1, and it is the hero post rather than the masthead", async () => {
-    // Fails the moment someone promotes the masthead to a heading, which is
-    // the tempting change: it looks like a page title and it is not one.
+  it("has exactly one h1, and it is the masthead", async () => {
     await render();
     const h1s = [...document.querySelectorAll("h1")];
     expect(h1s).toHaveLength(1);
-    expect(h1s[0].textContent).toBe("Post a");
-    expect(h1s[0].querySelector('a[href="/posts/a"]')).not.toBeNull();
+    expect(h1s[0].textContent).toBe(SITE_TITLE);
+    expect(h1s[0].classList.contains("site-masthead")).toBe(true);
+  });
+
+  it("renders the hero title as an h2, still linked to its post", async () => {
+    await render();
+    const hero = document.querySelector("main h2 a");
+    expect(hero).not.toBeNull();
+    expect(hero!.getAttribute("href")).toBe("/posts/a");
   });
 
   it("keeps heading levels contiguous below a band with no heading in it", async () => {

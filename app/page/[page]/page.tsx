@@ -3,10 +3,11 @@ import { draftMode } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
 import TaxonomyListing from "../../taxonomy-listing";
+import { type Crumb } from "../../breadcrumb";
 
 import { getAllPosts } from "@/lib/api";
 import { visibleTagSlugs } from "@/lib/tags";
-import { SITE_URL } from "@/lib/constants";
+import { SITE_URL, INDEX_STANDFIRST } from "@/lib/constants";
 import {
   pageItems,
   pageRangeParams,
@@ -67,12 +68,22 @@ export default async function IndexPage({
 
   const posts = pageItems(allPosts, pageNumber);
 
-  // No `crumbs`. Pagination sets basePath="/", so page 1 of this listing is the
-  // home page and there is no level above it to link to. No `emptyMessage`
-  // either, because the guard above 404s past the last page, so empty is
-  // unreachable and omitting the prop asserts that.
+  // Home is the only link in the trail, because the last crumb is never one.
+  // The earlier reasoning against a trail here assumed it would be, and so
+  // concluded that both crumbs would point at /. They do not. The page number
+  // stays out of it, since position is a state rather than a level and
+  // PageContext captions the list with it.
+  //
+  // No `emptyMessage`, because the guard above 404s past the last page, so
+  // empty is unreachable and omitting the prop asserts that.
+  const crumbs: Crumb[] = [
+    { label: "Home", href: "/" },
+    { label: "Latest Posts" },
+  ];
+
   return (
     <TaxonomyListing
+      crumbs={crumbs}
       posts={posts}
       currentPage={pageNumber}
       totalPages={totalPages}
@@ -83,9 +94,15 @@ export default async function IndexPage({
           on the index — and matching this page's own metadata title, which
           has always read "Latest Posts, Page N". The h1 was the only one of
           the three in sentence case. */}
-      <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
+      <h1 className="mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
         Latest Posts
       </h1>
+      {/* Never on / itself, where the band carries the site tagline instead. A
+          standfirst repeating across the pages of one listing is already how
+          every category reads. */}
+      <p className="max-w-3xl text-lg leading-relaxed text-pretty">
+        {INDEX_STANDFIRST}
+      </p>
     </TaxonomyListing>
   );
 }

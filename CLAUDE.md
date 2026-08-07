@@ -241,14 +241,18 @@ accessibility audit; do not restore any. Each file carries its reasoning.
 - **On `/search` the wrapper sits before the `<section>`**, not inside it:
   `.search-empty` must stay the immediate next sibling of `.pagefind-scope` for
   the emblem's `:has()` rule to fire.
-- **`/page/[page]` has none on purpose: there is nothing to link to.** The
-  pagination sets `basePath="/"`, so page 1 of this listing _is_ the home page.
-  "Latest Posts" is a component of Home, not a level beneath it — which is why
-  it renders as a section `h2` on `/` and becomes the `h1` only from page 2. A
-  trail would either point both crumbs at `/`, or claim page 2 is the section
-  while page 1 sits at a different URL. By contrast `/about`, `/privacy`,
-  `/search` and `/archive` carry two crumbs, a parent and the current page,
-  which is the minimum rather than a shallow special case.
+- **`/page/[page]` carries Home / Latest Posts, and the argument against it was
+  wrong.** It shipped trail-less on the reasoning that a trail would point both
+  crumbs at `/`, since the pagination sets `basePath="/"` and page 1 of this
+  listing _is_ the home page. That assumed a linked final crumb, which is not
+  the convention here: the last crumb is never a link, exactly as
+  `/categories/side-quests/page/2` renders Home / Categories / Side Quests with
+  only the first two linked. So the trail is one link and the objection was to a
+  shape this site does not build. What still holds is that the page number stays
+  out of the trail — position is a state rather than a level, which is why the
+  crumb says Latest Posts and not Page 2, and why "Latest Posts" renders as a
+  section `h2` on `/` and becomes the `h1` only from page 2. `/about`,
+  `/privacy`, `/search` and `/archive` carry the same two-crumb minimum.
 - **Position is carried separately** by `app/page-context.tsx`, a muted "Page N
   of M" captioning the list — which is why paginated category, tag and author
   chains stop at the section. Do not add page numbers to those chains.
@@ -511,16 +515,21 @@ that grid at the article's full `max-w-5xl`, so a post is a wide page whose
 body happens to be narrow. `/search` is the mirror case: it browses posts by
 function and is narrow by shape, and shape decides.
 
-**Home is the one wide page whose band carries a masthead rather than an
-`h1`.** Its `h1` is the hero post title down in the column, and that is where
-it stays — the band's two lines are `SITE_TITLE` at the display ramp and
-`SITE_DESCRIPTION` beneath it, both plain paragraphs. Neither is a heading,
-which would take the `h1` off the hero post, and neither is a link, which would
-point at the page the reader is already on, the same reason the last crumb is
-plain text. Home is the index whose subject is the whole site, so naming itself
-is what every other index already does. `lib/palette-contrast.test.ts` matches
-it on a `MASTHEAD` signature and holds that signature by name, because home is
-the one route whose file contains a heading that is _not_ in its band.
+**Home's band carries the site masthead, and that masthead is its `h1`.**
+`SITE_TITLE` at the display ramp with `SITE_DESCRIPTION` as the standfirst
+beneath it, so home matches the ordinary `HEADING` and `STANDFIRST` signatures
+like every other route. It stays unlinked, because a link on `/` points at the
+page the reader is already on, the same reason the last crumb is plain text.
+Home is the index whose subject is the whole site, so naming itself is what
+every other index already does.
+
+The masthead shipped first as a `<p>`, to protect an `h1` that then sat on the
+hero post. That cost a weight bug as well as an outline: the base-layer rule in
+`app/globals.css` sets `font-weight: 700` on `h1, h2, h3` only, so a `<p>` in
+the display face rendered at 400 against the 700 of the headlines under it.
+**Do not add a weight class to fix that** — the element being a heading is the
+mechanism. The hero below is an `h2`, so the two halves must move together, and
+`app/a11y.test.tsx` fails if either is reverted on its own.
 
 All sixteen routes are now on the axis.
 
@@ -631,12 +640,13 @@ at identical coordinates sitewide.
   scroll listener, an `IntersectionObserver` or a mark to fill the gap.
   `app/a11y.test.tsx` asserts the rule in two halves, because jsdom applies no
   stylesheet and cannot evaluate `:has()` itself.
-- **`crumbs` is optional on the band**, because one banded route has nothing
-  above it. `/page/[page]` and `/` are one listing at two offsets and both are
-  the root, so neither carries a trail. Without a trail the `h1` starts at the
-  top of the band's inset instead of below a nav carrying `mb-4`, which is the
-  honest position rather than a regression. `app/a11y.test.tsx` asserts a
-  trail-less band emits no breadcrumb landmark.
+- **`crumbs` is optional on the band**, and `/` is the only route using that.
+  Home is the root and has nothing above it, so without a trail its `h1` starts
+  at the top of the band's inset instead of below a nav carrying `mb-4`, which
+  is the honest position rather than a regression. `app/a11y.test.tsx` asserts a
+  trail-less band emits no breadcrumb landmark. Keep the prop optional;
+  `/page/[page]` carries a trail again, but that is the route changing its mind,
+  not the prop losing its reason.
 - **An author's bio renders in the band**, like every other browse page's
   standfirst. The only thing `RichText` needs on navy is a link treatment:
   crimson is 1.35:1 here, so `.band-prose` in `app/globals.css` underlines
