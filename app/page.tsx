@@ -6,11 +6,11 @@ import Date from "./date";
 import CoverImage from "./cover-image";
 import Avatar from "./avatar";
 import BrowsePage from "./browse-page";
-import MoreStories from "./more-stories";
+import MoreStories, { TagRow } from "./more-stories";
 import Pagination from "./pagination";
 
 import { getAllPosts } from "@/lib/api";
-import { visibleTagSlugs } from "@/lib/tags";
+import { postTags, visibleTagSlugs } from "@/lib/tags";
 import {
   POSTS_PER_PAGE,
   SITE_URL,
@@ -27,6 +27,7 @@ import type {
   Author,
   Category,
   CoverImage as CoverImageType,
+  Tag,
 } from "@/lib/types";
 import { widont } from "@/lib/typography";
 
@@ -39,6 +40,7 @@ function HeroPost({
   author,
   slug,
   category,
+  tags,
   transitionName,
 }: {
   title: string;
@@ -49,6 +51,8 @@ function HeroPost({
   author?: Author;
   slug: string;
   category?: Category;
+  /** Already filtered to tags with a live page, exactly as a card's are. */
+  tags: Tag[];
   transitionName?: string;
 }) {
   const showUpdated = updatedDate && updatedDate !== date;
@@ -87,8 +91,14 @@ function HeroPost({
   // is now the first painted image in document order as well, so it is
   // preloaded exactly as before and contentful-image.tsx still opens it at its
   // `instant` reveal state rather than waiting on hydration.
+  //
+  // The bottom margin is the listing item's own py-10 md:py-12, so the hero
+  // sits exactly as far above the opening rule as every card sits above the
+  // hairline below it. It was mb-section, 64px, which is the gap between two
+  // page sections and left a visible hole under the pills once the hero
+  // stopped being one.
   return (
-    <section className="mx-auto max-w-5xl mb-section">
+    <section className="mx-auto max-w-5xl mb-10 md:mb-12">
       {coverImage && (
         <div className="mb-8 md:mb-10">
           <CoverImage
@@ -102,9 +112,11 @@ function HeroPost({
         </div>
       )}
       <div>
-        {/* An h2, so home's outline reads site name, hero, Latest Posts,
-            cards. That is what makes the masthead structurally the top of the
-            page rather than only visually it.
+        {/* An h2, and so is every card title below, because the listing no
+            longer renders a heading of its own. Home's outline is the site
+            name at h1 and then one flat list of siblings, which is what makes
+            the masthead structurally the top of the page rather than only
+            visually it.
 
             One step above a list card's text-2xl md:text-3xl and two below the
             masthead's ramp, which is the "closer to the card" end of the gap.
@@ -129,6 +141,19 @@ function HeroPost({
             />
           </div>
         )}
+        {/* Last, which is the same rule a card follows and not the same
+            position. more-stories.tsx puts pills below the excerpt because a
+            count that varies from one to three should land at the foot of the
+            card where it pushes nothing around. A card's date sits above its
+            excerpt and this hero's byline sits below one, so the foot here is
+            after the byline. The two components order their middles
+            differently on purpose.
+
+            mt-6 rather than the card's mt-3, because what sits above differs
+            too. A card's pills follow a text baseline, whereas these follow a
+            40px avatar block, and 12px under that read as the pills belonging
+            to the byline rather than to the post. */}
+        <TagRow tags={tags} className="mt-6" />
       </div>
     </section>
   );
@@ -149,9 +174,17 @@ export default async function Page() {
   // entire view transition). First occurrence — the hero — wins.
   const coverName = createCoverNamer();
 
+  // Computed once and shared. The hero and the cards must agree on which tags
+  // have a live page, and two calls could only ever diverge — a tag hidden on
+  // a card and shown on the hero would be worse than showing none at all.
+  const visibleTags = visibleTagSlugs(allPosts);
+
   return (
-    // No crumbs, because this is the root, and no bleed, because the hero
-    // leads with its title rather than its cover and has nothing to pull up.
+    // No crumbs, because this is the root. No bleed either, so the hero's
+    // cover sits below the band on cream rather than crossing its edge. Only
+    // the post page bleeds. Whether home should follow now that its hero leads
+    // with a cover is a design call nobody has taken, not a gap left here by
+    // accident.
     //
     // The band carries the site masthead, which is what every other index does
     // with the site as its subject. It is home's h1 now that the hero below is
@@ -190,15 +223,27 @@ export default async function Page() {
           slug={heroPost.slug}
           excerpt={heroPost.excerpt}
           category={heroPost.category}
+          tags={postTags(heroPost).filter((t) => visibleTags.has(t.slug))}
           transitionName={coverName(heroPost.slug)}
         />
       )}
+      {/* No `heading`. With the hero already an h2 the heading was furniture
+          between two things that are now siblings, and MoreStories reads its
+          absence as "the page h1 is my parent", so the card titles step up to
+          h2 and the whole index becomes one flat list. The rule above the
+          first card still separates them: openRule defaults true here, and the
+          gap above it is the hero's own bottom margin, which the heading never
+          contributed to. Its mb-8 only ever sat between itself and the first
+          card.
+
+          This is also what finally makes home and /page/2 the same shape.
+          They now differ only in what the band says. */}
       <MoreStories
         morePosts={morePosts}
         variant="list"
-        heading="Latest Posts"
+        heading={null}
         coverName={coverName}
-        visibleTags={visibleTagSlugs(allPosts)}
+        visibleTags={visibleTags}
       />
       <Pagination currentPage={1} totalPages={totalPages} basePath="/" />
     </BrowsePage>
