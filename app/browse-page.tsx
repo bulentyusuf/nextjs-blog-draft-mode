@@ -17,10 +17,11 @@ import { type Crumb } from "./breadcrumb";
  *
  * So the vertical rhythm of a browse page is defined once, here:
  *
- *   band      py-8 md:py-10   symmetric, because the band is a block and an
- *                             uneven inset reads as a mistake rather than a
- *                             hierarchy
- *   gap       pt-6 md:pt-8    cream, band edge to first content. Deliberately
+ *   band      py-8            flat, and equal to Container's own pt-8 so the
+ *                             breadcrumb starts the same distance below the
+ *                             sticky header on every page, banded or not.
+ *                             lib/listing-rhythm.test.ts holds the two equal
+ *   gap       pt-6            cream, band edge to first content. Deliberately
  *                             SMALLER than the band's own inset: the band has
  *                             already drawn the boundary, so this space only
  *                             has to stop the content touching it. It used to

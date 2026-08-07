@@ -539,16 +539,21 @@ neighbours.
   links and lets them take the band's white. That is WCAG 1.4.1, not taste —
   with the accent unavailable, colour cannot be the only thing marking a link.
   An earlier `intro` prop routed the bio onto cream to dodge this; it is gone.
+  The `intro` still in `app/categories/page.tsx` and its three siblings is
+  unrelated — it is the `getBrowseIntro` standfirst fetched from the CMS, not
+  the removed slot.
 - **The position caption is the band's last line**, not a line floating above
   the list. `app/page-context.tsx` carries why, including why the reasoning
   that once moved it out of the header no longer applies.
 - **Nothing inside the band names a text colour**, so everything takes white
   from the root. A `text-brand-muted` on a standfirst beats that inheritance
   and is the same defect one component further out — it left the category and
-  tag standfirsts dark on navy. A test slices the `<PageBand>` block on the
-  four section fronts and asserts the whole file on the four category/tag
-  routes. The two author routes are exempt: their bio is muted, on cream, via
-  `intro`.
+  tag standfirsts dark on navy. The guard in `lib/palette-contrast.test.ts`
+  matches the `h1` and standfirst signatures across all ten browse routes,
+  author pages included. It does **not** slice `<PageBand>`; that approach was
+  tried and stopped covering anything the moment the routes began composing
+  through `BrowsePage`, which is why it also asserts it found something rather
+  than passing on an empty match.
 - **Nothing inside the band changes the type or the spacing the page already
   had** — the `h1` ramp stays `text-4xl md:text-5xl lg:text-6xl`, the `h1`
   keeps its `mb-3`, and both breadcrumb tones keep `mb-4`. The band's `py-8` is
@@ -559,7 +564,7 @@ neighbours.
   rather than merely present. A tighter band and a tighter dark-tone trail both
   looked better in isolation and together shifted the heading 16px on every
   browse-to-post step. `lib/listing-rhythm.test.ts` holds both. The band
-  contributes exactly one thing, its `py-6 md:py-8` inset. A raised ramp and an
+  contributes exactly one thing, its flat `py-8` inset. A raised ramp and an
   extra `mt` on the header were both tried and reverted: the brief was a colour
   band behind the existing masthead, and resizing the headings was scope nobody
   asked for.
