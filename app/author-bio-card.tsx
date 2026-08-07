@@ -26,7 +26,11 @@ export default function AuthorBioCard({ author }: { author: Author }) {
           Written by
         </p>
         <p className="mt-1 text-xl font-bold text-brand-dark">{author.name}</p>
-        <div className="mt-2 text-sm text-brand-muted">
+        {/* text-base rather than text-sm. RichText returns bare elements with
+            no prose wrapper of its own and this card sits outside the post's
+            prose container, so the size set here is the size the bio's
+            paragraphs render at. */}
+        <div className="mt-2 text-base text-brand-muted">
           <RichText content={author.bio} headings={[]} />
         </div>
         {author.slug && (

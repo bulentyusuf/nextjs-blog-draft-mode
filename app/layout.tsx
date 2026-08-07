@@ -95,7 +95,13 @@ const literata = Literata({
 function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-brand-header shadow-xs">
-      <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
+      {/* min-h-13 is 52px, which is py-3's 24px plus the 28px line box the
+          text-lg wordmark establishes. It is here because the bar's height
+          must not be a function of which of its children happen to render.
+          Nothing else in the row is as tall — the nav links are text-sm at 20px
+          — so on home, where the wordmark hides, the bar was rendering 8px
+          shorter and the chrome changed height as the reader navigated. */}
+      <div className="max-w-5xl mx-auto px-5 py-3 min-h-13 flex items-center justify-between gap-4">
         {/* Both hide themselves on home, where the band names the site 60px
             below and the bar would say it twice. The rule is a :has() in
             globals.css rather than a usePathname, so this stays a server

@@ -79,6 +79,33 @@ describe("a banded page sits on the same grid as an unbanded one", () => {
   });
 });
 
+describe("the sticky bar's height does not depend on its contents", () => {
+  // Same family as the band inset above, one component further out. The bar
+  // sets padding and no height, and the wordmark is the tallest thing in the
+  // row, so on home — where a :has() rule hides it — the bar rendered 8px
+  // shorter and the chrome resized as the reader navigated. Nothing rendered
+  // wrongly, which is why only a measurement finds it.
+  const layout = read("app/layout.tsx");
+
+  it("pins a minimum height on the bar's inner row", () => {
+    expect(layout).toMatch(/px-5 py-3 min-h-13\b/);
+  });
+
+  it("that minimum is the padding plus the wordmark's line box", () => {
+    // Derivation, not a magic number: py-3 is 24px and the text-lg wordmark
+    // sets a 28px line box, so the row is 52px with or without it. Recompute
+    // this if either moves.
+    const pad = /py-(\d+) min-h-/.exec(layout);
+    const min = /min-h-(\d+)\b/.exec(layout);
+    expect(pad).not.toBeNull();
+    expect(min).not.toBeNull();
+    const WORDMARK_LINE_BOX_PX = 28;
+    expect(Number(min![1]) * 4).toBe(
+      Number(pad![1]) * 4 * 2 + WORDMARK_LINE_BOX_PX,
+    );
+  });
+});
+
 describe("the page under a band contributes no leading of its own", () => {
   it("the taxonomy listing declares contentOwnsLeading", () => {
     // The other half. With both the gap and the item padding, band-to-post
