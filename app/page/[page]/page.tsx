@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
-import Container from "../../container";
-import MoreStories from "../../more-stories";
-import Pagination from "../../pagination";
-import PageContext from "../../page-context";
+import TaxonomyListing from "../../taxonomy-listing";
 
 import { getAllPosts } from "@/lib/api";
 import { visibleTagSlugs } from "@/lib/tags";
@@ -70,30 +67,25 @@ export default async function IndexPage({
 
   const posts = pageItems(allPosts, pageNumber);
 
+  // No `crumbs`. Pagination sets basePath="/", so page 1 of this listing is the
+  // home page and there is no level above it to link to. No `emptyMessage`
+  // either, because the guard above 404s past the last page, so empty is
+  // unreachable and omitting the prop asserts that.
   return (
-    <Container>
-      <header className="mb-6 md:mb-8">
-        {/* Title case, matching the "Latest Posts" heading this page continues
-            on the index — and matching this page's own metadata title, which
-            has always read "Latest Posts, Page N". The h1 was the only one of
-            the three in sentence case. */}
-        <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-          Latest Posts
-        </h1>
-      </header>
-      <PageContext currentPage={pageNumber} totalPages={totalPages} />
-      <MoreStories
-        morePosts={posts}
-        variant="list"
-        heading={null}
-        priorityFirst
-        visibleTags={visibleTagSlugs(allPosts)}
-      />
-      <Pagination
-        currentPage={pageNumber}
-        totalPages={totalPages}
-        basePath="/"
-      />
-    </Container>
+    <TaxonomyListing
+      posts={posts}
+      currentPage={pageNumber}
+      totalPages={totalPages}
+      visibleTags={visibleTagSlugs(allPosts)}
+      basePath="/"
+    >
+      {/* Title case, matching the "Latest Posts" heading this page continues
+          on the index — and matching this page's own metadata title, which
+          has always read "Latest Posts, Page N". The h1 was the only one of
+          the three in sentence case. */}
+      <h1 className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
+        Latest Posts
+      </h1>
+    </TaxonomyListing>
   );
 }
