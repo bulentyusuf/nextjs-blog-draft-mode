@@ -250,8 +250,9 @@ accessibility audit; do not restore any. Each file carries its reasoning.
   only the first two linked. So the trail is one link and the objection was to a
   shape this site does not build. What still holds is that the page number stays
   out of the trail — position is a state rather than a level, which is why the
-  crumb says Latest Posts and not Page 2, and why "Latest Posts" renders as a
-  section `h2` on `/` and becomes the `h1` only from page 2. `/about`,
+  crumb says Latest Posts and not Page 2. "Latest Posts" is the `h1` from page
+  2 onward and appears nowhere on `/`, whose listing renders no heading at all.
+  `/about`,
   `/privacy`, `/search` and `/archive` carry the same two-crumb minimum.
 - **Position is carried separately** by `app/page-context.tsx`, a muted "Page N
   of M" captioning the list — which is why paginated category, tag and author
@@ -346,10 +347,16 @@ has no ordering), and why `MIN_POSTS_PER_TAG` is two. What that leaves for here:
   reasoning as the table of contents.
 - Pills sit below the article body, not in the `xl`-and-up sidebar where they
   would vanish on the viewports most people read on. They also appear on listing
-  cards on the home index and its pages and on category, author and tag pages —
-  **not** on the "Latest Posts" block at the foot of a post, which sits directly
+  cards on the home index and its pages and on category, author and tag pages,
+  and on the home hero, which is a listing item in everything but its component
+  — **not** on the "Read Next" block at the foot of a post, which sits directly
   under that post's own tags and would say the same thing twice in one viewport.
   `/search` renders Pagefind's client-side templates and holds no tag data.
+  There is one `TagRow`, exported from `app/more-stories.tsx`; the hero imports
+  it rather than carrying a second pill implementation. It sits **last** on the
+  hero and below the excerpt on a card, which is the same rule and not the same
+  position: a ragged pill count belongs at the foot, and the hero's byline is
+  below its excerpt where a card's date is above.
 - **Tag a post as part of publishing it.** The first untagged publish is the
   first ragged card.
 
@@ -530,6 +537,19 @@ the display face rendered at 400 against the 700 of the headlines under it.
 **Do not add a weight class to fix that** — the element being a heading is the
 mechanism. The hero below is an `h2`, so the two halves must move together, and
 `app/a11y.test.tsx` fails if either is reverted on its own.
+
+**Home and `/page/[page]` now render the same listing shape and differ only in
+what the band says.** Home passes no listing heading, so its outline is the
+site name at `h1` and then the hero and every card at `h2`, one flat list of
+siblings rather than a section above a section. That is the claim the axis has
+been making since `/page/[page]` was banded, and it is finally true.
+
+The mechanism to know about: **`MoreStories` sets its card titles to `h3` when
+it renders a section heading and `h2` when it does not.** So adding a heading
+back to any route silently re-levels every card on it, and removing one does
+the same in reverse. `app/a11y.test.tsx` asserts home's headings by _text_ as
+well as by level, because a reinstated heading is a perfectly contiguous `h2`
+and a level-only check sails past it.
 
 All sixteen routes are now on the axis.
 

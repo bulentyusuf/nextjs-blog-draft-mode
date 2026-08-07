@@ -22,7 +22,15 @@ type Variant = "grid" | "list";
 // labels of pure noise, and the pill shape already reads as a tag. Screen
 // readers still need the row named, hence the label — without it this is an
 // unexplained list of links on every card.
-function TagRow({ tags, className }: { tags: Tag[]; className: string }) {
+// Exported for the home hero, which is a listing item in everything but its
+// component. One pill implementation means the pill changes in one place.
+export function TagRow({
+  tags,
+  className,
+}: {
+  tags: Tag[];
+  className: string;
+}) {
   if (tags.length === 0) return null;
 
   return (

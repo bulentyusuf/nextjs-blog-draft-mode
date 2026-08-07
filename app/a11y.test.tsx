@@ -461,12 +461,16 @@ describe("the index listing, which carries a trail again", () => {
 });
 
 describe("home, whose band carries the masthead as its h1", () => {
-  // The masthead is home's h1 and the hero below it is an h2, so the outline
-  // reads site name, hero, Latest Posts, cards. The two assertions below fail
-  // if either half is reverted on its own, which is the failure worth
-  // guarding: the masthead was a <p> precisely to protect a hero h1 that no
-  // longer exists, so putting one back without demoting the other gives the
-  // page two h1s and nothing complains at runtime.
+  // The masthead is home's h1 and everything below it is an h2, hero and cards
+  // alike, because the listing renders no heading of its own. One flat list of
+  // siblings under one page title.
+  //
+  // The assertions fail if any half is reverted on its own, which is the
+  // failure worth guarding: the masthead was a <p> precisely to protect a hero
+  // h1 that no longer exists, so putting one back without demoting the other
+  // gives the page two h1s and nothing complains at runtime. Reinstating the
+  // listing heading is the same shape of mistake from the other end, since
+  // MoreStories silently re-levels every card title when one is present.
   const render = () =>
     renderPage(
       <RootLayout>
@@ -491,7 +495,7 @@ describe("home, whose band carries the masthead as its h1", () => {
           <MoreStories
             morePosts={[post("b"), post("c")]}
             variant="list"
-            heading="Latest Posts"
+            heading={null}
           />
         </BrowsePage>
       </RootLayout>,
@@ -499,6 +503,28 @@ describe("home, whose band carries the masthead as its h1", () => {
 
   it("has no axe violations", async () => {
     expectNoViolations(await render());
+  });
+
+  it("renders no Latest Posts heading", async () => {
+    // Text, not level. A bare level check passes if someone reinstates the
+    // heading as an h2, which is exactly what MoreStories would emit.
+    await render();
+    const headings = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(
+      (h) => h.textContent?.trim(),
+    );
+    expect(headings).not.toContain("Latest Posts");
+  });
+
+  it("puts the hero and every card title at the same level", async () => {
+    // The point of dropping the heading. The hero stops being a section with
+    // its own level and becomes the first entry in one list.
+    await render();
+    const main = document.querySelector("main")!;
+    const levels = [...main.querySelectorAll("h2,h3")].map((h) =>
+      Number(h.tagName[1]),
+    );
+    expect(levels.length).toBeGreaterThan(1);
+    expect(new Set(levels)).toEqual(new Set([2]));
   });
 
   it("has exactly one h1, and it is the masthead", async () => {
