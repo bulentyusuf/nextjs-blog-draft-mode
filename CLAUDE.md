@@ -236,7 +236,8 @@ accessibility audit; do not restore any. Each file carries its reasoning.
   whose content is also `max-w-5xl` render `<Breadcrumb>` unwrapped; pages in a
   `max-w-2xl` column wrap it in `<div className="mx-auto max-w-2xl">`, or it
   starts 176px left of the heading it labels. Any new narrow page needs the
-  wrapper — same split as "Two h1 treatments" below.
+  wrapper — same split as "One axis, and it is the header measure" below, which
+  is where the assignment lives.
 - **On `/search` the wrapper sits before the `<section>`**, not inside it:
   `.search-empty` must stay the immediate next sibling of `.pagefind-scope` for
   the emblem's `:has()` rule to fire.
@@ -480,18 +481,43 @@ resizes on any body-face swap — Inter's zero is 0.6309em against Literata's
 `app/globals.measure.test.ts` guards the override and the absence of any
 `ch`-measured column.
 
-### Two h1 treatments, chosen by column width
+### One axis, and it is the header measure
 
-Full-width browsing and content pages (home, posts, archive, categories, tags,
-authors, pagination) use the full ramp:
-`text-4xl leading-tight md:text-5xl lg:text-6xl`. Narrow document pages in a
-`max-w-2xl` column (about, privacy, search) cap at `mb-6 text-4xl md:text-5xl`,
-no `leading-tight` — a 6xl heading in a 42rem measure looks enormous despite
-identical classes, and that mismatch is the tell. Any new page picks the
-treatment matching its column, not the nearest existing h1. The same
-`max-w-5xl` versus `max-w-2xl` split governs breadcrumb placement.
+Whether a page's breadcrumb and `h1` sit at `max-w-5xl` or inside a
+`max-w-2xl` column decides three things at once: the breadcrumb wrapper, the
+`h1` ramp, and the band. A route is wide or narrow and everything follows.
+There is no second question and no route that can sit half in each.
 
-### Browsing pages wear a navy band; reading pages stay on cream
+**Wide.** Header at `max-w-5xl`, `<Breadcrumb>` unwrapped, `h1` at
+`text-4xl leading-tight md:text-5xl lg:text-6xl`, navy band.
+
+`/`, `/page/[page]`, `/posts/[slug]`, `/archive`, `/categories`, `/tags`,
+`/authors`, and the six taxonomy listings. Thirteen routes.
+
+**Narrow.** Header wrapped in `mx-auto max-w-2xl`, `h1` at
+`mb-6 text-4xl md:text-5xl` with no `leading-tight`, no band.
+
+`/about`, `/privacy`, `/search`. Three routes.
+
+A 6xl heading in a 42rem measure looks enormous despite carrying identical
+classes, and that mismatch is the tell that a page took the wrong treatment. An
+unwrapped breadcrumb on a narrow page starts 176px left of the heading it
+labels, which is the same tell from the other end. Any new page picks its
+treatment from its own measure, not from the nearest existing h1.
+
+**The measure is the header's, not the prose's.** A post's body narrows to
+`max-w-2xl` inside an `xl:grid`, but its breadcrumb, `h1` and cover sit above
+that grid at the article's full `max-w-5xl`, so a post is a wide page whose
+body happens to be narrow. `/search` is the mirror case: it browses posts by
+function and is narrow by shape, and shape decides.
+
+**Three routes are not yet on the axis.** `/`, `/page/[page]` and
+`/posts/[slug]` are wide and unbanded at the time of writing. They are being
+brought over one PR at a time; delete each from this paragraph as it lands.
+They are outstanding work, not exceptions, and nothing new should be built
+against them as though they were.
+
+### How the band is built
 
 **`app/browse-page.tsx` is the one shell all ten browsing routes render
 through** — the four section fronts and the six taxonomy listings, the latter
@@ -503,12 +529,24 @@ colour each shipped to one half only. Do not add an eleventh browse route that
 assembles `PageBand` and `Container` itself.
 
 `app/page-band.tsx` is the full-bleed masthead inside that shell, holding the
-breadcrumb, `h1` and standfirst. The component carries the argument; what
-matters here is the axis: **it tracks what the reader is doing, not how deep
-they have clicked**, so a navy-to-cream step never happens without also
-crossing from a list into an article. Home, post, about, privacy and search are
-deliberately unbanded, each for a reason set out in the component or its
-neighbours.
+breadcrumb, `h1` and standfirst. Which routes wear it is settled by "One axis,
+and it is the header measure" above, not here.
+
+That axis replaced an earlier one, browsing versus reading, and the reason is
+worth keeping. The browsing-reading distinction is real, but the reader does not
+need a 200px colour field to perceive it because the content says it on arrival.
+What colour can usefully mark is the measure, because the measure is the thing
+that changes the shape of the page. Under the old axis a navy-to-cream step
+meant either the column narrowed or the reader crossed from a list into an
+article, two things that correlate on most navigations but not all. That is the
+inconsistency a reader feels before they can name it.
+
+Do not reintroduce a second axis, and **do not band a narrow route**. Giving
+`PageBand` a narrow `measure` prop so `/about` could band was proposed and
+rejected: it would push the band across the only boundary the band exists to
+mark. The band's inner column is always `max-w-5xl`, which matches `Container`
+on every page it appears on, and that is what makes the trail and heading land
+at identical coordinates sitewide.
 
 - **`--color-brand-band` is lifted in dark mode, and what stays fixed is the
   step between the bar and the band** — 1.60:1 light, 1.55:1 dark, band darker
