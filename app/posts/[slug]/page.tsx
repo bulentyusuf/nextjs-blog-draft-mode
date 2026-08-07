@@ -1,6 +1,6 @@
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
-import Container from "../../container";
+import BrowsePage from "../../browse-page";
 import MoreStories from "../../more-stories";
 import Avatar from "../../avatar";
 import Date from "../../date";
@@ -15,7 +15,7 @@ import TableOfContents from "../../table-of-contents";
 import ExploreWithAI from "../../explore-with-ai";
 import AuthorBioCard from "../../author-bio-card";
 import TagPill from "../../tag-pill";
-import Breadcrumb, { type Crumb } from "../../breadcrumb";
+import { type Crumb } from "../../breadcrumb";
 import {
   SITE_URL,
   SITE_AUTHOR,
@@ -181,7 +181,36 @@ export default async function PostPage({
     : [{ label: "Home", href: "/" }, { label: post.title }];
 
   return (
-    <Container>
+    // The band's contents are the trail and the title, and the excerpt stays
+    // where it is. A listing standfirst describes a collection to someone
+    // deciding whether to enter it, whereas a post excerpt introduces an
+    // article to a reader who has already arrived. With the cover crossing the
+    // edge the band reads as trail, title, top of the picture, which is a
+    // complete masthead rather than a shortened one.
+    //
+    // `bleed` tracks the cover, because it exists to make room for one. A post
+    // without a cover has nothing to pull up and takes the ordinary inset.
+    <BrowsePage
+      crumbs={crumbs}
+      bleed={Boolean(post.coverImage)}
+      contentOwnsLeading
+      header={
+        // data-pagefind-body a second time, because the h1 has left the
+        // article and Pagefind indexes only what sits inside a body region.
+        // meta.title survives without this, since Pagefind reads the page's
+        // first h1 wherever it is, so the regression is invisible in the
+        // results list. What is lost is the title's WORDS, which drop out of
+        // the searchable text and take every title-only term with them.
+        // Pagefind concatenates multiple body regions into one fragment, so
+        // this restores the index to exactly what it held before the move.
+        <h1
+          data-pagefind-body
+          className="text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty"
+        >
+          {widont(post.title)}
+        </h1>
+      }
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
@@ -200,12 +229,12 @@ export default async function PostPage({
         data-url={`/posts/${slug}`}
         className="mx-auto max-w-5xl"
       >
-        <Breadcrumb items={crumbs} />
-        <h1 className="mb-8 text-4xl leading-tight md:text-5xl lg:text-6xl text-pretty">
-          {widont(post.title)}
-        </h1>
+        {/* relative so the cover paints above the band rather than under it.
+            The -mt-16 is the 64px the band's pb-24 was deepened to absorb, so
+            the body below sits exactly where it always did and only the navy
+            behind the cover's top is new. */}
         {post.coverImage && (
-          <div className="mb-10">
+          <div className="relative -mt-16 mb-10">
             <CoverImage
               url={post.coverImage.url}
               wide
@@ -322,6 +351,6 @@ export default async function PostPage({
           coverName={coverName}
         />
       </div>
-    </Container>
+    </BrowsePage>
   );
 }

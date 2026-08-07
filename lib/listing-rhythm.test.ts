@@ -42,14 +42,32 @@ describe("a banded page sits on the same grid as an unbanded one", () => {
   // band alone at one point, which moved the heading 16px on desktop and 20px
   // on mobile every time the reader crossed between the two.
 
-  it("the band's inset equals Container's default top padding", () => {
-    const band = /px-5 (py-\d+)/.exec(read("app/page-band.tsx"));
+  it("the band's top inset equals Container's default top padding", () => {
+    // Targeted at pt- specifically, which is the value this was always about.
+    // It read `py-` until the bottom became variable, and a py-only pattern
+    // fails open against a split inset: it matches nothing and passes, or it
+    // matches a py- that no longer describes the bottom at all.
+    const band = /px-5 pt-(\d+)/.exec(read("app/page-band.tsx"));
     expect(band).not.toBeNull();
-    const container = /default: "(pt-\d+)"/.exec(read("app/container.tsx"));
+    const container = /default: "pt-(\d+)"/.exec(read("app/container.tsx"));
     expect(container).not.toBeNull();
-    // py-8 against pt-8: the same number, so the breadcrumb starts at the same
-    // distance below the sticky header on every page.
-    expect(band![1].replace("py-", "")).toBe(container![1].replace("pt-", ""));
+    // The same number, so the breadcrumb starts at the same distance below the
+    // sticky header on every page.
+    expect(band![1]).toBe(container![1]);
+  });
+
+  it("the bleed variant only ever deepens the bottom", () => {
+    // The overlap is the whole point of the variant, and it exists only while
+    // the bottom is bigger than the top. Equal values would still render, look
+    // almost right, and silently leave the cover with no navy to sit on.
+    const source = read("app/page-band.tsx");
+    const top = /px-5 pt-(\d+)/.exec(source);
+    const bleed = /bleed \? "pb-(\d+)" : "pb-(\d+)"/.exec(source);
+    expect(bleed).not.toBeNull();
+    // The unbled bottom stays equal to the top, which is what keeps every
+    // other banded route rendering the inset it always had.
+    expect(bleed![2]).toBe(top![1]);
+    expect(Number(bleed![1])).toBeGreaterThan(Number(top![1]));
   });
 
   it("both breadcrumb tones keep the same bottom margin", () => {
