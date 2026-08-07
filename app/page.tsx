@@ -91,8 +91,14 @@ function HeroPost({
   // is now the first painted image in document order as well, so it is
   // preloaded exactly as before and contentful-image.tsx still opens it at its
   // `instant` reveal state rather than waiting on hydration.
+  //
+  // The bottom margin is the listing item's own py-10 md:py-12, so the hero
+  // sits exactly as far above the opening rule as every card sits above the
+  // hairline below it. It was mb-section, 64px, which is the gap between two
+  // page sections and left a visible hole under the pills once the hero
+  // stopped being one.
   return (
-    <section className="mx-auto max-w-5xl mb-section">
+    <section className="mx-auto max-w-5xl mb-10 md:mb-12">
       {coverImage && (
         <div className="mb-8 md:mb-10">
           <CoverImage
@@ -141,8 +147,13 @@ function HeroPost({
             card where it pushes nothing around. A card's date sits above its
             excerpt and this hero's byline sits below one, so the foot here is
             after the byline. The two components order their middles
-            differently on purpose. */}
-        <TagRow tags={tags} className="mt-3" />
+            differently on purpose.
+
+            mt-6 rather than the card's mt-3, because what sits above differs
+            too. A card's pills follow a text baseline, whereas these follow a
+            40px avatar block, and 12px under that read as the pills belonging
+            to the byline rather than to the post. */}
+        <TagRow tags={tags} className="mt-6" />
       </div>
     </section>
   );
@@ -221,7 +232,7 @@ export default async function Page() {
           absence as "the page h1 is my parent", so the card titles step up to
           h2 and the whole index becomes one flat list. The rule above the
           first card still separates them: openRule defaults true here, and the
-          gap above it is the hero's own mb-section, which the heading never
+          gap above it is the hero's own bottom margin, which the heading never
           contributed to. Its mb-8 only ever sat between itself and the first
           card.
 
