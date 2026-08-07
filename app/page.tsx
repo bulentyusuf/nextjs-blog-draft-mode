@@ -77,17 +77,47 @@ function HeroPost({
     </>
   );
 
+  // Cover first, then headline, excerpt and byline. In the old order this was
+  // a post page's masthead rendered on the index — same elements, same order,
+  // same scale — so home read as a preview of the article rather than as the
+  // top of a list. The band above made that unmissable by putting a real
+  // masthead directly over a masthead-shaped block that is not one.
+  //
+  // The cover keeps `wide` and `priority`. It is still the LCP element and it
+  // is now the first painted image in document order as well, so it is
+  // preloaded exactly as before and contentful-image.tsx still opens it at its
+  // `instant` reveal state rather than waiting on hydration.
   return (
     <section className="mx-auto max-w-5xl mb-section">
+      {coverImage && (
+        <div className="mb-8 md:mb-10">
+          <CoverImage
+            slug={slug}
+            url={coverImage.url}
+            wide
+            priority
+            transitionName={transitionName}
+            sizes="(max-width: 768px) 100vw, 1024px"
+          />
+        </div>
+      )}
       <div>
-        <h1 className="mb-4 text-4xl md:text-5xl lg:text-6xl leading-tight text-pretty">
+        {/* An h2, so home's outline reads site name, hero, Latest Posts,
+            cards. That is what makes the masthead structurally the top of the
+            page rather than only visually it.
+
+            One step above a list card's text-2xl md:text-3xl and two below the
+            masthead's ramp, which is the "closer to the card" end of the gap.
+            At the wide h1 ramp it carried before, this was the same size as a
+            post page's own headline, which is the whole reason it read as one. */}
+        <h2 className="mb-4 text-3xl md:text-4xl leading-tight text-pretty">
           <Link
             href={`/posts/${slug}`}
             className="hover:text-brand-crimson transition-colors duration-200"
           >
             {widont(title)}
           </Link>
-        </h1>
+        </h2>
         <p className="text-lg leading-relaxed mb-6 text-pretty">{excerpt}</p>
         {author && (
           <div className="flex items-center">
@@ -100,18 +130,6 @@ function HeroPost({
           </div>
         )}
       </div>
-      {coverImage && (
-        <div className="mt-8 md:mt-10">
-          <CoverImage
-            slug={slug}
-            url={coverImage.url}
-            wide
-            priority
-            transitionName={transitionName}
-            sizes="(max-width: 768px) 100vw, 1024px"
-          />
-        </div>
-      )}
     </section>
   );
 }
@@ -135,24 +153,28 @@ export default async function Page() {
     // No crumbs, because this is the root, and no bleed, because the hero
     // leads with its title rather than its cover and has nothing to pull up.
     //
-    // Home is the one wide page with no page-level h1 of its own, since its h1
-    // is the hero post title down in the column. So the band carries the site
-    // masthead instead, which is what every other index does with the site as
-    // its subject. Neither element is a heading or a link. A heading would take
-    // the h1 away from the hero post, and a link would point at the page the
+    // The band carries the site masthead, which is what every other index does
+    // with the site as its subject. It is home's h1 now that the hero below is
+    // an h2, so the outline and the visual hierarchy finally say the same
+    // thing. It stays unlinked, because a link on / points at the page the
     // reader is already on, which is why the last breadcrumb crumb is plain
     // text too. The bar's own wordmark hides itself here through a rule in
     // globals.css, so the name is said once rather than twice within 100px.
+    //
+    // No font-display and no weight class. The base-layer rule in globals.css
+    // gives h1 both, and as a <p> this rendered at 400 against the 700 of the
+    // post headlines under it, which is what a per-component override would
+    // have papered over.
     //
     // Neither element names a colour. Both take white from the band's root, as
     // every other band's contents do.
     <BrowsePage
       header={
         <>
-          <p className="site-masthead font-display text-4xl leading-tight md:text-5xl lg:text-6xl">
+          <h1 className="site-masthead mb-3 text-4xl leading-tight md:text-5xl lg:text-6xl">
             {SITE_TITLE}
-          </p>
-          <p className="mt-3 max-w-3xl text-lg leading-relaxed">
+          </h1>
+          <p className="max-w-3xl text-lg leading-relaxed">
             {SITE_DESCRIPTION}
           </p>
         </>
