@@ -56,6 +56,38 @@
   }
 }
 
+/* The site name, in its two places. Home carries it in the band as a masthead,
+   every other page carries it in the sticky bar, and the rule below means they
+   never coexist — so one name is unique per document, which is what the spec
+   requires and what a duplicate would otherwise invalidate the whole transition
+   over.
+
+   Set and left alone. Firefox ships no cross-document view transitions, the
+   block above disables the animation entirely under reduced motion, and the
+   design has to read from the two static states regardless, so tuning a
+   duration here would be guesswork against something a large share of readers
+   never see. */
+.site-masthead,
+.site-wordmark {
+  view-transition-name: site-wordmark;
+}
+
+/* Home names itself in the band, so the bar would repeat it about 60px above.
+   A :has() rather than a usePathname keeps the header a server component and
+   ships no JS for it, which is the same trade the transitions above take.
+
+   display: none rather than visibility: hidden, and that is load-bearing. A
+   hidden element still carries its view-transition-name, so it would collide
+   with the masthead's and invalidate the transition. A display: none element
+   does not participate in one at all.
+
+   The tagline goes with it. Leaving a description in the bar underneath a
+   masthead repeating it is the duplication this exists to remove. Unlayered on
+   purpose, so it outranks the utilities the tagline carries. */
+body:has(.site-masthead) :is(.site-wordmark, .site-tagline) {
+  display: none;
+}
+
 @theme {
   /* Two faces, three jobs. Display is headings and mastheads. Body is
      everything you read, prose and the meta around it. UI is the display face
